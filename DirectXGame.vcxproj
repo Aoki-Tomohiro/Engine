@@ -235,6 +235,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Utilities\RandomGenerator.cpp" />
     <ClCompile Include="Engine\Utilities\ShaderCompiler.cpp" />
     <ClCompile Include="Project\Game\GameManager.cpp" />
+    <ClCompile Include="Project\Object\Boss\Boss.cpp" />
+    <ClCompile Include="Project\Object\FollowCamera\FollowCamera.cpp" />
+    <ClCompile Include="Project\Object\Ground\Ground.cpp" />
+    <ClCompile Include="Project\Object\Player\Player.cpp" />
+    <ClCompile Include="Project\Object\Player\Weapon.cpp" />
+    <ClCompile Include="Project\Object\Skydome\Skydome.cpp" />
     <ClCompile Include="Project\Scene\GameClearScene.cpp" />
     <ClCompile Include="Project\Scene\GameOverScene.cpp" />
     <ClCompile Include="Project\Scene\GamePlayScene.cpp" />
@@ -321,6 +327,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Utilities\RandomGenerator.h" />
     <ClInclude Include="Engine\Utilities\ShaderCompiler.h" />
     <ClInclude Include="Project\Game\GameManager.h" />
+    <ClInclude Include="Project\Object\Boss\Boss.h" />
+    <ClInclude Include="Project\Object\FollowCamera\FollowCamera.h" />
+    <ClInclude Include="Project\Object\Ground\Ground.h" />
+    <ClInclude Include="Project\Object\Player\Player.h" />
+    <ClInclude Include="Project\Object\Player\Weapon.h" />
+    <ClInclude Include="Project\Object\Skydome\Skydome.h" />
     <ClInclude Include="Project\Scene\GameClearScene.h" />
     <ClInclude Include="Project\Scene\GameOverScene.h" />
     <ClInclude Include="Project\Scene\GamePlayScene.h" />

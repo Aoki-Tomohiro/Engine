@@ -1,0 +1,120 @@
+#pragma once
+#include "Engine/Framework/IGameObject.h"
+#include "Engine/Components/Collider.h"
+#include "Engine/Components/ParticleManager.h"
+
+class Weapon : public IGameObject, public Collider
+{
+public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize() override;
+
+	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update() override;
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="camera"></param>
+	void Draw(const Camera& camera) override;
+
+	/// <summary>
+	/// パーティクルの更新
+	/// </summary>
+	void UpdateParticle();
+
+	/// <summary>
+	/// パーティクルの描画
+	/// </summary>
+	/// <param name="camera"></param>
+	void DrawParticle(const Camera& camera);
+
+	/// <summary>
+	/// 座標を設定
+	/// </summary>
+	/// <param name="translation"></param>
+	void SetTranslation(const Vector3& translation) { worldTransform_.translation_ = translation; };
+
+	/// <summary>
+	/// 回転を設定
+	/// </summary>
+	/// <param name="rotation"></param>
+	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
+
+	/// <summary>
+	/// プレイヤーのワールドトランスフォームを設定
+	/// </summary>
+	/// <param name="playerWorldTransform"></param>
+	void SetPlayerWorldTransform(const WorldTransform* playerWorldTransform) { playerWorldTransform_ = playerWorldTransform; };
+
+	/// <summary>
+	/// 攻撃フラグを取得
+	/// </summary>
+	bool GetIsAttack() const { return isAttack_; };
+
+	/// <summary>
+	/// 攻撃フラグを設定
+	/// </summary>
+	/// <param name="isAttack"></param>
+	void SetIsAttack(bool isAttack) { isAttack_ = isAttack; };
+
+	/// <summary>
+	/// ヒットフラグを取得
+	/// </summary>
+	/// <returns></returns>
+	bool GetIsHit() const { return isHit_; };
+
+	/// <summary>
+	/// ヒットフラグを設定
+	/// </summary>
+	/// <param name="isHit"></param>
+	void SetIsHit(bool isHit) { isHit_ = isHit; };
+
+	/// <summary>
+	/// ワールド変換データを取得
+	/// </summary>
+	/// <returns></returns>
+	WorldTransform& GetWorldTransform() override { return worldTransform_; };
+
+	/// <summary>
+	/// 衝突判定
+	/// </summary>
+	/// <param name="collider"></param>
+	void OnCollision(Collider* collider) override;
+
+	/// <summary>
+	/// ワールドポジションを取得
+	/// </summary>
+	/// <returns></returns>
+	Vector3 GetWorldPosition() override;
+
+	/// <summary>
+	/// ImGuiの更新
+	/// </summary>
+	void UpdateImGui();
+
+private:
+	//当たり判定用のワールドトランスフォーム
+	WorldTransform worldTransformCollision_{};
+
+	//攻撃フラグ
+	bool isAttack_ = false;
+
+	//当たり判定のフラグ
+	bool onCollision_ = false;
+	bool preOnCollision_ = false;
+
+	//プレイヤーのワールドトランスフォーム
+	const WorldTransform* playerWorldTransform_ = nullptr;
+
+	//パーティクルシステム
+	ParticleSystem* particleSystem_ = nullptr;
+
+	//ヒットフラグ
+	bool isHit_ = false;
+};
+
