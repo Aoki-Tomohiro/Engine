@@ -14,13 +14,13 @@ public:
 
 	virtual void Draw(const Camera& camera);
 
-	const Vector3& GetTranslation() { return worldTransform_.translation_; };
+	const Vector3& GetTranslation() const { return worldTransform_.translation_; };
 
-	const Vector3& GetRotation() { return worldTransform_.rotation_; };
+	const Vector3& GetRotation() const { return worldTransform_.rotation_; };
 
-	const Vector3& GetScale() { return worldTransform_.scale_; };
+	const Vector3& GetScale() const { return worldTransform_.scale_; };
 
-	const Quaternion& GetQuaternion() { return worldTransform_.quaternion_; };
+	const Quaternion& GetQuaternion() const { return worldTransform_.quaternion_; };
 
 	const Model* GetModel() const { return model_; };
 
