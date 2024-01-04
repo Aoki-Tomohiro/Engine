@@ -62,7 +62,10 @@ struct ConstBuffDataGaussianBlur
 struct ConstBuffDataBloom
 {
 	bool enable;
-	float padding[3];
+	float intensity;
+	float highIntensityColorWeight;
+	float highIntensityBlurColorWeight;
+	float highIntensityShrinkBlurColorWeight;
 };
 
 struct ConstBuffDataFog
