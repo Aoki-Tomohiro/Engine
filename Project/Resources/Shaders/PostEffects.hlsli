@@ -7,6 +7,10 @@ struct VertexShaderOutput
 struct Bloom
 {
     bool enable;
+    float intensity;
+    float highIntensityColorWeight;
+    float highIntensityBlurColorWeight;
+    float highIntensityShrinkBlurColorWeight;
 };
 
 struct LensDistortion
