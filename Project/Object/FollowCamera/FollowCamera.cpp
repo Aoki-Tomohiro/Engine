@@ -36,6 +36,7 @@ void FollowCamera::Update()
 		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
 		//追従対象からロックオン座標へのベクトル
 		Vector3 sub = lockOnPosition - target_->translation_;
+		sub.y = 0.0f;
 
 		//Y軸周り角度
 		if (sub.z != 0.0) {
@@ -49,38 +50,7 @@ void FollowCamera::Update()
 			destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
 		}
 
-		//旋回操作
-		if (input_->IsControllerConnected())
-		{
-
-			//しきい値
-			const float threshold = 0.7f;
-
-			//回転フラグ
-			bool isRotation = false;
-
-			//回転量
-			Vector3 rotation = {
-				input_->GetRightStickY(),
-				input_->GetRightStickX(),
-				0.0f
-			};
-
-			//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
-			if (Mathf::Length(rotation) > threshold)
-			{
-				isRotation = true;
-			}
-
-			if (isRotation)
-			{
-				//回転速度
-				const float kRotSpeedX = 0.02f;
-				const float kRotSpeedY = 0.04f;
-
-				destinationAngleX_ -= rotation.x * kRotSpeedX;
-			}
-		}
+		destinationAngleX_ = 0.2f;
 	}
 	else
 	{
