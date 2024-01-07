@@ -4,10 +4,15 @@ void GameManager::Initialize()
 {
 	//基底クラスの初期化
 	GameCore::Initialize();
+
 	//シーンの生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	sceneManager_->SetSceneFactory(sceneFactory_.get());
 	sceneManager_->ChangeScene("GameTitleScene");
+
+	//PostProcessの有効化
+	postProcess_->SetIsEnable(true);
+	postProcess_->GetBloom()->SetIsEnable(true);
 }
 
 void GameManager::Finalize() 

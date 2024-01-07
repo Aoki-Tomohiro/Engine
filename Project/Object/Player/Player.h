@@ -2,9 +2,12 @@
 #include "Engine/Framework/IGameObject.h"
 #include "Engine/Components/Collider.h"
 #include "Engine/Components/Input.h"
+#include "Engine/Components/Audio.h"
 #include "Weapon.h"
 #include <array>
 #include <optional>
+
+class LockOn;
 
 class Player : public IGameObject, public Collider
 {
@@ -15,6 +18,7 @@ public:
 		kRoot,//通常状態
 		kDash,//ダッシュ状態
 		kAttack,//攻撃状態
+		kAirAttack,//空中攻撃
 		kJump,//ジャンプ中
 		kKnockBack,//ノックバック
 		kRapidApproach,//急接近
@@ -42,7 +46,8 @@ public:
 	};
 
 	//コンボの数
-	static const int ComboNum = 10;
+	static const int ComboNum = 4;
+	static const int airComboNum = 4;
 
 	//攻撃用定数
 	struct ConstAttack
@@ -59,8 +64,6 @@ public:
 		uint32_t swingTime;
 		//硬直時間
 		uint32_t recoveryTime;
-		//入力受付時間
-		uint32_t inputTime;
 		//振りかぶりの移動速さ
 		Vector3 anticipationSpeed;
 		Vector3 anticipationRotateSpeed;
@@ -70,6 +73,8 @@ public:
 		//攻撃降りの移動速さ
 		Vector3 swingSpeed;
 		Vector3 swingRotateSpeed;
+		//移動速度
+		Vector3 velocity;
 	};
 
 	/// <summary>
@@ -108,13 +113,13 @@ public:
 	/// ワールド座標を取得
 	/// </summary>
 	/// <returns></returns>
-	Vector3 GetWorldPosition() override;
+	const Vector3 GetWorldPosition() const override;
 
 	/// <summary>
 	/// ワールド変換データを取得
 	/// </summary>
 	/// <returns></returns>
-	WorldTransform& GetWorldTransform() override { return worldTransform_; };
+	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	/// <summary>
 	/// カメラ設定
@@ -132,12 +137,36 @@ public:
 	/// 現在のコンボのインデックスを取得
 	/// </summary>
 	/// <returns></returns>
-	int32_t GetComboIndex() { return workAttack_.comboIndex; };
+	const int32_t GetComboIndex() const { return workAttack_.comboIndex; };
 
 	/// <summary>
 	/// ImGuiの更新
 	/// </summary>
 	void UpdateImGui();
+
+	/// <summary>
+	/// 速度を取得
+	/// </summary>
+	/// <returns></returns>
+	const Vector3& GetVelocity() const { return velocity_; };
+
+	/// <summary>
+	/// 攻撃パラメーターを取得
+	/// </summary>
+	/// <returns></returns>
+	const uint32_t GetAttackParameter() const { return workAttack_.attackParameter; };
+
+	/// <summary>
+	/// 攻撃のトータル時間を取得
+	/// </summary>
+	/// <returns></returns>
+	const uint32_t GetAttackTime() const;
+
+	/// <summary>
+	/// ロックオンを設定
+	/// </summary>
+	/// <param name="lockOn"></param>
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 private:
 	/// <summary>
@@ -181,6 +210,16 @@ private:
 	void BehaviorAttackUpdate();
 
 	/// <summary>
+	/// 空中攻撃初期化
+	/// </summary>
+	void BehaviorAirAttackInitialize();
+
+	/// <summary>
+	/// 空中攻撃更新
+	/// </summary>
+	void BehaviorAirAttackUpdate();
+
+	/// <summary>
 	/// ノックバック行動の初期化
 	/// </summary>
 	void BehaviorKnockBackInitialize();
@@ -208,11 +247,20 @@ private:
 	/// <summary>
 	/// 攻撃モーション
 	/// </summary>
-	void AttackAnimation();
+	void AttackAnimation(bool isMove);
+
+	/// <summary>
+	/// 空中攻撃モーション
+	/// </summary>
+	/// <param name="isMove"></param>
+	void AirAttackAnimation(bool isMove);
 
 private:
 	//入力クラス
 	Input* input_ = nullptr;
+
+	//オーディオ
+	Audio* audio_ = nullptr;
 
 	//振る舞い
 	Behavior behavior_ = Behavior::kRoot;
@@ -234,9 +282,12 @@ private:
 
 	//コンボ定数表
 	static std::array<ConstAttack, ComboNum> kConstAttacks_;
+	static std::array<ConstAttack, airComboNum> kConstAirAttacks_;
 
 	//攻撃用の変数
 	WorkAttack workAttack_{};
+	bool isAttack_ = false;
+	bool isAirAttack_ = false;
 
 	//ノックバック時の速度
 	Vector3 knockBackVelocity_{};
@@ -249,5 +300,15 @@ private:
 
 	Vector3 targetPosition_{ 0.0f,0.0f,0.0f };
 	Vector3 rapidApproachVelocity_{ 0.0f,0.0f,0.0f };
+
+	//オーディオハンドル
+	uint32_t swishAudioHandle_ = 0;
+	bool isSwishPlayed_ = false;
+
+	//落下速度
+	float fallingSpeed_ = 0.0f;
+
+	//ロックオン
+	const LockOn* lockOn_ = nullptr;
 };
 

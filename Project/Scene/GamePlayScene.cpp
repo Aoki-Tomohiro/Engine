@@ -18,12 +18,18 @@ void GamePlayScene::Initialize()
 
 	playerModel_ = ModelManager::CreateFromOBJ("Cube", Opaque);
 	player_ = GameObjectManager::CreateGameObject<Player>();
+	player_->SetTag("Player");
 	player_->SetModel(playerModel_);
 	player_->SetCamera(&camera_);
+
+	lockOn_ = std::make_unique<LockOn>();
+	lockOn_->Initialize();
+	player_->SetLockOn(lockOn_.get());
 
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
 	followCamera_->SetTarget(&player_->GetWorldTransform());
+	followCamera_->SetLockOn(lockOn_.get());
 
 	groundSurfaceModel_ = ModelManager::CreateFromOBJ("Ground", Opaque);
 	groundSurfaceModel_->SetUVScale({ 25.0f,25.0f });
@@ -106,6 +112,9 @@ void GamePlayScene::Update()
 
 	//ゲームオブジェクトの更新
 	gameObjectManager_->Update();
+
+	//ロックオンの処理
+	lockOn_->Update(boss_, camera_);
 
 	//追従カメラの更新
 	followCamera_->Update();

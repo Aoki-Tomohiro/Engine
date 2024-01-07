@@ -2,6 +2,7 @@
 #include "Engine/Framework/IGameObject.h"
 #include "Engine/Components/Collider.h"
 #include "Engine/Components/ParticleManager.h"
+#include "Engine/Components/Audio.h"
 
 class Weapon : public IGameObject, public Collider
 {
@@ -78,7 +79,7 @@ public:
 	/// ワールド変換データを取得
 	/// </summary>
 	/// <returns></returns>
-	WorldTransform& GetWorldTransform() override { return worldTransform_; };
+	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	/// <summary>
 	/// 衝突判定
@@ -90,7 +91,7 @@ public:
 	/// ワールドポジションを取得
 	/// </summary>
 	/// <returns></returns>
-	Vector3 GetWorldPosition() override;
+	const Vector3 GetWorldPosition() const override;
 
 	/// <summary>
 	/// ImGuiの更新
@@ -98,6 +99,9 @@ public:
 	void UpdateImGui();
 
 private:
+	//オーディオ
+	Audio* audio_ = nullptr;
+
 	//当たり判定用のワールドトランスフォーム
 	WorldTransform worldTransformCollision_{};
 
@@ -113,8 +117,19 @@ private:
 
 	//パーティクルシステム
 	ParticleSystem* particleSystem_ = nullptr;
+	ParticleSystem* shockWaveParticleSystem_ = nullptr;
 
 	//ヒットフラグ
 	bool isHit_ = false;
+
+	//OBB
+	OBB obbSize{
+	.center{worldTransformCollision_.translation_},
+	.orientations{{1.0f,0.0f,0.0f},{0.0f,1.0f,0.0f},{0.0f,0.0f,1.0f}},
+	.size{1.0f,1.0f,1.0f}
+	};
+
+	//オーディオハンドル
+	uint32_t slashAudioHandle_ = 0;
 };
 

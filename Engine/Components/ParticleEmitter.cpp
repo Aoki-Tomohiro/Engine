@@ -88,11 +88,24 @@ void ParticleEmitter::Pop()
 	float elevationRadian = elevation * float(std::numbers::pi / 180.0f);
 
 	//速度
-	Vector3 velocity = {
-		RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
-		RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y) * std::cos(elevationRadian) * std::sin(azimuthRadian),
-		RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z) * std::sin(elevationRadian)
-	};
+	Vector3 velocity;
+	if (azimuth != 0.0f && elevation != 0.0f)
+	{
+		velocity = {
+			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y) * std::cos(elevationRadian) * std::sin(azimuthRadian),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z) * std::sin(elevationRadian)
+		};
+	}
+	else
+	{
+		velocity = {
+			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z),
+		};
+	}
+
 
 	//色
 	Vector4 color = {

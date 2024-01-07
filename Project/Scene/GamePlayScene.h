@@ -11,6 +11,7 @@
 #include "Project/Object/Ground/Ground.h"
 #include "Project/Object/Skydome/Skydome.h"
 #include "Project/Object/Boss/Boss.h"
+#include "Project/Object/LockOn/LockOn.h"
 
 class GamePlayScene : public IScene
 {
@@ -47,6 +48,9 @@ private:
 	//プレイヤー
 	Model* playerModel_ = nullptr;
 	Player* player_ = nullptr;
+
+	//ロックオン
+	std::unique_ptr<LockOn> lockOn_ = nullptr;
 
 	//追従カメラ
 	std::unique_ptr<FollowCamera> followCamera_ = nullptr;

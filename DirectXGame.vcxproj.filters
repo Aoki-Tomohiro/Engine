@@ -118,6 +118,12 @@
     <Filter Include="ヘッダー ファイル\Project\Object\Ground">
       <UniqueIdentifier>{884925e8-3bce-4501-8fba-36008f664c1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{675925b1-0a68-4655-b694-8e4efe31bbb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{13bc3161-8642-4931-b3ba-e456e9050b22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Externals\imgui\imgui.cpp">
@@ -332,6 +338,9 @@
     </ClCompile>
     <ClCompile Include="Project\Object\Player\Weapon.cpp">
       <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル\Project\Object\LockOn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -589,6 +598,12 @@
     </ClInclude>
     <ClInclude Include="Project\Object\Player\Player.h">
       <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Math\OBB.h">
+      <Filter>ヘッダー ファイル\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル\Project\Object\LockOn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

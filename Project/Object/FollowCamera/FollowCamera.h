@@ -3,6 +3,8 @@
 #include "Engine/3D/Camera.h"
 #include "Engine/Components/Input.h"
 
+class LockOn;
+
 class FollowCamera
 {
 public:
@@ -27,6 +29,12 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const Camera& GetCamera() { return camera_; };
+
+	/// <summary>
+	/// ロックオンをセット
+	/// </summary>
+	/// <param name="lockOn"></param>
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; };
 
 private:
 	/// <summary>
@@ -56,5 +64,8 @@ private:
 	//目標角度
 	float destinationAngleX_ = 0.0f;
 	float destinationAngleY_ = 0.0f;
+
+	//ロックオン
+	const LockOn* lockOn_ = nullptr;
 };
 

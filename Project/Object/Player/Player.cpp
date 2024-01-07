@@ -4,6 +4,7 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Components/CollisionConfig.h"
+#include "Project/Object/LockOn/LockOn.h"
 
 void Player::Initialize() 
 {
@@ -15,11 +16,17 @@ void Player::Initialize()
 	//入力クラスのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//オーディオのインスタンスを取得
+	audio_ = Audio::GetInstance();
+
 	//武器の生成
 	modelWeapon_ = ModelManager::CreateFromOBJ("Weapon", Opaque);
 	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	weapon_->SetModel(modelWeapon_);
 	weapon_->SetPlayerWorldTransform(&worldTransform_);
+
+	//オーディオの読み込み
+	swishAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Swish.wav");
 
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
@@ -55,6 +62,9 @@ void Player::Update()
 		case Behavior::kAttack:
 			BehaviorAttackInitialize();
 			break;
+		case Behavior::kAirAttack:
+			BehaviorAirAttackInitialize();
+			break;
 		case Behavior::kKnockBack:
 			BehaviorKnockBackInitialize();
 			break;
@@ -80,6 +90,9 @@ void Player::Update()
 		break;
 	case Behavior::kAttack:
 		BehaviorAttackUpdate();
+		break;
+	case Behavior::kAirAttack:
+		BehaviorAirAttackUpdate();
 		break;
 	case Behavior::kKnockBack:
 		BehaviorKnockBackUpdate();
@@ -108,7 +121,7 @@ void Player::Draw(const Camera& camera)
 	IGameObject::Draw(camera);
 	
 	//武器の描画
-	if (behavior_ == Behavior::kAttack) 
+	if (behavior_ == Behavior::kAttack || behavior_ == Behavior::kAirAttack) 
 	{
 		weapon_->SetIsVisible(true);
 	}
@@ -177,7 +190,7 @@ void Player::OnCollision(Collider* collider)
 	}
 }
 
-Vector3 Player::GetWorldPosition() 
+const Vector3 Player::GetWorldPosition() const
 {
 	Vector3 pos{};
 	pos.x = worldTransform_.matWorld_.m[3][0];
@@ -209,19 +222,19 @@ void Player::UpdateImGui()
 	{
 		ImGui::Text("Behavior : kAttack");
 	}
-	ImGui::SliderInt("AttackIndex", &attackIndex_, 0, ComboNum);
-	ImGui::DragFloat3("StartPosition", &kConstAttacks_[attackIndex_].startPosition.x, 0.01f);
-	ImGui::DragFloat3("StartRotation", &kConstAttacks_[attackIndex_].startRotation.x, 0.01f);
-	ImGui::DragInt("AnticipationTime", reinterpret_cast<int*>(&kConstAttacks_[attackIndex_].anticipationTime));
-	ImGui::DragFloat3("AnticipationSpeed", &kConstAttacks_[attackIndex_].anticipationSpeed.x, 0.01f);
-	ImGui::DragFloat3("AnticipationRotateSpeed", &kConstAttacks_[attackIndex_].anticipationRotateSpeed.x, 0.01f);
-	ImGui::DragInt("ChageTime", reinterpret_cast<int*>(&kConstAttacks_[attackIndex_].chargeTime));
-	ImGui::DragFloat3("ChargeSpeed", &kConstAttacks_[attackIndex_].chargeSpeed.x, 0.01f);
-	ImGui::DragFloat3("ChargeRotateSpeed", &kConstAttacks_[attackIndex_].chargeRotateSpeed.x, 0.01f);
-	ImGui::DragInt("SwingTime", reinterpret_cast<int*>(&kConstAttacks_[attackIndex_].swingTime));
-	ImGui::DragFloat3("SwingSpeed", &kConstAttacks_[attackIndex_].swingSpeed.x, 0.01f);
-	ImGui::DragFloat3("SwingRotateSpeed", &kConstAttacks_[attackIndex_].swingRotateSpeed.x, 0.01f);
-	ImGui::DragInt("RecoveryTime", reinterpret_cast<int*>(&kConstAttacks_[attackIndex_].recoveryTime));
+	ImGui::SliderInt("AttackIndex", &attackIndex_, 0, airComboNum);
+	ImGui::DragFloat3("StartPosition", &kConstAirAttacks_[attackIndex_].startPosition.x, 0.01f);
+	ImGui::DragFloat3("StartRotation", &kConstAirAttacks_[attackIndex_].startRotation.x, 0.01f);
+	ImGui::DragInt("AnticipationTime", reinterpret_cast<int*>(&kConstAirAttacks_[attackIndex_].anticipationTime));
+	ImGui::DragFloat3("AnticipationSpeed", &kConstAirAttacks_[attackIndex_].anticipationSpeed.x, 0.01f);
+	ImGui::DragFloat3("AnticipationRotateSpeed", &kConstAirAttacks_[attackIndex_].anticipationRotateSpeed.x, 0.01f);
+	ImGui::DragInt("ChageTime", reinterpret_cast<int*>(&kConstAirAttacks_[attackIndex_].chargeTime));
+	ImGui::DragFloat3("ChargeSpeed", &kConstAirAttacks_[attackIndex_].chargeSpeed.x, 0.01f);
+	ImGui::DragFloat3("ChargeRotateSpeed", &kConstAirAttacks_[attackIndex_].chargeRotateSpeed.x, 0.01f);
+	ImGui::DragInt("SwingTime", reinterpret_cast<int*>(&kConstAirAttacks_[attackIndex_].swingTime));
+	ImGui::DragFloat3("SwingSpeed", &kConstAirAttacks_[attackIndex_].swingSpeed.x, 0.01f);
+	ImGui::DragFloat3("SwingRotateSpeed", &kConstAirAttacks_[attackIndex_].swingRotateSpeed.x, 0.01f);
+	ImGui::DragInt("RecoveryTime", reinterpret_cast<int*>(&kConstAirAttacks_[attackIndex_].recoveryTime));
 	ImGui::End();
 	
 	//武器のImGui
@@ -230,7 +243,7 @@ void Player::UpdateImGui()
 
 void Player::BehaviorRootInitialize()
 {
-
+	fallingSpeed_ = 0.0f;
 }
 
 void Player::BehaviorRootUpdate()
@@ -278,6 +291,20 @@ void Player::BehaviorRootUpdate()
 		}
 	}
 
+	//地面にいなかったら落下する
+	if (worldTransform_.translation_.y >= 1.0f)
+	{
+		const float kGravityAcceleration = 0.05f;
+		fallingSpeed_ -= kGravityAcceleration;
+		worldTransform_.translation_.y += fallingSpeed_;
+
+		if (worldTransform_.translation_.y < 1.0f)
+		{
+			worldTransform_.translation_.y = 1.0f;
+			isAirAttack_ = false;
+		}
+	}
+
 	//ダッシュ行動に変更
 	if (input_->IsControllerConnected())
 	{
@@ -304,7 +331,10 @@ void Player::BehaviorRootUpdate()
 	{
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{
-			behaviorRequest_ = Behavior::kAttack;
+			if (!isAirAttack_)
+			{
+				behaviorRequest_ = Behavior::kAttack;
+			}
 		}
 	}
 
@@ -323,11 +353,8 @@ void Player::BehaviorDashInitialize()
 	workDash_.dashParameter = 0;
 	workDash_.coolTime = 0;
 	worldTransform_.quaternion_ = destinationQuaternion_;
-}
 
-void Player::BehaviorDashUpdate()
-{
-	if (input_->IsControllerConnected()) 
+	if (input_->IsControllerConnected())
 	{
 		//しきい値
 		const float threshold = 0.7f;
@@ -336,46 +363,46 @@ void Player::BehaviorDashUpdate()
 		bool isMoving = false;
 
 		//移動量
-		Vector3 move = {
+		velocity_ = {
 			input_->GetLeftStickX(),
 			0.0f,
 			input_->GetLeftStickY(),
 		};
 
 		//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
-		if (Mathf::Length(move) > threshold)
+		if (Mathf::Length(velocity_) > threshold)
 		{
 			isMoving = true;
 		}
 
 		//スティックによる入力がある場合
-		if (isMoving) 
+		if (isMoving)
 		{
 			//速さ
 			float kSpeed = 1.0f;
 
 			//移動量に速さを反映
-			move = Mathf::Normalize(move) *  kSpeed;
+			velocity_ = Mathf::Normalize(velocity_) * kSpeed;
 
 			//移動ベクトルをカメラの角度だけ回転する
 			Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
-			move = Mathf::TransformNormal(move, rotateMatrix);
-
-			//移動
-			worldTransform_.translation_ += move;
+			velocity_ = Mathf::TransformNormal(velocity_, rotateMatrix);
 		}
 		//入力がない場合後ろに下がるようにする
 		else
 		{
-			move = { 0.0f,0.0f,-1.0f };
+			velocity_ = { 0.0f,0.0f,-1.0f };
 
 			//移動ベクトルをプレイヤーの角度だけ回転する
-			move = Mathf::TransformNormal(move, worldTransform_.matWorld_);
-
-			//移動
-			worldTransform_.translation_ += move;
+			velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
 		}
 	}
+}
+
+void Player::BehaviorDashUpdate()
+{
+	//移動
+	worldTransform_.translation_ += velocity_;
 
 	//規定の時間経過で通常行動に戻る
 	const float dashTime = 10;
@@ -420,8 +447,8 @@ void Player::BehaviorJumpUpdate()
 		if (isMoving)
 		{
 			//速さ
-			//const float speed = 0.3f;
-			const float speed = 0.6f;
+			const float speed = 0.3f;
+			//const float speed = 0.6f;
 
 			//移動量に速さを反映
 			move = Mathf::Normalize(move) * speed;
@@ -443,6 +470,31 @@ void Player::BehaviorJumpUpdate()
 	Vector3 accelerationVector = { 0.0f,-kGravityAcceleration,0.0f };
 	velocity_ += accelerationVector;
 
+	//攻撃行動に変更
+	if (input_->IsControllerConnected())
+	{
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			if (!isAirAttack_)
+			{
+				behaviorRequest_ = Behavior::kAirAttack;
+			}
+		}
+	}
+
+	//ダッシュ行動に変更
+	if (input_->IsControllerConnected())
+	{
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+		{
+			if (workDash_.coolTime == workDash_.dashCoolTime)
+			{
+				behaviorRequest_ = Behavior::kDash;
+			}
+		}
+	}
+
+	//通常状態に変更
 	if (worldTransform_.translation_.y <= 1.0f)
 	{
 		behaviorRequest_ = Behavior::kRoot;
@@ -462,21 +514,20 @@ void Player::BehaviorAttackInitialize()
 }
 
 //コンボ定数表
-//アニメーション開始座標 //アニメーション開始角度 振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 入力受付時間 振りかぶりの移動速度 振りかぶりの回転速度 ための移動速度 ための回転速度,攻撃降りの移動速度 攻撃降りの回転速度
+//アニメーション開始座標 //アニメーション開始角度 振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 振りかぶりの移動速度 振りかぶりの回転速度 ための移動速度 ための回転速度,攻撃降りの移動速度 攻撃降りの回転速度
 std::array<Player::ConstAttack, Player::ComboNum> Player::kConstAttacks_ = {
 	{
-		//開始座標             開始角度              振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 入力受付時間  振りかぶりの移動速度  振りかぶりの回転速度  ための移動速度      ための回転速度       攻撃降りの移動速度   攻撃降りの回転速度
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       5,          10,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 2.8f,0.0f,-1.57f}, 0,            0,       5,          10,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.4f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,1.57f }, 0,            0,       20,         10,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.75f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 2.345f,0.0f,0.0f}, 0,            0,       8,          10,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.26f,0.0f,0.0f}},
-	    {{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       40,         10,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.72f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  10,           20,      5,          20,     10,        {0.0f,0.0f,0.0f}, {-0.1f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.56f,0.0f,0.0f}},
-
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f}},
-		{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,     10,        {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f}},
+		//開始座標             開始角度              振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間  振りかぶりの移動速度  振りかぶりの回転速度  ための移動速度      ための回転速度       攻撃降りの移動速度   攻撃降りの回転速度      
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       5,          16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 2.8f,0.0f,-1.57f}, 0,            0,       5,          16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.4f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,1.57f }, 0,            0,       20,         16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.75f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },  10,           10,      5,          22,      {0.0f,0.0f,0.0f}, {-0.1f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.56f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 2.345f,0.0f,0.0f}, 0,            0,       8,          10,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.26f,0.0f,0.0f},{0.0f,0.0f,0.0f}},
+	    //{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       40,         10,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.72f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
 	}
 };
 
@@ -490,14 +541,23 @@ void Player::BehaviorAttackUpdate()
 			//攻撃ボタンをトリガーしたら
 			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 			{
-				//コンボ有効
-				workAttack_.comboNext = true;
+				if (!isAttack_)
+				{
+					//コンボ有効
+					workAttack_.comboNext = true;
+					isAttack_ = true;
+				}
+			}
+
+			if (!input_->IsPressButton(XINPUT_GAMEPAD_X))
+			{
+				isAttack_ = false;
 			}
 		}
 	}
 
 	//攻撃の合計時間
-	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime + kConstAttacks_[workAttack_.comboIndex].inputTime;
+	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 	//既定の時間経過で通常行動に戻る
 	if (++workAttack_.attackParameter >= totalTime)
 	{
@@ -514,6 +574,42 @@ void Player::BehaviorAttackUpdate()
 				workAttack_.rotation = kConstAttacks_[workAttack_.comboIndex].startRotation;
 			}
 			weapon_->SetIsAttack(false);
+
+			if (input_->IsControllerConnected())
+			{
+				//しきい値
+				const float threshold = 0.7f;
+
+				//移動フラグ
+				bool isRotation = false;
+
+				//移動量
+				Vector3 direction = {
+					input_->GetLeftStickX(),
+					0.0f,
+					input_->GetLeftStickY(),
+				};
+
+				//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
+				if (Mathf::Length(direction) > threshold)
+				{
+					isRotation = true;
+				}
+
+				//スティックによる入力がある場合
+				if (isRotation)
+				{
+					//移動量に速さを反映
+					direction = Mathf::Normalize(direction);
+
+					//移動ベクトルをカメラの角度だけ回転する
+					Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
+					direction = Mathf::TransformNormal(direction, rotateMatrix);
+
+					//回転
+					Rotate(direction);
+				}
+			}
 		}
 		//コンボ継続でないなら攻撃を終了してルートビヘイビアに戻る
 		else 
@@ -523,37 +619,51 @@ void Player::BehaviorAttackUpdate()
 		}
 	}
 
+	//移動フラグ
+	bool isMove = true;
+
+	//ボスの座標を取得
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject("Boss")->GetTranslation();
+
+	//差分ベクトルを計算
+	Vector3 sub = targetPosition - GetWorldPosition();
+
+	//Y軸は必要ないので0にする
+	sub.y = 0.0f;
+
+	//距離を計算
+	float distance = Mathf::Length(sub);
+
+	//閾値
+	float threshold = 16.0f;
+
+	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
+	if (distance < threshold || lockOn_->ExistTarget())
+	{
+		//回転
+		Rotate(sub);
+
+		if (distance < 6.0f)
+		{
+			//アニメーションの移動フラグをfalseにする
+			isMove = false;
+		}
+	}
+
+
 	switch (workAttack_.comboIndex)
 	{
 	case 0:
-		AttackAnimation();
+		AttackAnimation(isMove);
 		break;
 	case 1:
-		AttackAnimation();
+		AttackAnimation(isMove);
 		break;
 	case 2:
-		AttackAnimation();
+		AttackAnimation(isMove);
 		break;
 	case 3:
-		AttackAnimation();
-		break;
-	case 4:
-		AttackAnimation();
-		break;
-	case 5:
-		AttackAnimation();
-		break;
-	case 6:
-		AttackAnimation();
-		break;
-	case 7:
-		AttackAnimation();
-		break;
-	case 8:
-		AttackAnimation();
-		break;
-	case 9:
-		AttackAnimation();
+		AttackAnimation(isMove);
 		break;
 	}
 
@@ -561,13 +671,17 @@ void Player::BehaviorAttackUpdate()
 	weapon_->SetRotation(workAttack_.rotation);
 }
 
-void Player::AttackAnimation()
+void Player::AttackAnimation(bool isMove)
 {
 	//総合時間
-	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime + kConstAttacks_[workAttack_.comboIndex].inputTime;
+	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 
 	//現在のコンボの情報を取得
 	uint32_t anticipationTime = 0, chargeTime = 0, swingTime = 0, recoveryTime = 0;
+
+	//移動速度
+	velocity_ = kConstAttacks_[workAttack_.comboIndex].velocity;
+	velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
 
 	//配列外参照を防ぐ
 	if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
@@ -583,6 +697,10 @@ void Player::AttackAnimation()
 	{
 		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].anticipationSpeed;
 		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].anticipationRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
 	}
 
 	//チャージの処理
@@ -590,22 +708,40 @@ void Player::AttackAnimation()
 	{
 		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].chargeSpeed;
 		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].chargeRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
 	}
 
 	//攻撃振りの処理
 	if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
 	{
+		//移動処理
 		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].swingSpeed;
 		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].swingRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+
+		//衝突判定をつける処理
 		uint32_t collisionTime = swingTime - chargeTime;
 		int collisionInterval = collisionTime / 4;
 		if (workAttack_.attackParameter % collisionInterval == 0)
 		{
 			weapon_->SetIsAttack(true);
+			//オーディオ再生
+			if (!isSwishPlayed_)
+			{
+				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				isSwishPlayed_ = true;
+			}
 		}
 		else
 		{
 			weapon_->SetIsAttack(false);
+			isSwishPlayed_ = false;
 		}
 	}
 
@@ -613,6 +749,259 @@ void Player::AttackAnimation()
 	if (workAttack_.attackParameter >= swingTime && workAttack_.attackParameter < recoveryTime)
 	{
 		weapon_->SetIsAttack(false);
+		isSwishPlayed_ = false;
+	}
+
+	//入力受付時間
+	if (workAttack_.attackParameter >= recoveryTime && workAttack_.attackParameter < totalTime)
+	{
+		if (input_->IsControllerConnected())
+		{
+			//攻撃ボタンをトリガーしたら
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+			{
+				//コンボ有効
+				workAttack_.attackParameter = totalTime;
+			}
+		}
+	}
+}
+
+void Player::BehaviorAirAttackInitialize()
+{
+	//攻撃用の変数を初期化
+	workAttack_.translation = kConstAirAttacks_[0].startPosition;
+	workAttack_.rotation = kConstAirAttacks_[0].startRotation;
+	workAttack_.attackParameter = 0;
+	workAttack_.comboIndex = 0;
+	workAttack_.inComboPhase = 0;
+	workAttack_.comboNext = false;
+	isAirAttack_ = true;
+}
+
+//コンボ定数表
+//アニメーション開始座標 //アニメーション開始角度 振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 入力受付時間 振りかぶりの移動速度 振りかぶりの回転速度 ための移動速度 ための回転速度,攻撃降りの移動速度 攻撃降りの回転速度
+std::array<Player::ConstAttack, Player::airComboNum> Player::kConstAirAttacks_ = {
+	{
+		//開始座標             開始角度              振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間  振りかぶりの移動速度  振りかぶりの回転速度  ための移動速度      ための回転速度       攻撃降りの移動速度   攻撃降りの回転速度      
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-0.45f }, 0,            0,       5,          16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.45f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.45f },  0,            0,       5,          16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.45f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },   0,            0,       20,         16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.75f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },   10,           10,      5,          22,     {0.0f,0.0f,0.0f}, {-0.1f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.56f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
+		//{{ 0.0f,0.8f,0.0f }, { 2.8f,0.0f,-1.57f }, 17,           0,       5,          20,          {0.0f,0.0f,0.0f}, {-0.36f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.8f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
+    }
+};
+
+void Player::BehaviorAirAttackUpdate()
+{
+	//コンボ上限に達していない
+	if (workAttack_.comboIndex < airComboNum - 1)
+	{
+		if (input_->IsControllerConnected())
+		{
+			//攻撃ボタンをトリガーしたら
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+			{
+				//コンボ有効
+				workAttack_.comboNext = true;
+			}
+		}
+	}
+
+	//攻撃の合計時間
+	uint32_t totalTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
+	//既定の時間経過で通常行動に戻る
+	if (++workAttack_.attackParameter >= totalTime)
+	{
+		//コンボ継続なら次のコンボに進む
+		if (workAttack_.comboNext)
+		{
+			//コンボ継続フラグをリセット
+			workAttack_.comboNext = false;
+			workAttack_.attackParameter = 0;
+			workAttack_.comboIndex++;
+			if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
+			{
+				workAttack_.translation = kConstAirAttacks_[workAttack_.comboIndex].startPosition;
+				workAttack_.rotation = kConstAirAttacks_[workAttack_.comboIndex].startRotation;
+			}
+			weapon_->SetIsAttack(false);
+
+			if (input_->IsControllerConnected())
+			{
+				//しきい値
+				const float threshold = 0.7f;
+
+				//移動フラグ
+				bool isRotation = false;
+
+				//移動量
+				Vector3 direction = {
+					input_->GetLeftStickX(),
+					0.0f,
+					input_->GetLeftStickY(),
+				};
+
+				//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
+				if (Mathf::Length(direction) > threshold)
+				{
+					isRotation = true;
+				}
+
+				//スティックによる入力がある場合
+				if (isRotation)
+				{
+					//移動量に速さを反映
+					direction = Mathf::Normalize(direction);
+
+					//移動ベクトルをカメラの角度だけ回転する
+					Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
+					direction = Mathf::TransformNormal(direction, rotateMatrix);
+
+					//回転
+					Rotate(direction);
+				}
+			}
+		}
+		//コンボ継続でないなら攻撃を終了してルートビヘイビアに戻る
+		else
+		{
+			behaviorRequest_ = Behavior::kRoot;
+			weapon_->SetIsAttack(false);
+		}
+	}
+
+	//移動フラグ
+	bool isMove = true;
+
+	//ボスの座標を取得
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject("Boss")->GetTranslation();
+
+	//差分ベクトルを計算
+	Vector3 sub = targetPosition - GetWorldPosition();
+
+	//Y軸は必要ないので0にする
+	sub.y = 0.0f;
+
+	//距離を計算
+	float distance = Mathf::Length(sub);
+
+	//閾値
+	float threshold = 16.0f;
+
+	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
+	if (distance < threshold || lockOn_->ExistTarget())
+	{
+		//回転
+		Rotate(sub);
+
+		if (distance < 6.0f)
+		{
+			//アニメーションの移動フラグをfalseにする
+			isMove = false;
+		}
+	}
+
+
+	switch (workAttack_.comboIndex)
+	{
+	case 0:
+		AirAttackAnimation(isMove);
+		break;
+	case 1:
+		AirAttackAnimation(isMove);
+		break;
+	case 2:
+		AirAttackAnimation(isMove);
+		break;
+	case 3:
+		AirAttackAnimation(isMove);
+		break;
+	}
+
+	weapon_->SetTranslation(workAttack_.translation);
+	weapon_->SetRotation(workAttack_.rotation);
+}
+
+void Player::AirAttackAnimation(bool isMove)
+{
+	//総合時間
+	uint32_t totalTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
+
+	//現在のコンボの情報を取得
+	uint32_t anticipationTime = 0, chargeTime = 0, swingTime = 0, recoveryTime = 0;
+
+	//移動速度
+	velocity_ = kConstAirAttacks_[workAttack_.comboIndex].velocity;
+	velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+	//配列外参照を防ぐ
+	if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
+	{
+		anticipationTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime;
+		chargeTime = anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime;
+		swingTime = chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime;
+		recoveryTime = swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
+	}
+
+	//振りかぶりの処理
+	if (workAttack_.attackParameter < anticipationTime)
+	{
+		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].anticipationSpeed;
+		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].anticipationRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+	}
+
+	//チャージの処理
+	if (workAttack_.attackParameter >= anticipationTime && workAttack_.attackParameter < chargeTime)
+	{
+		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].chargeSpeed;
+		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].chargeRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+	}
+
+	//攻撃振りの処理
+	if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
+	{
+		//移動処理
+		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].swingSpeed;
+		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].swingRotateSpeed;
+		if (isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+
+		//衝突判定をつける処理
+		uint32_t collisionTime = swingTime - chargeTime;
+		int collisionInterval = collisionTime / 4;
+		if (workAttack_.attackParameter % collisionInterval == 0)
+		{
+			weapon_->SetIsAttack(true);
+			//オーディオ再生
+			if (!isSwishPlayed_)
+			{
+				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				isSwishPlayed_ = true;
+			}
+		}
+		else
+		{
+			weapon_->SetIsAttack(false);
+			isSwishPlayed_ = false;
+		}
+	}
+
+	//硬直時間
+	if (workAttack_.attackParameter >= swingTime && workAttack_.attackParameter < recoveryTime)
+	{
+		weapon_->SetIsAttack(false);
+		isSwishPlayed_ = false;
 	}
 
 	//入力受付時間
@@ -674,4 +1063,12 @@ void Player::Rotate(const Vector3& v)
 	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
 	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+}
+
+const uint32_t Player::GetAttackTime() const
+{
+	//総合時間
+	uint32_t attackTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
+
+	return attackTime;
 }

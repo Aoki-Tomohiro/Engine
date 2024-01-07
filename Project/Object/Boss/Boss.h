@@ -30,13 +30,13 @@ public:
 	/// ワールド座標を取得
 	/// </summary>
 	/// <returns></returns>
-	Vector3 GetWorldPosition() override;
+	const Vector3 GetWorldPosition() const override;
 
 	/// <summary>
 	/// ワールド変換データを取得
 	/// </summary>
 	/// <returns></returns>
-	WorldTransform& GetWorldTransform() override { return worldTransform_; };
+	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 private:
 	//当たり判定のフラグ
@@ -52,5 +52,12 @@ private:
 
 	//アニメーション用のワールドトランスフォーム
 	WorldTransform worldTransformAnimation_{};
+
+	//ノックバック時の速度
+	Vector3 knockBackVelocity_{};
+	//ノックバックのフラグ
+	bool isKnockBack_ = false;
+	uint32_t knockBackTimer_ = 0;
+	uint32_t knockBackTime_ = 20;
 };
 
