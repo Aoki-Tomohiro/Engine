@@ -14,3 +14,4 @@ const uint32_t kCollisionMaskWeapon = 0b0010;
 //形状
 const uint32_t kCollisionPrimitiveSphere = 0b1;
 const uint32_t kCollisionPrimitiveAABB = 0b1 << 1;
+const uint32_t kCollisionPrimitiveOBB = kCollisionPrimitiveAABB << 1;

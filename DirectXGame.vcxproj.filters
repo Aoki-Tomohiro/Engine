@@ -88,6 +88,42 @@
     <Filter Include="ヘッダー ファイル\Project\Scene">
       <UniqueIdentifier>{6a372289-efa3-448a-9f62-f764af9ab4ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Player">
+      <UniqueIdentifier>{bfb32296-14e2-4b41-a7a2-71331907f1ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{df3620e5-d55b-4bf6-bdef-1f623b1bf2a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{9070c115-3c03-430d-8f81-f4c7e8383a56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{ce6870b9-6467-44a3-8f6b-660467ea17c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{37d2d313-a727-417e-968c-ddae0a5dec9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{921a92ce-7c02-4a1a-9938-6ff359b16759}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Player">
+      <UniqueIdentifier>{62de638a-b6a9-4524-9dfc-f7291b55918c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{14de0fe4-87fa-46c8-82ef-f218c840fea9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{a18646c2-56fd-4bee-8158-312b1a9d2633}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{884925e8-3bce-4501-8fba-36008f664c1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{675925b1-0a68-4655-b694-8e4efe31bbb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{13bc3161-8642-4931-b3ba-e456e9050b22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Externals\imgui\imgui.cpp">
@@ -284,6 +320,27 @@
     </ClCompile>
     <ClCompile Include="Engine\Components\Vignette.cpp">
       <Filter>ソース ファイル\Engine\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\Boss\Boss.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\FollowCamera\FollowCamera.cpp">
+      <Filter>ソース ファイル\Project\Object\FollowCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Project\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル\Project\Object\Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\Player\Player.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\Player\Weapon.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル\Project\Object\LockOn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -523,6 +580,30 @@
     </ClInclude>
     <ClInclude Include="Engine\Components\Vignette.h">
       <Filter>ヘッダー ファイル\Engine\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\Boss\Boss.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\FollowCamera\FollowCamera.h">
+      <Filter>ヘッダー ファイル\Project\Object\FollowCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル\Project\Object\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル\Project\Object\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\Player\Weapon.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Math\OBB.h">
+      <Filter>ヘッダー ファイル\Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル\Project\Object\LockOn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
