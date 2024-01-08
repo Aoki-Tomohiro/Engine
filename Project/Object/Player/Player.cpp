@@ -1,10 +1,12 @@
 #include "Player.h"
 #include "Engine/3D/ModelManager.h"
 #include "Engine/Framework/GameObjectManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Components/CollisionConfig.h"
 #include "Project/Object/LockOn/LockOn.h"
+#include "Project/Object/Boss/Boss.h"
 
 void Player::Initialize() 
 {
@@ -28,6 +30,16 @@ void Player::Initialize()
 	//オーディオの読み込み
 	swishAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Swish.wav");
 
+	//テクスチャ読み込み
+	TextureManager::Load("Project/Resources/Images/HpBarFrame3.png");
+	TextureManager::Load("Project/Resources/Images/HpBar3.png");
+
+	//スプライトの生成
+	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar3.png", { 80.0f,32.0f }));
+	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame3.png", { 79.0f,31.0f }));
+	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	SetCollisionMask(kCollisionMaskPlayer);
@@ -36,6 +48,8 @@ void Player::Initialize()
 
 void Player::Update() 
 {
+	isHit_ = false;
+
 	//ダッシュのクールタイム
 	if (workDash_.coolTime != workDash_.dashCoolTime)
 	{
@@ -113,6 +127,23 @@ void Player::Update()
 	//ワールドトランスフォームの更新
 	worldTransform_.quaternion_ = Mathf::Slerp(worldTransform_.quaternion_, destinationQuaternion_, 0.4f);
 	worldTransform_.UpdateMatrixFromQuaternion();
+
+	//HPバーの処理
+	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
+	spriteHpBar_->SetSize(hpBarSize_);
+
+	//無敵時間の処理
+	if (invincibleFlag_)
+	{
+		if (++invincibleTimer_ > kInvincibleTime)
+		{
+			invincibleFlag_ = false;
+		}
+	}
+
+	ImGui::Begin("Player");
+	ImGui::Text("HP : %f", hp_);
+	ImGui::End();
 }
 
 void Player::Draw(const Camera& camera) 
@@ -131,6 +162,12 @@ void Player::Draw(const Camera& camera)
 	}
 }
 
+void Player::DrawUI()
+{
+	spriteHpBar_->Draw();
+	spriteHpBarFrame_->Draw();
+}
+
 void Player::UpdateParticle()
 {
 	//武器のパーティクルの更新
@@ -147,46 +184,104 @@ void Player::OnCollision(Collider* collider)
 {
 	if (collider->GetCollisionAttribute() == kCollisionAttributeEnemy)
 	{
-		//Vector3 sub = GetWorldPosition() - collider->GetWorldPosition();
-		//Vector3 kKnockBackSpeed = { 1.0f,sub.y < 0.0f ? -1.0f : 1.0f ,1.0f };
-		//knockBackVelocity_ = Mathf::Normalize(sub) * kKnockBackSpeed;
-		//behaviorRequest_ = Behavior::kKnockBack;
-
-		AABB aabbA = {
-            .min{worldTransform_.translation_.x + GetAABB().min.x,worldTransform_.translation_.y + GetAABB().min.y,worldTransform_.translation_.z + GetAABB().min.z},
-            .max{worldTransform_.translation_.x + GetAABB().max.x,worldTransform_.translation_.y + GetAABB().max.y,worldTransform_.translation_.z + GetAABB().max.z},
-		};
-		AABB aabbB = {
-			.min{collider->GetWorldTransform().translation_.x + collider->GetAABB().min.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().min.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().min.z},
-			.max{collider->GetWorldTransform().translation_.x + collider->GetAABB().max.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().max.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().max.z},
-		};
-
-		Vector3 overlapAxis = {
-			std::min<float>(aabbA.max.x,aabbB.max.x) - std::max<float>(aabbA.min.x,aabbB.min.x),
-			std::min<float>(aabbA.max.y,aabbB.max.y) - std::max<float>(aabbA.min.y,aabbB.min.y),
-			std::min<float>(aabbA.max.z,aabbB.max.z) - std::max<float>(aabbA.min.z,aabbB.min.z),
-		};
-
-		Vector3 directionAxis{};
-		if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
-			//X軸方向で最小の重なりが発生している場合
-			directionAxis.x = (worldTransform_.translation_.x < collider->GetWorldTransform().translation_.x) ? -1.0f : 1.0f;
-			directionAxis.y = 0.0f;
-		}
-		else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
-			//Y軸方向で最小の重なりが発生している場合
-			directionAxis.y = (worldTransform_.translation_.y < collider->GetWorldTransform().translation_.y) ? -1.0f : 1.0f;
-			directionAxis.x = 0.0f;
-		}
-		else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
+		const Boss* boss = dynamic_cast<const Boss*>(GameObjectManager::GetInstance()->GetGameObject("Boss"));
+		if (!boss->GetIsAttack())
 		{
-			directionAxis.z = (worldTransform_.translation_.z < collider->GetWorldTransform().translation_.z) ? -1.0f : 1.0f;
-			directionAxis.x = 0.0f;
-			directionAxis.y = 0.0f;
-		}
+			AABB aabbA = {
+				.min{worldTransform_.translation_.x + GetAABB().min.x,worldTransform_.translation_.y + GetAABB().min.y,worldTransform_.translation_.z + GetAABB().min.z},
+				.max{worldTransform_.translation_.x + GetAABB().max.x,worldTransform_.translation_.y + GetAABB().max.y,worldTransform_.translation_.z + GetAABB().max.z},
+			};
+			AABB aabbB = {
+				.min{collider->GetWorldTransform().translation_.x + collider->GetAABB().min.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().min.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().min.z},
+				.max{collider->GetWorldTransform().translation_.x + collider->GetAABB().max.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().max.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().max.z},
+			};
 
-		worldTransform_.translation_ += overlapAxis * directionAxis;
-		worldTransform_.UpdateMatrixFromQuaternion();
+			Vector3 overlapAxis = {
+				std::min<float>(aabbA.max.x,aabbB.max.x) - std::max<float>(aabbA.min.x,aabbB.min.x),
+				std::min<float>(aabbA.max.y,aabbB.max.y) - std::max<float>(aabbA.min.y,aabbB.min.y),
+				std::min<float>(aabbA.max.z,aabbB.max.z) - std::max<float>(aabbA.min.z,aabbB.min.z),
+			};
+
+			Vector3 directionAxis{};
+			if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
+				//X軸方向で最小の重なりが発生している場合
+				directionAxis.x = (worldTransform_.translation_.x < collider->GetWorldTransform().translation_.x) ? -1.0f : 1.0f;
+				directionAxis.y = 0.0f;
+			}
+			else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
+				//Y軸方向で最小の重なりが発生している場合
+				directionAxis.y = (worldTransform_.translation_.y < collider->GetWorldTransform().translation_.y) ? -1.0f : 1.0f;
+				directionAxis.x = 0.0f;
+			}
+			else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
+			{
+				directionAxis.z = (worldTransform_.translation_.z < collider->GetWorldTransform().translation_.z) ? -1.0f : 1.0f;
+				directionAxis.x = 0.0f;
+				directionAxis.y = 0.0f;
+			}
+
+			worldTransform_.translation_ += overlapAxis * directionAxis;
+			worldTransform_.UpdateMatrixFromQuaternion();
+		}
+		//攻撃中の場合吹っ飛ばす
+		else
+		{
+			if (behavior_ != Behavior::kDash)
+			{
+				Vector3 kKnockBackSpeed = { 0.0f,0.2f,0.4f };
+				knockBackVelocity_ = Mathf::TransformNormal(kKnockBackSpeed, boss->GetWorldTransform().matWorld_);
+				behaviorRequest_ = Behavior::kKnockBack;
+				if (!invincibleFlag_)
+				{
+					isHit_ = true;
+					invincibleFlag_ = true;
+					invincibleTimer_ = 0;
+					hp_ -= boss->GetDamage();
+					if (hp_ <= 0.0f)
+					{
+						hp_ = 0.0f;
+					}
+				}
+			}
+		}
+	}
+
+	//ミサイルの衝突判定
+	if (collider->GetCollisionAttribute() == kCollisionAttributeMissile)
+	{
+		if (behavior_ != Behavior::kDash)
+		{
+			if (!invincibleFlag_)
+			{
+				isHit_ = true;
+				invincibleFlag_ = true;
+				invincibleTimer_ = 0;
+				hp_ -= 10.0f;
+				if (hp_ <= 0.0f)
+				{
+					hp_ = 0.0f;
+				}
+			}
+		}
+	}
+
+	//レーザーの衝突判定
+	if (collider->GetCollisionAttribute() == kCollisionAttributeLaser)
+	{
+		if (behavior_ != Behavior::kDash)
+		{
+			if (!invincibleFlag_)
+			{
+				isHit_ = true;
+				invincibleFlag_ = true;
+				invincibleTimer_ = 0;
+				hp_ -= 10.0f;
+				if (hp_ <= 0.0f)
+				{
+					hp_ = 0.0f;
+				}
+			}
+		}
 	}
 }
 
@@ -615,6 +710,7 @@ void Player::BehaviorAttackUpdate()
 		else 
 		{
 			behaviorRequest_ = Behavior::kRoot;
+			workAttack_.comboIndex = 0;
 			weapon_->SetIsAttack(false);
 		}
 	}
@@ -655,15 +751,19 @@ void Player::BehaviorAttackUpdate()
 	{
 	case 0:
 		AttackAnimation(isMove);
+		damage_ = 8;
 		break;
 	case 1:
 		AttackAnimation(isMove);
+		damage_ = 8;
 		break;
 	case 2:
 		AttackAnimation(isMove);
+		damage_ = 5;
 		break;
 	case 3:
 		AttackAnimation(isMove);
+		damage_ = 30;
 		break;
 	}
 
@@ -907,15 +1007,19 @@ void Player::BehaviorAirAttackUpdate()
 	{
 	case 0:
 		AirAttackAnimation(isMove);
+		damage_ = 8;
 		break;
 	case 1:
 		AirAttackAnimation(isMove);
+		damage_ = 8;
 		break;
 	case 2:
 		AirAttackAnimation(isMove);
+		damage_ = 5;
 		break;
 	case 3:
 		AirAttackAnimation(isMove);
+		damage_ = 20;
 		break;
 	}
 

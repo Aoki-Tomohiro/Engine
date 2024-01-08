@@ -4,6 +4,7 @@
 #include "Engine/Components/Input.h"
 #include "Engine/Components/Audio.h"
 #include "Weapon.h"
+#include "Engine/2D/Sprite.h"
 #include <array>
 #include <optional>
 
@@ -12,6 +13,8 @@ class LockOn;
 class Player : public IGameObject, public Collider
 {
 public:
+	static const uint32_t kInvincibleTime = 120;
+
 	//プレイヤーの状態
 	enum class Behavior
 	{
@@ -94,6 +97,11 @@ public:
 	void Draw(const Camera& camemra) override;
 
 	/// <summary>
+	/// UIの描画
+	/// </summary>
+	void DrawUI();
+
+	/// <summary>
 	/// パーティクルの更新
 	/// </summary>
 	void UpdateParticle();
@@ -167,6 +175,24 @@ public:
 	/// </summary>
 	/// <param name="lockOn"></param>
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
+
+	/// <summary>
+	/// HPを取得
+	/// </summary>
+	/// <returns></returns>
+	const float GetHP() const { return hp_; };
+
+	/// <summary>
+	/// ダメージを取得
+	/// </summary>
+	/// <returns></returns>
+	const float GetDamage() const { return damage_; };
+
+	/// <summary>
+	/// ヒットフラグを取得
+	/// </summary>
+	/// <returns></returns>
+	const bool GetIsHit() const { return isHit_; };
 
 private:
 	/// <summary>
@@ -310,5 +336,24 @@ private:
 
 	//ロックオン
 	const LockOn* lockOn_ = nullptr;
+
+	//体力バー
+	std::unique_ptr<Sprite> spriteHpBar_ = nullptr;
+	std::unique_ptr<Sprite> spriteHpBarFrame_ = nullptr;
+
+	//HP
+	Vector2 hpBarSize_{ 480.0f,16.0f };
+	const float kMaxHP = 30.0f;
+	float hp_ = kMaxHP;
+
+	//無敵時間
+	bool invincibleFlag_ = false;
+	int invincibleTimer_ = 0;
+
+	//ダメージ
+	float damage_ = 0.0f;
+
+	//ヒットフラグ
+	bool isHit_ = false;
 };
 

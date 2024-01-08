@@ -26,7 +26,7 @@ void Weapon::Initialize()
 
 	//テクスチャ読み込み
 	TextureManager::Load("Project/Resources/Images/Particle.png");
-	TextureManager::Load("Project/Resources/Images/ShockWave2.png");
+	TextureManager::Load("Project/Resources/Images/ShockWave.png");
 
 	//衝突属性を設定
 	SetOBB(obbSize);
@@ -91,7 +91,7 @@ void Weapon::DrawParticle(const Camera& camera)
 	//パーティクルシステムの描画
 	particleSystem_->SetTexture("Project/Resources/Images/Particle.png");
 	particleSystem_->Draw(camera);
-	shockWaveParticleSystem_->SetTexture("Project/Resources/Images/ShockWave2.png");
+	shockWaveParticleSystem_->SetTexture("Project/Resources/Images/ShockWave.png");
 	shockWaveParticleSystem_->Draw(camera);
 }
 
@@ -108,7 +108,7 @@ void Weapon::OnCollision(Collider* collider)
 		audio_->SoundPlayWave(slashAudioHandle_, false, 0.5f);
 		
 		//座標を決める
-		Vector3 offset{ 0.0f,0.0f,6.0f };
+		Vector3 offset{ 0.0f,0.0f,4.0f };
 		offset = Mathf::TransformNormal(offset, playerWorldTransform_->matWorld_);
 		Vector3 translation = GetWorldPosition() + offset;
 

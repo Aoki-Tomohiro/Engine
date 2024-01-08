@@ -44,8 +44,13 @@ void Renderer::Initialize()
 	device->CopyDescriptorsSimple(1, sceneDepthDescriptorHandle_, sceneDepthBuffer_->GetSRVHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	//DirectionalLightを作成
-	directionalLight_ = std::make_unique<DirectionalLight>();
-	directionalLight_->Initialize();
+	for (uint32_t i = 0; i < 2; ++i)
+	{
+		directionalLights_[i] = std::make_unique<DirectionalLight>();
+		directionalLights_[i]->Initialize();
+	}
+	directionalLights_[1]->SetEnableLighting(false);
+	directionalLights_[1]->Update();
 
 	CreateModelPipelineState();
 
@@ -94,7 +99,7 @@ void Renderer::PreDrawModels()
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	commandContext->SetRootSignature(modelRootSignature_);
 	commandContext->SetPipelineState(modelPipelineStates_[0]);
-	commandContext->SetConstantBuffer(4, directionalLight_->GetConstantBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(4, enableLighting_ ? directionalLights_[0]->GetConstantBuffer()->GetGpuVirtualAddress() : directionalLights_[1]->GetConstantBuffer()->GetGpuVirtualAddress());
 }
 
 void Renderer::PostDrawModels()

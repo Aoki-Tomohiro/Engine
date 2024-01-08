@@ -7,11 +7,11 @@ void LockOn::Initialize()
 {
 	//インスタンスを取得
 	input_ = Input::GetInstance();
-	////テクスチャ読み込み
-	//TextureManager::Load("Project/Resources/Images/Reticle.png");
-	////スプライトの生成
-	//lockOnMark_.reset(Sprite::Create("Project/Resources/Images/Reticle.png", { 0.0f,0.0f }));
-	//lockOnMark_->SetAnchorPoint({ 0.5f,0.5f });
+	//テクスチャ読み込み
+	TextureManager::Load("Project/Resources/Images/Reticle.png");
+	//スプライトの生成
+	lockOnMark_.reset(Sprite::Create("Project/Resources/Images/Reticle.png", { 0.0f,0.0f }));
+	lockOnMark_->SetAnchorPoint({ 0.5f,0.5f });
 }
 
 void LockOn::Update(const Boss* boss, const Camera& camera)
@@ -29,8 +29,8 @@ void LockOn::Update(const Boss* boss, const Camera& camera)
 		Vector3 positionScreen = Mathf::Transform(positionWorld, matViewProjectionViewport);
 		//Vector2に格納
 		Vector2 positionScreenV2 = { positionScreen.x,positionScreen.y };
-		////スプライトの座標を設定
-		//lockOnMark_->SetPosition(positionScreenV2);
+		//スプライトの座標を設定
+		lockOnMark_->SetPosition(positionScreenV2);
 
 		//ロックオン解除処理
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_THUMB))

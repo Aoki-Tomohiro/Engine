@@ -52,7 +52,9 @@ public:
 
 	DescriptorHandle GetSceneDepthDescriptorHandle() { return sceneDepthDescriptorHandle_; };
 
-	DirectionalLight* GetDirectionalLight() { return directionalLight_.get(); };
+	DirectionalLight* GetDirectionalLight() { return directionalLights_[0].get(); };
+
+	void SetEnableLighting(bool enableLighting) { enableLighting_ = enableLighting; };
 
 private:
 	Renderer() = default;
@@ -77,8 +79,6 @@ private:
 
 	DescriptorHandle sceneDepthDescriptorHandle_{};
 
-	std::unique_ptr<DirectionalLight> directionalLight_ = nullptr;
-
 	RootSignature modelRootSignature_{};
 
 	RootSignature spriteRootSignature_{};
@@ -90,5 +90,9 @@ private:
 	std::vector<PipelineState> spritePipelineStates_{};
 
 	std::vector<PipelineState> particlePipelineStates_{};
+
+	std::unique_ptr<DirectionalLight> directionalLights_[2]{};
+
+	bool enableLighting_ = true;
 };
 

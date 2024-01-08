@@ -1,10 +1,14 @@
 #include "Boss.h"
-#include "Engine/Utilities/RandomGenerator.h"
-#include "Engine/Math/MathFunction.h"
+#include "Engine/Components/CollisionConfig.h"
+#include "Engine/Base/Renderer.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Framework/GameObjectManager.h"
 #include "Project/Object/Player/Player.h"
-#include "Project/Object/Player/Weapon.h"
-#include "Engine/Components/CollisionConfig.h"
+
+Boss::~Boss()
+{
+	delete state_;
+}
 
 void Boss::Initialize() 
 {
@@ -13,9 +17,19 @@ void Boss::Initialize()
 	worldTransform_.translation_.y = 3.0f;
 	worldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 
-	//衝突判定用のワールドトランスフォームの初期化
-	worldTransformAnimation_.Initialize();
-	worldTransformAnimation_ = worldTransform_;
+	//状態の初期化
+	state_ = new BossStateNormal();
+	state_->Initialize(this);
+
+	//テクスチャ読み込み
+	TextureManager::Load("Project/Resources/Images/HpBarFrame3.png");
+	TextureManager::Load("Project/Resources/Images/HpBar3.png");
+
+	//スプライトの生成
+	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar3.png", { 720.0f,32.0f }));
+	spriteHpBar_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
+	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame3.png", { 719.0f,31.0f }));
+	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributeEnemy);
@@ -29,62 +43,99 @@ void Boss::Initialize()
 
 void Boss::Update()
 {
+	//前のフレームの座標を取得
+	oldPosition_ = worldTransform_.translation_;
+
 	//前のフレームの当たり判定のフラグを取得
 	preOnCollision_ = onCollision_;
 	onCollision_ = false;
 
-	////攻撃が当たったら揺らす
-	//if (isHit_) 
-	//{
-	//	if (++shakeTimer_ >= kShakeTime)
-	//	{
-	//		isHit_ = false;
-	//		shakeTimer_ = 0;
-	//	}
-	//	worldTransformAnimation_.translation_ += knockBackVelocity_;
-	//	worldTransformAnimation_.translation_.x += RandomGenerator::GetRandomFloat(-0.1f, 0.1f);
-	//	worldTransformAnimation_.translation_.z += RandomGenerator::GetRandomFloat(-0.1f, 0.1f);
-	//	worldTransformAnimation_.UpdateMatrixFromEuler();
-	//}
-	//else
-	//{
-	//	worldTransformAnimation_ = worldTransform_;
-	//}
+	//状態の更新
+	state_->Update(this);
 
-	//ノックバックの処理
-	if (isKnockBack_)
-	{
-		if (++knockBackTimer_ >= knockBackTime_)
+	//死亡フラグの立ったミサイルを削除
+	missiles_.remove_if([](std::unique_ptr<Missile>& missile)
 		{
-			isKnockBack_ = false;
+			if (missile->GetIsDead())
+			{
+				missile.reset();
+				return true;
+			}
+			return false;
 		}
+	);
 
-		worldTransform_.translation_ += knockBackVelocity_;
+	//ミサイルの更新
+	for (const std::unique_ptr<Missile>& missile : missiles_)
+	{
+		missile->Update();
 	}
 
-	//移動限界座標
-	const float kMoveLimitX = 47;
-	const float kMoveLimitZ = 47;
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
-	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
-	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
+	//死亡フラグの立ったレーザーを削除
+	lasers_.remove_if([](std::unique_ptr<Laser>& laser)
+		{
+			if (laser->GetIsDead())
+			{
+				laser.reset();
+				return true;
+			}
+			return false;
+		}
+	);
 
-	//基底クラスの更新
-	IGameObject::Update();
+	//レーザーの更新
+	for (const std::unique_ptr<Laser>& laser : lasers_)
+	{
+		laser->Update();
+	}
+
+	//ワールドトランスフォームを取得
+	worldTransform_ = state_->GetWorldTransform();
+
+	//ワールドトランスフォームの更新
+	worldTransform_.UpdateMatrixFromQuaternion();
+
+	//HPバーの処理
+	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
+	spriteHpBar_->SetSize(hpBarSize_);
 }
 
 void Boss::Draw(const Camera& camera) 
 {
-	//if (isHit_)
-	//{
-	//	model_->Draw(worldTransformAnimation_, camera);
-	//}
-	//else 
+	//状態の描画
+	state_->Draw(this, camera);
+
+	//基底クラスの描画
+	IGameObject::Draw(camera);
+
+	//ミサイルの描画
+	for (const std::unique_ptr<Missile>& missile : missiles_)
 	{
-		//基底クラスの描画
-		IGameObject::Draw(camera);
+		missile->Draw(camera);
 	}
+
+	//レーザーの描画
+	Renderer* renderer = Renderer::GetInstance();
+	renderer->SetEnableLighting(false);
+	renderer->PreDrawModels();
+	for (const std::unique_ptr<Laser>& laser : lasers_)
+	{
+		laser->Draw(camera);
+	}
+	renderer->SetEnableLighting(true);
+	renderer->PreDrawModels();
+}
+
+void Boss::DrawUI()
+{
+	spriteHpBar_->Draw();
+	spriteHpBarFrame_->Draw();
+}
+
+void Boss::ChangeState(IBossState* newState)
+{
+	delete state_;
+	state_ = newState;
 }
 
 void Boss::OnCollision(Collider* collider) 
@@ -95,31 +146,16 @@ void Boss::OnCollision(Collider* collider)
 
 		if (onCollision_ != preOnCollision_)
 		{
-			//ヒットフラグを立てる
-			isHit_ = true;
-
-			//ノックバックの速度を決める
 			const Player* player = dynamic_cast<const Player*>(GameObjectManager::GetInstance()->GetGameObject("Player"));
-			knockBackVelocity_ = player->GetVelocity();
-			if (player->GetComboIndex() == 3)
+			hp_ -= player->GetDamage();
+			if (hp_ <= 0.0f)
 			{
-				Vector3 sub = worldTransform_.translation_ - player->GetTranslation();
-				sub = Mathf::Normalize(sub);
-				sub.y = 0.0f;
-				const float kKnockBackSpeed = 2.0f;
-				knockBackVelocity_ = sub * kKnockBackSpeed;
+				hp_ = 0.0f;
 			}
-
-			//ノックバックのフラグを立てる
-			isKnockBack_ = true;
-
-			//ノックバックのタイマーを設定
-			knockBackTimer_ = 0;
-			knockBackTime_ = player->GetAttackTime() - player->GetAttackParameter();
-
-			//アニメーションのワールドトランスフォームの更新
-			worldTransformAnimation_ = worldTransform_;
-			worldTransformAnimation_.UpdateMatrixFromEuler();
+			//衝突判定の応答
+			state_->OnCollision(collider);
+			worldTransform_ = state_->GetWorldTransform();
+			worldTransform_.UpdateMatrixFromQuaternion();
 		}
 	}
 }

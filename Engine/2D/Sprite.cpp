@@ -16,6 +16,9 @@ void Sprite::Draw()
 		return;
 	}
 
+	UpdateVertexBuffer();
+	UpdateMaterialResource();
+	UpdateWVPResource();
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	TextureManager* textureManager = TextureManager::GetInstance();
 	commandContext->SetVertexBuffer(vertexBufferView_);

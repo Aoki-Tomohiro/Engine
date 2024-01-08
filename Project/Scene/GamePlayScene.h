@@ -16,7 +16,15 @@
 class GamePlayScene : public IScene
 {
 public:
-	static const uint32_t kStopTime = 2;
+	enum NextScene
+	{
+		GameClearScene,
+		GameOverScene,
+	};
+
+	//トランジションの時間
+	static const int kTransitionTime = 60;
+	//static const uint32_t kStopTime = 2;
 	static const uint32_t kShakeTime = 20;
 
 	void Initialize() override;
@@ -45,6 +53,10 @@ private:
 	bool cameraShakeEnable_ = false;
 	uint32_t shakeTimer_ = 0;
 
+	//シェイクの強さ
+	float shakeIntensityX = 0.6f;
+	float shakeIntensityY = 0.6f;
+
 	//プレイヤー
 	Model* playerModel_ = nullptr;
 	Player* player_ = nullptr;
@@ -70,6 +82,19 @@ private:
 
 	//ヒットストップ関連
 	bool isStop_ = false;
-	int32_t stopTimer_ = 0;
-};
+	uint32_t kStopTime = 2;
+	uint32_t stopTimer_ = 0;
+
+	//トランジション
+	std::unique_ptr<Sprite> sprite_ = nullptr;
+
+	Vector4 spriteColor_{ 0.0f,0.0f,0.0f,1.0f };
+
+	bool isTransition_ = false;
+	bool isTransitionEnd_ = false;
+
+	float transitionTimer_ = 0.0f;
+
+	//次のシーン
+	uint32_t nextScene = GameClearScene;};
 
