@@ -6,7 +6,7 @@ void GameCore::Initialize()
 {
 	//Applicationの初期化
 	application_ = Application::GetInstance();
-	application_->CreateGameWindow(L"DirectXGame", Application::kClientWidth, Application::kClientHeight);
+	application_->CreateGameWindow(L"LE2A_01_アオキ_トモヒロ", Application::kClientWidth, Application::kClientHeight);
 
 	//GraphicsCoreの初期化
 	graphicsCore_ = GraphicsCore::GetInstance();
