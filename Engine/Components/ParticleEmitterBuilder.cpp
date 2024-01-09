@@ -96,6 +96,12 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetAccelerationField(const Vecto
 	return *this;
 }
 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetGravityField(const Vector3& targetPosition, const Vector3& velocity, const AABB& area, const AABB& deleteArea)
+{
+	particleEmitter_->gravityField_ = { .targetPosition = targetPosition,.velocity = velocity,.area = area,.deleteArea = deleteArea };
+	return *this;
+}
+
 ParticleEmitter* ParticleEmitterBuilder::Build() 
 {
 	return particleEmitter_;

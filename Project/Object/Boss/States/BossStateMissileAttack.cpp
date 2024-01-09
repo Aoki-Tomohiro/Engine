@@ -3,11 +3,13 @@
 #include "Engine/Components/CollisionConfig.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Audio.h"
 
 void BossStateMissileAttack::Initialize(Boss* pBoss)
 {
 	worldTransform_ = pBoss->GetWorldTransform();
 	destinationQuaternion_ = worldTransform_.quaternion_;
+	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/Fire.wav");
 }
 
 void BossStateMissileAttack::Update(Boss* pBoss)
@@ -53,6 +55,9 @@ void BossStateMissileAttack::Update(Boss* pBoss)
 				//Missile* newMissile4 = new Missile();
 				//newMissile4->Initialize(worldTransform_.translation_, velocity[3]);
 				//pBoss->AddMissile(newMissile4);
+
+				//音声再生
+				Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
 			}
 
 			if (fireCount_ >= 3)

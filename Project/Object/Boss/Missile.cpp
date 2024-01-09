@@ -2,11 +2,12 @@
 #include "Engine/Components/CollisionConfig.h"
 #include "Engine/Framework/GameObjectManager.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Components/Audio.h"
 
 void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 {
 	//モデルの生成
-	model_ = ModelManager::CreateFromOBJ("Sphere", Opaque);
+	model_ = ModelManager::CreateFromOBJ("Missile", Opaque);
 
 	//速度の初期化
 	velocity_ = velocity;
@@ -17,6 +18,10 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 
 	SetCollisionAttribute(kCollisionAttributeMissile);
 	SetCollisionMask(kCollisionMaskMissile);
+	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+
+	//音声データ読み込み
+	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/Explosion.wav");
 }
 
 void Missile::Update()
@@ -63,6 +68,7 @@ void Missile::Update()
 	if (worldTransform_.translation_.x <= -100.0f || worldTransform_.translation_.x >= 100.0f || worldTransform_.translation_.y <= 1.0f || worldTransform_.translation_.z <= -100.0f || worldTransform_.translation_.z >= 100.0f)
 	{
 		isDead_ = true;
+		Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
 	}
 }
 
@@ -74,6 +80,7 @@ void Missile::Draw(const Camera& camera)
 void Missile::OnCollision(Collider* collider)
 {
 	isDead_ = true;
+	Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
 }
 
 const Vector3 Missile::GetWorldPosition() const

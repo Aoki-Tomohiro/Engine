@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/IGameObject.h"
+#include "Engine/Components/ParticleManager.h"
 #include "Engine/Components/Collider.h"
 #include "Engine/Components/Input.h"
 #include "Engine/Components/Audio.h"
@@ -355,5 +356,15 @@ private:
 
 	//ヒットフラグ
 	bool isHit_ = false;
+
+	//パーティクル
+	ParticleSystem* particleSystem_ = nullptr;
+	Model* particleModel_ = nullptr;
+	bool isParticleActive_ = false;
+
+	//オーディオハンドル
+	uint32_t damageAudioHandle_ = 0;
+	uint32_t dashAudioHandle_ = 0;
+	uint32_t jumpAudioHandle_ = 0;
 };
 

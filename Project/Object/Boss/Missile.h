@@ -67,5 +67,8 @@ private:
 
 	//死亡フラグ
 	bool isDead_ = false;
+
+	//オーディオハンドル
+	uint32_t audioHandle_ = 0;
 };
 

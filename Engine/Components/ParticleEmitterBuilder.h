@@ -123,6 +123,14 @@ public:
 	ParticleEmitterBuilder& SetAccelerationField(const Vector3& acceleration, const AABB& area);
 
 	/// <summary>
+	/// 重力フィールドの設定
+	/// </summary>
+	/// <param name="acceleration"></param>
+	/// <param name="area"></param>
+	/// <returns></returns>
+	ParticleEmitterBuilder& SetGravityField(const Vector3& targetPosition, const Vector3& velocity, const AABB& area, const AABB& deleteArea);
+
+	/// <summary>
 	/// エミッターを作成
 	/// </summary>
 	/// <returns></returns>

@@ -68,7 +68,6 @@ private:
 	std::unique_ptr<FollowCamera> followCamera_ = nullptr;
 
 	//地面
-	Model* groundSurfaceModel_ = nullptr;
 	Model* groundModel_ = nullptr;
 	Ground* ground_ = nullptr;
 
@@ -96,5 +95,12 @@ private:
 	float transitionTimer_ = 0.0f;
 
 	//次のシーン
-	uint32_t nextScene = GameClearScene;};
+	uint32_t nextScene = GameClearScene;
+
+	//UI
+	std::unique_ptr<Sprite> UISprite_ = nullptr;
+
+	//オーディオハンドル
+	uint32_t audioHandle_ = 0;
+};
 

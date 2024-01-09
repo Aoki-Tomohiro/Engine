@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/IGameObject.h"
+#include "Engine/Components/ParticleManager.h"
 #include "Engine/2D/Sprite.h"
 #include "Project/Object/Boss/States/BossStateNormal.h"
 #include "Project/Object/Boss/States/BossStateTackle.h"
@@ -39,6 +40,17 @@ public:
 	/// UIの描画
 	/// </summary>
 	void DrawUI();
+
+	/// <summary>
+	/// パーティクルの更新
+	/// </summary>
+	void UpdateParticle();
+
+	/// <summary>
+	/// パーティクルの描画
+	/// </summary>
+	/// <param name="camera"></param>
+	void DrawParicle(const Camera& camera);
 
 	/// <summary>
 	/// 状態遷移
@@ -123,6 +135,12 @@ public:
 	/// <param name="damage"></param>
 	void SetDamage(const float damage) { damage_ = damage; };
 
+	/// <summary>
+	/// エミッターを追加
+	/// </summary>
+	/// <param name="emitter"></param>
+	void AddEmitter(ParticleEmitter* emitter) { particleSystem_->AddParticleEmitter(emitter); };
+
 private:
 	//状態
 	IBossState* state_ = nullptr;
@@ -154,5 +172,8 @@ private:
 
 	//ダメージ
 	float damage_ = 0.0f;
-};
+
+	//パーティクル
+	ParticleSystem* particleSystem_ = nullptr;
+ };
 

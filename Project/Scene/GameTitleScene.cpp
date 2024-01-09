@@ -2,6 +2,7 @@
 #include "Engine/Framework/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Components/Audio.h"
 
 void GameTitleScene::Initialize()
 {
@@ -9,10 +10,23 @@ void GameTitleScene::Initialize()
 
 	input_ = Input::GetInstance();
 
+	gameObjectManager_ = GameObjectManager::GetInstance();
+	gameObjectManager_->Initialize();
+
 	//スプライトの生成
 	sprite_.reset(Sprite::Create("Project/Resources/Images/white.png", { 0.0f,0.0f }));
+	backGroundSprite_.reset(Sprite::Create("Project/Resources/Images/Title.png", { 0.0f,0.0f }));
 	sprite_->SetSize({ 1280.0f,720.0f });
 	sprite_->SetColor(spriteColor_);
+
+	camera_.Initialize();
+
+	skydomeModel_ = ModelManager::CreateFromOBJ("Skydome", Opaque);
+	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
+	skydome_->SetModel(skydomeModel_);
+
+	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/Title.wav");
+	Audio::GetInstance()->SoundPlayWave(audioHandle_, true, 0.5f);
 }
 
 void GameTitleScene::Finalize()
@@ -45,6 +59,7 @@ void GameTitleScene::Update()
 		if (spriteColor_.w >= 1.0f)
 		{
 			sceneManager_->ChangeScene("GamePlayScene");
+			Audio::GetInstance()->StopAudio(audioHandle_);
 		}
 	}
 
@@ -57,7 +72,15 @@ void GameTitleScene::Update()
 				isTransition_ = true;
 			}
 		}
+
+		if (input_->IsPushKeyEnter(DIK_SPACE))
+		{
+			isTransition_ = true;
+		}
 	}
+
+	//ゲームオブジェクトの更新
+	gameObjectManager_->Update();
 
 	ImGui::Begin("GameTitleScene");
 	ImGui::Text("A : GamePlayScene");
@@ -66,12 +89,18 @@ void GameTitleScene::Update()
 
 void GameTitleScene::Draw()
 {
+	renderer_->PreDrawModels();
 
+	gameObjectManager_->Draw(camera_);
+
+	renderer_->PostDrawModels();
 }
 
 void GameTitleScene::DrawUI()
 {
 	renderer_->PreDrawSprites(Renderer::kBlendModeNormal);
+
+	backGroundSprite_->Draw();
 
 	sprite_->Draw();
 

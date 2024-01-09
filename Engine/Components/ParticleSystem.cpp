@@ -120,7 +120,19 @@ void ParticleSystem::UpdateInstancingResource(const Camera& camera)
 		{
 			Matrix4x4 scaleMatrix = Mathf::MakeScaleMatrix(particleIterator->get()->GetScale());
 			Matrix4x4 translateMatrix = Mathf::MakeTranslateMatrix(particleIterator->get()->GetTranslation());
-			Matrix4x4 worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
+			Matrix4x4 worldMatrix{};
+			if (isBillboard_)
+			{
+				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
+			}
+			else
+			{
+				Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(particleIterator->get()->GetRotation().x);
+				Matrix4x4 rotateYMatrix = Mathf::MakeRotateXMatrix(particleIterator->get()->GetRotation().y);
+				Matrix4x4 rotateZMatrix = Mathf::MakeRotateXMatrix(particleIterator->get()->GetRotation().z);
+				Matrix4x4 rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+				worldMatrix = scaleMatrix * rotateMatrix * translateMatrix;
+			}
 			if (numInstance_ < kMaxInstance)
 			{
 				instancingData[numInstance_].world = worldMatrix;

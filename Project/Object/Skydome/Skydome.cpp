@@ -4,6 +4,7 @@ void Skydome::Initialize()
 {
 	//基底クラスの初期化
 	IGameObject::Initialize();
+	worldTransform_.scale_ = { 500.0f,500.0f,500.0f };
 }
 
 void Skydome::Update()

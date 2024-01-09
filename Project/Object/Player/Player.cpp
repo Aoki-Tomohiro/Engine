@@ -29,6 +29,9 @@ void Player::Initialize()
 
 	//オーディオの読み込み
 	swishAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Swish.wav");
+	damageAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Damage1.wav");
+	dashAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Dash.wav");
+	jumpAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Jump1.wav");
 
 	//テクスチャ読み込み
 	TextureManager::Load("Project/Resources/Images/HpBarFrame3.png");
@@ -44,6 +47,12 @@ void Player::Initialize()
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	SetCollisionMask(kCollisionMaskPlayer);
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+
+	//パーティクルの生成
+	particleModel_ = ModelManager::CreateFromOBJ("Cube", Transparent);
+	particleSystem_ = ParticleManager::Create("Dash");
+	particleSystem_->SetModel(particleModel_);
+	particleSystem_->SetBillBoard(false);
 }
 
 void Player::Update() 
@@ -172,12 +181,24 @@ void Player::UpdateParticle()
 {
 	//武器のパーティクルの更新
 	weapon_->UpdateParticle();
+	
+	//ダッシュのパーティクルの更新
+	particleSystem_->Update();
 }
 
 void Player::DrawParticle(const Camera& camera)
 {
 	//武器のパーティクルの描画
 	weapon_->DrawParticle(camera);
+
+	//移動パーティクルの描画
+	if (behavior_ == Behavior::kRoot) 
+	{
+		if (isParticleActive_)
+		{
+			particleSystem_->Draw(camera);
+		}
+	}
 }
 
 void Player::OnCollision(Collider* collider)
@@ -233,6 +254,7 @@ void Player::OnCollision(Collider* collider)
 				behaviorRequest_ = Behavior::kKnockBack;
 				if (!invincibleFlag_)
 				{
+					audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
 					isHit_ = true;
 					invincibleFlag_ = true;
 					invincibleTimer_ = 0;
@@ -253,6 +275,7 @@ void Player::OnCollision(Collider* collider)
 		{
 			if (!invincibleFlag_)
 			{
+				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
 				isHit_ = true;
 				invincibleFlag_ = true;
 				invincibleTimer_ = 0;
@@ -272,6 +295,7 @@ void Player::OnCollision(Collider* collider)
 		{
 			if (!invincibleFlag_)
 			{
+				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
 				isHit_ = true;
 				invincibleFlag_ = true;
 				invincibleTimer_ = 0;
@@ -367,6 +391,8 @@ void Player::BehaviorRootUpdate()
 		//スティックによる入力がある場合
 		if (isMoving)
 		{
+			isParticleActive_ = true;
+
 			//速さ
 			//const float speed = 0.3f;
 			const float speed = 0.6f;
@@ -383,6 +409,40 @@ void Player::BehaviorRootUpdate()
 
 			//回転
 			Rotate(velocity_);
+
+			////パーティクルの生成
+			//if (particleSystem_->GetParticleEmitter("Move") == nullptr)
+			//{
+			//	ParticleEmitter* emitter = ParticleEmitterBuilder()
+			//		.SetDeleteTime(60.0f * 3.0f)
+			//		.SetEmitterName("Move")
+			//		.SetPopArea({ -worldTransform_.scale_.x,0.0f,-worldTransform_.scale_.z }, { worldTransform_.scale_.x,0.0f,worldTransform_.scale_.x })
+			//		.SetPopAzimuth(0.0f, 0.0f)
+			//		.SetPopColor({ 0.5f, 0.5f, 0.5f, 1.0f }, { 0.5f, 0.5f, 0.5f, 1.0f })
+			//		.SetPopCount(4)
+			//		.SetPopElevation(0.0f, 0.0f)
+			//		.SetPopFrequency(0.1f)
+			//		.SetPopLifeTime(0.2f, 0.4f)
+			//		.SetPopRotation({ 0.0f,0.0f,0.0f }, { 3.14f,3.14f,3.14f })
+			//		.SetPopScale({ 0.2f,0.2f,0.2f }, { 0.4f,0.4f,0.4f })
+			//		.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			//		.SetTranslation({ worldTransform_.translation_.x ,0.0f,worldTransform_.translation_.z })
+			//		.Build();
+			//	particleSystem_->AddParticleEmitter(emitter);
+			//}
+			//else
+			//{
+			//	particleSystem_->GetParticleEmitter("Move")->SetTranslation({ worldTransform_.translation_.x ,0.0f,worldTransform_.translation_.z });
+			//	particleSystem_->GetParticleEmitter("Move")->SetPopCount(4);
+			//}
+		}
+		else
+		{
+			//isParticleActive_ = false;
+			//if (particleSystem_->GetParticleEmitter("Move"))
+			//{
+			//	particleSystem_->GetParticleEmitter("Move")->SetPopCount(0);
+			//}
 		}
 	}
 
@@ -492,6 +552,26 @@ void Player::BehaviorDashInitialize()
 			velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
 		}
 	}
+
+	audio_->SoundPlayWave(dashAudioHandle_, false, 0.5f);
+
+	////パーティクルの生成
+	//ParticleEmitter* emitter = ParticleEmitterBuilder()
+	//	.SetDeleteTime(10)
+	//	.SetEmitterName("Dash")
+	//	.SetPopArea({ -worldTransform_.scale_.x,worldTransform_.scale_.y,-worldTransform_.scale_.z }, { worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.x })
+	//	.SetPopAzimuth(0.0f, 0.0f)
+	//	.SetPopColor({ 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f })
+	//	.SetPopCount(100)
+	//	.SetPopElevation(0.0f, 0.0f)
+	//	.SetPopFrequency(20.0f)
+	//	.SetPopLifeTime(0.2f, 0.4f)
+	//	.SetPopRotation({0.0f,0.0f,0.0f}, { 0.0f,0.0f,0.0f })
+	//	.SetPopScale({ 0.01f,0.01f,0.8f }, { 0.01f,0.01f,1.2f })
+	//	.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+	//	.SetTranslation(worldTransform_.translation_)
+	//	.Build();
+	//particleSystem_->AddParticleEmitter(emitter);
 }
 
 void Player::BehaviorDashUpdate()
@@ -505,6 +585,12 @@ void Player::BehaviorDashUpdate()
 	{
 		behaviorRequest_ = Behavior::kRoot;
 	}
+
+	////エミッターの座標をずらす
+	//if (particleSystem_->GetParticleEmitter("Dash"))
+	//{
+	//	particleSystem_->GetParticleEmitter("Dash")->SetTranslation(worldTransform_.translation_);
+	//}
 }
 
 void Player::BehaviorJumpInitialize() 
@@ -513,6 +599,7 @@ void Player::BehaviorJumpInitialize()
 	velocity_.x = 0.0f;
 	velocity_.y = kJumpFirstSpeed;
 	velocity_.z = 0.0f;
+	audio_->SoundPlayWave(jumpAudioHandle_, false, 0.2f);
 }
 
 void Player::BehaviorJumpUpdate() 

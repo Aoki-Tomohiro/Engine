@@ -5,7 +5,7 @@
 void Laser::Initialize()
 {
 	//モデルの生成
-	model_ = ModelManager::CreateFromOBJ("Cube", Opaque);
+	model_ = ModelManager::CreateFromOBJ("Laser", Opaque);
 
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();

@@ -89,10 +89,10 @@ void Weapon::Draw(const Camera& camera)
 void Weapon::DrawParticle(const Camera& camera)
 {
 	//パーティクルシステムの描画
-	particleSystem_->SetTexture("Project/Resources/Images/Particle.png");
-	particleSystem_->Draw(camera);
 	shockWaveParticleSystem_->SetTexture("Project/Resources/Images/ShockWave.png");
 	shockWaveParticleSystem_->Draw(camera);
+	particleSystem_->SetTexture("Project/Resources/Images/Particle.png");
+	particleSystem_->Draw(camera);
 }
 
 void Weapon::OnCollision(Collider* collider)

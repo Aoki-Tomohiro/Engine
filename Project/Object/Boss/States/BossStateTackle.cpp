@@ -41,7 +41,7 @@ void BossStateTackle::Initialize(Boss* pBoss)
 	//警告用のワールドトランスフォームの初期化
 	warningWorldTransform_.Initialize();
 	warningWorldTransform_.translation_ = (targetPosition_ + worldTransform_.translation_) / 2.0f;
-	warningWorldTransform_.translation_.y = 0.11f;
+	warningWorldTransform_.translation_.y = 0.1f;
 	warningWorldTransform_.quaternion_ = worldTransform_.quaternion_;
 	warningWorldTransform_.scale_ = { worldTransform_.scale_.x,worldTransform_.scale_.y,6.0f + 3.0f + 3.0f };
 }

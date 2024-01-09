@@ -1,5 +1,6 @@
 #include "ParticleEmitter.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/Math/MathFunction.h"
 #include <numbers>
 
 void ParticleEmitter::Update()
@@ -34,6 +35,19 @@ void ParticleEmitter::Update()
 			{
 				Vector3 velocity = particleIterator->get()->GetVelocity();
 				particleIterator->get()->SetVelocity(velocity + accelerationField_.acceleration);
+			}
+
+			//重力フィールドの判定
+			if (IsCollision(gravityField_.area, particleIterator->get()->GetTranslation()))
+			{
+				Vector3 velocity = gravityField_.targetPosition - particleIterator->get()->GetTranslation();
+				velocity = Mathf::Normalize(velocity);
+				velocity *= gravityField_.velocity;
+				particleIterator->get()->SetVelocity(velocity);
+				if (IsCollision(gravityField_.deleteArea, particleIterator->get()->GetTranslation()))
+				{
+					particleIterator->get()->SetIsDead(true);
+				}
 			}
 
 			//パーティクルの更新

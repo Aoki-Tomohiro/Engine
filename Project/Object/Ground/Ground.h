@@ -20,17 +20,6 @@ public:
 	/// <param name="camera"></param>
 	void Draw(const Camera& camera) override;
 
-	/// <summary>
-	/// 地面の表面のモデルを設定
-	/// </summary>
-	/// <param name="model"></param>
-	void SetGroundSurfaceModel(Model* model) { groundSurfaceModel_ = model; };
-
 private:
-	//地面の表面のモデル
-	Model* groundSurfaceModel_ = nullptr;
-
-	//地面の表面のワールドトランスフォーム
-	WorldTransform groundSurfaceWorldTransform_{};
 };
 

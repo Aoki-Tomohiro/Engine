@@ -29,6 +29,8 @@ public:
 
 	void SetModel(Model* model) { model_ = model; };
 
+	void SetBillBoard(const bool isBillboard) { isBillboard_ = isBillboard; };
+
 private:
 	void CreateInstancingResource();
 
@@ -44,5 +46,7 @@ private:
 	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
 	Model* model_ = nullptr;
+
+	bool isBillboard_ = true;
 };
 

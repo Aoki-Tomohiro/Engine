@@ -9,6 +9,7 @@ void GamePlayScene::Initialize()
 	input_ = Input::GetInstance();
 
 	renderer_ = Renderer::GetInstance();
+	renderer_->SetEnableLighting(false);
 
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Initialize();
@@ -17,7 +18,8 @@ void GamePlayScene::Initialize()
 
 	camera_.Initialize();
 
-	playerModel_ = ModelManager::CreateFromOBJ("Cube", Opaque);
+	playerModel_ = ModelManager::CreateFromOBJ("Player", Opaque);
+	playerModel_->Update();
 	player_ = GameObjectManager::CreateGameObject<Player>();
 	player_->SetTag("Player");
 	player_->SetModel(playerModel_);
@@ -32,20 +34,17 @@ void GamePlayScene::Initialize()
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetLockOn(lockOn_.get());
 
-	groundSurfaceModel_ = ModelManager::CreateFromOBJ("Ground", Opaque);
-	groundSurfaceModel_->SetUVScale({ 25.0f,25.0f });
 	groundModel_ = ModelManager::CreateFromOBJ("Cube", Opaque);
 	groundModel_->SetColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+	groundModel_->Update();
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
 	ground_->SetModel(groundModel_);
-	ground_->SetGroundSurfaceModel(groundSurfaceModel_);
 
 	skydomeModel_ = ModelManager::CreateFromOBJ("Skydome", Opaque);
 	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
 	skydome_->SetModel(skydomeModel_);
 
-	bossModel_ = ModelManager::CreateFromOBJ("Cube", Opaque);
-	bossModel_->SetColor({ 1.0f,0.0f,1.0f,1.0f });
+	bossModel_ = ModelManager::CreateFromOBJ("Boss", Opaque);
 	boss_ = GameObjectManager::CreateGameObject<Boss>();
 	boss_->SetModel(bossModel_);
 	boss_->SetTag("Boss");
@@ -54,6 +53,12 @@ void GamePlayScene::Initialize()
 	sprite_.reset(Sprite::Create("Project/Resources/Images/white.png", { 0.0f,0.0f }));
 	sprite_->SetSize({ 1280.0f,720.0f });
 	sprite_->SetColor(spriteColor_);
+
+	UISprite_.reset(Sprite::Create("Project/Resources/Images/UI.png", { 1280.0f - 320.0f - 32.0f,720.0f - 194.0f - 32.0f }));
+	UISprite_->SetSize({ 320.0f,194.0f });
+
+	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/GamePlay2.wav");
+	Audio::GetInstance()->SoundPlayWave(audioHandle_, true, 0.5f);
 }
 
 void GamePlayScene::Finalize()
@@ -89,9 +94,11 @@ void GamePlayScene::Update()
 			{
 			case GameClearScene:
 				sceneManager_->ChangeScene("GameClearScene");
+				Audio::GetInstance()->StopAudio(audioHandle_);
 				break;
 			case GameOverScene:
 				sceneManager_->ChangeScene("GameOverScene");
+				Audio::GetInstance()->StopAudio(audioHandle_);
 				break;
 			}
 		}
@@ -154,6 +161,8 @@ void GamePlayScene::Update()
 	//パーティクルの更新
 	player_->UpdateParticle();
 
+	boss_->UpdateParticle();
+
 	//ImGuiの更新
 	UpdateImGui();
 
@@ -196,19 +205,19 @@ void GamePlayScene::Update()
 	}
 	collisionManager_->CheckAllCollisions();
 
-	////ゲームクリア処理
-	//if (boss_->GetHP() <= 0.0f)
-	//{
-	//	nextScene = GameClearScene;
-	//	isTransition_ = true;
-	//}
+	//ゲームクリア処理
+	if (boss_->GetHP() <= 0.0f)
+	{
+		nextScene = GameClearScene;
+		isTransition_ = true;
+	}
 
-	////ゲームオーバー処理
-	//if (player_->GetHP() <= 0.0f)
-	//{
-	//	nextScene = GameOverScene;
-	//	isTransition_ = true;
-	//}
+	//ゲームオーバー処理
+	if (player_->GetHP() <= 0.0f)
+	{
+		nextScene = GameOverScene;
+		isTransition_ = true;
+	}
 
 	//シーン切り替え
 	if (isTransitionEnd_)
@@ -245,6 +254,8 @@ void GamePlayScene::Draw()
 
 	player_->DrawParticle(camera_);
 
+	boss_->DrawParicle(camera_);
+
 	renderer_->PostDrawParticles();
 
 #pragma endregion
@@ -261,6 +272,8 @@ void GamePlayScene::DrawUI()
 	boss_->DrawUI();
 
 	lockOn_->Draw();
+
+	UISprite_->Draw();
 
 	sprite_->Draw();
 

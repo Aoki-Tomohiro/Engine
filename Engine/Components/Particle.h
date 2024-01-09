@@ -31,6 +31,8 @@ public:
 
 	const bool IsDead() const { return isDead_; };
 
+	void SetIsDead(const bool isDead) { isDead_ = isDead; };
+
 private:
 	Vector3 translation_{};
 

@@ -46,5 +46,8 @@ private:
 	//シェイクタイマー
 	static const uint32_t kShakeTime = 10;
 	uint32_t shakeTimer_ = 0;
+
+	//オーディオハンドル
+	uint32_t audioHandle_ = 0;
 };
 

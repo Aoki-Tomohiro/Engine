@@ -31,6 +31,14 @@ public:
 		AABB area;//範囲
 	};
 
+	struct GravityField
+	{
+		Vector3 targetPosition;//集まる位置
+		Vector3 velocity;//速度
+		AABB area;//範囲
+		AABB deleteArea;//消える範囲
+	};
+
 	void Update();
 
 	std::list<std::unique_ptr<Particle>>& GetParticles() { return particles_; };
@@ -109,9 +117,21 @@ public:
 
 	const Vector3& GetAcceleration() { return accelerationField_.acceleration; };
 
-	const AABB& GetMinAccelerationField() { return accelerationField_.area; };
+	const Vector3& GetMinAccelerationField() { return accelerationField_.area.min; };
+
+	const Vector3& GetMaxAccelerationField() { return accelerationField_.area.max; };
 
 	void SetAccelerationField(const Vector3& acceleration, const AABB& area) { accelerationField_ = { acceleration,area }; };
+
+	const Vector3& GetGravityFieldTargetPosition() const { return gravityField_.targetPosition; };
+
+	const Vector3& GetGravityFieldVelocity() const { return gravityField_.velocity; };
+
+	const Vector3& GetMinGravityField() { return gravityField_.area.min; };
+
+	const Vector3& GetMaxGravityField() { return gravityField_.area.max; };
+
+	void SetGravityField(const Vector3& targetPosition, const Vector3& velocity, const AABB& area) { gravityField_ = { targetPosition,velocity,area }; };
 
 private:
 	void Pop();
@@ -156,6 +176,8 @@ private:
 	bool spawnFinished_ = false;
 
 	AccelerationField accelerationField_{};
+
+	GravityField gravityField_{};
 
 	friend class ParticleEmitterBuilder;
 };

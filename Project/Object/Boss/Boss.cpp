@@ -39,6 +39,9 @@ void Boss::Initialize()
 		.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z}, 
 		.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
 	SetAABB(aabb);
+
+	//パーティクルシステムの生成
+	particleSystem_ = ParticleManager::Create("Charge");
 }
 
 void Boss::Update()
@@ -115,21 +118,32 @@ void Boss::Draw(const Camera& camera)
 	}
 
 	//レーザーの描画
-	Renderer* renderer = Renderer::GetInstance();
-	renderer->SetEnableLighting(false);
-	renderer->PreDrawModels();
+	//Renderer* renderer = Renderer::GetInstance();
+	//renderer->SetEnableLighting(false);
+	//renderer->PreDrawModels();
 	for (const std::unique_ptr<Laser>& laser : lasers_)
 	{
 		laser->Draw(camera);
 	}
-	renderer->SetEnableLighting(true);
-	renderer->PreDrawModels();
+	//renderer->SetEnableLighting(true);
+	//renderer->PreDrawModels();
 }
 
 void Boss::DrawUI()
 {
 	spriteHpBar_->Draw();
 	spriteHpBarFrame_->Draw();
+}
+
+void Boss::UpdateParticle()
+{
+	particleSystem_->Update();
+}
+
+void Boss::DrawParicle(const Camera& camera)
+{
+	particleSystem_->SetTexture("Project/Resources/Images/Particle.png");
+	particleSystem_->Draw(camera);
 }
 
 void Boss::ChangeState(IBossState* newState)

@@ -3,6 +3,7 @@
 #include "Engine/Components/CollisionConfig.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Audio.h"
 
 void BossStateLaserAttack::Initialize(Boss* pBoss)
 {
@@ -17,9 +18,12 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	//警告用のワールドトランスフォームの初期化
 	warningWorldTransform_.Initialize();
 	warningWorldTransform_.translation_ = targetPosition_;
-	warningWorldTransform_.translation_.y = 0.11f;
+	warningWorldTransform_.translation_.y = 0.1f;
 	warningWorldTransform_.quaternion_ = destinationQuaternion_;
 	warningWorldTransform_.scale_ = { 2.0f,2.0f,70.0f };
+
+	//音声データ読み込み
+	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/Charge.wav");
 }
 
 void BossStateLaserAttack::Update(Boss* pBoss)
@@ -36,10 +40,34 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 	//目標位置についたらレーザーをためる
 	if (abs.x < epsilon && abs.y < epsilon && abs.z < epsilon)
 	{
+		if (!isCharge_ && !isAttack_)
+		{
+			ParticleEmitter* emitter = ParticleEmitterBuilder()
+				.SetDeleteTime(kChargeTime / 80)
+				.SetEmitterName("Charge")
+				.SetGravityField({ worldTransform_.translation_ }, { 0.2f,0.2f,0.2f }, { {-100.0f,-100.0f,-100.0f},{100.0f,100.0f,100.0f} }, { {worldTransform_.translation_ + Vector3{-0.1f,-0.1f,-0.1f}},{worldTransform_.translation_ + Vector3{0.1f,0.1f,0.1f}} })
+				.SetPopArea({ worldTransform_.translation_ - worldTransform_.scale_ * 2.0f }, { worldTransform_.translation_ + worldTransform_.scale_ * 2.0f })
+				.SetPopAzimuth(0.0f,0.0f)
+				.SetPopColor({1.0f,1.0f,1.0f,1.0f},{1.0f,1.0f,1.0f,1.0f})
+				.SetPopCount(100)
+				.SetPopElevation(0.0f,0.0f)
+				.SetPopLifeTime(10.0f,10.0f)
+				.SetPopRotation({0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f})
+				.SetPopScale({0.1f,0.1f,0.1f},{0.1f,0.1f,0.1f})
+				.SetPopVelocity({0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f})
+				.SetTranslation(worldTransform_.translation_)
+				.Build();
+			pBoss->AddEmitter(emitter);
+		}
+
 		isCharge_ = true;
+
 		//ため処理
 		if (!isAttack_)
 		{
+			//音声再生
+			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.2f);
+
 			if (++chargeTimer_ > kChargeTime)
 			{
 				//攻撃フラグをtrueにする
@@ -49,7 +77,12 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 				//レーザーを追加
 				Laser* newLaser = new Laser();
 				newLaser->Initialize();
-				pBoss->AddLaser(newLaser);
+				pBoss->AddLaser(newLaser);				
+			}
+
+			if (chargeTimer_ > kChargeTime - 60)
+			{
+				Audio::GetInstance()->StopAudio(audioHandle_);
 			}
 		}
 
