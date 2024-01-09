@@ -34,13 +34,13 @@ void Player::Initialize()
 	jumpAudioHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Jump1.wav");
 
 	//テクスチャ読み込み
-	TextureManager::Load("Project/Resources/Images/HpBarFrame3.png");
-	TextureManager::Load("Project/Resources/Images/HpBar3.png");
+	TextureManager::Load("Project/Resources/Images/HpBarFrame.png");
+	TextureManager::Load("Project/Resources/Images/HpBar.png");
 
 	//スプライトの生成
-	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar3.png", { 80.0f,32.0f }));
+	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar.png", { 80.0f,32.0f }));
 	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame3.png", { 79.0f,31.0f }));
+	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame.png", { 79.0f,31.0f }));
 	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
 
 	//衝突属性を設定
@@ -493,14 +493,14 @@ void Player::BehaviorRootUpdate()
 		}
 	}
 
-	//急接近行動に変更
-	if (input_->IsControllerConnected())
-	{
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-		{
-			behaviorRequest_ = Behavior::kRapidApproach;
-		}
-	}
+	////急接近行動に変更
+	//if (input_->IsControllerConnected())
+	//{
+	//	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	//	{
+	//		behaviorRequest_ = Behavior::kRapidApproach;
+	//	}
+	//}
 }
 
 void Player::BehaviorDashInitialize() 

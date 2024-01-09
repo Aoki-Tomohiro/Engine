@@ -19,6 +19,8 @@ void GamePlayScene::Initialize()
 	camera_.Initialize();
 
 	playerModel_ = ModelManager::CreateFromOBJ("Player", Opaque);
+	//playerModel_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	playerModel_->SetColor({ 0.5f, 1.0f, 0.7f, 1.0f });
 	playerModel_->Update();
 	player_ = GameObjectManager::CreateGameObject<Player>();
 	player_->SetTag("Player");
@@ -45,6 +47,9 @@ void GamePlayScene::Initialize()
 	skydome_->SetModel(skydomeModel_);
 
 	bossModel_ = ModelManager::CreateFromOBJ("Boss", Opaque);
+	//bossModel_->SetColor({ 0.99f,0.5f,0.8f,1.0f });
+	bossModel_->SetColor({ 1.0f, 0.7f, 0.9f, 1.0f });
+	bossModel_->Update();
 	boss_ = GameObjectManager::CreateGameObject<Boss>();
 	boss_->SetModel(bossModel_);
 	boss_->SetTag("Boss");
@@ -54,8 +59,9 @@ void GamePlayScene::Initialize()
 	sprite_->SetSize({ 1280.0f,720.0f });
 	sprite_->SetColor(spriteColor_);
 
-	UISprite_.reset(Sprite::Create("Project/Resources/Images/UI.png", { 1280.0f - 320.0f - 32.0f,720.0f - 194.0f - 32.0f }));
-	UISprite_->SetSize({ 320.0f,194.0f });
+	//UISprite_.reset(Sprite::Create("Project/Resources/Images/UI.png", { 1280.0f - 320.0f - 32.0f,720.0f - 194.0f - 32.0f }));
+	//UISprite_->SetSize({ 320.0f,194.0f });
+	UISprite_.reset(Sprite::Create("Project/Resources/Images/Guide.png", { 0.0f,0.0f }));
 
 	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Project/Resources/Sounds/GamePlay2.wav");
 	Audio::GetInstance()->SoundPlayWave(audioHandle_, true, 0.5f);

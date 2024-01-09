@@ -22,13 +22,13 @@ void Boss::Initialize()
 	state_->Initialize(this);
 
 	//テクスチャ読み込み
-	TextureManager::Load("Project/Resources/Images/HpBarFrame3.png");
-	TextureManager::Load("Project/Resources/Images/HpBar3.png");
+	TextureManager::Load("Project/Resources/Images/HpBarFrame.png");
+	TextureManager::Load("Project/Resources/Images/HpBar.png");
 
 	//スプライトの生成
-	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar3.png", { 720.0f,32.0f }));
+	spriteHpBar_.reset(Sprite::Create("Project/Resources/Images/HpBar.png", { 720.0f,32.0f }));
 	spriteHpBar_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
-	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame3.png", { 719.0f,31.0f }));
+	spriteHpBarFrame_.reset(Sprite::Create("Project/Resources/Images/HpBarFrame.png", { 719.0f,31.0f }));
 	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 
 	//衝突属性を設定

@@ -167,7 +167,7 @@ private:
 
 	//HP
 	Vector2 hpBarSize_{ 480.0f,16.0f };
-	const float kMaxHP = 600.0f;
+	const float kMaxHP = 800.0f;
 	float hp_ = kMaxHP;
 
 	//ダメージ

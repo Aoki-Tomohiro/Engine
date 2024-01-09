@@ -7,7 +7,7 @@
 void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 {
 	//モデルの生成
-	model_ = ModelManager::CreateFromOBJ("Missile", Opaque);
+	model_ = ModelManager::CreateFromOBJ("Sphere", Opaque);
 
 	//速度の初期化
 	velocity_ = velocity;
