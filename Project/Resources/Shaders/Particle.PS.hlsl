@@ -4,6 +4,11 @@ struct Material
 {
     float32_t4 color;
     float32_t4x4 uvTransform;
+    int32_t enableLighting;
+    int32_t diffuseReflectionType;
+    int32_t specularReflectionType;
+    float32_t shininess;
+    float32_t3 specularColor;
 };
 
 Texture2D<float32_t4> gTexture : register(t0);
@@ -22,7 +27,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t4 textureColor = gTexture.Sample(gSampler, transformUV.xy);
     output.color = gMaterial.color * textureColor;
     
-    if (textureColor.a == 0.0)
+    if (textureColor.a == 0.0f)
     {
         discard;
     }

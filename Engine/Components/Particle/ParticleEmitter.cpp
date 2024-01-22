@@ -1,49 +1,98 @@
 #include "ParticleEmitter.h"
+#include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/Math/MathFunction.h"
+#include <numbers>
 
-void ParticleEmitter::Initialize(const Vector3& translation, const Vector3& velocity, const Vector4& color, float frequency, float particleLifeTime, float emitterLifeTime) {
-	//パーティクルの発生位置の初期化
-	popTranslation_ = translation;
-	//初速度の初期化
-	popVelocity_ = { velocity,velocity };
-	//色の初期化
-	popColor_ = { color,color };
-	//発生頻度の初期化
-	popFrequency_ = frequency;
-	//パーティクルの寿命を設定
-	popLifeTime_ = { particleLifeTime,particleLifeTime };
-	//エミッターの寿命を設定
-	deleteTime_ = emitterLifeTime;
-}
-
-void ParticleEmitter::Update() {
+void ParticleEmitter::Update()
+{
 	//パーティクルを生成
 	const float kDeltaTime = 1.0f / 60.0f;
 	frequencyTime_ += kDeltaTime;
-	if (popFrequency_ <= frequencyTime_) {
-		for (uint32_t index = 0; index < popCount_; ++index) {
-			ParticleEmitter::Pop();
+	if (popFrequency_ <= frequencyTime_)
+	{
+		if (!spawnFinished_)
+		{
+			for (uint32_t index = 0; index < popCount_; ++index)
+			{
+				Pop();
+			}
+			frequencyTime_ -= popFrequency_;
 		}
-		frequencyTime_ -= popFrequency_;
 	}
 
-	//パーティクルの更新
-	for (std::list<std::unique_ptr<Particle>>::iterator particleIterator = particles_.begin(); particleIterator != particles_.end(); ++particleIterator) {
-		particleIterator->get()->Update();
+	//パーティクルの処理
+	for (std::list<std::unique_ptr<Particle>>::iterator particleIterator = particles_.begin(); particleIterator != particles_.end();)
+	{
+		//死亡フラグが立ったパーティクルを削除
+		if (particleIterator->get()->IsDead())
+		{
+			particleIterator = particles_.erase(particleIterator);
+		}
+		else
+		{
+			//加速フィールドの判定
+			if (accelerationField_.isEnable)
+			{
+				if (IsCollision(accelerationField_.area, particleIterator->get()->GetTranslation()))
+				{
+					Vector3 velocity = particleIterator->get()->GetVelocity();
+					particleIterator->get()->SetVelocity(velocity + accelerationField_.acceleration);
+				}
+			}
+
+			//重力フィールドの判定
+			if (gravityField_.isEnable)
+			{
+				if (IsCollision(gravityField_.area, particleIterator->get()->GetTranslation()))
+				{
+					//距離を計算
+					Vector3 sub = gravityField_.center - particleIterator->get()->GetTranslation();
+					float distance = Mathf::Length(sub);
+
+					//引力を計算
+					Vector3 gravityForce = Mathf::Normalize(sub) * gravityField_.strength;
+
+					//中心に近づいたら速度を0にする
+					if (distance < gravityField_.stopDistance)
+					{
+						particleIterator->get()->SetVelocity({ 0.0f,0.0f,0.0f });
+					}
+					else
+					{
+						//現在の速度に引力を足す
+						Vector3 currentVelocity = particleIterator->get()->GetVelocity();
+						particleIterator->get()->SetVelocity(currentVelocity + gravityForce);
+					}
+				}
+			}
+
+			//パーティクルの更新
+			particleIterator->get()->Update();
+
+			//イテレータを進める
+			++particleIterator;
+		}
 	}
 
 	//エミッターの死亡フラグを立てる
 	deleteTimer_ += kDeltaTime;
-	if (deleteTimer_ > deleteTime_) {
-		isDead_ = true;
+	if (deleteTimer_ > deleteTime_)
+	{
+		spawnFinished_ = true;
+		if (particles_.size() == 0)
+		{
+			isActive_ = false;
+		}
 	}
 }
 
-void ParticleEmitter::Pop() {
+void ParticleEmitter::Pop()
+{
 	//座標
 	Vector3 translation = {
-		popTranslation_.x + RandomGenerator::GetRandomFloat(popArea_.min.x,popArea_.max.x),
-		popTranslation_.y + RandomGenerator::GetRandomFloat(popArea_.min.y,popArea_.max.y),
-		popTranslation_.z + RandomGenerator::GetRandomFloat(popArea_.min.z,popArea_.max.z)
+		translation_.x + RandomGenerator::GetRandomFloat(popArea_.min.x,popArea_.max.x),
+		translation_.y + RandomGenerator::GetRandomFloat(popArea_.min.y,popArea_.max.y),
+		translation_.z + RandomGenerator::GetRandomFloat(popArea_.min.z,popArea_.max.z)
 	};
 
 	//回転
@@ -69,11 +118,24 @@ void ParticleEmitter::Pop() {
 	float elevationRadian = elevation * float(std::numbers::pi / 180.0f);
 
 	//速度
-	Vector3 velocity = {
-		RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
-		RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y) * std::cos(elevationRadian) * std::sin(azimuthRadian),
-		RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z) * std::sin(elevationRadian)
-	};
+	Vector3 velocity;
+	if (azimuth != 0.0f && elevation != 0.0f)
+	{
+		velocity = {
+			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y) * std::cos(elevationRadian) * std::sin(azimuthRadian),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z) * std::sin(elevationRadian)
+		};
+	}
+	else
+	{
+		velocity = {
+			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.y,popVelocity_.max.y),
+			RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z),
+		};
+	}
+
 
 	//色
 	Vector4 color = {
@@ -89,6 +151,17 @@ void ParticleEmitter::Pop() {
 	//パーティクルの生成
 	Particle* particle = new Particle();
 	particle->Initialize(translation, rotation, scale, velocity, color, lifeTime);
-	//パーティクルをリストに追加
 	particles_.push_back(std::unique_ptr<Particle>(particle));
+}
+
+bool ParticleEmitter::IsCollision(const AABB& aabb, const Vector3& point)
+{
+	if (aabb.min.x <= point.x && aabb.max.x >= point.x &&
+		aabb.min.y <= point.y && aabb.max.y >= point.y &&
+		aabb.min.z <= point.z && aabb.max.z >= point.z)
+	{
+		return true;
+	}
+
+	return false;
 }

@@ -1,15 +1,19 @@
 #include "Audio.h"
 #include <cassert>
 
-Audio* Audio::GetInstance() {
+Audio* Audio::GetInstance() 
+{
 	static Audio instance;
 	return &instance;
 }
 
-void Audio::Finalize() {
+void Audio::Finalize()
+{
 	//ボイスデータ開放
-	for (const Voice* voice : sourceVoices_) {
-		if (voice->sourceVoice != nullptr) {
+	for (const Voice* voice : sourceVoices_) 
+	{
+		if (voice->sourceVoice != nullptr)
+		{
 			voice->sourceVoice->DestroyVoice();
 		}
 		delete voice;
@@ -18,20 +22,25 @@ void Audio::Finalize() {
 	//XAudio2解放
 	xAudio2_.Reset();
 	//音声データ開放
-	for (int i = 0; i < soundDatas_.size(); i++) {
+	for (int i = 0; i < soundDatas_.size(); i++)
+	{
 		SoundUnload(&soundDatas_[i]);
 	}
 }
 
-void Audio::Initialize() {
+void Audio::Initialize()
+{
 	HRESULT result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
 	result = xAudio2_->CreateMasteringVoice(&masterVoice_);
 }
 
-uint32_t Audio::SoundLoadWave(const char* filename) {
+uint32_t Audio::SoundLoadWave(const char* filename)
+{
 	//同じ音声データがないか探す
-	for (SoundData& soundData : soundDatas_) {
-		if (soundData.name == filename) {
+	for (SoundData& soundData : soundDatas_) 
+	{
+		if (soundData.name == filename) 
+		{
 			return soundData.audioHandle;
 		}
 	}
@@ -45,14 +54,16 @@ uint32_t Audio::SoundLoadWave(const char* filename) {
 	assert(file.is_open());
 
 	//RIFFヘッダーの読み込み
-	RiffHeader riff;
+	RiffHeader riff{};
 	file.read((char*)&riff, sizeof(riff));
 	//ファイルがRIFFかチェック
-	if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
+	if (strncmp(riff.chunk.id, "RIFF", 4) != 0)
+	{
 		assert(0);
 	}
 	//タイプがWAVEかチェック
-	if (strncmp(riff.type, "WAVE", 4) != 0) {
+	if (strncmp(riff.type, "WAVE", 4) != 0) 
+	{
 		assert(0);
 	}
 
@@ -60,7 +71,8 @@ uint32_t Audio::SoundLoadWave(const char* filename) {
 	FormatChunk format = {};
 	//チャンクヘッダーの確認
 	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt ", 4) != 0) {
+	if (strncmp(format.chunk.id, "fmt ", 4) != 0)
+	{
 		assert(0);
 	}
 
@@ -69,10 +81,11 @@ uint32_t Audio::SoundLoadWave(const char* filename) {
 	file.read((char*)&format.fmt, format.chunk.size);
 
 	//Dataチャンクの読み込み
-	ChunkHeader data;
+	ChunkHeader data{};
 	file.read((char*)&data, sizeof(data));
 	//JUNKチャンクを検出した場合
-	if (strncmp(data.id, "JUNK", 4) == 0) {
+	if (strncmp(data.id, "JUNK", 4) == 0) 
+	{
 		//読み取り位置をJUNKチャンクの終わりまで進める
 		file.seekg(data.size, std::ios_base::cur);
 		//再読み込み
@@ -80,14 +93,16 @@ uint32_t Audio::SoundLoadWave(const char* filename) {
 	}
 
 	//LISTチャンクを検出した場合
-	if (strncmp(data.id, "LIST", 4) == 0) {
+	if (strncmp(data.id, "LIST", 4) == 0) 
+	{
 		//読み取り位置をLISTチャンクの終わりまで進める
 		file.seekg(data.size, std::ios_base::cur);
 		//再読み込み
 		file.read((char*)&data, sizeof(data));
 	}
 
-	if (strncmp(data.id, "data", 4) != 0) {
+	if (strncmp(data.id, "data", 4) != 0)
+	{
 		assert(0);
 	}
 
@@ -108,7 +123,8 @@ uint32_t Audio::SoundLoadWave(const char* filename) {
 	return audioHandle_;
 }
 
-void Audio::SoundUnload(SoundData* soundData) {
+void Audio::SoundUnload(SoundData* soundData)
+{
 	//バッファのメモリを解放
 	delete[] soundData->pBuffer;
 	soundData->pBuffer = 0;
@@ -116,7 +132,8 @@ void Audio::SoundUnload(SoundData* soundData) {
 	soundData->wfex = {};
 }
 
-uint32_t Audio::SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume) {
+uint32_t Audio::SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume)
+{
 	HRESULT result;
 	//voiceHandleをインクリメント
 	voiceHandle_++;
@@ -137,7 +154,8 @@ uint32_t Audio::SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume)
 	buf.pAudioData = soundDatas_[audioHandle].pBuffer;
 	buf.AudioBytes = soundDatas_[audioHandle].bufferSize;
 	buf.Flags = XAUDIO2_END_OF_STREAM;
-	if (loopFlag) {
+	if (loopFlag) 
+	{
 		buf.LoopCount = XAUDIO2_LOOP_INFINITE;
 	}
 
@@ -149,16 +167,20 @@ uint32_t Audio::SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume)
 	return voiceHandle_;
 }
 
-void Audio::StopAudio(uint32_t voiceHandle) {
+void Audio::StopAudio(uint32_t voiceHandle) 
+{
 	HRESULT result;
 	auto it = sourceVoices_.begin();
-	while (it != sourceVoices_.end()) {
-		if ((*it)->handle == voiceHandle) {
+	while (it != sourceVoices_.end()) 
+	{
+		if ((*it)->handle == voiceHandle)
+		{
 			result = (*it)->sourceVoice->Stop();
 			delete (*it);
 			it = sourceVoices_.erase(it);
 		}
-		else {
+		else 
+		{
 			++it;
 		}
 	}

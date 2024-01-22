@@ -1,79 +1,62 @@
 #pragma once
-#include "Engine/Base/Renderer/Renderer.h"
+#include "Engine/Base/PipelineState.h"
+#include "Engine/Base/ColorBuffer.h"
+#include "Engine/Base/UploadBuffer.h"
+#include "Engine/Base/ConstantBuffers.h"
+#include <array>
+#include <memory>
 
-class GaussianBlur {
+class GaussianBlur
+{
 public:
-	enum BlurState {
+	enum BlurDirection
+	{
 		kHorizontal,
 		kVertical,
-		kCountOfBlur,
+		kCountOfBlurDirection
 	};
 
-	struct BlurData {
-		int32_t textureWidth;
-		int32_t textureHeight;
-		float padding[2];
-		float weight[8];
-	};
+	static void StaticInitialize();
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	void Initialize();
+	static void Destroy();
 
-	/// <summary>
-	/// 対象のリソースを取得
-	/// </summary>
-	void SetColorBuffer(const ColorBuffer* colorBuffer) { colorBuffer_ = colorBuffer; };
+	void Initialize(uint32_t width, uint32_t height);
 
-	/// <summary>
-	/// 横ぼかしのリソースを取得
-	/// </summary>
-	/// <returns></returns>
-	const ColorBuffer* GetHorizontalBlurResource() const { return blurColorBuffer_[kHorizontal].get(); };
+	void Update();
 
-	/// <summary>
-	/// 縦ぼかしのリソースを取得
-	/// </summary>
-	/// <returns></returns>
-	const ColorBuffer* GetVerticalBlurResource() const { return blurColorBuffer_[kVertical].get(); };
+	void PreBlur(uint32_t index);
 
-private:
-	/// <summary>
-	/// ぼかし用のCBVを作成
-	/// </summary>
-	void CreateBlurUploadBuffer();
+	void PostBlur(uint32_t index);
 
-	/// <summary>
-	/// 縮小ぼかし用のCBVを作成
-	/// </summary>
-	void CreateShrinkBlurUploadBuffer();
+	const uint32_t GetTextureWidth() const { return textureWidth_; };
 
-	/// <summary>
-	/// PSOの作成
-	/// </summary>
-	void CreatePipelineState();
+	void SetTextureWidth(const uint32_t textureWidth) { textureWidth_ = textureWidth; };
+
+	const uint32_t GetTextureHeight() const { return textureHeight_; };
+
+	void SetTextureHeight(const uint32_t textureHeight) { textureHeight_ = textureHeight; };
+
+	const float GetSigma() const { return sigma_; };
+
+	void SetSigma(const float sigma) { sigma_ = sigma; };
+
+	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
+
+	const DescriptorHandle& GetDescriptorHandle(uint32_t index) const { return blurBuffers_[index]->GetSRVHandle(); };
 
 private:
-	//GraphicsCommon
-	GraphicsCommon* graphicsCommon_ = nullptr;
-	//レンダラー
-	Renderer* renderer_ = nullptr;
-	//RootSignature
-	std::unique_ptr<RootSignature> rootSignature_ = nullptr;
-	//PipelineState
-	std::vector<std::unique_ptr<PipelineState>> pipelineStates_{};
-	//書き込むリソース
-	std::vector<std::unique_ptr<ColorBuffer>> blurColorBuffer_{};
-	//ブラー用のCBV
-	std::unique_ptr<UploadBuffer> blurUploadBuffer_ = nullptr;
-	//書き込み用
-	BlurData* blurData_ = nullptr;
-	//縮小ぼかし用のCBV
-	std::unique_ptr<UploadBuffer> shrinkBlurUploadBuffer_ = nullptr;
-	//書き込み用
-	BlurData* shrinkBlurData_ = nullptr;
-	//対象のリソース
-	const GpuResource* colorBuffer_ = nullptr;
+	static std::unique_ptr<RootSignature> rootSignature_;
+
+	static std::array<std::unique_ptr<PipelineState>, kCountOfBlurDirection> pipelineStates_;
+
+	std::array<std::unique_ptr<ColorBuffer>, kCountOfBlurDirection> blurBuffers_{};
+
+	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
+
+	uint32_t textureWidth_ = 0;
+
+	uint32_t textureHeight_ = 0;
+
+	float sigma_ = 5.0f;
 };
 

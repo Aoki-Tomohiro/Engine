@@ -1,6 +1,6 @@
 #pragma once
-#include "Engine/Base/ImGuiManager/ImGuiManager.h"
-#include "Engine/Math/Structs/Vector3.h"
+#include "Engine/Base/ImGuiManager.h"
+#include "Engine/Math/Vector3.h"
 #include <iostream>
 #include <fstream>
 #include <variant>
@@ -8,44 +8,23 @@
 #include <map>
 #include <Engine/Externals/nlohmann/json.hpp>
 
-class GlobalVariables {
+class GlobalVariables 
+{
 public:
 	using json = nlohmann::json;
 	using Item = std::variant<int32_t, float, Vector3>;
 	using Group = std::map<std::string, Item>;
 
-	/// <summary>
-	/// シングルトンインスタンスの取得
-	/// </summary>
-	/// <returns></returns>
 	static GlobalVariables* GetInstance();
 
-	/// <summary>
-	/// グループの作成
-	/// </summary>
-	/// <param name="groupName"></param>
 	void CreateGroup(const std::string& groupName);
 
-	/// <summary>
-	/// ファイルに書き出し
-	/// </summary>
-	/// <param name="groupName"></param>
 	void SaveFile(const std::string& groupName);
 
-	/// <summary>
-	/// ディレクトリの全ファイルを読み込み
-	/// </summary>
 	void LoadFiles();
 
-	/// <summary>
-	/// ファイルから読み込む
-	/// </summary>
-	/// <param name="groupName"></param>
 	void LoadFile(const std::string& groupName);
 
-	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
 	void Update();
 
 	//値のセット(int)
@@ -79,3 +58,4 @@ private:
 	// 全データ
 	std::map<std::string, Group> datas_;
 };
+

@@ -1,112 +1,131 @@
 #pragma once
-#include "Mesh.h"
-#include "Material.h"
-#include "Engine/3D/Lights/DirectionalLight.h"
-#include "Engine/3D/Matrix/WorldTransform.h"
+#include "Engine/Base/Renderer.h"
 #include "Engine/3D/Camera/Camera.h"
+#include "WorldTransform.h"
+#include <memory>
+#include <string>
+#include <vector>
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
 
-class Model {
+class Model
+{
 public:
-	/// <summary>
-	/// ルートパラメータの番号
-	/// </summary>
-	enum class RootParameterIndex {
-		Material,
-		WorldlTransform,
-		Camera,
-		Texture,
-		DirectionalLight
+	enum DiffuseReflectionType
+	{
+		LambertianReflectance,
+		HalfLambert,
 	};
 
-	/// <summary>
-	/// マテリアルデータ構造体
-	/// </summary>
+	enum SpecularReflectionType
+	{
+		PhongReflectionModel,
+		BlinnPhongReflectionModel,
+		NoSpecularReflection,
+	};
+
+	//ノード構造体
+	struct Node {
+		Matrix4x4 localMatrix{};
+		std::string name;
+		std::vector<Node> children;
+	};
+
+	//マテリアルデータ構造体
 	struct MaterialData {
 		std::string textureFilePath;
 	};
 
-	/// <summary>
-	/// モデルデータ構造体
-	/// </summary>
+	//モデルデータ構造体
 	struct ModelData {
-		std::vector<Mesh::VertexData> vertices;
+		std::vector<VertexDataPosUVNormal> vertices;
 		MaterialData material;
-		std::string name;
+		Node rootNode;
 	};
 
-	/// <summary>
-	/// 静的初期化
-	/// </summary>
-	static void StaticInitialize();
+	void Create(const ModelData& modelData, DrawPass drawPass);
 
-	/// <summary>
-	/// モデルの作成
-	/// </summary>
-	/// <param name="directoryPath"></param>
-	/// <param name="filename"></param>
-	/// <returns></returns>
-	static Model* CreateFromOBJ(const std::string& directoryPath, const std::string& filename);
-
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="worldTransform"></param>
-	/// <param name="viewProjection"></param>
 	void Draw(const WorldTransform& worldTransform, const Camera& camera);
 
-	/// <summary>
-	/// 描画(テクスチャ張替え)
-	/// </summary>
-	/// <param name="worldTransform"></param>
-	/// <param name="viewProjection"></param>
-	/// <param name="textureHandle"></param>
-	void Draw(const WorldTransform& worldTransform, const Camera& camera, uint32_t textureHandle);
+	const Vector4& GetColor() const { return color_; };
 
-	/// <summary>
-	/// DirectionalLightを取得
-	/// </summary>
-	/// <returns></returns>
-	DirectionalLight* GetDirectionalLight() { return directionalLight_.get(); };
+	void SetColor(const Vector4& color) { color_ = color; };
 
-	/// <summary>
-	/// マテリアルを取得
-	/// </summary>
-	/// <returns></returns>
-	Material* GetMaterial() { return material_.get(); };
+	const Vector2& GetUVScale() const { return uvScale_; };
+
+	void SetUVScale(const Vector2& uvScale) { uvScale_ = uvScale; };
+
+	const float GetUVRotation() const { return uvRotation_; };
+
+	void SetUVRotation(const float uvRotation) { uvRotation_ = uvRotation; };
+
+	const Vector2& GetUVTranslation() const { return uvTranslation_; };
+
+	void SetUVTranslation(const Vector2& uvTranslation) { uvTranslation_ = uvTranslation; };
+
+	const int32_t& GetEnableLighting() const { return enableLighting_; };
+
+	void SetEnableLighting(const int32_t enableLighting) { enableLighting_ = enableLighting; };
+
+	const int32_t& GetDiffuseReflectionType() const { return int32_t(diffuseReflectionType_); };
+
+	void SetDiffuseReflectionType(const int32_t diffuseReflectionType) { diffuseReflectionType_ = DiffuseReflectionType(diffuseReflectionType); };
+
+	const int32_t& GetSpecularReflectionType() const { return int32_t(specularReflectionType_); };
+
+	void SetSpecularReflectionType(const int32_t specularReflectionType) { specularReflectionType_ = SpecularReflectionType(specularReflectionType); };
+
+	const float& GetShininess() const { return shininess_; };
+
+	void SetShininess(const float shininess) { shininess_ = shininess; };
+
+	const Vector3& GetSpecularColor() const { return specularColor_; };
+
+	void SetSpecularColor(const Vector3& specularColor) { specularColor_ = specularColor; };
+
+	const std::string& GetTextureName() const { return textureName_; };
+
+	void SetTextureName(const std::string& name) { textureName_ = name; };
 
 private:
-	/// <summary>
-	/// Objファイルの読み込み
-	/// </summary>
-	/// <param name="directoryPath"></param>
-	/// <param name="filename"></param>
-	/// <returns></returns>
-	ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	void CreateVertexBuffer();
 
-	/// <summary>
-	/// mtlファイルの読み込み
-	/// </summary>
-	/// <param name="directoryPath"></param>
-	/// <param name="filename"></param>
-	/// <returns></returns>
-	MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+	void CreateMaterialConstBuffer();
+
+	void UpdateMaterailConstBuffer();
 
 private:
-	//コマンドリスト
-	static ID3D12GraphicsCommandList* sCommandList_;
+	ModelData modelData_{};
 
-	//モデルデータ
-	static std::vector<ModelData> sModelDatas_;
+	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
-	//頂点データ
-	std::unique_ptr<Mesh> mesh_ = nullptr;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	//マテリアルデータ
-	std::unique_ptr<Material> material_ = nullptr;
+	std::unique_ptr<UploadBuffer> materialConstBuffer_ = nullptr;
 
-	//DirectionalLight
-	std::unique_ptr<DirectionalLight> directionalLight_ = nullptr;
+	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
-	//テクスチャハンドル
-	uint32_t textureHandle_{};
+	Vector2 uvScale_ = { 1.0f,1.0f };
+
+	float uvRotation_ = 0.0f;
+
+	Vector2 uvTranslation_ = { 0.0f,0.0f };
+
+	int32_t enableLighting_ = true;
+
+	DiffuseReflectionType diffuseReflectionType_ = DiffuseReflectionType::HalfLambert;
+
+	SpecularReflectionType specularReflectionType_ = SpecularReflectionType::BlinnPhongReflectionModel;
+
+	float shininess_ = 40.0f;
+
+	Vector3 specularColor_ = { 1.0f,1.0f,1.0f };
+
+	DrawPass drawPass_ = Opaque;
+
+	std::string textureName_ = "white.png";
+
+	friend class ParticleSystem;
 };
+
