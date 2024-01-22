@@ -41,12 +41,6 @@ void GameObjectManager::Update()
 	}
 }
 
-void GameObjectManager::Clear()
-{
-	//ゲームオブジェクトをクリア
-	gameObjects_.clear();
-}
-
 void GameObjectManager::Draw(const Camera& camera)
 {
 	//ゲームオブジェクトの描画
@@ -57,4 +51,19 @@ void GameObjectManager::Draw(const Camera& camera)
 			gameObject->Draw(camera);
 		}
 	}
+}
+
+void GameObjectManager::DrawUI()
+{
+	//ゲームオブジェクトのUI描画
+	for (std::unique_ptr<IGameObject>& gameObject : gameObjects_)
+	{
+		gameObject->DrawUI();
+	}
+}
+
+void GameObjectManager::Clear()
+{
+	//ゲームオブジェクトをクリア
+	gameObjects_.clear();
 }

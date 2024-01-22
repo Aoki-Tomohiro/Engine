@@ -8,19 +8,13 @@ class IGameObject
 public:
 	virtual ~IGameObject() = default;
 
-	virtual void Initialize();
+	virtual void Initialize() = 0;
 
-	virtual void Update();
+	virtual void Update() = 0;
 
-	virtual void Draw(const Camera& camera);
+	virtual void Draw(const Camera& camera) = 0;
 
-	const Vector3& GetTranslation() const { return worldTransform_.translation_; };
-
-	const Vector3& GetRotation() const { return worldTransform_.rotation_; };
-
-	const Vector3& GetScale() const { return worldTransform_.scale_; };
-
-	const Quaternion& GetQuaternion() const { return worldTransform_.quaternion_; };
+	virtual void DrawUI() = 0;
 
 	const Model* GetModel() const { return model_; };
 

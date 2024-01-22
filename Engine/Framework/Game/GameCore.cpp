@@ -1,5 +1,4 @@
 #include "GameCore.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
@@ -101,9 +100,6 @@ void GameCore::Update()
 
 	//SceneManagerの更新
 	sceneManager_->Update();
-
-	//ParticleManagerの更新
-	ParticleManager::GetInstance()->Update();
 
 	//GlovalVariablesの更新
 	GlobalVariables::GetInstance()->Update();

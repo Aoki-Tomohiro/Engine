@@ -13,6 +13,8 @@ public:
 
 	void Draw(const Camera& camera);
 
+	void DrawUI();
+
 	void Clear();
 
 	template <typename Type>
