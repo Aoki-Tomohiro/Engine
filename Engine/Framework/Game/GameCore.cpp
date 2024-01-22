@@ -1,5 +1,4 @@
 #include "GameCore.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
@@ -71,6 +70,9 @@ void GameCore::Finalize()
 
 	//Inputの開放
 	Input::Destroy();
+
+	//GameObjectManagerの開放
+	GameObjectManager::Destroy();
 
 	//SceneManagerの開放
 	SceneManager::Destroy();

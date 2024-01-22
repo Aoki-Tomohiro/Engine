@@ -157,6 +157,30 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{9bf9be86-a3af-4de0-bfd6-ef62d8db78b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{58a8df4d-f20d-4d36-9b11-0c2d80eb83fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{527a55a6-6b81-4a0e-aa0e-3abe90dbe2e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Player">
+      <UniqueIdentifier>{fa5b9704-0757-4162-bd98-f517b0de2f8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Player">
+      <UniqueIdentifier>{e3134850-22de-43ba-b51f-ee04c1922418}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{4256608b-0911-4968-88cd-a0772a98fafe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{0f1244c5-a5e5-435e-b9d3-daabc7793aec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{d3df6c3d-fba5-4e63-98fe-18e5fced2d1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{28fb4570-a490-4830-8d7a-1ee36fe0f40e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -273,9 +297,6 @@
     <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
       <Filter>ソース ファイル\Engine\Framework\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Framework\Object\IGameObject.cpp">
-      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Framework\Scene\SceneManager.cpp">
       <Filter>ソース ファイル\Engine\Framework\Scene</Filter>
     </ClCompile>
@@ -335,6 +356,18 @@
     </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル\Project\Object\Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Project\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Player\Player.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\FollowCamera\FollowCamera.cpp">
+      <Filter>ソース ファイル\Project\Object\FollowCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -571,6 +604,18 @@
     </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル\Project\Object\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル\Project\Object\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\FollowCamera\FollowCamera.h">
+      <Filter>ヘッダー ファイル\Project\Object\FollowCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
