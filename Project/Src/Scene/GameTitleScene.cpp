@@ -17,8 +17,6 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
-	isPressed_ = false;
-
 	if (input_->IsControllerConnected())
 	{
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))

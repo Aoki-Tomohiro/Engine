@@ -25,7 +25,5 @@ private:
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
-
-	bool isPressed_ = false;
 };
 
