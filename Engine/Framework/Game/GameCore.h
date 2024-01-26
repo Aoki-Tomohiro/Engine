@@ -9,6 +9,7 @@
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Lights/LightManager.h"
 #include "Engine/Utilities/D3DResourceLeakChecker.h"

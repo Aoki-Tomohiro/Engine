@@ -71,6 +71,9 @@ void GameCore::Finalize()
 	//Inputの開放
 	Input::Destroy();
 
+	//GameObjectManagerの開放
+	GameObjectManager::Destroy();
+
 	//SceneManagerの開放
 	SceneManager::Destroy();
 
