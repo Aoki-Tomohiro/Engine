@@ -181,6 +181,24 @@
     <Filter Include="ソース ファイル\Project\Object\FollowCamera">
       <UniqueIdentifier>{28fb4570-a490-4830-8d7a-1ee36fe0f40e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{07688d2b-8bb3-4059-bcd9-743917796ee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{6fba6c7c-6349-4bc4-b9f0-8275afaef65f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Boss\States">
+      <UniqueIdentifier>{d9d0f9ee-fa8b-4dd1-95df-eb9fab82acef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Boss\States">
+      <UniqueIdentifier>{283ac101-21f1-4809-b751-8c310a01803f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{b50a916b-f578-4a94-b223-8fea70c2c6a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{8750273d-37fa-4573-9467-e2486d520236}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -368,6 +386,36 @@
     </ClCompile>
     <ClCompile Include="Project\Src\Object\FollowCamera\FollowCamera.cpp">
       <Filter>ソース ファイル\Project\Object\FollowCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Player\Weapon.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Boss.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateCrashDown.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateLaserAttack.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateMissileAttack.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateNormal.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateTackle.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル\Project\Object\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Missile.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Laser.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -616,6 +664,39 @@
     </ClInclude>
     <ClInclude Include="Project\Src\Object\FollowCamera\FollowCamera.h">
       <Filter>ヘッダー ファイル\Project\Object\FollowCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Player\Weapon.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Boss.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\IBossState.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateTackle.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateNormal.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateMissileAttack.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateLaserAttack.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateCrashDown.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル\Project\Object\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Laser.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Missile.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

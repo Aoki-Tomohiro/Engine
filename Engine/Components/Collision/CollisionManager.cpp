@@ -136,7 +136,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 		((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveOBB) != 0))
 	{
 		//コライダーAがAABBの場合
-		if (colliderA->GetCollisionAttribute() & kCollisionPrimitiveAABB)
+		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
 		{
 			//コライダーAのAABBを取得
 			AABB aabb = { .min{colliderA->GetWorldPosition() + colliderA->GetAABB().min},.max{colliderA->GetWorldPosition() + colliderA->GetAABB().max}, };
@@ -153,7 +153,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 			}
 		}
 		//ColliderBがAABBの場合
-		else if (colliderB->GetCollisionAttribute() & kCollisionPrimitiveAABB)
+		else if (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
 		{
 			//コライダーBのAABBを取得
 			AABB aabb = { .min{colliderB->GetWorldPosition() + colliderB->GetAABB().min},.max{colliderB->GetWorldPosition() + colliderB->GetAABB().max}, };
@@ -222,103 +222,173 @@ bool CollisionManager::CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb)
 	0.5f * (aabb.max.z - aabb.min.z),
 	};
 
-	Vector3 aabbAxis[3] = {
-		{1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},
-		{0.0f,0.0f,1.0f}
-	};
+	Vector3 NAe1 = { 1.0f,0.0f,0.0f };
+	Vector3 Ae1 = NAe1 * aabbHalfSize[0];
+	Vector3 NAe2 = { 0.0f,1.0f,0.0f };
+	Vector3 Ae2 = NAe2 * aabbHalfSize[1];
+	Vector3 NAe3 = { 0.0f,0.0f,1.0f };
+	Vector3 Ae3 = NAe3 * aabbHalfSize[2];
 
-	float obbHalfSize[3] = {
-		obb.size.x,
-		obb.size.y,
-		obb.size.z
-	};
+	Vector3 NBe1 = obb.orientations[0];
+	Vector3 Be1 = NBe1 * obb.size.x;
+	Vector3 NBe2 = obb.orientations[1];
+	Vector3 Be2 = NBe2 * obb.size.y;
+	Vector3 NBe3 = obb.orientations[2];
+	Vector3 Be3 = NBe3 * obb.size.z;
 
-	Vector3 obbAxis[3] = {
-		obb.orientations[0],
-		obb.orientations[1],
-		obb.orientations[2],
-	};
+	Vector3 Interval = aabbCenter - obb.center;
 
-	float t[3] = {
-		obb.center.x - aabbCenter.x,
-		obb.center.y - aabbCenter.y,
-		obb.center.z - aabbCenter.z,
-	};
-
-	const float EPSILON = 1.175494e-37f;
-
-	float R[3][3], AbsR[3][3];
-	for (int i = 0; i < 3; i++)
+	//文理軸 Ae1
+	float rA = Mathf::Length(Ae1);
+	float rB = LenSegOnSeparateAxis(&NAe1, &Be1, &Be2, &Be3);
+	float L = fabs(Mathf::Dot(Interval, NAe1));
+	if (L > rA + rB)
 	{
-		for (int j = 0; j < 3; j++)
-		{
-			R[i][j] = Mathf::Dot(aabbAxis[i], obb.orientations[j]);
-			AbsR[i][j] = fabsf(R[i][j]) + EPSILON;
-		}
+		return false;
 	}
 
-	//軸L=A0, L=A1, L=A2判定
-	float ra, rb;
-
-	for (int i = 0; i < 3; i++)
+	// 分離軸 : Ae2
+	rA = Mathf::Length(Ae2);
+	rB = LenSegOnSeparateAxis(&NAe2, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe2));
+	if (L > rA + rB)
 	{
-		ra = aabbHalfSize[i];
-		rb = obbHalfSize[0] * AbsR[i][0] + obbHalfSize[1] * AbsR[i][1] + obbHalfSize[2] * AbsR[i][2];
-		if (fabsf(t[i]) > ra + rb)return false;
-	}
-	//軸L=B0, L=B1, L=B2判定
-	for (int i = 0; i < 3; i++)
-	{
-		ra = aabbHalfSize[0] * AbsR[0][i] + aabbHalfSize[1] * AbsR[1][i] + aabbHalfSize[2] * AbsR[2][i];
-		rb = obbHalfSize[i];
-		if (fabsf(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb)return false;
+		return false;
 	}
 
-	//軸L=A0 X B0判定
-	ra = aabbHalfSize[1] * AbsR[2][0] + aabbHalfSize[2] * AbsR[1][0];
-	rb = obbHalfSize[1] * AbsR[0][2] + obbHalfSize[2] * AbsR[0][1];
-	if (fabsf(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb)return false;
+	// 分離軸 : Ae3
+	rA = Mathf::Length(Ae3);
+	rB = LenSegOnSeparateAxis(&NAe3, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe3));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A0 X B1判定
-	ra = aabbHalfSize[1] * AbsR[2][1] + aabbHalfSize[2] * AbsR[1][1];
-	rb = obbHalfSize[0] * AbsR[0][2] + obbHalfSize[2] * AbsR[0][0];
-	if (fabsf(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb)return false;
+	// 分離軸 : Be1
+	rA = LenSegOnSeparateAxis(&NBe1, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be1);
+	L = fabs(Mathf::Dot(Interval, NBe1));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A0 X B2判定
-	ra = aabbHalfSize[1] * AbsR[2][2] + aabbHalfSize[2] * AbsR[1][2];
-	rb = obbHalfSize[0] * AbsR[0][1] + obbHalfSize[1] * AbsR[0][0];
-	if (fabsf(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb)return false;
+	// 分離軸 : Be2
+	rA = LenSegOnSeparateAxis(&NBe2, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be2);
+	L = fabs(Mathf::Dot(Interval, NBe2));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B0判定
-	ra = aabbHalfSize[0] * AbsR[2][0] + aabbHalfSize[2] * AbsR[0][0];
-	rb = obbHalfSize[1] * AbsR[1][2] + obbHalfSize[2] * AbsR[1][1];
-	if (fabsf(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb)return false;
+	// 分離軸 : Be3
+	rA = LenSegOnSeparateAxis(&NBe3, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be3);
+	L = fabs(Mathf::Dot(Interval, NBe3));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B1判定
-	ra = aabbHalfSize[0] * AbsR[2][1] + aabbHalfSize[2] * AbsR[0][1];
-	rb = obbHalfSize[0] * AbsR[1][2] + obbHalfSize[2] * AbsR[1][0];
-	if (fabsf(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb)return false;
+	// 分離軸 : C11
+	Vector3 Cross = Mathf::Cross(NAe1, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B2判定
-	ra = aabbHalfSize[0] * AbsR[2][2] + aabbHalfSize[2] * AbsR[0][2];
-	rb = obbHalfSize[0] * AbsR[1][1] + obbHalfSize[1] * AbsR[1][0];
-	if (fabsf(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb)return false;
+	// 分離軸 : C12
+	Cross = Mathf::Cross(NAe1, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B0判定
-	ra = aabbHalfSize[0] * AbsR[1][0] + aabbHalfSize[1] * AbsR[0][0];
-	rb = obbHalfSize[1] * AbsR[2][2] + obbHalfSize[2] * AbsR[2][1];
-	if (fabsf(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb)return false;
+	// 分離軸 : C13
+	Cross = Mathf::Cross(NAe1, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B1判定
-	ra = aabbHalfSize[0] * AbsR[1][1] + aabbHalfSize[1] * AbsR[0][1];
-	rb = obbHalfSize[0] * AbsR[2][2] + obbHalfSize[2] * AbsR[2][0];
-	if (fabsf(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb)return false;
+	// 分離軸 : C21
+	Cross = Mathf::Cross(NAe2, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B2判定
-	ra = aabbHalfSize[0] * AbsR[1][2] + aabbHalfSize[1] * AbsR[0][2];
-	rb = obbHalfSize[0] * AbsR[2][1] + obbHalfSize[1] * AbsR[2][0];
-	if (fabsf(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb)return false;
+	// 分離軸 : C22
+	Cross = Mathf::Cross(NAe2, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C23
+	Cross = Mathf::Cross(NAe2, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C31
+	Cross = Mathf::Cross(NAe3, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C32
+	Cross = Mathf::Cross(NAe3, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C33
+	Cross = Mathf::Cross(NAe3, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
 
 	return true;
+}
+
+float CollisionManager::LenSegOnSeparateAxis(Vector3* Sep, Vector3* e1, Vector3* e2, Vector3* e3)
+{
+	float r1 = fabs(Mathf::Dot(*Sep, *e1));
+	float r2 = fabs(Mathf::Dot(*Sep, *e2));
+	float r3 = e3 ? (fabs(Mathf::Dot(*Sep, *e3))) : 0;
+	return r1 + r2 + r3;
 }

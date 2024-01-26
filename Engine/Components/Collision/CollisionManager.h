@@ -22,6 +22,8 @@ private:
 
 	bool CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb);
 
+	float LenSegOnSeparateAxis(Vector3* Sep, Vector3* e1, Vector3* e2, Vector3* e3);
+
 private:
 	std::list<Collider*> colliders_{};
 };
