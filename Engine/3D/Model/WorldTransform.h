@@ -23,6 +23,7 @@ public:
 		{
 			scale_ = rhs.scale_;
 			rotation_ = rhs.rotation_;
+			quaternion_ = rhs.quaternion_;
 			translation_ = rhs.translation_;
 			matWorld_ = rhs.matWorld_;
 			parent_ = rhs.parent_;

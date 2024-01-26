@@ -216,109 +216,179 @@ bool CollisionManager::CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb)
 {
 	Vector3 aabbCenter = (aabb.min + aabb.max) * 0.5f;
 
-	float aabbHalfSize[3] = {
-	0.5f * (aabb.max.x - aabb.min.x),
-	0.5f * (aabb.max.y - aabb.min.y),
-	0.5f * (aabb.max.z - aabb.min.z),
+	Vector3 aabbExtent = {
+		0.5f * (aabb.max.x - aabb.min.x),
+		0.5f * (aabb.max.y - aabb.min.y),
+		0.5f * (aabb.max.z - aabb.min.z),
 	};
 
-	Vector3 aabbAxis[3] = {
-		{1.0f,0.0f,0.0f},
-		{0.0f,1.0f,0.0f},
-		{0.0f,0.0f,1.0f}
-	};
+	Vector3 separationVector = aabbCenter - obb.center;
 
-	float obbHalfSize[3] = {
-		obb.size.x,
-		obb.size.y,
-		obb.size.z
-	};
+	Vector3 aabbAxis1 = { 1.0f, 0.0f, 0.0f };
+	Vector3 aabbEdge1 = aabbAxis1 * aabbExtent.x;
+	Vector3 aabbAxis2 = { 0.0f, 1.0f, 0.0f };
+	Vector3 aabbEdge2 = aabbAxis2 * aabbExtent.y;
+	Vector3 aabbAxis3 = { 0.0f, 0.0f, 1.0f };
+	Vector3 aabbEdge3 = aabbAxis3 * aabbExtent.z;
 
-	Vector3 obbAxis[3] = {
-		obb.orientations[0],
-		obb.orientations[1],
-		obb.orientations[2],
-	};
+	Vector3 obbAxis1 = obb.orientations[0];
+	Vector3 obbEdge1 = obbAxis1 * obb.size.x;
+	Vector3 obbAxis2 = obb.orientations[1];
+	Vector3 obbEdge2 = obbAxis2 * obb.size.y;
+	Vector3 obbAxis3 = obb.orientations[2];
+	Vector3 obbEdge3 = obbAxis3 * obb.size.z;
 
-	float t[3] = {
-		obb.center.x - aabbCenter.x,
-		obb.center.y - aabbCenter.y,
-		obb.center.z - aabbCenter.z,
-	};
-
-	const float EPSILON = 1.175494e-37f;
-
-	float R[3][3], AbsR[3][3];
-	for (int i = 0; i < 3; i++)
+	//aabbAxis1
+	float aabbProjectionExtent = Mathf::Length(aabbEdge1);
+	float obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis1, &obbEdge1, &obbEdge2, &obbEdge3);
+	float projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis1));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
 	{
-		for (int j = 0; j < 3; j++)
-		{
-			R[i][j] = Mathf::Dot(aabbAxis[i], obb.orientations[j]);
-			AbsR[i][j] = fabsf(R[i][j]) + EPSILON;
-		}
+		return false;
 	}
 
-	//軸L=A0, L=A1, L=A2判定
-	float ra, rb;
-
-	for (int i = 0; i < 3; i++)
+	//aabbAxis2
+	aabbProjectionExtent = Mathf::Length(aabbEdge2);
+	obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis2, &obbEdge1, &obbEdge2, &obbEdge3);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis2));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
 	{
-		ra = aabbHalfSize[i];
-		rb = obbHalfSize[0] * AbsR[i][0] + obbHalfSize[1] * AbsR[i][1] + obbHalfSize[2] * AbsR[i][2];
-		if (fabsf(t[i]) > ra + rb)return false;
-	}
-	//軸L=B0, L=B1, L=B2判定
-	for (int i = 0; i < 3; i++)
-	{
-		ra = aabbHalfSize[0] * AbsR[0][i] + aabbHalfSize[1] * AbsR[1][i] + aabbHalfSize[2] * AbsR[2][i];
-		rb = obbHalfSize[i];
-		if (fabsf(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb)return false;
+		return false;
 	}
 
-	//軸L=A0 X B0判定
-	ra = aabbHalfSize[1] * AbsR[2][0] + aabbHalfSize[2] * AbsR[1][0];
-	rb = obbHalfSize[1] * AbsR[0][2] + obbHalfSize[2] * AbsR[0][1];
-	if (fabsf(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb)return false;
+	//aabbAxis3
+	aabbProjectionExtent = Mathf::Length(aabbEdge3);
+	obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis3, &obbEdge1, &obbEdge2, &obbEdge3);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis3));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A0 X B1判定
-	ra = aabbHalfSize[1] * AbsR[2][1] + aabbHalfSize[2] * AbsR[1][1];
-	rb = obbHalfSize[0] * AbsR[0][2] + obbHalfSize[2] * AbsR[0][0];
-	if (fabsf(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb)return false;
+	//obbAxis1
+	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis1, &aabbEdge1, &aabbEdge2, &aabbEdge3);
+	obbProjectionExtent = Mathf::Length(obbEdge1);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis1));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A0 X B2判定
-	ra = aabbHalfSize[1] * AbsR[2][2] + aabbHalfSize[2] * AbsR[1][2];
-	rb = obbHalfSize[0] * AbsR[0][1] + obbHalfSize[1] * AbsR[0][0];
-	if (fabsf(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb)return false;
+	//obbAxis2
+	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis2, &aabbEdge1, &aabbEdge2, &aabbEdge3);
+	obbProjectionExtent = Mathf::Length(obbEdge2);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis2));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B0判定
-	ra = aabbHalfSize[0] * AbsR[2][0] + aabbHalfSize[2] * AbsR[0][0];
-	rb = obbHalfSize[1] * AbsR[1][2] + obbHalfSize[2] * AbsR[1][1];
-	if (fabsf(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb)return false;
+	//obbAxis3
+	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis3, &aabbEdge1, &aabbEdge2, &aabbEdge3);
+	obbProjectionExtent = Mathf::Length(obbEdge3);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis3));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B1判定
-	ra = aabbHalfSize[0] * AbsR[2][1] + aabbHalfSize[2] * AbsR[0][1];
-	rb = obbHalfSize[0] * AbsR[1][2] + obbHalfSize[2] * AbsR[1][0];
-	if (fabsf(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb)return false;
+	//Cross(aabbAxis1, obbAxis1)
+	Vector3 crossProduct = Mathf::Cross(aabbAxis1, obbAxis1);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A1 X B2判定
-	ra = aabbHalfSize[0] * AbsR[2][2] + aabbHalfSize[2] * AbsR[0][2];
-	rb = obbHalfSize[0] * AbsR[1][1] + obbHalfSize[1] * AbsR[1][0];
-	if (fabsf(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb)return false;
+	//Cross(aabbAxis1, obbAxis2)
+	crossProduct = Mathf::Cross(aabbAxis1, obbAxis2);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B0判定
-	ra = aabbHalfSize[0] * AbsR[1][0] + aabbHalfSize[1] * AbsR[0][0];
-	rb = obbHalfSize[1] * AbsR[2][2] + obbHalfSize[2] * AbsR[2][1];
-	if (fabsf(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb)return false;
+	//Cross(aabbAxis1, obbAxis3)
+	crossProduct = Mathf::Cross(aabbAxis1, obbAxis3);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B1判定
-	ra = aabbHalfSize[0] * AbsR[1][1] + aabbHalfSize[1] * AbsR[0][1];
-	rb = obbHalfSize[0] * AbsR[2][2] + obbHalfSize[2] * AbsR[2][0];
-	if (fabsf(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb)return false;
+	//Cross(aabbAxis2, obbAxis1)
+	crossProduct = Mathf::Cross(aabbAxis2, obbAxis1);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
-	//軸L=A2 X B2判定
-	ra = aabbHalfSize[0] * AbsR[1][2] + aabbHalfSize[1] * AbsR[0][2];
-	rb = obbHalfSize[0] * AbsR[2][1] + obbHalfSize[1] * AbsR[2][0];
-	if (fabsf(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb)return false;
+	//Cross(aabbAxis2, obbAxis2)
+	crossProduct = Mathf::Cross(aabbAxis2, obbAxis2);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
+
+	//Cross(aabbAxis2, obbAxis3)
+	crossProduct = Mathf::Cross(aabbAxis2, obbAxis3);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
+
+	//Cross(aabbAxis3, obbAxis1)
+	crossProduct = Mathf::Cross(aabbAxis3, obbAxis1);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
+
+	//Cross(aabbAxis3, obbAxis2)
+	crossProduct = Mathf::Cross(aabbAxis3, obbAxis2);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
+
+	//Cross(aabbAxis3, obbAxis3)
+	crossProduct = Mathf::Cross(aabbAxis3, obbAxis3);
+	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
+	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
+	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
+	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	{
+		return false;
+	}
 
 	return true;
+}
+
+float CollisionManager::LenSegOnSeparateAxis(Vector3* Sep, Vector3* e1, Vector3* e2, Vector3* e3)
+{
+	float r1 = fabs(Mathf::Dot(*Sep, *e1));
+	float r2 = fabs(Mathf::Dot(*Sep, *e2));
+	float r3 = e3 ? (fabs(Mathf::Dot(*Sep, *e3))) : 0;
+	return r1 + r2 + r3;
 }
