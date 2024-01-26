@@ -157,6 +157,42 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{9bf9be86-a3af-4de0-bfd6-ef62d8db78b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{1b95ef73-8051-4a0a-87b0-108000c50935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Skydome">
+      <UniqueIdentifier>{80a96b31-0215-4156-a99d-8ce4c49a6fb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{bf573f98-740a-454b-b6b6-8c4f612b25b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Ground">
+      <UniqueIdentifier>{4cba5587-4f84-4f63-979a-b1ea5fb7ed19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{7b6cd7b2-6e2a-434a-a623-4813578ee84b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\FollowCamera">
+      <UniqueIdentifier>{ddaf991b-a20c-4f9f-baa4-730943562d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{8a0ae5aa-810b-432d-8023-40133cdd31aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\LockOn">
+      <UniqueIdentifier>{58ab8bc8-e302-4060-b625-4785e4670854}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{15807449-37d0-4f92-94c7-d626c0721b3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Boss">
+      <UniqueIdentifier>{2abc2eb4-c3f2-498b-8688-b820b4cc7202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Player">
+      <UniqueIdentifier>{e67aa1f1-5b94-4f89-a0ce-995235f32299}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Player">
+      <UniqueIdentifier>{715a0554-6376-40ea-806b-8e313f72ada2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -335,6 +371,24 @@
     </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル\Project\Object\Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Project\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\FollowCamera\FollowCamera.cpp">
+      <Filter>ソース ファイル\Project\Object\FollowCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル\Project\Object\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Boss.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Player\Player.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -571,6 +625,24 @@
     </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル\Project\Object\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル\Project\Object\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\FollowCamera\FollowCamera.h">
+      <Filter>ヘッダー ファイル\Project\Object\FollowCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル\Project\Object\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Boss.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

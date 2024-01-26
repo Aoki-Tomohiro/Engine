@@ -5,6 +5,7 @@
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/2D/Sprite.h"
+#include "Engine/Math/MathFunction.h"
 
 class GameTitleScene : public IScene
 {
@@ -19,11 +20,23 @@ public:
 
 	void DrawUI() override;
 
+	void UpdateTransition();
+
 private:
 	Renderer* renderer_ = nullptr;
 
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
+
+	//トランジション関連
+	std::unique_ptr<Sprite> transitionSprite_ = nullptr;
+	Vector4 transitionSpriteColor_{ 0.0f,0.0f,0.0f,1.0f };
+	float transitionTimer_ = 0;
+	bool isFadeIn_ = false;
+	bool isFadeOut_ = true;
+
+	//BGM
+	uint32_t bgmHandle_ = 0;
 };
 

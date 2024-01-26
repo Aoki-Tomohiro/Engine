@@ -87,6 +87,12 @@
     <ClCompile Include="Engine\Utilities\ShaderCompiler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Project\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Project\Src\Object\Boss\Boss.cpp" />
+    <ClCompile Include="Project\Src\Object\FollowCamera\FollowCamera.cpp" />
+    <ClCompile Include="Project\Src\Object\Ground\Ground.cpp" />
+    <ClCompile Include="Project\Src\Object\LockOn\LockOn.cpp" />
+    <ClCompile Include="Project\Src\Object\Player\Player.cpp" />
+    <ClCompile Include="Project\Src\Object\Skydome\Skydome.cpp" />
     <ClCompile Include="Project\Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Project\Src\Scene\GameOverScene.cpp" />
     <ClCompile Include="Project\Src\Scene\GamePlayScene.cpp" />
@@ -167,6 +173,12 @@
     <ClInclude Include="Engine\Utilities\RandomGenerator.h" />
     <ClInclude Include="Engine\Utilities\ShaderCompiler.h" />
     <ClInclude Include="Project\Src\Game\GameManager.h" />
+    <ClInclude Include="Project\Src\Object\Boss\Boss.h" />
+    <ClInclude Include="Project\Src\Object\FollowCamera\FollowCamera.h" />
+    <ClInclude Include="Project\Src\Object\Ground\Ground.h" />
+    <ClInclude Include="Project\Src\Object\LockOn\LockOn.h" />
+    <ClInclude Include="Project\Src\Object\Player\Player.h" />
+    <ClInclude Include="Project\Src\Object\Skydome\Skydome.h" />
     <ClInclude Include="Project\Src\Scene\GameClearScene.h" />
     <ClInclude Include="Project\Src\Scene\GameOverScene.h" />
     <ClInclude Include="Project\Src\Scene\GamePlayScene.h" />

@@ -8,6 +8,15 @@ void GameTitleScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
+
+	//トランジションの初期化
+	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	transitionSprite_->SetSize({ 1280.0f,720.0f });
+	transitionSprite_->SetColor(transitionSpriteColor_);
+
+	//BGMの読み込みと再生
+	bgmHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Title.wav");
+	audio_->SoundPlayWave(bgmHandle_, true, 0.5f);
 }
 
 void GameTitleScene::Finalize()
@@ -17,7 +26,8 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
-
+	//トランジションの更新
+	UpdateTransition();
 }
 
 void GameTitleScene::Draw()
@@ -53,7 +63,64 @@ void GameTitleScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
+	//トランジション用のスプライトの描画
+	transitionSprite_->Draw();
+
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();
 #pragma endregion
+}
+
+void GameTitleScene::UpdateTransition()
+{
+	//フェードアウトの処理
+	if (isFadeOut_)
+	{
+		//徐々に透明にする
+		transitionTimer_ += 1.0f / 60.0f;
+		transitionSpriteColor_.w = Mathf::Lerp(transitionSpriteColor_.w, 0.0f, transitionTimer_);
+		transitionSprite_->SetColor(transitionSpriteColor_);
+
+		//完全に透明になったら終了
+		if (transitionSpriteColor_.w <= 0.0f)
+		{
+			isFadeOut_ = false;
+			transitionTimer_ = 0.0f;
+		}
+	}
+
+	//フェードインの処理
+	if (isFadeIn_)
+	{
+		//徐々に暗くする
+		transitionTimer_ += 1.0f / 60.0f;
+		transitionSpriteColor_.w = Mathf::Lerp(transitionSpriteColor_.w, 1.0f, transitionTimer_);
+		transitionSprite_->SetColor(transitionSpriteColor_);
+
+		//完全に暗くなったらシーンを変える
+		if (transitionSpriteColor_.w >= 1.0f)
+		{
+			sceneManager_->ChangeScene("GamePlayScene");
+			audio_->StopAudio(bgmHandle_);
+		}
+	}
+
+	//トランジションが行われていないときに入力を受け付ける
+	if (!isFadeOut_ && !isFadeIn_)
+	{
+		//コントローラー
+		if (input_->IsControllerConnected())
+		{
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+			{
+				isFadeIn_ = true;
+			}
+		}
+
+		//キーボード
+		if (input_->IsPushKeyEnter(DIK_SPACE))
+		{
+			isFadeIn_ = true;
+		}
+	}
 }

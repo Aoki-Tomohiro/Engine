@@ -46,7 +46,7 @@ void GameObjectManager::Draw(const Camera& camera)
 	//ゲームオブジェクトの描画
 	for (std::unique_ptr<IGameObject>& gameObject : gameObjects_)
 	{
-		if (gameObject->GetIsVisible())
+		if (gameObject->GetIsVisible() && gameObject->GetModel())
 		{
 			gameObject->Draw(camera);
 		}
