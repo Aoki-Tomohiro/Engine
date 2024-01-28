@@ -74,6 +74,10 @@ public:
 
 	void SetPopRotation(const Vector3& min, const Vector3& max) { popRotation_ = { min,max }; };
 
+	const Quaternion& GetPopQuaternion() const { return popQuaternion_; };
+	
+	void SetPopQuaternion(const Quaternion& quaternion) { popQuaternion_ = quaternion; };
+
 	const Vector3& GetMinPopScale() const { return popScale_.min; };
 
 	const Vector3& GetMaxPopScale() const { return popScale_.max; };
@@ -151,6 +155,8 @@ private:
 	MinMaxStructVector4 popColor_ = { {1.0f,1.0f,1.0f,1.0f},{1.0f,1.0f,1.0f,1.0f} };
 
 	MinMaxStructFloat popLifeTime_ = { 0.5f,1.0f };
+
+	Quaternion popQuaternion_ = { 0.0f,0.0f,0.0f,1.0f };
 
 	Vector3 translation_ = { 0.0f,0.0f,0.0f };
 

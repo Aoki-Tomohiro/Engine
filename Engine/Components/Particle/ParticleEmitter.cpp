@@ -150,7 +150,7 @@ void ParticleEmitter::Pop()
 
 	//パーティクルの生成
 	Particle* particle = new Particle();
-	particle->Initialize(translation, rotation, scale, velocity, color, lifeTime);
+	particle->Initialize(translation, rotation, popQuaternion_, scale, velocity, color, lifeTime);
 	particles_.push_back(std::unique_ptr<Particle>(particle));
 }
 

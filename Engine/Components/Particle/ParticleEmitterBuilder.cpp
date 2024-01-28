@@ -34,6 +34,12 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopRotation(const Vector3& mi
 	return *this;
 }
 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopQuaternion(const Quaternion& quaternion)
+{
+	particleEmitter_->popQuaternion_ = quaternion;
+	return *this;
+}
+
 ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopScale(const Vector3& min, const Vector3& max) 
 {
 	particleEmitter_->popScale_ = { min,max };

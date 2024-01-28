@@ -125,7 +125,14 @@ void ParticleSystem::UpdateInstancingResource(const Camera& camera)
 			}
 			else
 			{
-				worldMatrix = Mathf::MakeAffineMatrix(particleIterator->get()->GetScale(), particleIterator->get()->GetRotation(), particleIterator->get()->GetTranslation());
+				if (particleIterator->get()->GetRotation() != Vector3{ 0.0f,0.0f,0.0f })
+				{
+					worldMatrix = Mathf::MakeAffineMatrix(particleIterator->get()->GetScale(), particleIterator->get()->GetRotation(), particleIterator->get()->GetTranslation());
+				}
+				else
+				{
+					worldMatrix = Mathf::MakeAffineMatrix(particleIterator->get()->GetScale(), particleIterator->get()->GetQuaternion(), particleIterator->get()->GetTranslation());
+				}
 			}
 			if (numInstance_ < kMaxInstance)
 			{

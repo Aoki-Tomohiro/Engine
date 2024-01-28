@@ -1,11 +1,12 @@
 #pragma once
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
+#include "Engine/Math/Quaternion.h"
 
 class Particle
 {
 public:
-	void Initialize(const Vector3& translation, const Vector3& rotation, const Vector3& scale, const Vector3& velocity, const Vector4& color, float lifeTime);
+	void Initialize(const Vector3& translation, const Vector3& rotation, const Quaternion& quaternion, const Vector3& scale, const Vector3& velocity, const Vector4& color, float lifeTime);
 
 	void Update();
 
@@ -16,6 +17,10 @@ public:
 	const Vector3& GetRotation() { return rotation_; };
 
 	void SetRotation(const Vector3& rotation) { rotation_ = rotation; };
+
+	const Quaternion& GetQuaternion() const { return quaternion_; };
+	
+	void SetQuaternion(const Quaternion& quaternion) { quaternion_ = quaternion; };
 
 	const Vector3& GetScale() { return scale_; };
 
@@ -43,6 +48,8 @@ private:
 	Vector3 velocity_{};
 
 	Vector4 color_{};
+
+	Quaternion quaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
 	float lifeTime_ = 0.0f;
 

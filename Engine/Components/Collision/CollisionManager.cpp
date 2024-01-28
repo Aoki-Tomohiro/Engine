@@ -3,7 +3,7 @@
 #include "Engine/Math/MathFunction.h"
 #include <algorithm>
 
-void CollisionManager::ClearColliderList() 
+void CollisionManager::ClearColliderList()
 {
 	//コライダーリストをクリア
 	colliders_.clear();
@@ -36,7 +36,7 @@ void CollisionManager::CheckAllCollisions()
 	}
 }
 
-void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* colliderB) 
+void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* colliderB)
 {
 	//衝突フィルタリング
 	if ((colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) == 0 ||
@@ -69,7 +69,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 
 	//AABBとAABBの判定
 	if (((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0) ||
-		((colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0)) 
+		((colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0))
 	{
 		//コライダーAのワールド座標を取得
 		Vector3 posA = colliderA->GetWorldPosition();
@@ -80,7 +80,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 		//コライダーBのAABBを取得
 		AABB aabbB = { .min{posB + colliderB->GetAABB().min},.max{posB + colliderB->GetAABB().max} };
 		//衝突判定
-		if (CheckCollisionAABB(aabbA,aabbB))
+		if (CheckCollisionAABB(aabbA, aabbB))
 		{
 			//コライダーAの衝突時コールバックを呼び出す
 			colliderA->OnCollision(colliderB);
@@ -99,14 +99,14 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 		Vector3 posB = colliderB->GetWorldPosition();
 
 		//コライダーAがSphereの場合
-		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveSphere) 
+		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveSphere)
 		{
 			//コライダーAのSphereを作成
 			Sphere sphere = { .center{posA},.radius{colliderA->GetRadius()} };
 			//コライダーBのAABBを取得
 			AABB aabb = { .min{posB + colliderB->GetAABB().min},.max{posB + colliderB->GetAABB().max} };
 			//衝突判定
-			if (CheckCollisionSphereAABB(sphere,aabb))
+			if (CheckCollisionSphereAABB(sphere, aabb))
 			{
 				//コライダーAの衝突時コールバックを呼び出す
 				colliderA->OnCollision(colliderB);
@@ -136,7 +136,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 		((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveOBB) != 0))
 	{
 		//コライダーAがAABBの場合
-		if (colliderA->GetCollisionAttribute() & kCollisionPrimitiveAABB)
+		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
 		{
 			//コライダーAのAABBを取得
 			AABB aabb = { .min{colliderA->GetWorldPosition() + colliderA->GetAABB().min},.max{colliderA->GetWorldPosition() + colliderA->GetAABB().max}, };
@@ -153,7 +153,7 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 			}
 		}
 		//ColliderBがAABBの場合
-		else if (colliderB->GetCollisionAttribute() & kCollisionPrimitiveAABB)
+		else if (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
 		{
 			//コライダーBのAABBを取得
 			AABB aabb = { .min{colliderB->GetWorldPosition() + colliderB->GetAABB().min},.max{colliderB->GetWorldPosition() + colliderB->GetAABB().max}, };
@@ -216,168 +216,168 @@ bool CollisionManager::CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb)
 {
 	Vector3 aabbCenter = (aabb.min + aabb.max) * 0.5f;
 
-	Vector3 aabbExtent = {
-		0.5f * (aabb.max.x - aabb.min.x),
-		0.5f * (aabb.max.y - aabb.min.y),
-		0.5f * (aabb.max.z - aabb.min.z),
+	float aabbHalfSize[3] = {
+	0.5f * (aabb.max.x - aabb.min.x),
+	0.5f * (aabb.max.y - aabb.min.y),
+	0.5f * (aabb.max.z - aabb.min.z),
 	};
 
-	Vector3 separationVector = aabbCenter - obb.center;
+	Vector3 NAe1 = { 1.0f,0.0f,0.0f };
+	Vector3 Ae1 = NAe1 * aabbHalfSize[0];
+	Vector3 NAe2 = { 0.0f,1.0f,0.0f };
+	Vector3 Ae2 = NAe2 * aabbHalfSize[1];
+	Vector3 NAe3 = { 0.0f,0.0f,1.0f };
+	Vector3 Ae3 = NAe3 * aabbHalfSize[2];
 
-	Vector3 aabbAxis1 = { 1.0f, 0.0f, 0.0f };
-	Vector3 aabbEdge1 = aabbAxis1 * aabbExtent.x;
-	Vector3 aabbAxis2 = { 0.0f, 1.0f, 0.0f };
-	Vector3 aabbEdge2 = aabbAxis2 * aabbExtent.y;
-	Vector3 aabbAxis3 = { 0.0f, 0.0f, 1.0f };
-	Vector3 aabbEdge3 = aabbAxis3 * aabbExtent.z;
+	Vector3 NBe1 = obb.orientations[0];
+	Vector3 Be1 = NBe1 * obb.size.x;
+	Vector3 NBe2 = obb.orientations[1];
+	Vector3 Be2 = NBe2 * obb.size.y;
+	Vector3 NBe3 = obb.orientations[2];
+	Vector3 Be3 = NBe3 * obb.size.z;
 
-	Vector3 obbAxis1 = obb.orientations[0];
-	Vector3 obbEdge1 = obbAxis1 * obb.size.x;
-	Vector3 obbAxis2 = obb.orientations[1];
-	Vector3 obbEdge2 = obbAxis2 * obb.size.y;
-	Vector3 obbAxis3 = obb.orientations[2];
-	Vector3 obbEdge3 = obbAxis3 * obb.size.z;
+	Vector3 Interval = aabbCenter - obb.center;
 
-	//aabbAxis1
-	float aabbProjectionExtent = Mathf::Length(aabbEdge1);
-	float obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis1, &obbEdge1, &obbEdge2, &obbEdge3);
-	float projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis1));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	//文理軸 Ae1
+	float rA = Mathf::Length(Ae1);
+	float rB = LenSegOnSeparateAxis(&NAe1, &Be1, &Be2, &Be3);
+	float L = fabs(Mathf::Dot(Interval, NAe1));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//aabbAxis2
-	aabbProjectionExtent = Mathf::Length(aabbEdge2);
-	obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis2, &obbEdge1, &obbEdge2, &obbEdge3);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis2));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : Ae2
+	rA = Mathf::Length(Ae2);
+	rB = LenSegOnSeparateAxis(&NAe2, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe2));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//aabbAxis3
-	aabbProjectionExtent = Mathf::Length(aabbEdge3);
-	obbProjectionExtent = LenSegOnSeparateAxis(&aabbAxis3, &obbEdge1, &obbEdge2, &obbEdge3);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, aabbAxis3));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : Ae3
+	rA = Mathf::Length(Ae3);
+	rB = LenSegOnSeparateAxis(&NAe3, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe3));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//obbAxis1
-	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis1, &aabbEdge1, &aabbEdge2, &aabbEdge3);
-	obbProjectionExtent = Mathf::Length(obbEdge1);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis1));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : Be1
+	rA = LenSegOnSeparateAxis(&NBe1, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be1);
+	L = fabs(Mathf::Dot(Interval, NBe1));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//obbAxis2
-	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis2, &aabbEdge1, &aabbEdge2, &aabbEdge3);
-	obbProjectionExtent = Mathf::Length(obbEdge2);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis2));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : Be2
+	rA = LenSegOnSeparateAxis(&NBe2, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be2);
+	L = fabs(Mathf::Dot(Interval, NBe2));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//obbAxis3
-	aabbProjectionExtent = LenSegOnSeparateAxis(&obbAxis3, &aabbEdge1, &aabbEdge2, &aabbEdge3);
-	obbProjectionExtent = Mathf::Length(obbEdge3);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, obbAxis3));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : Be3
+	rA = LenSegOnSeparateAxis(&NBe3, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be3);
+	L = fabs(Mathf::Dot(Interval, NBe3));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis1, obbAxis1)
-	Vector3 crossProduct = Mathf::Cross(aabbAxis1, obbAxis1);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C11
+	Vector3 Cross = Mathf::Cross(NAe1, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis1, obbAxis2)
-	crossProduct = Mathf::Cross(aabbAxis1, obbAxis2);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C12
+	Cross = Mathf::Cross(NAe1, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis1, obbAxis3)
-	crossProduct = Mathf::Cross(aabbAxis1, obbAxis3);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge2, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C13
+	Cross = Mathf::Cross(NAe1, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis2, obbAxis1)
-	crossProduct = Mathf::Cross(aabbAxis2, obbAxis1);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C21
+	Cross = Mathf::Cross(NAe2, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis2, obbAxis2)
-	crossProduct = Mathf::Cross(aabbAxis2, obbAxis2);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C22
+	Cross = Mathf::Cross(NAe2, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis2, obbAxis3)
-	crossProduct = Mathf::Cross(aabbAxis2, obbAxis3);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge3, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C23
+	Cross = Mathf::Cross(NAe2, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis3, obbAxis1)
-	crossProduct = Mathf::Cross(aabbAxis3, obbAxis1);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge2, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C31
+	Cross = Mathf::Cross(NAe3, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis3, obbAxis2)
-	crossProduct = Mathf::Cross(aabbAxis3, obbAxis2);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge3, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C32
+	Cross = Mathf::Cross(NAe3, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}
 
-	//Cross(aabbAxis3, obbAxis3)
-	crossProduct = Mathf::Cross(aabbAxis3, obbAxis3);
-	aabbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &aabbEdge1, &aabbEdge2, 0);
-	obbProjectionExtent = LenSegOnSeparateAxis(&crossProduct, &obbEdge1, &obbEdge2, 0);
-	projectionOverlap = fabs(Mathf::Dot(separationVector, crossProduct));
-	if (projectionOverlap > aabbProjectionExtent + obbProjectionExtent)
+	// 分離軸 : C33
+	Cross = Mathf::Cross(NAe3, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
 	{
 		return false;
 	}

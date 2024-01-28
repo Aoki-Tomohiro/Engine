@@ -46,6 +46,14 @@ public:
 	ParticleEmitterBuilder& SetPopRotation(const Vector3& min, const Vector3& max);
 
 	/// <summary>
+	/// パーティクルのQuaternionを設定
+	/// </summary>
+	/// <param name="min"></param>
+	/// <param name="max"></param>
+	/// <returns></returns>
+	ParticleEmitterBuilder& SetPopQuaternion(const Quaternion& quaternion);
+
+	/// <summary>
 	/// パーティクルのスケールを設定
 	/// </summary>
 	/// <param name="min"></param>

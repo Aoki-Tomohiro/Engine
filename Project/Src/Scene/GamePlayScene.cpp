@@ -1,5 +1,6 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Utilities/RandomGenerator.h"
 
 void GamePlayScene::Initialize()
 {
@@ -12,6 +13,13 @@ void GamePlayScene::Initialize()
 	//ゲームオブジェクトをクリア
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
+
+	//パーティクルをクリア
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
+
+	//衝突マネージャーの生成
+	collisionManager_ = std::make_unique<CollisionManager>();
 
 	//カメラの初期化
 	camera_.Initialize();
@@ -26,11 +34,17 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
-	playerModel_.reset(ModelManager::CreateFromOBJ("Player", Opaque));
-	playerModel_->SetEnableLighting(false);
-	playerModel_->SetColor({ 0.45f, 0.85f, 0.45f, 1.0f });
+	playerModelHead_.reset(ModelManager::CreateFromOBJ("PlayerHead", Opaque));
+	playerModelHead_->SetEnableLighting(false);
+	playerModelBody_.reset(ModelManager::CreateFromOBJ("PlayerBody", Opaque));
+	playerModelBody_->SetEnableLighting(false);
+	playerModelL_Arm_.reset(ModelManager::CreateFromOBJ("PlayerL_arm", Opaque));
+	playerModelL_Arm_->SetEnableLighting(false);
+	playerModelR_Arm_.reset(ModelManager::CreateFromOBJ("PlayerR_arm", Opaque));
+	playerModelR_Arm_->SetEnableLighting(false);
+	std::vector<Model*> playerModels = { playerModelBody_.get(),playerModelHead_.get(),playerModelL_Arm_.get(),playerModelR_Arm_.get() };
 	player_ = GameObjectManager::CreateGameObject<Player>();
-	player_->SetModel(playerModel_.get());
+	player_->SetModels(playerModels);
 	player_->SetTag("Player");
 	player_->SetCamera(&camera_);
 	player_->SetLockOn(lockOn_.get());
@@ -52,9 +66,8 @@ void GamePlayScene::Initialize()
 	skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromOBJ("Cube", Opaque));
+	groundModel_.reset(ModelManager::CreateFromOBJ("Ground", Opaque));
 	groundModel_->SetEnableLighting(false);
-	groundModel_->SetColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
 	ground_->SetModel(groundModel_.get());
 
@@ -78,6 +91,73 @@ void GamePlayScene::Update()
 	//トランジションの更新
 	UpdateTransition();
 
+	//パーティクルの更新
+	particleManager_->Update();
+
+	//プレイヤーの攻撃がヒットしたか、またはプレイヤーがダメージを受けたとき
+	if (player_->GetWeapon()->GetIsHit() || player_->GetIsHit())
+	{
+		//カメラシェイクのフラグを立てる
+		cameraShakeEnable_ = true;
+
+		//最後の攻撃の時
+		if (player_->GetComboIndex() == 3)
+		{
+			shakeIntensityX = 0.0f;
+			shakeIntensityY = 0.6f;
+		}
+		//プレイヤーがダメージを食らった時
+		else if (player_->GetIsHit())
+		{
+			shakeIntensityX = 0.6f;
+			shakeIntensityY = 0.6f;
+		}
+		//そのほか
+		else
+		{
+			shakeIntensityX = 0.0f;
+			shakeIntensityY = 0.1f;
+		}
+	}
+
+	//カメラシェイクの処理
+	if (cameraShakeEnable_)
+	{
+		if (++shakeTimer_ >= kShakeTime)
+		{
+			cameraShakeEnable_ = false;
+			shakeTimer_ = 0;
+		}
+
+		camera_.translation_.x += RandomGenerator::GetRandomFloat(-shakeIntensityX, shakeIntensityX);
+		camera_.translation_.y += RandomGenerator::GetRandomFloat(-shakeIntensityY, shakeIntensityY);
+	}
+
+	//カメラの更新
+	camera_.UpdateMatrix();
+
+	//ヒットストップ中じゃないときに武器が当たったら
+	if (!isStop_ && player_->GetWeapon()->GetIsHit())
+	{
+		//ヒットストップのフラグを立てる
+		isStop_ = true;
+		//最後の攻撃の時はヒットストップを長めに
+		stopTime_ = (player_->GetComboIndex() == 3) ? 10 : 2;
+		//ヒットフラグをリセット
+		player_->GetWeapon()->SetIsHit(false);
+	}
+
+	//ヒットストップの処理
+	if (isStop_)
+	{
+		if (++stopTimer_ >= stopTime_)
+		{
+			isStop_ = false;
+			stopTimer_ = 0;
+		}
+		return;
+	}
+
 	//ゲームオブジェクトの更新
 	gameObjectManager_->Update();
 
@@ -86,10 +166,22 @@ void GamePlayScene::Update()
 
 	//追従カメラの更新
 	followCamera_->Update();
-
-	//カメラの更新
 	camera_ = followCamera_->GetCamera();
-	camera_.UpdateMatrix();
+
+	//衝突判定
+	collisionManager_->ClearColliderList();
+	collisionManager_->SetColliderList(player_);
+	Weapon* weapon = player_->GetWeapon();
+	if (weapon->GetIsAttack())
+	{
+		collisionManager_->SetColliderList(weapon);
+	}
+	for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
+	{
+		collisionManager_->SetColliderList(laser.get());
+	}
+	collisionManager_->SetColliderList(boss_);
+	collisionManager_->CheckAllCollisions();
 }
 
 void GamePlayScene::Draw() 
@@ -116,6 +208,9 @@ void GamePlayScene::Draw()
 #pragma region パーティクル描画
 	//パーティクル描画前処理
 	renderer_->PreDrawParticles();
+
+	//パーティクルの描画
+	particleManager_->Draw(camera_);
 
 	//パーティクル描画後処理
 	renderer_->PostDrawParticles();
@@ -187,17 +282,22 @@ void GamePlayScene::UpdateTransition()
 	//トランジションが行われていないときに入力を受け付ける
 	if (!isFadeOut_ && !isFadeIn_)
 	{
-		//コントローラー
-		if (input_->IsControllerConnected())
+		//ボスの体力が0になったらゲームクリア
+		if (boss_->GetHP() <= 0.0f)
 		{
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
-			{
-				isFadeIn_ = true;
-			}
+			isFadeIn_ = true;
+			nextScene_ = kGameClear;
+		}
+
+		//プレイヤーの体力が0になったらゲームオーバー
+		if (player_->GetHP() <= 0.0f)
+		{
+			isFadeIn_ = true;
+			nextScene_ = kGameOver;
 		}
 
 		//キーボード
-		if (input_->IsPushKeyEnter(DIK_SPACE))
+		if (input_->IsPushKeyEnter(DIK_T))
 		{
 			isFadeIn_ = true;
 		}

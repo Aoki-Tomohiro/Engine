@@ -4,6 +4,8 @@
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Collision/CollisionManager.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
@@ -43,8 +45,16 @@ private:
 
 	Audio* audio_ = nullptr;
 
+	//ゲームオブジェクトマネージャー
 	GameObjectManager* gameObjectManager_ = nullptr;
 
+	//パーティクル
+	ParticleManager* particleManager_ = nullptr;
+
+	//衝突マネージャー
+	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
+
+	//カメラ
 	Camera camera_{};
 
 	//ロックオン
@@ -54,7 +64,10 @@ private:
 	std::unique_ptr<FollowCamera> followCamera_ = nullptr;
 
 	//プレイヤー
-	std::unique_ptr<Model> playerModel_ = nullptr;
+	std::unique_ptr<Model> playerModelHead_ = nullptr;
+	std::unique_ptr<Model> playerModelBody_ = nullptr;
+	std::unique_ptr<Model> playerModelL_Arm_ = nullptr;
+	std::unique_ptr<Model> playerModelR_Arm_ = nullptr;
 	Player* player_ = nullptr;
 
 	//ボス
@@ -81,5 +94,18 @@ private:
 
 	//次のシーン
 	NextScene nextScene_ = kGameClear;
+
+	//ヒットストップ関連
+	bool isStop_ = false;
+	uint32_t stopTime_ = 2;
+	uint32_t stopTimer_ = 0;
+
+	//カメラシェイク関連
+	bool cameraShakeEnable_ = false;
+	const uint32_t kShakeTime = 20;
+	uint32_t shakeTimer_ = 0;
+	float shakeIntensityX = 0.6f;
+	float shakeIntensityY = 0.6f;
+
 };
 

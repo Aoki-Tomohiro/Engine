@@ -193,6 +193,12 @@
     <Filter Include="ソース ファイル\Project\Object\Player">
       <UniqueIdentifier>{715a0554-6376-40ea-806b-8e313f72ada2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Project\Object\Boss\States">
+      <UniqueIdentifier>{3a712990-7487-42ec-84b3-6963d2bd7f1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Project\Object\Boss\States">
+      <UniqueIdentifier>{4ae5fa94-7472-450e-b4e4-14066b71429f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -309,9 +315,6 @@
     <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
       <Filter>ソース ファイル\Engine\Framework\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Framework\Object\IGameObject.cpp">
-      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Framework\Scene\SceneManager.cpp">
       <Filter>ソース ファイル\Engine\Framework\Scene</Filter>
     </ClCompile>
@@ -389,6 +392,24 @@
     </ClCompile>
     <ClCompile Include="Project\Src\Object\Player\Player.cpp">
       <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Player\Weapon.cpp">
+      <Filter>ソース ファイル\Project\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateTackle.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateNormal.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateCrashDown.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateLaserAttack.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Laser.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -643,6 +664,27 @@
     </ClInclude>
     <ClInclude Include="Project\Src\Object\Player\Player.h">
       <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Player\Weapon.h">
+      <Filter>ヘッダー ファイル\Project\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\IBossState.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateTackle.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateNormal.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateCrashDown.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateLaserAttack.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Laser.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
