@@ -3,7 +3,7 @@
 
 //実体定義
 TextureManager* TextureManager::instance_ = nullptr;
-const std::string TextureManager::kBaseDirectory = "Project/Resources/Images";
+const std::string TextureManager::kBaseDirectory = "Application/Resources/Images";
 
 TextureManager* TextureManager::GetInstance()
 {
@@ -64,11 +64,11 @@ void TextureManager::LoadInternal(const std::string& filename)
 
 	//テクスチャを読み込む
 	std::string filePath = kBaseDirectory + "/" + filename;
-	if (filename.find("Project/Resources/Models") != std::string::npos)
+	if (filename.find("Application/Resources/Models") != std::string::npos)
 	{
 		filePath = filename;
 	}
-	else if (filename.find("Project/Resources/Images") != std::string::npos)
+	else if (filename.find("Application/Resources/Images") != std::string::npos)
 	{
 		filePath = filename;
 	}

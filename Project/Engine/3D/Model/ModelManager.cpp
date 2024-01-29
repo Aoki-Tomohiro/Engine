@@ -5,7 +5,7 @@
 
 //実体定義
 ModelManager* ModelManager::instance_ = nullptr;
-const std::string ModelManager::kBaseDirectory = "Project/Resources/Models";
+const std::string ModelManager::kBaseDirectory = "Application/Resources/Models";
 
 ModelManager* ModelManager::GetInstance()
 {
@@ -57,7 +57,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName,DrawPass drawPa
 
 void ModelManager::Initialize()
 {
-	Model::ModelData modelData = LoadObjFile("Project/Resources/Models/Cube", "Cube.obj");
+	Model::ModelData modelData = LoadObjFile("Application/Resources/Models/Cube", "Cube.obj");
 	modelDatas_["Cube"] = modelData;
 }
 

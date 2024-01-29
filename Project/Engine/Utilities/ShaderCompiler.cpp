@@ -2,7 +2,7 @@
 #include <cassert>
 
 //実体定義
-const std::wstring& ShaderCompiler::kBaseDirectory = L"Project/Resources/Shaders/";
+const std::wstring& ShaderCompiler::kBaseDirectory = L"Application/Resources/Shaders/";
 Microsoft::WRL::ComPtr<IDxcUtils> ShaderCompiler::dxcUtils_ = nullptr;
 Microsoft::WRL::ComPtr<IDxcCompiler3> ShaderCompiler::dxcCompiler_ = nullptr;
 Microsoft::WRL::ComPtr<IDxcIncludeHandler> ShaderCompiler::includeHandler_ = nullptr;

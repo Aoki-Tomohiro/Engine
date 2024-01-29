@@ -19,9 +19,6 @@
     <Filter Include="ヘッダー ファイル\Engine">
       <UniqueIdentifier>{610f2b90-2171-4352-b446-efbcc33a905a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Project">
-      <UniqueIdentifier>{003d5007-1406-47b9-8cfb-25367899599f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\2D">
       <UniqueIdentifier>{de2f93b2-8a58-4f10-8989-4b0e154b8b13}</UniqueIdentifier>
     </Filter>
@@ -112,27 +109,6 @@
     <Filter Include="ヘッダー ファイル\Engine\Components\Particle">
       <UniqueIdentifier>{fcdca079-0974-40dc-8441-8a451ae009b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Project\Game">
-      <UniqueIdentifier>{acca2a71-25d1-4236-b4dd-822b8f906fb6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Project\Scene">
-      <UniqueIdentifier>{c7302bb2-fd7b-4662-8898-9d5f4bd04862}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Project\Object">
-      <UniqueIdentifier>{a22bb862-0d9b-414b-a041-a5727980e4a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Project">
-      <UniqueIdentifier>{58c797e5-46b2-400a-820b-dcc2492ebad2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Project\Game">
-      <UniqueIdentifier>{b7f14911-79fa-482d-a122-b1b19d56e618}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Project\Scene">
-      <UniqueIdentifier>{6c4c76da-1ad8-453a-bcae-0983edf22b5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Project\Object">
-      <UniqueIdentifier>{f4a52438-51f2-43f3-a85d-2f363fc43a1d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\Framework\Game">
       <UniqueIdentifier>{7f70660b-7e9a-44a5-a55c-85617db3fbb1}</UniqueIdentifier>
     </Filter>
@@ -156,6 +132,30 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{9bf9be86-a3af-4de0-bfd6-ef62d8db78b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application">
+      <UniqueIdentifier>{003d5007-1406-47b9-8cfb-25367899599f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Game">
+      <UniqueIdentifier>{acca2a71-25d1-4236-b4dd-822b8f906fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Scene">
+      <UniqueIdentifier>{c7302bb2-fd7b-4662-8898-9d5f4bd04862}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object">
+      <UniqueIdentifier>{a22bb862-0d9b-414b-a041-a5727980e4a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application">
+      <UniqueIdentifier>{58c797e5-46b2-400a-820b-dcc2492ebad2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Game">
+      <UniqueIdentifier>{b7f14911-79fa-482d-a122-b1b19d56e618}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Scene">
+      <UniqueIdentifier>{6c4c76da-1ad8-453a-bcae-0983edf22b5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object">
+      <UniqueIdentifier>{f4a52438-51f2-43f3-a85d-2f363fc43a1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -297,24 +297,6 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル\Engine\Framework\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Project\Src\Game\GameManager.cpp">
-      <Filter>ソース ファイル\Project\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Project\Src\Scene\GameClearScene.cpp">
-      <Filter>ソース ファイル\Project\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Project\Src\Scene\GameOverScene.cpp">
-      <Filter>ソース ファイル\Project\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Project\Src\Scene\GamePlayScene.cpp">
-      <Filter>ソース ファイル\Project\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Project\Src\Scene\GameTitleScene.cpp">
-      <Filter>ソース ファイル\Project\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Project\Src\Scene\SceneFactory.cpp">
-      <Filter>ソース ファイル\Project\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
@@ -335,6 +317,24 @@
     </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Game\GameManager.cpp">
+      <Filter>ソース ファイル\Application\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameTitleScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -530,24 +530,6 @@
     <ClInclude Include="Engine\Utilities\D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル\Engine\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="Project\Src\Game\GameManager.h">
-      <Filter>ヘッダー ファイル\Project\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Src\Scene\SceneFactory.h">
-      <Filter>ヘッダー ファイル\Project\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Src\Scene\GameTitleScene.h">
-      <Filter>ヘッダー ファイル\Project\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Src\Scene\GamePlayScene.h">
-      <Filter>ヘッダー ファイル\Project\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Src\Scene\GameOverScene.h">
-      <Filter>ヘッダー ファイル\Project\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Project\Src\Scene\GameClearScene.h">
-      <Filter>ヘッダー ファイル\Project\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imconfig.h">
       <Filter>ImGui</Filter>
     </ClInclude>
@@ -571,6 +553,24 @@
     </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Game\GameManager.h">
+      <Filter>ヘッダー ファイル\Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameClearScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameOverScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GamePlayScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameTitleScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\SceneFactory.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

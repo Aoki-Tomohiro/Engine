@@ -19,6 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp" />
+    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp" />
+    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp" />
+    <ClCompile Include="Application\Src\Scene\GameTitleScene.cpp" />
+    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp" />
     <ClCompile Include="Engine\2D\Sprite.cpp" />
     <ClCompile Include="Engine\3D\Camera\Camera.cpp" />
     <ClCompile Include="Engine\3D\Camera\DebugCamera.cpp" />
@@ -86,14 +92,14 @@
     <ClCompile Include="Engine\Utilities\RandomGenerator.cpp" />
     <ClCompile Include="Engine\Utilities\ShaderCompiler.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Project\Src\Game\GameManager.cpp" />
-    <ClCompile Include="Project\Src\Scene\GameClearScene.cpp" />
-    <ClCompile Include="Project\Src\Scene\GameOverScene.cpp" />
-    <ClCompile Include="Project\Src\Scene\GamePlayScene.cpp" />
-    <ClCompile Include="Project\Src\Scene\GameTitleScene.cpp" />
-    <ClCompile Include="Project\Src\Scene\SceneFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application\Src\Game\GameManager.h" />
+    <ClInclude Include="Application\Src\Scene\GameClearScene.h" />
+    <ClInclude Include="Application\Src\Scene\GameOverScene.h" />
+    <ClInclude Include="Application\Src\Scene\GamePlayScene.h" />
+    <ClInclude Include="Application\Src\Scene\GameTitleScene.h" />
+    <ClInclude Include="Application\Src\Scene\SceneFactory.h" />
     <ClInclude Include="Engine\2D\Sprite.h" />
     <ClInclude Include="Engine\3D\Camera\Camera.h" />
     <ClInclude Include="Engine\3D\Camera\DebugCamera.h" />
@@ -166,12 +172,6 @@
     <ClInclude Include="Engine\Utilities\Log.h" />
     <ClInclude Include="Engine\Utilities\RandomGenerator.h" />
     <ClInclude Include="Engine\Utilities\ShaderCompiler.h" />
-    <ClInclude Include="Project\Src\Game\GameManager.h" />
-    <ClInclude Include="Project\Src\Scene\GameClearScene.h" />
-    <ClInclude Include="Project\Src\Scene\GameOverScene.h" />
-    <ClInclude Include="Project\Src\Scene\GamePlayScene.h" />
-    <ClInclude Include="Project\Src\Scene\GameTitleScene.h" />
-    <ClInclude Include="Project\Src\Scene\SceneFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt" />

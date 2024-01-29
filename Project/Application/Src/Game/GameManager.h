@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Framework/Game/GameCore.h"
-#include "Project/Src/Scene/SceneFactory.h"
+#include "Application/Src/Scene/SceneFactory.h"
 
 class GameManager : public GameCore
 {
