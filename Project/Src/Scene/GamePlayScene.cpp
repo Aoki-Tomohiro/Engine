@@ -76,6 +76,9 @@ void GamePlayScene::Initialize()
 	transitionSprite_->SetSize({ 1280.0f,720.0f });
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
+	//ガイドのスプライトの生成
+	guideSprite_.reset(Sprite::Create("Guide.png", { 0.0f,0.0f }));
+
 	//BGMの読み込みと再生
 	bgmHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/GamePlay.wav");
 	audio_->SoundPlayWave(bgmHandle_, true, 0.5f);
@@ -104,7 +107,7 @@ void GamePlayScene::Update()
 		if (player_->GetComboIndex() == 3)
 		{
 			shakeIntensityX = 0.0f;
-			shakeIntensityY = 0.6f;
+			shakeIntensityY = 0.4f;
 		}
 		//プレイヤーがダメージを食らった時
 		else if (player_->GetIsHit())
@@ -176,6 +179,10 @@ void GamePlayScene::Update()
 	{
 		collisionManager_->SetColliderList(weapon);
 	}
+	for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
+	{
+		collisionManager_->SetColliderList(missile.get());
+	}
 	for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
 	{
 		collisionManager_->SetColliderList(laser.get());
@@ -228,6 +235,9 @@ void GamePlayScene::DrawUI()
 
 	//ロックオンの描画
 	lockOn_->Draw();
+
+	//ガイドのスプライトの描画
+	guideSprite_->Draw();
 
 	//トランジション用のスプライトの描画
 	transitionSprite_->Draw();

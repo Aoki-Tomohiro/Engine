@@ -107,5 +107,7 @@ private:
 	float shakeIntensityX = 0.6f;
 	float shakeIntensityY = 0.6f;
 
+	//ガイドのスプライト
+	std::unique_ptr<Sprite> guideSprite_ = nullptr;
 };
 

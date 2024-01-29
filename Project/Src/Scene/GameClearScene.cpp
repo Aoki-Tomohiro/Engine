@@ -9,6 +9,19 @@ void GameClearScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
+	//カメラの初期化
+	camera_.Initialize();
+
+	//ゲームオブジェクトをクリア
+	gameObjectManager_ = GameObjectManager::GetInstance();
+	gameObjectManager_->Clear();
+	
+	//天球の作成
+	skydomeModel_.reset(ModelManager::CreateFromOBJ("Skydome", Opaque));
+	skydomeModel_->SetEnableLighting(false);
+	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
+	skydome_->SetModel(skydomeModel_.get());
+
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 	transitionSprite_->SetSize({ 1280.0f,720.0f });
@@ -27,6 +40,12 @@ void GameClearScene::Update()
 {
 	//トランジションの更新
 	UpdateTransition();
+
+	//ゲームオブジェクトの更新
+	gameObjectManager_->Update();
+
+	//カメラの更新
+	camera_.UpdateMatrix();
 }
 
 void GameClearScene::Draw() 
@@ -43,6 +62,9 @@ void GameClearScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
+	//ゲームオブジェクトのモデル描画
+	gameObjectManager_->Draw(camera_);
+
 	//3Dオブジェクト描画
 	renderer_->Render();
 #pragma endregion

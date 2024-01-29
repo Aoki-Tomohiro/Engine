@@ -270,6 +270,33 @@ void Player::OnCollision(Collider* collider)
 		}
 	}
 
+	//ミサイルの衝突判定
+	if (collider->GetCollisionAttribute() == kCollisionAttributeMissile)
+	{
+		if (behavior_ != Behavior::kDash)
+		{
+			//無敵状態でなければ
+			if (!workInvincible_.invincibleFlag)
+			{
+				//HPを減らす
+				hp_ -= 10.0f;
+
+				//無敵状態にする
+				workInvincible_.invincibleFlag = true;
+				workInvincible_.invincibleTimer = 0;
+
+				//SEを再生
+				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+
+				//ダメージスプライトのアルファ値を設定
+				damageSpriteColor_.w = 0.5f;
+
+				//ヒットフラグを立てる
+				isHit_ = true;
+			}
+		}
+	}
+
 	//レーザーの衝突判定
 	if (collider->GetCollisionAttribute() == kCollisionAttributeLaser)
 	{

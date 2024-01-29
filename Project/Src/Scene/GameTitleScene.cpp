@@ -78,7 +78,7 @@ void GameTitleScene::Initialize()
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
 	//タイトルのスプライトの生成
-	titleSprite_.reset(Sprite::Create("GameTitle2.png", { 0.0f,0.0f }));
+	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
 
 	//BGMの読み込みと再生

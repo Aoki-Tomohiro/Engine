@@ -8,6 +8,8 @@
 #include "Project/Src/Object/Boss/States/BossStateTackle.h"
 #include "Project/Src/Object/Boss/States/BossStateCrashDown.h"
 #include "Project/Src/Object/Boss/States/BossStateLaserAttack.h"
+#include "Project/Src/Object/Boss/States/BossStateMissileAttack.h"
+#include "Project/Src/Object/Boss/Missile.h"
 #include "Project/Src/Object/Boss/Laser.h"
 
 class Boss : public IGameObject, public Collider
@@ -31,6 +33,10 @@ public:
 
 	void ChangeState(IBossState* newState);
 
+	const std::list<std::unique_ptr<Missile>>& GetMissiles() const { return missiles_; };
+
+	void AddMissile(Missile* missile) { missiles_.push_back(std::unique_ptr<Missile>(missile)); };
+
 	const std::list<std::unique_ptr<Laser>>& GetLasers() const { return lasers_; };
 
 	void AddLaser(Laser* laser) { lasers_.push_back(std::unique_ptr<Laser>(laser)); };
@@ -48,6 +54,9 @@ public:
 private:
 	//状態
 	IBossState* state_ = nullptr;
+
+	//ミサイル
+	std::list<std::unique_ptr<Missile>> missiles_{};
 
 	//レーザー
 	std::list<std::unique_ptr<Laser>> lasers_{};

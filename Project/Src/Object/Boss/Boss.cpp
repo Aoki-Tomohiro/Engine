@@ -56,6 +56,24 @@ void Boss::Update()
 		state_->Update(this);
 	}
 	
+	//死亡フラグの立ったミサイルを削除
+	missiles_.remove_if([](std::unique_ptr<Missile>& missile)
+		{
+			if (missile->GetIsDead())
+			{
+				missile.reset();
+				return true;
+			}
+			return false;
+		}
+	);
+
+	//ミサイルの更新
+	for (const std::unique_ptr<Missile>& missile : missiles_)
+	{
+		missile->Update();
+	}
+
 	//死亡フラグの立ったレーザーを削除
 	lasers_.remove_if([](std::unique_ptr<Laser>& laser)
 		{
@@ -90,6 +108,12 @@ void Boss::Draw(const Camera& camera)
 
 	//状態の描画
 	state_->Draw(this, camera);
+
+	//ミサイルの描画
+	for (const std::unique_ptr<Missile>& missile : missiles_)
+	{
+		missile->Draw(camera);
+	}
 
 	//レーザーの描画
 	for (const std::unique_ptr<Laser>& laser : lasers_)

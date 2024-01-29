@@ -88,8 +88,10 @@
     <ClCompile Include="Project\Src\Game\GameManager.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\Boss.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\Laser.cpp" />
+    <ClCompile Include="Project\Src\Object\Boss\Missile.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\States\BossStateCrashDown.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\States\BossStateLaserAttack.cpp" />
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateMissileAttack.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\States\BossStateNormal.cpp" />
     <ClCompile Include="Project\Src\Object\Boss\States\BossStateTackle.cpp" />
     <ClCompile Include="Project\Src\Object\FollowCamera\FollowCamera.cpp" />
@@ -180,8 +182,10 @@
     <ClInclude Include="Project\Src\Game\GameManager.h" />
     <ClInclude Include="Project\Src\Object\Boss\Boss.h" />
     <ClInclude Include="Project\Src\Object\Boss\Laser.h" />
+    <ClInclude Include="Project\Src\Object\Boss\Missile.h" />
     <ClInclude Include="Project\Src\Object\Boss\States\BossStateCrashDown.h" />
     <ClInclude Include="Project\Src\Object\Boss\States\BossStateLaserAttack.h" />
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateMissileAttack.h" />
     <ClInclude Include="Project\Src\Object\Boss\States\BossStateNormal.h" />
     <ClInclude Include="Project\Src\Object\Boss\States\BossStateTackle.h" />
     <ClInclude Include="Project\Src\Object\Boss\States\IBossState.h" />

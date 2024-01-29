@@ -40,8 +40,7 @@ void BossStateNormal::Update(Boss* pBoss)
 	//攻撃処理
 	if (++attackTimer_ > attackTime_)
 	{
-		//uint32_t attackNum = RandomGenerator::GetRandomInt(0, 3);
-		uint32_t attackNum = 3;
+		uint32_t attackNum = RandomGenerator::GetRandomInt(0, 3);
 		IBossState* newState = nullptr;
 		switch (attackNum)
 		{
@@ -53,10 +52,10 @@ void BossStateNormal::Update(Boss* pBoss)
 			newState = new BossStateCrashDown();
 			newState->Initialize(pBoss);
 			break;
-		//case 2:
-		//	newState = new BossStateMissileAttack();
-		//	newState->Initialize(pBoss);
-		//	break;
+		case 2:
+			newState = new BossStateMissileAttack();
+			newState->Initialize(pBoss);
+			break;
 		case 3:
 			newState = new BossStateLaserAttack();
 			newState->Initialize(pBoss);

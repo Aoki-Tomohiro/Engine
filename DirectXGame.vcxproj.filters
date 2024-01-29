@@ -411,6 +411,12 @@
     <ClCompile Include="Project\Src\Object\Boss\Laser.cpp">
       <Filter>ソース ファイル\Project\Object\Boss</Filter>
     </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\States\BossStateMissileAttack.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Project\Src\Object\Boss\Missile.cpp">
+      <Filter>ソース ファイル\Project\Object\Boss</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -684,6 +690,12 @@
       <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
     </ClInclude>
     <ClInclude Include="Project\Src\Object\Boss\Laser.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\States\BossStateMissileAttack.h">
+      <Filter>ヘッダー ファイル\Project\Object\Boss\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Project\Src\Object\Boss\Missile.h">
       <Filter>ヘッダー ファイル\Project\Object\Boss</Filter>
     </ClInclude>
   </ItemGroup>
