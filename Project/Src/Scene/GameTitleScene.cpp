@@ -77,6 +77,10 @@ void GameTitleScene::Initialize()
 	transitionSprite_->SetSize({ 1280.0f,720.0f });
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
+	//タイトルのスプライトの生成
+	titleSprite_.reset(Sprite::Create("GameTitle2.png", { 0.0f,0.0f }));
+	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
+
 	//BGMの読み込みと再生
 	bgmHandle_ = audio_->SoundLoadWave("Project/Resources/Sounds/Title.wav");
 	audio_->SoundPlayWave(bgmHandle_, true, 0.5f);
@@ -107,7 +111,7 @@ void GameTitleScene::Update()
 	const float kRotSpeed = 0.006f;
 	camera_.rotation_.y += kRotSpeed;
 	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_.rotation_.y);
-	Vector3 offset = { 0.0f,30.0f ,-100.0f };
+	Vector3 offset = { 0.0f,30.0f ,-80.0f };
 	offset = Mathf::TransformNormal(offset, rotateYMatrix);
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
@@ -157,6 +161,12 @@ void GameTitleScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//タイトルのスプライトの描画
+	titleSprite_->Draw();
+
+	//PressAのスプライトの描画
+	pressASprite_->Draw();
 
 	//トランジション用のスプライトの描画
 	transitionSprite_->Draw();

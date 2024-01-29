@@ -13,6 +13,9 @@ void GameOverScene::Initialize()
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 	transitionSprite_->SetSize({ 1280.0f,720.0f });
 	transitionSprite_->SetColor(transitionSpriteColor_);
+
+	//ゲームオーバーのスプライトの生成
+	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
 }
 
 void GameOverScene::Finalize() 
@@ -58,6 +61,9 @@ void GameOverScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//ゲームオーバーのスプライトの描画
+	gameOverSprite_->Draw();
 
 	//トランジション用のスプライトの描画
 	transitionSprite_->Draw();

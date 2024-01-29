@@ -67,6 +67,10 @@ private:
 	bool isFadeIn_ = false;
 	bool isFadeOut_ = true;
 
+	//タイトルのスプライト
+	std::unique_ptr<Sprite> titleSprite_ = nullptr;
+	std::unique_ptr<Sprite> pressASprite_ = nullptr;
+
 	//BGM
 	uint32_t bgmHandle_ = 0;
 };

@@ -35,5 +35,8 @@ private:
 	float transitionTimer_ = 0;
 	bool isFadeIn_ = false;
 	bool isFadeOut_ = true;
+
+	//ゲームクリアのスプライト
+	std::unique_ptr<Sprite> gameClearSprite_ = nullptr;
 };
 
