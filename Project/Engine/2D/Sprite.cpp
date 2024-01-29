@@ -25,7 +25,7 @@ void Sprite::Draw()
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->SetGraphicsRootConstantBufferView(0, materialConstBuffer_->GetGpuVirtualAddress());
 	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(2, textureManager->GetDescriptorHandle(textureName_));
+	commandList->SetGraphicsRootDescriptorTable(2, texture_->GetSRVHandle());
 	commandList->DrawInstanced(kMaxVertices, 1, 0, 0);
 }
 
@@ -34,14 +34,11 @@ void Sprite::Initialize(const std::string& textureName, Vector2 position)
 	//座標を設定
 	position_ = position;
 
-	//テクスチャの名前を設定
-	textureName_ = textureName;
-
-	//テクスチャを読み込む
-	TextureManager::Load(textureName);
+	//テクスチャを設定
+	SetTexture(textureName);
 
 	//テクスチャの情報を取得
-	resourceDesc_ = TextureManager::GetInstance()->GetResourceDesc(textureName_);
+	resourceDesc_ = texture_->GetResourceDesc();
 
 	//テクスチャの情報を基にサイズを初期化
 	textureSize_ = { float(resourceDesc_.Width),float(resourceDesc_.Height) };
@@ -170,7 +167,15 @@ void Sprite::UpdateWVPResource()
 void Sprite::AdjustTextureSize()
 {
 	//テクスチャの情報を取得
-	resourceDesc_ = TextureManager::GetInstance()->GetResourceDesc(textureName_);
+	resourceDesc_ = texture_->GetResourceDesc();
 	//テクスチャサイズの初期化
 	textureSize_ = { float(resourceDesc_.Width),float(resourceDesc_.Height) };
+}
+
+void Sprite::SetTexture(const std::string& textureName)
+{
+	//テクスチャを設定
+	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
+	//テクスチャがなかったら止める
+	assert(texture_);
 }

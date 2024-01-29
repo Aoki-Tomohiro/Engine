@@ -1,6 +1,5 @@
 #include "ParticleSystem.h"
 #include "Engine/Base/GraphicsCore.h"
-#include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 #include <numbers>
 
@@ -39,14 +38,13 @@ void ParticleSystem::Draw(const Camera& camera)
 {
 	UpdateInstancingResource(camera);
 	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
-	TextureManager* textureManager = TextureManager::GetInstance();
 	Model* model = model_ ? model_ : defaultModel_.get();
 	commandList->IASetVertexBuffers(0, 1, &model->vertexBufferView_);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->SetGraphicsRootConstantBufferView(0, model->materialConstBuffer_->GetGpuVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(1, instancingResource_->GetSRVHandle());
 	commandList->SetGraphicsRootConstantBufferView(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(3, textureManager->GetDescriptorHandle(model->textureName_));
+	commandList->SetGraphicsRootDescriptorTable(3, model->texture_->GetSRVHandle());
 	commandList->DrawInstanced(UINT(model->modelData_.vertices.size()), numInstance_, 0, 0);
 }
 
@@ -102,9 +100,13 @@ void ParticleSystem::UpdateInstancingResource(const Camera& camera)
 	Matrix4x4 billboardMatrix{};
 	if (isBillboard_)
 	{
-		Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
-		billboardMatrix = backToFrontMatrix * cameraMatrix;
+		//Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
+		//Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
+		//billboardMatrix = backToFrontMatrix * cameraMatrix;
+		//billboardMatrix.m[3][0] = 0.0f;
+		//billboardMatrix.m[3][1] = 0.0f;
+		//billboardMatrix.m[3][2] = 0.0f;
+		billboardMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);;
 		billboardMatrix.m[3][0] = 0.0f;
 		billboardMatrix.m[3][1] = 0.0f;
 		billboardMatrix.m[3][2] = 0.0f;

@@ -14,8 +14,12 @@ void Model::Create(const ModelData& modelData, DrawPass drawPass)
 	//テクスチャを読み込む
 	if (modelData_.material.textureFilePath != "")
 	{
-		textureName_ = modelData_.material.textureFilePath;
 		TextureManager::Load(modelData_.material.textureFilePath);
+		texture_ = TextureManager::GetInstance()->FindTexture(modelData_.material.textureFilePath);
+	}
+	else
+	{
+		texture_ = TextureManager::GetInstance()->FindTexture("white.png");
 	}
 
 	//頂点バッファの作成
@@ -54,17 +58,7 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 	//SortObjectの追加
 	renderer_->AddObject(vertexBufferView_, materialConstBuffer_->GetGpuVirtualAddress(),
 		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-		TextureManager::GetInstance()->GetDescriptorHandle(textureName_), UINT(modelData_.vertices.size()), drawPass_);
-
-	//ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
-	//TextureManager* textureManager = TextureManager::GetInstance();
-	//commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//commandList->SetGraphicsRootConstantBufferView(0, materialConstBuffer_->GetGpuVirtualAddress());
-	//commandList->SetGraphicsRootConstantBufferView(1, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress());
-	//commandList->SetGraphicsRootConstantBufferView(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
-	//commandList->SetGraphicsRootDescriptorTable(3, textureManager->GetDescriptorHandle(textureName_));
-	//commandList->DrawInstanced(UINT(modelData_.vertices.size()), 1, 0, 0);
+		texture_->GetSRVHandle(), UINT(modelData_.vertices.size()), drawPass_);
 }
 
 void Model::CreateVertexBuffer()
@@ -92,4 +86,12 @@ void Model::CreateMaterialConstBuffer()
 
 	//マテリアル用のリソースに書き込む
 	UpdateMaterailConstBuffer();
+}
+
+void Model::SetTexture(const std::string& textureName)
+{
+	//テクスチャを設定
+	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
+	//テクスチャがなかったら止める
+	assert(texture_);
 }

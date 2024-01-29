@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Base/Renderer.h"
+#include "Engine/Base/Texture.h"
 #include "Engine/3D/Camera/Camera.h"
 #include "WorldTransform.h"
 #include <memory>
@@ -84,9 +85,7 @@ public:
 
 	void SetSpecularColor(const Vector3& specularColor) { specularColor_ = specularColor; };
 
-	const std::string& GetTextureName() const { return textureName_; };
-
-	void SetTextureName(const std::string& name) { textureName_ = name; };
+	void SetTexture(const std::string& textureName);
 
 private:
 	void CreateVertexBuffer();
@@ -124,7 +123,7 @@ private:
 
 	DrawPass drawPass_ = Opaque;
 
-	std::string textureName_ = "white.png";
+	const Texture* texture_ = nullptr;
 
 	friend class ParticleSystem;
 };
