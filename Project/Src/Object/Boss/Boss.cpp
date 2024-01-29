@@ -37,13 +37,25 @@ void Boss::Initialize()
 
 void Boss::Update()
 {
+	//プレイヤーの動いたらボスも動き出す
+	if (!isActive_)
+	{
+		if (GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetVelocity() != Vector3{ 0.0f,0.0f,0.0f })
+		{
+			isActive_ = true;
+		}
+	}
+
 	//前のフレームの当たり判定のフラグを取得
 	preOnCollision_ = onCollision_;
 	onCollision_ = false;
 
 	//状態の更新
-	state_->Update(this);
-
+	if (isActive_)
+	{
+		state_->Update(this);
+	}
+	
 	//死亡フラグの立ったレーザーを削除
 	lasers_.remove_if([](std::unique_ptr<Laser>& laser)
 		{

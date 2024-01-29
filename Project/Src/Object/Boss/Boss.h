@@ -61,6 +61,9 @@ private:
 	const float kMaxHP = 800.0f;
 	float hp_ = kMaxHP;
 
+	//アクティブフラグ
+	bool isActive_ = false;
+
 	//攻撃フラグ
 	bool isAttack_ = false;
 

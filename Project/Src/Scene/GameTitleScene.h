@@ -1,11 +1,17 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
+
+#include "Project/Src/Object/Skydome/Skydome.h"
+#include "Project/Src/Object/Ground/Ground.h"
+#include "Project/Src/Object/Player/Player.h"
+#include "Project/Src/Object/Boss/Boss.h"
 
 class GameTitleScene : public IScene
 {
@@ -28,6 +34,31 @@ private:
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
+
+	//ゲームオブジェクトマネージャー
+	GameObjectManager* gameObjectManager_ = nullptr;
+
+	//カメラ
+	Camera camera_{};
+
+	//プレイヤー
+	std::unique_ptr<Model> playerModelHead_ = nullptr;
+	std::unique_ptr<Model> playerModelBody_ = nullptr;
+	std::unique_ptr<Model> playerModelL_Arm_ = nullptr;
+	std::unique_ptr<Model> playerModelR_Arm_ = nullptr;
+	WorldTransform playerWorldTransforms[5]{};
+
+	//ボス
+	std::unique_ptr<Model> bossModel_ = nullptr;
+	WorldTransform bossWorldTransform_{};
+
+	//天球
+	std::unique_ptr<Model> skydomeModel_ = nullptr;
+	Skydome* skydome_ = nullptr;
+
+	//地面
+	std::unique_ptr<Model> groundModel_ = nullptr;
+	Ground* ground_ = nullptr;
 
 	//トランジション関連
 	std::unique_ptr<Sprite> transitionSprite_ = nullptr;
