@@ -47,8 +47,23 @@ void Missile::Update()
 		trackingParameter_ += 1.0f / (60.0f * 10.0f);
 	}
 
-	//速度の計算
-	velocity_ = Mathf::Slerp(velocity_, sub, trackingParameter_);
+	//追尾タイマーを進める
+	if (trackingTimer_ != kTrackingTime)
+	{
+		trackingTimer_++;
+	}
+
+	//一定時間追尾するようにする
+	if (trackingTimer_ >= kTrackingTime)
+	{
+		isTrackingComplete_ = true;
+	}
+
+	//追捕終了していなかったら
+	if (!isTrackingComplete_)
+	{
+		velocity_ = Mathf::Slerp(velocity_, sub, trackingParameter_);
+	}
 
 	//移動処理
 	const float kSpeed = 0.6f;

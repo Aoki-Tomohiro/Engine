@@ -38,6 +38,12 @@ private:
 	//媒介変数
 	float trackingParameter_ = 0.0f;
 
+	//追尾
+	bool isTrackingComplete_ = false;
+
+	//追尾タイマー
+	uint32_t trackingTimer_ = 0;
+
 	//死亡フラグ
 	bool isDead_ = false;
 
