@@ -14,9 +14,7 @@ public:
 
 	void Initialize();
 
-	DescriptorHandle GetDescriptorHandle(const std::string& name);
-
-	D3D12_RESOURCE_DESC GetResourceDesc(const std::string& name);
+	const Texture* FindTexture(const std::string& name) const;
 
 private:
 	TextureManager() = default;

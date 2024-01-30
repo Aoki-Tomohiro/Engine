@@ -24,17 +24,13 @@ public:
 
 	std::list<ParticleEmitter*> GetParticleEmitters(const std::string& name);
 
-	const std::string& GetTexture() const { return model_->textureName_; };
-
-	void SetTexture(const std::string& name) { model_ ? model_->textureName_ = name : defaultModel_->textureName_ = name; };
-
-	Model* GetModel() { return model_; };
-
-	void SetModel(Model* model) { model_ = model; };
-
 	const bool GetIsBillBoard() const { return isBillboard_; };
 
 	void SetIsBillBoard(const bool isBillboard) { isBillboard_ = isBillboard; };
+
+	void SetModel(Model* model) { model_ = model; };
+
+	void SetTexture(const std::string& name) { model_ ? model_->SetTexture(name) : defaultModel_->SetTexture(name); };
 
 private:
 	void CreateInstancingResource();

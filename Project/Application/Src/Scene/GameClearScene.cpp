@@ -1,5 +1,6 @@
 #include "GameClearScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/TextureManager.h"
 
 void GameClearScene::Initialize() 
 {
@@ -28,6 +29,7 @@ void GameClearScene::Initialize()
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
 	//ゲームオーバーのスプライトの生成
+	TextureManager::Load("GameClear.png");
 	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
 }
 

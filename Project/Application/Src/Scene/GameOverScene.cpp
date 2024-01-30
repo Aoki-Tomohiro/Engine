@@ -1,5 +1,6 @@
 #include "GameOverScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/TextureManager.h"
 
 void GameOverScene::Initialize() 
 {
@@ -28,6 +29,7 @@ void GameOverScene::Initialize()
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
 	//ゲームオーバーのスプライトの生成
+	TextureManager::Load("GameOver.png");
 	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
 }
 

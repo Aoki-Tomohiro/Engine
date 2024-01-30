@@ -25,13 +25,19 @@ void ModelManager::Destroy()
 	}
 }
 
+Model* ModelManager::Create()
+{
+	Model* model = ModelManager::GetInstance()->CreateInternal("Cube", Opaque);
+	return model;
+}
+
 Model* ModelManager::CreateFromOBJ(const std::string& modelName, DrawPass drawPass)
 {
 	Model* model = ModelManager::GetInstance()->CreateInternal(modelName, drawPass);
 	return model;
 }
 
-Model* ModelManager::CreateInternal(const std::string& modelName,DrawPass drawPass)
+Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawPass)
 {
 	auto it = modelDatas_.find(modelName);
 

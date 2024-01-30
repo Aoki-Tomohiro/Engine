@@ -33,25 +33,15 @@ void TextureManager::Initialize()
 	LoadInternal("white.png");
 }
 
-D3D12_RESOURCE_DESC TextureManager::GetResourceDesc(const std::string& name)
+const Texture* TextureManager::FindTexture(const std::string& name) const
 {
-	auto it = textures_.find(name);
-	if (it != textures_.end())
+	//テクスチャを探す
+	if (textures_.contains(name))
 	{
-		return it->second->GetResourceDesc();
+		return textures_.at(name).get();
 	}
-	return D3D12_RESOURCE_DESC();
-}
 
-DescriptorHandle TextureManager::GetDescriptorHandle(const std::string& name)
-{
-	auto it = textures_.find(name);
-	if (it != textures_.end())
-	{
-		DescriptorHandle descriptorHandle = it->second->GetSRVHandle();
-		return descriptorHandle;
-	}
-	return DescriptorHandle();
+	return nullptr;
 }
 
 void TextureManager::LoadInternal(const std::string& filename)

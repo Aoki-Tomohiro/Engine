@@ -244,7 +244,7 @@ private:
 
 	//HP
 	Vector2 hpBarSize_{ 480.0f,16.0f };
-	const float kMaxHP = 30.0f;
+	const float kMaxHP = 40.0f;
 	float hp_ = kMaxHP;
 
 	//パーティクル

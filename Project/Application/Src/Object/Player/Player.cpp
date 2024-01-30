@@ -42,8 +42,10 @@ void Player::Initialize()
 	weapon_->SetParent(&worldTransform_);
 
 	//スプライトの生成
+	TextureManager::Load("HpBar.png");
 	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 80.0f,32.0f }));
 	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	TextureManager::Load("HpBarFrame.png");
 	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 79.0f,31.0f }));
 	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
 	damageSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
@@ -561,7 +563,7 @@ void Player::BehaviorDashInitialize()
 	workDash_.backStepRotation = 0.0f;
 	audio_->SoundPlayWave(dashAudioHandle_, false, 0.5f);
 
-	if (/*velocity_ != Vector3{ 0.0f,0.0f,0.0f }*/velocity_.x != 0.0f && velocity_.z != 0.0f)
+	if (velocity_ != Vector3{ 0.0f,0.0f,0.0f })
 	{
 		//速さ
 		float kSpeed = 1.0f;
@@ -607,14 +609,6 @@ void Player::BehaviorDashInitialize()
 			.SetTranslation(translation)
 			.Build();
 		particleSystem_->AddParticleEmitter(emitter);
-	}
-	else if (!isGroundHit_)
-	{
-		//ジャンプ中に入力がなかった場合は前に進むようにする
-		velocity_ = { 0.0f,0.0f,1.0f };
-
-		//移動ベクトルをプレイヤーの角度だけ回転する
-		velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
 	}
 	else
 	{
@@ -696,21 +690,6 @@ void Player::BehaviorJumpUpdate()
 
 	if (input_->IsControllerConnected())
 	{
-		//ダッシュ行動に変更
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
-		{
-			if (workDash_.coolTime == workDash_.dashCoolTime)
-			{
-				behaviorRequest_ = Behavior::kDash;
-				//パーティクルを出さないようにする
-				ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
-				if (emitter)
-				{
-					emitter->SetPopCount(0);
-				}
-			}
-		}
-
 		//攻撃行動に変更
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{

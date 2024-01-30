@@ -1,5 +1,6 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
 void GamePlayScene::Initialize()
@@ -77,6 +78,7 @@ void GamePlayScene::Initialize()
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
 	//ガイドのスプライトの生成
+	TextureManager::Load("Guide.png");
 	guideSprite_.reset(Sprite::Create("Guide.png", { 0.0f,0.0f }));
 
 	//BGMの読み込みと再生

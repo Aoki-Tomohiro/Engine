@@ -6,6 +6,7 @@ void LockOn::Initialize()
 	input_ = Input::GetInstance();
 
 	//スプライトの生成
+	TextureManager::Load("Reticle.png");
 	lockOnMark_.reset(Sprite::Create("Reticle.png", { 0.0f,0.0f }));
 	lockOnMark_->SetAnchorPoint({ 0.5f,0.5f });
 }

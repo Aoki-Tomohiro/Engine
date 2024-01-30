@@ -1,5 +1,6 @@
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/TextureManager.h"
 #include <numbers>
 
 void GameTitleScene::Initialize()
@@ -78,7 +79,9 @@ void GameTitleScene::Initialize()
 	transitionSprite_->SetColor(transitionSpriteColor_);
 
 	//タイトルのスプライトの生成
+	TextureManager::Load("GameTitle.png");
 	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
+	TextureManager::Load("PressA.png");
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
 
 	//BGMの読み込みと再生

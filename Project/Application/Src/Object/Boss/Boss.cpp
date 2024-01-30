@@ -18,10 +18,12 @@ void Boss::Initialize()
 	state_->Initialize(this);
 
 	//体力バーのスプライトの生成
+	TextureManager::Load("HpBar.png");
 	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 720.0f,32.0f }));
 	spriteHpBar_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 
 	//体力バーのフレームのスプライトの生成
+	TextureManager::Load("HpBarFrame.png");
 	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 719.0f,31.0f }));
 	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Base/Texture.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
 #include <array>
@@ -46,10 +47,6 @@ public:
 
 	void SetIsInvisible(bool isInvisible) { isInvisible_ = isInvisible; };
 
-	const std::string& GetTexture() const { return textureName_; };
-
-	void SetTexture(const std::string& name) { textureName_ = name; };
-
 	const Vector2& GetTextureLeftTop() const { return textureLeftTop_; };
 
 	void SetTextureLeftTop(const Vector2& textureLeftTop) { textureLeftTop_ = textureLeftTop; };
@@ -69,6 +66,8 @@ public:
 	const Vector2 GetUVScale() const { return uvScale_; };
 
 	void SetUVScale(const Vector2& uvScale) { uvScale_ = uvScale; };
+
+	void SetTexture(const std::string& textureName);
 
 private:
 	void Initialize(const std::string& textureName, Vector2 position);
@@ -128,6 +127,6 @@ private:
 
 	Vector2 uvScale_ = { 1.0f,1.0f };
 
-	std::string textureName_{};
+	const Texture* texture_ = nullptr;
 };
 

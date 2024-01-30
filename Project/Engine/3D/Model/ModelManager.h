@@ -12,6 +12,8 @@ public:
 
 	static void Destroy();
 
+	static Model* Create();
+
 	static Model* CreateFromOBJ(const std::string& modelName, DrawPass drawPass);
 
 	void Initialize();
