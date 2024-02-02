@@ -119,7 +119,7 @@ void ParticleEmitter::Pop()
 
 	//速度
 	Vector3 velocity;
-	if (azimuth != 0.0f && elevation != 0.0f)
+	if (azimuthRadian != 0.0f || elevationRadian != 0.0f)
 	{
 		velocity = {
 			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
@@ -135,7 +135,6 @@ void ParticleEmitter::Pop()
 			RandomGenerator::GetRandomFloat(popVelocity_.min.z,popVelocity_.max.z),
 		};
 	}
-
 
 	//色
 	Vector4 color = {
