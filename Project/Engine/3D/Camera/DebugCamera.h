@@ -9,7 +9,7 @@ public:
 
 	void Update();
 
-	const Camera& GetViewProjection() { return viewProjection_; };
+	const Camera& GetCamera() { return camera_; };
 
 	void SetTarget(const WorldTransform* target) { target_ = target; };
 
@@ -21,7 +21,7 @@ private:
 	WorldTransform worldTransform_{};
 
 	//カメラ
-	Camera viewProjection_{};
+	Camera camera_{};
 
 	//オフセット
 	Vector3 offset_ = { 0.0f,0.0f,-50.0f };

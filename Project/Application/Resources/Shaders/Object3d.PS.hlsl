@@ -42,9 +42,9 @@ struct SpotLight
     int32_t isEnable;
 };
 
-static const int kNumDirectionalLight = 1;
-static const int kNumPointLight = 1;
-static const int kNumSpotLight = 1;
+static const int kNumDirectionalLight = 2;
+static const int kNumPointLight = 2;
+static const int kNumSpotLight = 2;
 struct LightGroup
 {
     DirectionLight directionalLights[kNumDirectionalLight];
