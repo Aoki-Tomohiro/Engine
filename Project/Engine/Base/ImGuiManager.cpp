@@ -44,8 +44,6 @@ void ImGuiManager::End() {
 }
 
 void ImGuiManager::Draw() {
-//#ifdef _DEBUG
-
 	//コマンドリストを取得
 	ID3D12GraphicsCommandList* commandList = graphicsCore_->GetCommandList();
 
@@ -55,8 +53,6 @@ void ImGuiManager::Draw() {
 
 	//実際にcommandListのImGuiの描画コマンドを積む
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
-
-//#endif
 }
 
 void ImGuiManager::ShutDown() {

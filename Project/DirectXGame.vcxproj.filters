@@ -297,6 +297,24 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル\Engine\Framework\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Src\Game\GameManager.cpp">
+      <Filter>ソース ファイル\Application\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameTitleScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
@@ -317,24 +335,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Game\GameManager.cpp">
-      <Filter>ソース ファイル\Application\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GameTitleScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -530,6 +530,24 @@
     <ClInclude Include="Engine\Utilities\D3DResourceLeakChecker.h">
       <Filter>ヘッダー ファイル\Engine\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Src\Game\GameManager.h">
+      <Filter>ヘッダー ファイル\Application\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameClearScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameOverScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GamePlayScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\GameTitleScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\SceneFactory.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imconfig.h">
       <Filter>ImGui</Filter>
     </ClInclude>
@@ -554,29 +572,6 @@
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Game\GameManager.h">
-      <Filter>ヘッダー ファイル\Application\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Scene\GameClearScene.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Scene\GameOverScene.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Scene\GamePlayScene.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Scene\GameTitleScene.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Scene\SceneFactory.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Engine\Externals\imgui\LICENSE.txt">
-      <Filter>ImGui</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="Application\Resources\Shaders\Bloom.hlsli">
@@ -671,5 +666,10 @@
     <FxCompile Include="Application\Resources\Shaders\VerticalBlur.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Engine\Externals\imgui\LICENSE.txt">
+      <Filter>ImGui</Filter>
+    </Text>
   </ItemGroup>
 </Project>
