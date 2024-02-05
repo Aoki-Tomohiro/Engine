@@ -9,6 +9,7 @@
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/2D/Sprite.h"
 #include "Engine/3D/Camera/DebugCamera.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 
 #include "Application/Src/Object/Player.h"
 #include "Application/Src/Object/Ground.h"
@@ -33,11 +34,17 @@ private:
 
 	Audio* audio_ = nullptr;
 
+	//ポストエフェクト
+	PostEffects* postEffects_ = nullptr;
+
 	//カメラ
 	Camera camera_{};
 
 	//ゲームオブジェクトマネージャー
 	GameObjectManager* gameObjectManager_ = nullptr;
+
+	//ライトマネージャー
+	LightManager* lightManager_ = nullptr;
 
 	//モデル
 	std::unique_ptr<Model> groundModel_ = nullptr;
@@ -52,5 +59,34 @@ private:
 	//デバッグカメラ
 	std::unique_ptr<DebugCamera> debugCamera_ = nullptr;
 	bool isDebugCameraActive_ = false;
+
+	//ライティング系
+	bool isDirectionalLightEnable_ = true;
+	ConstBuffDataDirectionalLight directionalLightData_ = { { 1.0f,1.0f,1.0f,1.0f } ,{ 0.0f,-1.0f,0.0f } ,1.0f ,false };
+	bool isPointLightEnable_ = false;
+	ConstBuffDataPointLight pointLightData_ = { { 1.0f,1.0f,1.0f,1.0f } ,{ 0.0f,2.0f,0.0f } ,1.0f ,10.0f ,1.0f ,false };
+	bool isSpotLightEnable_ = false;
+	ConstBuffDataSpotLight spotLightData_ = { { 1.0f,1.0f,1.0f,1.0f } ,{ 0.0f,2.0f,0.0f } ,1.0f ,{ 0.0f,-1.0f,0.0f } ,10.0f ,1.0f ,1.0f ,0.5f ,false };
+
+	//Bloom
+	bool isBloomEnable_ = false;
+	int blurCount_ = 1;
+	ConstBuffDataBloom bloomData_{ false,1.0f,1.0f,1.0f,{1.0f,1.0f,1.0f,1.0f} };
+
+	//Fog
+	bool isFogEnable_ = false;
+	ConstBuffDataFog fogData_{ false,0.5f,2.0f };
+
+	//DoF
+	bool isDoFEnable_ = false;
+	ConstBuffDataDoF dofData_{ false,0.02f,0.005f,0.01f };
+
+	//LensDistortion
+	bool isLensDistortionEnable_ = false;
+	ConstBuffDataLensDistortion lensDistortionData_{ false,2.5f,-0.1f };
+
+	//Vignette
+	bool isVignetteEnable_ = false;
+	ConstBuffDataVignette vignetteData_{ false,1.0f };
 };
 
