@@ -207,6 +207,7 @@ void GameClearScene::Update()
 		ImGui::DragFloat("Intensity", &vignetteData_.intensity, 0.1f);
 		ImGui::TreePop();
 	}
+	ImGui::End();
 }
 
 void GameClearScene::Draw() 

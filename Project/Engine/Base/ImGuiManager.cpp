@@ -44,8 +44,7 @@ void ImGuiManager::End() {
 }
 
 void ImGuiManager::Draw() {
-
-#ifdef USE_IMGUI
+#if defined(USE_IMGUI) || defined(_DEBUG)
 	//コマンドリストを取得
 	ID3D12GraphicsCommandList* commandList = graphicsCore_->GetCommandList();
 

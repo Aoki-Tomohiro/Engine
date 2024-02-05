@@ -115,16 +115,32 @@ void GamePlayScene::Update()
 	if (ImGui::TreeNode("DirectionalLight"))
 	{
 		ImGui::Checkbox("IsDirectionalLightEnable", &isDirectionalLightEnable_);
+		ImGui::ColorEdit3("Color", &directionalLightData_.color.x);
+		ImGui::DragFloat3("Direction", &directionalLightData_.direction.x, 0.01f);
+		ImGui::DragFloat("Intensity", &directionalLightData_.intensity, 0.01f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("PointLight"))
 	{
 		ImGui::Checkbox("IsPointLightEnable", &isPointLightEnable_);
+		ImGui::ColorEdit3("Color", &pointLightData_.color.x);
+		ImGui::DragFloat3("Position", &pointLightData_.position.x, 0.01f);
+		ImGui::DragFloat("Intensity", &pointLightData_.intensity, 0.01f);
+		ImGui::DragFloat("Radius", &pointLightData_.radius, 0.1f);
+		ImGui::DragFloat("Decay", &pointLightData_.decay, 0.01f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("SpotLight"))
 	{
 		ImGui::Checkbox("IsSpotLightEnable", &isSpotLightEnable_);
+		ImGui::ColorEdit3("Color", &spotLightData_.color.x);
+		ImGui::DragFloat3("Position", &spotLightData_.position.x, 0.01f);
+		ImGui::DragFloat("Intensity", &spotLightData_.intensity, 0.01f);
+		ImGui::DragFloat3("Direction", &spotLightData_.direction.x, 0.01f);
+		ImGui::DragFloat("Distance", &spotLightData_.distance, 0.1f);
+		ImGui::DragFloat("Decay", &spotLightData_.decay, 0.01f);
+		ImGui::DragFloat("CosFalloffStart", &spotLightData_.cosFalloffStart, 0.01f);
+		ImGui::DragFloat("CosAngle", &spotLightData_.cosAngle, 0.01f);
 		ImGui::TreePop();
 	}
 	ImGui::End();
@@ -202,6 +218,7 @@ void GamePlayScene::Update()
 		ImGui::DragFloat("Intensity", &vignetteData_.intensity, 0.1f);
 		ImGui::TreePop();
 	}
+	ImGui::End();
 }
 
 void GamePlayScene::Draw() 
