@@ -9,7 +9,7 @@ public:
 
 	void Update();
 
-	const Camera& GetViewProjection() { return viewProjection_; };
+	const Camera& GetCamera() { return viewProjection_; };
 
 	void SetTarget(const WorldTransform* target) { target_ = target; };
 

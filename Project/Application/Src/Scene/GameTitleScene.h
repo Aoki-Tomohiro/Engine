@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Base/TextureManager.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
@@ -26,5 +27,7 @@ private:
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
+
+	std::vector<std::unique_ptr<Sprite>> sprites_{};
 };
 

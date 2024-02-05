@@ -8,6 +8,15 @@ void GameTitleScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
+
+	//テクスチャ読み込み
+	TextureManager::Load("uvChecker.png");
+
+	//スプライトの生成
+	for (uint32_t i = 0; i < 2; ++i)
+	{
+		sprites_.push_back(std::unique_ptr<Sprite>(Sprite::Create("uvChecker.png", { i * 768.0f,0.0f })));
+	}
 }
 
 void GameTitleScene::Finalize()
@@ -17,7 +26,25 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
+	//シーン切り替え処理
+	if (input_->IsControllerConnected())
+	{
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+		{
+			sceneManager_->ChangeScene("GamePlayScene");
+		}
+	}
 
+	if (input_->IsPushKeyEnter(DIK_SPACE))
+	{
+		sceneManager_->ChangeScene("GamePlayScene");
+	}
+
+
+
+	ImGui::Begin("GameTitleScene");
+	ImGui::Text("Space or AButton : GameTitleScene");
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()
@@ -52,6 +79,12 @@ void GameTitleScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//スプライトの描画
+	for (const std::unique_ptr<Sprite>& sprite : sprites_)
+	{
+		sprite->Draw();
+	}
 
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();

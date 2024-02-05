@@ -321,20 +321,26 @@
     <ClCompile Include="Application\Src\Game\GameManager.cpp">
       <Filter>ソース ファイル\Application\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp">
-      <Filter>ソース ファイル\Application\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp">
+    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
       <Filter>ソース ファイル\Application\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Scene\GameTitleScene.cpp">
       <Filter>ソース ファイル\Application\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
+    <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp">
       <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameOverScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\GameClearScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Ground.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -557,6 +563,9 @@
     <ClInclude Include="Application\Src\Game\GameManager.h">
       <Filter>ヘッダー ファイル\Application\Game</Filter>
     </ClInclude>
+    <ClInclude Include="Application\Src\Scene\SceneFactory.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="Application\Src\Scene\GameClearScene.h">
       <Filter>ヘッダー ファイル\Application\Scene</Filter>
     </ClInclude>
@@ -569,8 +578,11 @@
     <ClInclude Include="Application\Src\Scene\GameTitleScene.h">
       <Filter>ヘッダー ファイル\Application\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Scene\SceneFactory.h">
-      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    <ClInclude Include="Application\Src\Object\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Ground.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

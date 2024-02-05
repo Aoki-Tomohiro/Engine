@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Application\Src\Object\Ground.cpp" />
+    <ClCompile Include="Application\Src\Object\Player.cpp" />
     <ClCompile Include="Application\Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GameOverScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp" />
@@ -95,6 +97,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
+    <ClInclude Include="Application\Src\Object\Ground.h" />
+    <ClInclude Include="Application\Src\Object\Player.h" />
     <ClInclude Include="Application\Src\Scene\GameClearScene.h" />
     <ClInclude Include="Application\Src\Scene\GameOverScene.h" />
     <ClInclude Include="Application\Src\Scene\GamePlayScene.h" />
