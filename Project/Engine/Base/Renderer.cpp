@@ -76,38 +76,38 @@ void Renderer::Render()
 	DrawPass currentRenderingType = Opaque;
 
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(modelRootSignature_.GetRootSignature());
+	commandContext->SetRootSignature(modelRootSignature_);
 
 	//PipelineStateを設定
-	commandList->SetPipelineState(modelPipelineStates_[currentRenderingType].GetPipelineState());
+	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
 
 	//DirectionalLightを設定
-	commandList->SetGraphicsRootConstantBufferView(kDirectionalLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(kDirectionalLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
 
 	for (const SortObject& sortObject : sortObjects_) {
 		//不透明オブジェクトに切り替わったらPSOも変える
 		if (currentRenderingType != sortObject.type) {
 			currentRenderingType = sortObject.type;
-			commandList->SetPipelineState(modelPipelineStates_[currentRenderingType].GetPipelineState());
+			commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
 		}
 
 		//VertexBufferViewを設定
-		commandList->IASetVertexBuffers(0, 1, &sortObject.vertexBufferView);
+		commandContext->SetVertexBuffer(sortObject.vertexBufferView);
 		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		//マテリアルを設定
-		commandList->SetGraphicsRootConstantBufferView(kMaterial, sortObject.materialCBV);
+		commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
 		//WorldTransformを設定
-		commandList->SetGraphicsRootConstantBufferView(kWorldTransform, sortObject.worldTransformCBV);
+		commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
 		//Cameraを設定
-		commandList->SetGraphicsRootConstantBufferView(kCamera, sortObject.cameraCBV);
+		commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
 		//Textureを設定
-		commandList->SetGraphicsRootDescriptorTable(kTexture, sortObject.textureSRV);
+		commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandList->DrawInstanced(sortObject.vertexCount, 1, 0, 0);
+		commandContext->DrawInstanced(sortObject.vertexCount, 1);
 	}
 
 	//オブジェクトをリセット
@@ -116,21 +116,18 @@ void Renderer::Render()
 
 void Renderer::PreDraw()
 {
-	//GraphicsCoreのインスタンスを取得
-	GraphicsCore* graphicsCore = GraphicsCore::GetInstance();
-
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = graphicsCore->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//リソースの状態遷移
-	graphicsCore->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	graphicsCore->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//レンダーターゲットとデプスバッファを設定
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 	rtvHandles[0] = sceneColorBuffer_->GetRTVHandle();
 	rtvHandles[1] = linearDepthColorBuffer_->GetRTVHandle();
-	commandList->OMSetRenderTargets(2, rtvHandles, false, &sceneDepthBuffer_->GetDSVHandle());
+	commandContext->SetRenderTargets(2, rtvHandles, sceneDepthBuffer_->GetDSVHandle());
 
 	//レンダーターゲットをクリア
 	ClearRenderTarget();
@@ -146,7 +143,7 @@ void Renderer::PreDraw()
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	commandList->RSSetViewports(1, &viewport);
+	commandContext->SetViewport(viewport);
 
 	//シザー矩形
 	D3D12_RECT scissorRect{};
@@ -154,40 +151,39 @@ void Renderer::PreDraw()
 	scissorRect.right = Application::kClientWidth;
 	scissorRect.top = 0;
 	scissorRect.bottom = Application::kClientHeight;
-	commandList->RSSetScissorRects(1, &scissorRect);
+	commandContext->SetScissor(scissorRect);
 
 	//DescriptorHeapを設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { graphicsCore->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) };
-	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+	commandContext->SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
 }
 
 void Renderer::PostDraw()
 {
-	GraphicsCore* graphicsCore = GraphicsCore::GetInstance();
-	graphicsCore->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	graphicsCore->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Renderer::ClearRenderTarget()
 {
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
-	commandList->ClearRenderTargetView(sceneColorBuffer_->GetRTVHandle(), sceneColorBuffer_->GetClearColor(), 0, nullptr);
-	commandList->ClearRenderTargetView(linearDepthColorBuffer_->GetRTVHandle(), linearDepthColorBuffer_->GetClearColor(), 0, nullptr);
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	commandContext->ClearColor(*sceneColorBuffer_);
+	commandContext->ClearColor(*linearDepthColorBuffer_);
 }
 
 void Renderer::ClearDepthBuffer()
 {
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
-	commandList->ClearDepthStencilView(sceneDepthBuffer_->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	commandContext->ClearDepth(*sceneDepthBuffer_);
 }
 
 void Renderer::PreDrawSprites(BlendMode blendMode) {
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(spriteRootSignature_.GetRootSignature());
+	commandContext->SetRootSignature(spriteRootSignature_);
 	//PipelineStateを設定
-	commandList->SetPipelineState(spritePipelineStates_[blendMode].GetPipelineState());
+	commandContext->SetPipelineState(spritePipelineStates_[blendMode]);
 }
 
 void Renderer::PostDrawSprites() {
@@ -196,11 +192,11 @@ void Renderer::PostDrawSprites() {
 
 void Renderer::PreDrawParticles() {
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(particleRootSignature_.GetRootSignature());
+	commandContext->SetRootSignature(particleRootSignature_);
 	//PipelineStateを設定
-	commandList->SetPipelineState(particlePipelineStates_[0].GetPipelineState());
+	commandContext->SetPipelineState(particlePipelineStates_[0]);
 }
 
 void Renderer::PostDrawParticles() {

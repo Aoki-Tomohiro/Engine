@@ -5,12 +5,12 @@ ParticleEmitterBuilder::ParticleEmitterBuilder()
 	particleEmitter_ = new ParticleEmitter();
 }
 
-ParticleEmitterBuilder::~ParticleEmitterBuilder() 
+ParticleEmitterBuilder::~ParticleEmitterBuilder()
 {
 
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetEmitterName(const std::string& name) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetEmitterName(const std::string& name)
 {
 	particleEmitter_->name_ = name;
 	return *this;
@@ -22,7 +22,7 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetTranslation(const Vector3& tr
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopArea(const Vector3& min, const Vector3& max) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopArea(const Vector3& min, const Vector3& max)
 {
 	particleEmitter_->popArea_ = { min,max };
 	return *this;
@@ -34,13 +34,19 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopRotation(const Vector3& mi
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopScale(const Vector3& min, const Vector3& max) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopQuaternion(const Quaternion& quaternion)
+{
+	particleEmitter_->popQuaternion_ = quaternion;
+	return *this;
+}
+
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopScale(const Vector3& min, const Vector3& max)
 {
 	particleEmitter_->popScale_ = { min,max };
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopAzimuth(float min, float max) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopAzimuth(float min, float max)
 {
 	particleEmitter_->popAzimuth = { min,max };
 	return *this;
@@ -58,19 +64,19 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopVelocity(const Vector3& mi
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopColor(const Vector4& min, const Vector4& max) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopColor(const Vector4& min, const Vector4& max)
 {
 	particleEmitter_->popColor_ = { min,max };
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopLifeTime(float min, float max) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopLifeTime(float min, float max)
 {
 	particleEmitter_->popLifeTime_ = { min,max };
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopCount(uint32_t count) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopCount(uint32_t count)
 {
 	particleEmitter_->popCount_ = count;
 
@@ -84,7 +90,7 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetPopFrequency(float frequency)
 	return *this;
 }
 
-ParticleEmitterBuilder& ParticleEmitterBuilder::SetDeleteTime(float deleteTime) 
+ParticleEmitterBuilder& ParticleEmitterBuilder::SetDeleteTime(float deleteTime)
 {
 	particleEmitter_->deleteTime_ = deleteTime;
 	return *this;
@@ -102,7 +108,7 @@ ParticleEmitterBuilder& ParticleEmitterBuilder::SetGravityField(const GravityFie
 	return *this;
 }
 
-ParticleEmitter* ParticleEmitterBuilder::Build() 
+ParticleEmitter* ParticleEmitterBuilder::Build()
 {
 	return particleEmitter_;
 }

@@ -78,13 +78,13 @@ void PostEffects::Update()
 void PostEffects::Apply()
 {
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//VertexBufferViewを設定
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	commandContext->SetVertexBuffer(vertexBufferView_);
 
 	//形状を設定
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//ポストエフェクトが無効なら処理を飛ばす
 	if (!isEnable_)
@@ -105,24 +105,24 @@ void PostEffects::Apply()
 void PostEffects::Draw()
 {
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(rootSignature_.GetRootSignature());
+	commandContext->SetRootSignature(rootSignature_);
 
 	//PipelineStateを設定
-	commandList->SetPipelineState(pipelineState_.GetPipelineState());
+	commandContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandList->SetGraphicsRootDescriptorTable(0, Renderer::GetInstance()->GetSceneColorDescriptorHandle());
-	commandList->SetGraphicsRootDescriptorTable(1, fog_->GetDescriptorHandle());
+	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneColorDescriptorHandle());
+	commandContext->SetDescriptorTable(1, fog_->GetDescriptorHandle());
 
 	//CBVを設定
-	commandList->SetGraphicsRootConstantBufferView(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
 
 	//DrawCall
-	commandList->DrawInstanced(6, 1, 0, 0);
+	commandContext->DrawInstanced(6, 1);
 }
 
 void PostEffects::CreateVertexBuffer()

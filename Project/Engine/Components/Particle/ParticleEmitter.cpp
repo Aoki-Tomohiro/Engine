@@ -119,7 +119,7 @@ void ParticleEmitter::Pop()
 
 	//速度
 	Vector3 velocity;
-	if (azimuthRadian != 0.0f || elevationRadian != 0.0f)
+	if (azimuth != 0.0f || elevation != 0.0f)
 	{
 		velocity = {
 			RandomGenerator::GetRandomFloat(popVelocity_.min.x,popVelocity_.max.x) * std::cos(elevationRadian) * std::cos(azimuthRadian),
@@ -149,7 +149,7 @@ void ParticleEmitter::Pop()
 
 	//パーティクルの生成
 	Particle* particle = new Particle();
-	particle->Initialize(translation, rotation, scale, velocity, color, lifeTime);
+	particle->Initialize(translation, rotation, popQuaternion_, scale, velocity, color, lifeTime);
 	particles_.push_back(std::unique_ptr<Particle>(particle));
 }
 

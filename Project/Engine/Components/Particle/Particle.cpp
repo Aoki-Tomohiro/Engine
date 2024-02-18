@@ -1,12 +1,15 @@
 #include "Particle.h"
 
-void Particle::Initialize(const Vector3& translation, const Vector3& rotation, const Vector3& scale, const Vector3& velocity, const Vector4& color, float lifeTime)
+void Particle::Initialize(const Vector3& translation, const Vector3& rotation, const Quaternion& quaternion, const Vector3& scale, const Vector3& velocity, const Vector4& color, float lifeTime)
 {
 	//座標の初期化
 	translation_ = translation;
 
 	//角度の初期化
 	rotation_ = rotation;
+
+	//クォータニオンの初期化
+	quaternion_ = quaternion;
 
 	//スケール
 	scale_ = scale;

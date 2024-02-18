@@ -30,46 +30,44 @@ void DepthOfField::Update()
 
 void DepthOfField::Apply(const DescriptorHandle& srvHandle)
 {
-	//GraphicsCoreのインスタンスを取得
-	GraphicsCore* graphicsCore = GraphicsCore::GetInstance();
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = graphicsCore->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//リソースの状態遷移
-	graphicsCore->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandList->OMSetRenderTargets(1, &colorBuffer_->GetRTVHandle(), false, nullptr);
+	commandContext->SetRenderTargets(1, &colorBuffer_->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandList->ClearRenderTargetView(colorBuffer_->GetRTVHandle(), colorBuffer_->GetClearColor(), 0, nullptr);
+	commandContext->ClearColor(*colorBuffer_);
 
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(rootSignature_.GetRootSignature());
+	commandContext->SetRootSignature(rootSignature_);
 
 	//PipelineStateを設定
-	commandList->SetPipelineState(pipelineState_.GetPipelineState());
+	commandContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandList->SetGraphicsRootDescriptorTable(0, Renderer::GetInstance()->GetLinearDepthDescriptorHandle());
-	commandList->SetGraphicsRootDescriptorTable(1, srvHandle);
+	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetLinearDepthDescriptorHandle());
+	commandContext->SetDescriptorTable(1, srvHandle);
 
 	//CBVを設定
-	commandList->SetGraphicsRootConstantBufferView(2, constBuff_->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(2, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, Application::kClientWidth, Application::kClientHeight, 0.0f, 1.0f };
-	commandList->RSSetViewports(1, &viewport);
+	commandContext->SetViewport(viewport);
 
 	//シザー矩形を設定
 	D3D12_RECT scissorRect{ 0, 0, Application::kClientWidth, Application::kClientHeight };
-	commandList->RSSetScissorRects(1, &scissorRect);
+	commandContext->SetScissor(scissorRect);
 
 	//DrawCall
-	commandList->DrawInstanced(6, 1, 0, 0);
+	commandContext->DrawInstanced(6, 1);
 
 	//リソースの状態遷移
-	graphicsCore->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void DepthOfField::CreatePipelineState()
