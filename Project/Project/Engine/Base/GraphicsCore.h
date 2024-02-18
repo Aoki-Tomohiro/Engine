@@ -1,15 +1,14 @@
 #pragma once
 #include "Application.h"
+#include "CommandContext.h"
+#include "CommandQueue.h"
+#include "Display.h"
 #include "DescriptorHeap.h"
-#include "ColorBuffer.h"
-#include "DepthBuffer.h"
+#include "FrameRateController.h"
 #include <array>
-#include <chrono>
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <memory>
-#include <thread>
-#include <wrl.h>
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 
@@ -26,8 +25,6 @@ public:
 
 	void PostDraw();
 
-	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
-
 	void ClearRenderTarget();
 
 	void ClearDepthBuffer();
@@ -38,29 +35,15 @@ public:
 
 	ID3D12Device* GetDevice() const { return device_.Get(); };
 
-	ID3D12GraphicsCommandList* GetCommandList() const { return commandList_.Get(); };
+	CommandContext* GetCommandContext() const { return commandContext_.get(); };
+
+	CommandQueue* GetCommandQueue() const { return commandQueue_.get(); };
 
 private:
 	GraphicsCore() = default;
 	~GraphicsCore() = default;
 	GraphicsCore(const GraphicsCore&) = delete;
 	GraphicsCore& operator=(const GraphicsCore&) = delete;
-
-	void CreateDevice();
-
-	void CreateCommand();
-
-	void CreateSwapChain();
-
-	void CreateFence();
-
-	void CreateDescriptorHeaps();
-
-	void CreateResources();
-
-	void InitializeFixFPS();
-
-	void UpdateFixFPS();
 
 private:
 	static GraphicsCore* instance_;
@@ -73,26 +56,18 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Device> device_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_ = nullptr;
+	std::unique_ptr<CommandContext> commandContext_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_ = nullptr;
-
-	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
-
-	uint64_t fenceValue_{};
+	std::unique_ptr<CommandQueue> commandQueue_ = nullptr;
 
 	std::array<std::unique_ptr<DescriptorHeap>, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> descriptorHeaps_{};
 
 	std::array<const uint32_t, D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES> kNumDescriptors_ = { 256, 256, 256, 256, };
 
-	std::array<std::unique_ptr<ColorBuffer>, 2> swapChainResources_;
+	std::unique_ptr<Display> display_ = nullptr;
 
 	std::unique_ptr<DepthBuffer> depthBuffer_ = nullptr;
 
-	std::chrono::steady_clock::time_point reference_{};
+	std::unique_ptr<FrameRateController> frameRateController_ = nullptr;
 };
 

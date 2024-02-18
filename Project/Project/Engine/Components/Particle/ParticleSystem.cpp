@@ -37,15 +37,15 @@ void ParticleSystem::Update()
 void ParticleSystem::Draw(const Camera& camera)
 {
 	UpdateInstancingResource(camera);
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	Model* model = model_ ? model_ : defaultModel_.get();
-	commandList->IASetVertexBuffers(0, 1, &model->vertexBufferView_);
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->SetGraphicsRootConstantBufferView(0, model->materialConstBuffer_->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(1, instancingResource_->GetSRVHandle());
-	commandList->SetGraphicsRootConstantBufferView(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(3, model->texture_->GetSRVHandle());
-	commandList->DrawInstanced(UINT(model->modelData_.vertices.size()), numInstance_, 0, 0);
+	commandContext->SetVertexBuffer(model->vertexBufferView_);
+	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext->SetConstantBuffer(0, model->materialConstBuffer_->GetGpuVirtualAddress());
+	commandContext->SetDescriptorTable(1, instancingResource_->GetSRVHandle());
+	commandContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
+	commandContext->SetDescriptorTable(3, model->texture_->GetSRVHandle());
+	commandContext->DrawInstanced(UINT(model->modelData_.vertices.size()), numInstance_);
 }
 
 ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)

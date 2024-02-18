@@ -34,8 +34,12 @@
     <ClCompile Include="Engine\3D\Model\WorldTransform.cpp" />
     <ClCompile Include="Engine\Base\Application.cpp" />
     <ClCompile Include="Engine\Base\ColorBuffer.cpp" />
+    <ClCompile Include="Engine\Base\CommandContext.cpp" />
+    <ClCompile Include="Engine\Base\CommandQueue.cpp" />
     <ClCompile Include="Engine\Base\DepthBuffer.cpp" />
     <ClCompile Include="Engine\Base\DescriptorHeap.cpp" />
+    <ClCompile Include="Engine\Base\Display.cpp" />
+    <ClCompile Include="Engine\Base\FrameRateController.cpp" />
     <ClCompile Include="Engine\Base\GraphicsCore.cpp" />
     <ClCompile Include="Engine\Base\ImGuiManager.cpp" />
     <ClCompile Include="Engine\Base\PipelineState.cpp" />
@@ -112,10 +116,14 @@
     <ClInclude Include="Engine\3D\Model\WorldTransform.h" />
     <ClInclude Include="Engine\Base\Application.h" />
     <ClInclude Include="Engine\Base\ColorBuffer.h" />
+    <ClInclude Include="Engine\Base\CommandContext.h" />
+    <ClInclude Include="Engine\Base\CommandQueue.h" />
     <ClInclude Include="Engine\Base\ConstantBuffers.h" />
     <ClInclude Include="Engine\Base\DepthBuffer.h" />
     <ClInclude Include="Engine\Base\DescriptorHandle.h" />
     <ClInclude Include="Engine\Base\DescriptorHeap.h" />
+    <ClInclude Include="Engine\Base\Display.h" />
+    <ClInclude Include="Engine\Base\FrameRateController.h" />
     <ClInclude Include="Engine\Base\GpuResource.h" />
     <ClInclude Include="Engine\Base\GraphicsCore.h" />
     <ClInclude Include="Engine\Base\ImGuiManager.h" />

@@ -141,26 +141,25 @@ void GaussianBlur::Update()
 
 void GaussianBlur::PreBlur(uint32_t index)
 {
-	GraphicsCore* graphicsCore = GraphicsCore::GetInstance();
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//リソースの状態遷移
-	graphicsCore->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandList->OMSetRenderTargets(1, &blurBuffers_[index]->GetRTVHandle(), false, nullptr);
+	commandContext->SetRenderTargets(1, &blurBuffers_[index]->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandList->ClearRenderTargetView(blurBuffers_[index]->GetRTVHandle(), blurBuffers_[index]->GetClearColor(), 0, nullptr);
+	commandContext->ClearColor(*blurBuffers_[index]);
 
 	//RootSignatureを設定
-	commandList->SetGraphicsRootSignature(rootSignature_->GetRootSignature());
+	commandContext->SetRootSignature(*rootSignature_);
 
 	//PipelineStateを設定
-	commandList->SetPipelineState(pipelineStates_[index]->GetPipelineState());
+	commandContext->SetPipelineState(*pipelineStates_[index]);
 
 	//CBVを設定
-	commandList->SetGraphicsRootConstantBufferView(1, constBuff_->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(1, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{};
@@ -170,7 +169,7 @@ void GaussianBlur::PreBlur(uint32_t index)
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	commandList->RSSetViewports(1, &viewport);
+	commandContext->SetViewport(viewport);
 
 	//シザー矩形
 	D3D12_RECT scissorRect{};
@@ -178,11 +177,11 @@ void GaussianBlur::PreBlur(uint32_t index)
 	scissorRect.right = textureWidth_;
 	scissorRect.top = 0;
 	scissorRect.bottom = textureHeight_;
-	commandList->RSSetScissorRects(1, &scissorRect);
+	commandContext->SetScissor(scissorRect);
 }
 
 void GaussianBlur::PostBlur(uint32_t index)
 {
-	GraphicsCore* graphicsCore = GraphicsCore::GetInstance();
-	graphicsCore->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	commandContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

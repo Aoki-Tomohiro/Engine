@@ -24,7 +24,5 @@ private:
 	D3D12_RESOURCE_DESC resourceDesc_{};
 
 	DescriptorHandle srvHandle_{};
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource_ = nullptr;
 };
 

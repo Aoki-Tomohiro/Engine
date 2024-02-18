@@ -19,14 +19,14 @@ void Sprite::Draw()
 	UpdateVertexBuffer();
 	UpdateMaterialResource();
 	UpdateWVPResource();
-	ID3D12GraphicsCommandList* commandList = GraphicsCore::GetInstance()->GetCommandList();
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	TextureManager* textureManager = TextureManager::GetInstance();
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->SetGraphicsRootConstantBufferView(0, materialConstBuffer_->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGpuVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(2, texture_->GetSRVHandle());
-	commandList->DrawInstanced(kMaxVertices, 1, 0, 0);
+	commandContext->SetVertexBuffer(vertexBufferView_);
+	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext->SetConstantBuffer(0, materialConstBuffer_->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(1, wvpResource_->GetGpuVirtualAddress());
+	commandContext->SetDescriptorTable(2, texture_->GetSRVHandle());
+	commandContext->DrawInstanced(kMaxVertices, 1);
 }
 
 void Sprite::Initialize(const std::string& textureName, Vector2 position)

@@ -4,6 +4,8 @@
 
 class GpuResource
 {
+	friend class CommandContext;
+
 public:
 	virtual ~GpuResource() = default;
 

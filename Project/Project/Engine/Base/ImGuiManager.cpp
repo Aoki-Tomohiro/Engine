@@ -47,14 +47,13 @@ void ImGuiManager::Draw() {
 #ifdef _DEBUG
 
 	//コマンドリストを取得
-	ID3D12GraphicsCommandList* commandList = graphicsCore_->GetCommandList();
+	CommandContext* commandContext = graphicsCore_->GetCommandContext();
 
 	//描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap_->GetDescriptorHeap() };
-	commandList->SetDescriptorHeaps(1, descriptorHeaps);
+	commandContext->SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvDescriptorHeap_->GetDescriptorHeap());
 
 	//実際にcommandListのImGuiの描画コマンドを積む
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext->GetCommandList());
 
 #endif
 }
