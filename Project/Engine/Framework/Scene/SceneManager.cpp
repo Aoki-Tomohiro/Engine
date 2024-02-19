@@ -23,6 +23,21 @@ void SceneManager::Destroy()
 
 void SceneManager::Update()
 {
+	isLoading_ ? loadScene_->Update() : currentScene_->Update();
+}
+
+void SceneManager::Draw()
+{
+	isLoading_ ? loadScene_->Draw() : currentScene_->Draw();
+}
+
+void SceneManager::DrawUI()
+{
+	isLoading_ ? loadScene_->DrawUI() : currentScene_->DrawUI();
+}
+
+void SceneManager::Load()
+{
 	if (nextScene_)
 	{
 		//旧シーンの終了
@@ -41,30 +56,29 @@ void SceneManager::Update()
 
 		//シーンの初期化
 		currentScene_->Initialize();
+
+		//ロードフラグをfalseにする
+		isLoading_ = false;
 	}
-
-	currentScene_->Update();
-}
-
-void SceneManager::Draw()
-{
-	currentScene_->Draw();
-}
-
-void SceneManager::DrawUI()
-{
-	currentScene_->DrawUI();
 }
 
 void SceneManager::ChangeScene(const std::string& sceneName)
 {
 	assert(sceneFactory_);
 	assert(nextScene_ == nullptr);
+	if (!loadScene_)
+	{
+		loadScene_ = sceneFactory_->CreateScene("LoadScene");
+		loadScene_->Initialize();
+	}
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
+	isLoading_ = true;
 }
 
 SceneManager::~SceneManager()
 {
 	currentScene_->Finalize();
 	delete currentScene_;
+	loadScene_->Finalize();
+	delete loadScene_;
 }

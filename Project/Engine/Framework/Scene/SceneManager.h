@@ -15,9 +15,15 @@ public:
 
 	void DrawUI();
 
+	void Load();
+
 	void ChangeScene(const std::string& sceneName);
 
 	void SetSceneFactory(AbstractSceneFactory* sceneFactory) { sceneFactory_ = sceneFactory; };
+
+	const bool GetIsLoading() const { return isLoading_; };
+
+	void SetIsLoading(const bool isLoading) { isLoading_ = isLoading; };
 
 private:
 	SceneManager() = default;
@@ -32,6 +38,10 @@ private:
 
 	IScene* nextScene_ = nullptr;
 
+	IScene* loadScene_ = nullptr;
+
 	AbstractSceneFactory* sceneFactory_ = nullptr;
+
+	bool isLoading_ = false;
 };
 

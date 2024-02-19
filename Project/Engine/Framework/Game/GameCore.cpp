@@ -1,6 +1,7 @@
 #include "GameCore.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/Utilities/Log.h"
 
 void GameCore::Initialize()
 {
@@ -158,6 +159,21 @@ void GameCore::Run()
 	//初期化
 	Initialize();
 
+	bool exit = false;
+	//バックグラウンドループ
+	std::thread th([&]() {
+		while (!exit)
+		{
+			std::unique_lock<std::mutex> uniqueLock(mutex);
+			condition.wait(uniqueLock, [&]() {return true; });
+			if (sceneManager_->GetIsLoading())
+			{
+				sceneManager_->Load();
+				sceneManager_->SetIsLoading(false);
+			}
+		}
+	});
+
 	//ゲームループ
 	while (true)
 	{
@@ -175,5 +191,8 @@ void GameCore::Run()
 	}
 
 	//終了
+	sceneManager_->SetIsLoading(false);
+	exit = true;
+	th.join();
 	Finalize();
 }
