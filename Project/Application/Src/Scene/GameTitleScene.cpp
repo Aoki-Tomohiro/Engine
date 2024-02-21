@@ -17,10 +17,7 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
-	if (input_->IsPushKeyEnter(DIK_SPACE))
-	{
-		sceneManager_->ChangeScene("GamePlayScene");
-	}
+
 }
 
 void GameTitleScene::Draw()

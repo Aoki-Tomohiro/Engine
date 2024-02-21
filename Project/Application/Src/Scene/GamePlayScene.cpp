@@ -8,14 +8,6 @@ void GamePlayScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
-
-	camera_.Initialize();
-
-	worldTransformBunny_.Initialize();
-
-	bunnyModel_.reset(ModelManager::CreateFromOBJ("bunny", Opaque));
-	//suzanneModel_.reset(ModelManager::CreateFromOBJ("suzanne", Opaque));
-	//teapotModel_.reset(ModelManager::CreateFromOBJ("teapot", Opaque));
 }
 
 void GamePlayScene::Finalize()
@@ -25,14 +17,7 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
-	if (input_->IsPushKeyEnter(DIK_SPACE))
-	{
-		sceneManager_->ChangeScene("GameTitleScene");
-	}
 
-	worldTransformBunny_.UpdateMatrixFromEuler();
-
-	camera_.UpdateMatrix();
 }
 
 void GamePlayScene::Draw() 
@@ -49,8 +34,6 @@ void GamePlayScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
-	bunnyModel_->Draw(worldTransformBunny_, camera_);
-
 	//3Dオブジェクト描画
 	renderer_->Render();
 #pragma endregion

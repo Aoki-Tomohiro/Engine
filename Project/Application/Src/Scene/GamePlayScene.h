@@ -26,13 +26,5 @@ private:
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
-
-	Camera camera_{};
-	
-	WorldTransform worldTransformBunny_{};
-
-	std::unique_ptr<Model> bunnyModel_ = nullptr;
-	std::unique_ptr<Model> suzanneModel_ = nullptr;
-	std::unique_ptr<Model> teapotModel_ = nullptr;
 };
 

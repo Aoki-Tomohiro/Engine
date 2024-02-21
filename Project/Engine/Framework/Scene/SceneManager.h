@@ -21,9 +21,7 @@ public:
 
 	void SetSceneFactory(AbstractSceneFactory* sceneFactory) { sceneFactory_ = sceneFactory; };
 
-	const bool GetIsLoading() const { return isLoading_; };
-
-	void SetIsLoading(const bool isLoading) { isLoading_ = isLoading; };
+	const bool GetLoadingScreenVisible() const { return loadingScreenVisible_; };
 
 private:
 	SceneManager() = default;
@@ -42,6 +40,6 @@ private:
 
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 
-	bool isLoading_ = false;
+	bool loadingScreenVisible_ = false;
 };
 

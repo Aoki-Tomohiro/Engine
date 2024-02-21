@@ -63,5 +63,11 @@ protected:
 	std::mutex mutex;
 
 	std::condition_variable condition;
+
+	std::mutex mutex2;
+
+	std::condition_variable condition2;
+
+	bool isLoading_ = false;
 };
 

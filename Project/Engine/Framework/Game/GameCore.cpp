@@ -102,6 +102,12 @@ void GameCore::Update()
 	//ImGui受け付け開始
 	imguiManager_->Begin();
 
+	//ロードシーンに切り替え
+	if (sceneManager_->GetLoadingScreenVisible())
+	{
+		isLoading_ = true;
+	}
+
 	//SceneManagerの更新
 	sceneManager_->Update();
 
@@ -166,10 +172,10 @@ void GameCore::Run()
 		{
 			std::unique_lock<std::mutex> uniqueLock(mutex);
 			condition.wait(uniqueLock, [&]() {return true; });
-			if (sceneManager_->GetIsLoading())
+			if (isLoading_)
 			{
 				sceneManager_->Load();
-				sceneManager_->SetIsLoading(false);
+				isLoading_ = false;
 			}
 		}
 	});
@@ -191,7 +197,6 @@ void GameCore::Run()
 	}
 
 	//終了
-	sceneManager_->SetIsLoading(false);
 	exit = true;
 	th.join();
 	Finalize();

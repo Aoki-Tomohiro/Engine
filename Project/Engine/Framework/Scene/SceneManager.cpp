@@ -23,17 +23,17 @@ void SceneManager::Destroy()
 
 void SceneManager::Update()
 {
-	isLoading_ ? loadScene_->Update() : currentScene_->Update();
+	loadingScreenVisible_ ? loadScene_->Update() : currentScene_->Update();
 }
 
 void SceneManager::Draw()
 {
-	isLoading_ ? loadScene_->Draw() : currentScene_->Draw();
+	loadingScreenVisible_ ? loadScene_->Draw() : currentScene_->Draw();
 }
 
 void SceneManager::DrawUI()
 {
-	isLoading_ ? loadScene_->DrawUI() : currentScene_->DrawUI();
+	loadingScreenVisible_ ? loadScene_->DrawUI() : currentScene_->DrawUI();
 }
 
 void SceneManager::Load()
@@ -57,8 +57,8 @@ void SceneManager::Load()
 		//シーンの初期化
 		currentScene_->Initialize();
 
-		//ロードフラグをfalseにする
-		isLoading_ = false;
+		//ロード画面の表示フラグをfalseにする
+		loadingScreenVisible_ = false;
 	}
 }
 
@@ -72,7 +72,7 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 		loadScene_->Initialize();
 	}
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
-	isLoading_ = true;
+	loadingScreenVisible_ = true;
 }
 
 SceneManager::~SceneManager()
