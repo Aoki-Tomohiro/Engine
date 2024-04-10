@@ -1,8 +1,12 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Base/Renderer.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/3D/Model/ModelManager.h"
+#include "Application/Src/Object/InputHandler.h"
+#include "Application/Src/Object/Player.h"
 
 class GamePlayScene : public IScene
 {
@@ -23,5 +27,20 @@ private:
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
+
+	//カメラ
+	Camera camera_{};
+
+	//モデル
+	std::unique_ptr<Model> model_ = nullptr;
+
+	//InputHandler
+	std::unique_ptr<InputHandler> inputHandler_ = nullptr;
+
+	//Command
+	ICommand* command_ = nullptr;
+
+	//Player
+	std::unique_ptr<Player> player_ = nullptr;
 };
 

@@ -351,6 +351,18 @@
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Src\Object\InputHandler.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\MoveLeftCommand.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\MoveRightCommand.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -601,6 +613,21 @@
     </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\ICommand.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\InputHandler.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\MoveLeftCommand.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\MoveRightCommand.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

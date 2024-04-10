@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Application\Src\Object\InputHandler.cpp" />
+    <ClCompile Include="Application\Src\Object\MoveLeftCommand.cpp" />
+    <ClCompile Include="Application\Src\Object\MoveRightCommand.cpp" />
+    <ClCompile Include="Application\Src\Object\Player.cpp" />
     <ClCompile Include="Application\Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GameOverScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp" />
@@ -100,6 +104,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
+    <ClInclude Include="Application\Src\Object\ICommand.h" />
+    <ClInclude Include="Application\Src\Object\InputHandler.h" />
+    <ClInclude Include="Application\Src\Object\MoveLeftCommand.h" />
+    <ClInclude Include="Application\Src\Object\MoveRightCommand.h" />
+    <ClInclude Include="Application\Src\Object\Player.h" />
     <ClInclude Include="Application\Src\Scene\GameClearScene.h" />
     <ClInclude Include="Application\Src\Scene\GameOverScene.h" />
     <ClInclude Include="Application\Src\Scene\GamePlayScene.h" />
