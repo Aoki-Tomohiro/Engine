@@ -17,7 +17,7 @@ void GameTitleScene::Finalize()
 void GameTitleScene::Update() 
 {
 	Quaternion rotation0 = Mathf::MakeRotateAxisAngleQuaternion({ 0.71f,0.71f,0.0f }, 0.3f);
-	Quaternion rotation1 = Mathf::MakeRotateAxisAngleQuaternion({ 0.71f,0.0f,0.71f }, 3.141592f);
+	Quaternion rotation1 = { -rotation0.x,-rotation0.y,-rotation0.z,-rotation0.w };
 
 	Quaternion interpolate0 = Mathf::Slerp(rotation0, rotation1, 0.0f);
 	Quaternion interpolate1 = Mathf::Slerp(rotation0, rotation1, 0.3f);
