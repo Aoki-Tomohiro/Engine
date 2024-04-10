@@ -16,7 +16,17 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
+	Vector3 axis = Mathf::Normalize(Vector3{ 1.0f,1.0f,1.0f });
+	float angle = 0.44f;
+	Matrix4x4 rotateMatrix = Mathf::MakeRotateAxisAngle(axis, angle);
 
+	ImGui::Begin("TitleScene");
+	ImGui::Text("rotateMatrix\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f",
+		rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2], rotateMatrix.m[0][3],
+		rotateMatrix.m[1][0], rotateMatrix.m[1][1], rotateMatrix.m[1][2], rotateMatrix.m[1][3],
+		rotateMatrix.m[2][0], rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
+		rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2], rotateMatrix.m[3][2]);
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()

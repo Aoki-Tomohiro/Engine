@@ -1,8 +1,10 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Base/Renderer.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Math/MathFunction.h"
 
 class GameTitleScene : public IScene
 {
