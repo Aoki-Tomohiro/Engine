@@ -11,11 +11,11 @@ class LightManager
 {
 public:
 	//DirectionalLightの数
-	static const int kNumDirectionalLight = 1;
+	static const int kNumDirectionalLight = 2;
 	//PointLightの数
-	static const int kNumPointLight = 1;
+	static const int kNumPointLight = 2;
 	//SpotLightの数
-	static const int kNumSpotLight = 1;
+	static const int kNumSpotLight = 2;
 	//定数バッファ用構造体
 	struct ConstBuffDataLight
 	{

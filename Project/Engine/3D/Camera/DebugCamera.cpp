@@ -8,6 +8,8 @@ void DebugCamera::Initialize()
 	input_ = Input::GetInstance();
 	//ワールドトランスフォームの初期設定
 	worldTransform_.translation_ = { 0.0f,0.0f,-50.0f };
+	//回転行列の初期化
+	matRot_ = Mathf::MakeIdentity4x4();
 }
 
 void DebugCamera::Update() {
