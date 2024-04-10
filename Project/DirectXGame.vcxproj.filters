@@ -157,6 +157,36 @@
     <Filter Include="ヘッダー ファイル\Application\Object">
       <UniqueIdentifier>{f4a52438-51f2-43f3-a85d-2f363fc43a1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character">
+      <UniqueIdentifier>{1bbdc1ef-f809-4bd2-a00e-9f2e14ca8c12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Floor">
+      <UniqueIdentifier>{84869669-37d0-4841-bdcf-f9f4aeceb9be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\FollowCamera">
+      <UniqueIdentifier>{644404c7-a4d7-4308-8e33-eedf5df0c512}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Goal">
+      <UniqueIdentifier>{de2481d9-26d7-4dae-a06e-f58d7428afa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Skydome">
+      <UniqueIdentifier>{bd3561e7-271d-43e3-acb3-e73f08d6bb7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character">
+      <UniqueIdentifier>{d57cfa5f-70a9-4c9b-a2f7-37f2a2529af1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Floor">
+      <UniqueIdentifier>{2222b325-8e34-4569-b13a-2282f332e0d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\FollowCamera">
+      <UniqueIdentifier>{fd70f2c4-76bb-4c53-aeff-fc7495b87e5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Goal">
+      <UniqueIdentifier>{c870b156-a145-4ee1-a6e8-8e4de88c34f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Skydome">
+      <UniqueIdentifier>{5bdb259d-15d8-4383-a22c-e69e045bda89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -350,6 +380,27 @@
     </ClCompile>
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\BaseCharacter.cpp">
+      <Filter>ソース ファイル\Application\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\Enemy.cpp">
+      <Filter>ソース ファイル\Application\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\Player.cpp">
+      <Filter>ソース ファイル\Application\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Floor\Floor.cpp">
+      <Filter>ソース ファイル\Application\Object\Floor</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\FollowCamera\FollowCamera.cpp">
+      <Filter>ソース ファイル\Application\Object\FollowCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Goal\Goal.cpp">
+      <Filter>ソース ファイル\Application\Object\Goal</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル\Application\Object\Skydome</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -601,6 +652,27 @@
     </ClInclude>
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル\Application\Object\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Goal\Goal.h">
+      <Filter>ヘッダー ファイル\Application\Object\Goal</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\FollowCamera\FollowCamera.h">
+      <Filter>ヘッダー ファイル\Application\Object\FollowCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Floor\Floor.h">
+      <Filter>ヘッダー ファイル\Application\Object\Floor</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\Enemy.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\BaseCharacter.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
