@@ -9,6 +9,9 @@ void GameManager::Initialize()
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	sceneManager_->SetSceneFactory(sceneFactory_.get());
 	sceneManager_->ChangeScene("GameTitleScene");
+
+	//ポストエフェクトを有効にする
+	postEffects_->SetIsEnable(true);
 }
 
 void GameManager::Finalize()

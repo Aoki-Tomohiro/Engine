@@ -1,6 +1,7 @@
 #include "GameOverScene.h"
+#include "Engine/Framework/Scene/SceneManager.h"
 
-void GameOverScene::Initialize() 
+void GameOverScene::Initialize()
 {
 	renderer_ = Renderer::GetInstance();
 
@@ -9,14 +10,29 @@ void GameOverScene::Initialize()
 	audio_ = Audio::GetInstance();
 }
 
-void GameOverScene::Finalize() 
+void GameOverScene::Finalize()
 {
 
 }
 
 void GameOverScene::Update()
 {
+	if (input_->IsControllerConnected())
+	{
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+		{
+			sceneManager_->ChangeScene("GameTitleScene");
+		}
+	}
 
+	if (input_->IsPushKeyEnter(DIK_SPACE))
+	{
+		sceneManager_->ChangeScene("GameTitleScene");
+	}
+
+	ImGui::Begin("GameOverScene");
+	ImGui::Text("Space or AButton : GameTitleScene");
+	ImGui::End();
 }
 
 void GameOverScene::Draw()
@@ -46,7 +62,7 @@ void GameOverScene::Draw()
 #pragma endregion
 }
 
-void GameOverScene::DrawUI() 
+void GameOverScene::DrawUI()
 {
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
