@@ -16,34 +16,30 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
-	Vector3 from0 = Mathf::Normalize(Vector3{ 1.0f,0.7f,0.5f });
-	Vector3 to0 = { -from0.x,-from0.y,-from0.z };
-	Vector3 from1 = Mathf::Normalize(Vector3{ -0.6f, 0.9f, 0.2f });
-	Vector3 to1 = Mathf::Normalize(Vector3{ 0.4f,0.7f,-0.5f });
-	Matrix4x4 rotateMatrix0 = Mathf::DirectionToDirection(
-		Mathf::Normalize(Vector3{ 1.0f,0.0f,0.0f }), Mathf::Normalize(Vector3{ -1.0f,0.0f,0.0f }));
-	Matrix4x4 rotateMatrix1 = Mathf::DirectionToDirection(from0, to0);
-	Matrix4x4 rotateMatrix2 = Mathf::DirectionToDirection(from1, to1);
+	Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
+	Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
+	Quaternion identity = Mathf::IdentityQuaternion();
+	Quaternion conj = Mathf::Conjugate(q1);
+	Quaternion inv = Mathf::Inverse(q1);
+	Quaternion normal = Mathf::Normalize(q1);
+	Quaternion mul1 = q1 * q2;
+	Quaternion mul2 = q2 * q1;
+	float norm = Mathf::Norm(q1);
 
 	ImGui::Begin("TitleScene");
-	ImGui::Text("rotateMatrix0");
-	ImGui::Text("%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f",
-		rotateMatrix0.m[0][0], rotateMatrix0.m[0][1], rotateMatrix0.m[0][2], rotateMatrix0.m[0][3],
-		rotateMatrix0.m[1][0], rotateMatrix0.m[1][1], rotateMatrix0.m[1][2], rotateMatrix0.m[1][3],
-		rotateMatrix0.m[2][0], rotateMatrix0.m[2][1], rotateMatrix0.m[2][2], rotateMatrix0.m[2][3],
-		rotateMatrix0.m[3][0], rotateMatrix0.m[3][1], rotateMatrix0.m[3][2], rotateMatrix0.m[3][3]);
-	ImGui::Text("rotateMatrix1");
-	ImGui::Text("%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f",
-		rotateMatrix1.m[0][0], rotateMatrix1.m[0][1], rotateMatrix1.m[0][2], rotateMatrix1.m[0][3],
-		rotateMatrix1.m[1][0], rotateMatrix1.m[1][1], rotateMatrix1.m[1][2], rotateMatrix1.m[1][3],
-		rotateMatrix1.m[2][0], rotateMatrix1.m[2][1], rotateMatrix1.m[2][2], rotateMatrix1.m[2][3],
-		rotateMatrix1.m[3][0], rotateMatrix1.m[3][1], rotateMatrix1.m[3][2], rotateMatrix1.m[3][3]);
-	ImGui::Text("rotateMatrix2");
-	ImGui::Text("%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f\n%1.3f %1.3f %1.3f %1.3f",
-		rotateMatrix2.m[0][0], rotateMatrix2.m[0][1], rotateMatrix2.m[0][2], rotateMatrix2.m[0][3],
-		rotateMatrix2.m[1][0], rotateMatrix2.m[1][1], rotateMatrix2.m[1][2], rotateMatrix2.m[1][3],
-		rotateMatrix2.m[2][0], rotateMatrix2.m[2][1], rotateMatrix2.m[2][2], rotateMatrix2.m[2][3],
-		rotateMatrix2.m[3][0], rotateMatrix2.m[3][1], rotateMatrix2.m[3][2], rotateMatrix2.m[3][3]);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f     : Identity",
+		identity.x, identity.y, identity.z, identity.w);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f  : Conjugate",
+		conj.x, conj.y, conj.z, conj.w);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f  : Inverse",
+		inv.x, inv.y, inv.z, inv.w);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f     : Normalize",
+		normal.x, normal.y, normal.z, normal.w);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f  : Multiply(q1,q2)",
+		mul1.x, mul1.y, mul1.z, mul1.w);
+	ImGui::Text("%1.2f %1.2f %1.2f %1.2f : Multiply(q2,q1)",
+		mul2.x, mul2.y, mul2.z, mul2.w);
+	ImGui::Text("%1.2f                    : Norm", norm);
 	ImGui::End();
 }
 
