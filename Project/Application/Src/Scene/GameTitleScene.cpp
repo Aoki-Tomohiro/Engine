@@ -7,6 +7,12 @@ void GameTitleScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
+
+	camera_.Initialize();
+
+	worldTransform_.Initialize();
+
+	model_.reset(ModelManager::CreateFromModelFile("Test2.gltf", Opaque));
 }
 
 void GameTitleScene::Finalize()
@@ -16,7 +22,15 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
+	worldTransform_.UpdateMatrixFromEuler();
 
+	camera_.UpdateMatrix();
+
+	ImGui::Begin("GamePlayScene");
+	ImGui::DragFloat3("Translation", &worldTransform_.translation_.x, 0.1f);
+	ImGui::DragFloat3("Rotation", &worldTransform_.rotation_.x, 0.01f);
+	ImGui::DragFloat3("Scale", &worldTransform_.scale_.x, 0.01f);
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()
@@ -33,6 +47,8 @@ void GameTitleScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
+	model_->Draw(worldTransform_, camera_);
+
 	//3Dオブジェクト描画
 	renderer_->Render();
 #pragma endregion

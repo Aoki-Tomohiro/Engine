@@ -48,10 +48,14 @@ void Model::UpdateMaterailConstBuffer()
 	materialConstBuffer_->Unmap();
 }
 
-void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
+void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 {
 	//マテリアルの更新
 	UpdateMaterailConstBuffer();
+
+	//RootのMatrixを適用
+	worldTransform.matWorld_ *= modelData_.rootNode.localMatrix;
+	worldTransform.TransferMatrix();
 
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
