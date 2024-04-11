@@ -5,7 +5,7 @@
 #include "Engine/Components/Collision/Collider.h"
 #include "Engine/Components/Collision/CollisionConfig.h"
 
-class Floor : public Collider{
+class Floor : public Collider {
 public:
 	/// <summary>
 	/// 初期化

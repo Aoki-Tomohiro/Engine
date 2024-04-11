@@ -1,11 +1,12 @@
 #pragma once
 #include "BaseCharacter.h"
+#include "../Weapon/Weapon.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Components/Collision/Collider.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
 #include <optional>
+
+class LockOn;
 
 /// <summary>
 /// プレイヤー
@@ -17,6 +18,7 @@ public:
 		kRoot,//通常状態
 		kDash,//ダッシュ状態
 		kAttack,//攻撃状態
+		kJump,//ジャンプ中
 	};
 
 	//ダッシュ用ワーク
@@ -24,6 +26,39 @@ public:
 		//ダッシュ用の媒介変数
 		int dashParameter_ = 0;
 		uint32_t coolTime = 0;
+	};
+
+	//攻撃用ワーク
+	struct WorkAttack {
+		//攻撃ギミックの媒介変数
+		Vector3 translation{};
+		Vector3 rotation{};
+		uint32_t attackParameter = 0;
+		int32_t comboIndex = 0;
+		int32_t inComboPhase = 0;
+		bool comboNext = false;
+		bool isAttack = false;
+	};
+
+	//コンボの数
+	static const int ComboNum = 3;
+
+	//攻撃用定数
+	struct ConstAttack {
+		//振りかぶりの時間
+		uint32_t anticipationTime;
+		//ための時間
+		uint32_t chargeTime;
+		//攻撃振りの時間
+		uint32_t swingTime;
+		//硬直時間
+		uint32_t recoveryTime;
+		//振りかぶりの移動速さ
+		float anticipationSpeed;
+		//ための移動速さ
+		float chargeSpeed;
+		//攻撃降りの移動速さ
+		float swingSpeed;
 	};
 
 	/// <summary>
@@ -42,6 +77,12 @@ public:
 	/// </summary>
 	/// <param name="camera"></param>
 	void Draw(const Camera& camera) override;
+
+	/// <summary>
+	/// パーティクルの描画
+	/// </summary>
+	/// <param name="camera"></param>
+	void DrawParticle(const Camera& camera);
 
 	/// <summary>
 	/// リスタート処理
@@ -65,6 +106,30 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	Weapon* GetWeapon() { return weapon_.get(); };
+
+	/// <summary>
+	/// ロックオンを設定
+	/// </summary>
+	/// <param name="lockOn"></param>
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; };
+
+	/// <summary>
+	/// 攻撃中かどうか
+	/// </summary>
+	/// <returns></returns>
+	bool GetIsAttack() { return workAttack_.isAttack; };
+
+	/// <summary>
+	/// 死亡フラグを取得
+	/// </summary>
+	/// <returns></returns>
+	bool GetIsDead() { return isDead_; };
+
+	/// <summary>
+	/// 死亡フラグを設定
+	/// </summary>
+	/// <param name="isDead"></param>
+	void SetIsDead(bool isDead) { isDead_ = isDead; };
 
 	/// <summary>
 	/// ワールド変換データを取得
@@ -116,6 +181,21 @@ private:
 	void BehaviorAttackUpdate();
 
 	/// <summary>
+	/// ジャンプ行動初期化
+	/// </summary>
+	void BehaviorJumpInitialize();
+
+	/// <summary>
+	/// ジャンプ行動更新
+	/// </summary>
+	void BehaviorJumpUpdate();
+
+	/// <summary>
+	/// プレイヤーの向きを変える
+	/// </summary>
+	void Rotate(const Vector3& vector);
+
+	/// <summary>
 	/// グローバル変数の適応
 	/// </summary>
 	void ApplyGlobalVariables();
@@ -143,6 +223,18 @@ private:
 	//ダッシュ時間
 	int behaviorDashTime_ = 10;
 	//クォータニオン
-	Quaternion moveQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
+	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
+	//速度
+	Vector3 velocity_{};
+	//コンボ定数表
+	static const std::array<ConstAttack, ComboNum> kConstAttacks_;
+	//攻撃用の変数
+	WorkAttack workAttack_{};
+	//ロックオン
+	const LockOn* lockOn_ = nullptr;
+	//死亡フラグ
+	bool isDead_ = false;
+	//落下スピード
+	float fallingSpeed_ = 0.0f;
 };
 

@@ -193,6 +193,12 @@
     <Filter Include="ソース ファイル\Application\Object\Weapon">
       <UniqueIdentifier>{a5ed346a-eb52-40f9-b878-503fdae6ebf3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\LockOn">
+      <UniqueIdentifier>{2ea47113-fab4-4abe-b3c0-6a5c503ff7e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\LockOn">
+      <UniqueIdentifier>{6be3b370-7413-418c-813c-169516525e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -410,6 +416,9 @@
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
       <Filter>ソース ファイル\Application\Object\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル\Application\Object\LockOn</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -685,6 +694,9 @@
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
       <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル\Application\Object\LockOn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

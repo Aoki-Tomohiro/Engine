@@ -4,6 +4,8 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
 
+class LockOn;
+
 /// <summary>
 /// 追従カメラ
 /// </summary>
@@ -30,6 +32,12 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const Camera& GetCamera() const { return camera_; };
+
+	/// <summary>
+	/// ロックオンをセット
+	/// </summary>
+	/// <param name="lockOn"></param>
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 private:
 	/// <summary>
@@ -66,5 +74,9 @@ private:
 	float destinationAngleY_ = 0.0f;
 	//遅延量
 	float delay_ = 0.1f;
+	//ロックオン
+	const LockOn* lockOn_ = nullptr;
+	//クォータニオン
+	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 };
 

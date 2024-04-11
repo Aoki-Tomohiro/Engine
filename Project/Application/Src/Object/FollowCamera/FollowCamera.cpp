@@ -1,5 +1,7 @@
 #include "FollowCamera.h"
 #include "Engine/Utilities/GlobalVariables.h"
+#include "Application/Src/Object/LockOn/LockOn.h"
+#include <numbers>
 
 void FollowCamera::Initialize() {
 	//ビュープロジェクションの初期化
@@ -13,7 +15,6 @@ void FollowCamera::Initialize() {
 };
 
 void FollowCamera::Update() {
-
 	//追従対象がいれば
 	if (target_) {
 		//追従座標の補間
@@ -25,34 +26,72 @@ void FollowCamera::Update() {
 	//カメラ座標
 	camera_.translation_ = interTarget_ + offset;
 
-	//旋回操作
-	if (Input::GetInstance()->IsControllerConnected()) {
+	//ロックオン中
+	if (lockOn_ && lockOn_->ExistTarget()) {
+		//ロックオン座標
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		//追従対象からロックオン座標へのベクトル
+		Vector3 sub = lockOnPosition - GetTargetWorldPosition();
 
-		//しきい値
-		const float threshold = 0.7f;
+		////Y軸周り角度
+		//sub = Normalize(sub);
+		//float dot = Dot({ 0.0f,0.0f,1.0f }, sub);
+		//float length = Length(sub);
+		//float angle = 0.0f;
+		//if (dot <= -1.0) {
+		//	angle = std::numbers::pi_v<float>;
+		//}
+		//else if (dot >= 1.0) {
+		//	angle = 0.0f;
+		//}
+		//else {
+		//	angle = std::acos(dot / length);
+		//}
+		//
+		//destinationAngleY_ = (sub.x >= 0.0f) ? angle : -angle;
 
-		//回転フラグ
-		bool isRotation = false;
+		//Y軸周り角度
+		if (sub.z != 0.0) {
+			destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
 
-		//回転量
-		Vector3 rotation = {
-			Input::GetInstance()->GetRightStickY(),
-			Input::GetInstance()->GetRightStickX(),
-			0.0f
-		};
-
-		//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
-		if (Mathf::Length(rotation) > threshold) {
-			isRotation = true;
+			if (sub.z < 0.0) {
+				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
+			}
 		}
+		else {
+			destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
+		}
+	}
+	else {
+		//旋回操作
+		if (Input::GetInstance()->IsControllerConnected()) {
 
-		if (isRotation) {
-			//回転速度
-			const float kRotSpeedX = 0.02f;
-			const float kRotSpeedY = 0.04f;
+			//しきい値
+			const float threshold = 0.7f;
 
-			destinationAngleX_ -= rotation.x * kRotSpeedX;
-			destinationAngleY_ += rotation.y * kRotSpeedY;
+			//回転フラグ
+			bool isRotation = false;
+
+			//回転量
+			Vector3 rotation = {
+				Input::GetInstance()->GetRightStickY(),
+				Input::GetInstance()->GetRightStickX(),
+				0.0f
+			};
+
+			//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
+			if (Mathf::Length(rotation) > threshold) {
+				isRotation = true;
+			}
+
+			if (isRotation) {
+				//回転速度
+				const float kRotSpeedX = 0.02f;
+				const float kRotSpeedY = 0.04f;
+
+				destinationAngleX_ -= rotation.x * kRotSpeedX;
+				destinationAngleY_ += rotation.y * kRotSpeedY;
+			}
 		}
 	}
 

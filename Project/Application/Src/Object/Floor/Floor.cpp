@@ -5,6 +5,7 @@ void Floor::Initialize(Model* model, const Vector3& position, const Vector3& vel
 	//モデルの初期化
 	assert(model);
 	model_ = model;
+	model_->SetColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
@@ -16,8 +17,8 @@ void Floor::Initialize(Model* model, const Vector3& position, const Vector3& vel
 	SetCollisionMask(kCollisionMaskFloor);
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
 	AABB aabbSize = {
-		{-10.0f,-10.0f,-10.0f},
-		{10.0f,10.0f,10.0f},
+		{-10.0f,-0.0f,-10.0f},
+		{10.0f,0.0f,10.0f},
 	};
 	SetAABB(aabbSize);
 }
