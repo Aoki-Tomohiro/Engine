@@ -167,21 +167,20 @@ void GameCore::Run()
 	//初期化
 	Initialize();
 
-	bool exit = false;
-	//バックグラウンドループ
-	std::thread th([&]() {
-		while (!exit)
-		{
-			std::unique_lock<std::mutex> uniqueLock(mutex);
-			condition.wait(uniqueLock, [&]() {return true; });
-			if (isLoading_)
-			{
-				sceneManager_->Load();
-				isLoading_ = false;
-			}
-		}
-	});
-
+	//bool exit = false;
+	////バックグラウンドループ
+	//std::thread th([&]() {
+	//	while (!exit)
+	//	{
+	//		std::unique_lock<std::mutex> uniqueLock(mutex);
+	//		condition.wait(uniqueLock, [&]() {return true; });
+	//		if (isLoading_)
+	//		{
+	//			sceneManager_->Load();
+	//			isLoading_ = false;
+	//		}
+	//	}
+	//});
 
 	//ゲームループ
 	while (true)
@@ -200,7 +199,7 @@ void GameCore::Run()
 	}
 
 	//終了
-	exit = true;
-	th.join();
+	//exit = true;
+	//th.join();
 	Finalize();
 }

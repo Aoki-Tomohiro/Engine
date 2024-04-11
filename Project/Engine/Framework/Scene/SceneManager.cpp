@@ -23,6 +23,7 @@ void SceneManager::Destroy()
 
 void SceneManager::Update()
 {
+	Load();
 	loadingScreenVisible_ ? loadScene_->Update() : currentScene_->Update();
 }
 
@@ -72,7 +73,7 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 		loadScene_->Initialize();
 	}
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
-	loadingScreenVisible_ = true;
+	//loadingScreenVisible_ = true;
 }
 
 SceneManager::~SceneManager()
