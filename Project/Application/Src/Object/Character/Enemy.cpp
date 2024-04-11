@@ -72,7 +72,9 @@ void Enemy::UpdateFloatingGimmick() {
 }
 
 void Enemy::OnCollision(Collider* collider) {
-
+	if (collider->GetCollisionAttribute() & kCollisionAttributeWeapon) {
+		isDead_ = true;
+	}
 }
 
 const Vector3 Enemy::GetWorldPosition() const {

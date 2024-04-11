@@ -27,6 +27,7 @@
     <ClCompile Include="Application\Src\Object\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="Application\Src\Object\Goal\Goal.cpp" />
     <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp" />
+    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp" />
     <ClCompile Include="Application\Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GameOverScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GamePlayScene.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="Application\Src\Object\FollowCamera\FollowCamera.h" />
     <ClInclude Include="Application\Src\Object\Goal\Goal.h" />
     <ClInclude Include="Application\Src\Object\Skydome\Skydome.h" />
+    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h" />
     <ClInclude Include="Application\Src\Scene\GameClearScene.h" />
     <ClInclude Include="Application\Src\Scene\GameOverScene.h" />
     <ClInclude Include="Application\Src\Scene\GamePlayScene.h" />

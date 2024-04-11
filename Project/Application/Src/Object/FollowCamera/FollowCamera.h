@@ -49,8 +49,13 @@ private:
 	/// <returns></returns>
 	Vector3 GetTargetWorldPosition();
 
+	/// <summary>
+	/// グローバル変数の適応
+	/// </summary>
+	void ApplyGlobalVariables();
+
 private:
-	//ビュープロジェクション
+	//カメラ
 	Camera camera_{};
 	//追従対象
 	const WorldTransform* target_ = nullptr;
@@ -59,4 +64,7 @@ private:
 	//目標角度
 	float destinationAngleX_ = 0.0f;
 	float destinationAngleY_ = 0.0f;
+	//遅延量
+	float delay_ = 0.1f;
 };
+

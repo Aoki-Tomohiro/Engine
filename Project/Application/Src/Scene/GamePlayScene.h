@@ -1,9 +1,11 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Base/Renderer.h"
-#include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/3D/Model/ModelManager.h"
+#include "Engine/2D/Sprite.h"
 #include "Engine/Components/Collision/CollisionManager.h"
 
 #include "Application/Src/Object/Character/Player.h"
@@ -44,14 +46,13 @@ private:
 
 	//プレイヤー
 	std::unique_ptr<Model> playerModel_ = nullptr;
+	std::unique_ptr<Model> weaponModel_ = nullptr;
 	std::unique_ptr<Player> player_ = nullptr;
-	
+
 	//敵
 	std::unique_ptr<Model> modelEnemyBody_ = nullptr;
 	std::unique_ptr<Model> modelEnemyL_arm_ = nullptr;
 	std::unique_ptr<Model> modelEnemyR_arm_ = nullptr;
-
-	//敵キャラ
 	std::unique_ptr<Enemy> enemy_ = nullptr;
 
 	//天球

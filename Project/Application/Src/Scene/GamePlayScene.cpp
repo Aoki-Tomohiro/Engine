@@ -1,4 +1,5 @@
 #include "GamePlayScene.h"
+#include "Engine/Framework/Scene/SceneManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -15,16 +16,17 @@ void GamePlayScene::Initialize()
 	collisionManager_ = std::make_unique<CollisionManager>();
 
 	//プレイヤーの作成
-	playerModel_.reset(ModelManager::CreateFromOBJ("Player",Opaque));
-	std::vector<Model*> playerModels = { playerModel_.get() };
+	playerModel_.reset(ModelManager::CreateFromOBJ("Player", Opaque));
+	weaponModel_.reset(ModelManager::CreateFromOBJ("Weapon", Opaque));
+	std::vector<Model*> playerModels = { playerModel_.get(),weaponModel_.get() };
 	player_ = std::make_unique<Player>();
 	player_->Initialize(playerModels);
 	player_->SetCamera(&camera_);
 
 	//敵の作成
-	modelEnemyBody_.reset(ModelManager::CreateFromOBJ("Enemy_Body",Opaque));
-	modelEnemyL_arm_.reset(ModelManager::CreateFromOBJ("Enemy_L_arm",Opaque));
-	modelEnemyR_arm_.reset(ModelManager::CreateFromOBJ("Enemy_R_arm",Opaque));
+	modelEnemyBody_.reset(ModelManager::CreateFromOBJ("Enemy_Body", Opaque));
+	modelEnemyL_arm_.reset(ModelManager::CreateFromOBJ("Enemy_L_arm", Opaque));
+	modelEnemyR_arm_.reset(ModelManager::CreateFromOBJ("Enemy_R_arm", Opaque));
 	std::vector<Model*> enemyModels = { modelEnemyBody_.get(),modelEnemyL_arm_.get(),modelEnemyR_arm_.get() };
 	enemy_ = std::make_unique <Enemy>();
 	enemy_->Initialize(enemyModels);
@@ -96,7 +98,12 @@ void GamePlayScene::Update()
 	//衝突判定
 	collisionManager_->ClearColliderList();
 	collisionManager_->SetColliderList(player_.get());
-	collisionManager_->SetColliderList(enemy_.get());
+	if (player_->GetWeapon()->GetIsHit()) {
+		collisionManager_->SetColliderList(player_->GetWeapon());
+	}
+	if (enemy_->GetIsDead() == false) {
+		collisionManager_->SetColliderList(enemy_.get());
+	}
 	for (std::unique_ptr<Floor>& floor : floors_) {
 		collisionManager_->SetColliderList(floor.get());
 	}
@@ -104,7 +111,7 @@ void GamePlayScene::Update()
 	collisionManager_->CheckAllCollisions();
 }
 
-void GamePlayScene::Draw() 
+void GamePlayScene::Draw()
 {
 #pragma region 背景スプライト描画
 	//背景スプライト描画前処理
@@ -122,7 +129,9 @@ void GamePlayScene::Draw()
 	player_->Draw(camera_);
 
 	//敵の描画
-	enemy_->Draw(camera_);
+	if (enemy_->GetIsDead() == false) {
+		enemy_->Draw(camera_);
+	}
 
 	//天球の描画
 	skydome_->Draw(camera_);

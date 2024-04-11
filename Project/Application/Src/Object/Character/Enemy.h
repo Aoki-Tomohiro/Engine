@@ -45,6 +45,12 @@ public:
 	void SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; };
 
 	/// <summary>
+	/// 死亡フラグを取得
+	/// </summary>
+	/// <returns></returns>
+	bool GetIsDead() { return isDead_; };
+
+	/// <summary>
 	/// ワールド変換データを取得
 	/// </summary>
 	/// <returns></returns>
@@ -75,6 +81,6 @@ private:
 	float amplitude_ = 0.1f;
 	//移動速度
 	Vector3 velocity_{0.1f,0.0f,0.0f};
-
+	bool isDead_ = false;
 };
 

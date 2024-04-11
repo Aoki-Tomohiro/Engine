@@ -1,8 +1,15 @@
 #include "FollowCamera.h"
+#include "Engine/Utilities/GlobalVariables.h"
 
 void FollowCamera::Initialize() {
 	//ビュープロジェクションの初期化
 	camera_.Initialize();
+
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "FollowCamera";
+	//グループを追加
+	globalVariables->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "Delay", delay_);
 };
 
 void FollowCamera::Update() {
@@ -10,15 +17,13 @@ void FollowCamera::Update() {
 	//追従対象がいれば
 	if (target_) {
 		//追従座標の補間
-		interTarget_ = Mathf::Lerp(interTarget_, GetTargetWorldPosition(), 0.1f);
+		interTarget_ = Mathf::Lerp(interTarget_, GetTargetWorldPosition(), delay_);
 	}
 
 	//追従対象からのオフセット
 	Vector3 offset = FollowCamera::Offset();
 	//カメラ座標
 	camera_.translation_ = interTarget_ + offset;
-
-	XINPUT_STATE joyState{};
 
 	//旋回操作
 	if (Input::GetInstance()->IsControllerConnected()) {
@@ -56,6 +61,9 @@ void FollowCamera::Update() {
 
 	//ビュー行列の更新
 	camera_.UpdateMatrix();
+
+	//グローバル変数の適応
+	FollowCamera::ApplyGlobalVariables();
 };
 
 Vector3 FollowCamera::Offset() {
@@ -100,4 +108,10 @@ Vector3 FollowCamera::GetTargetWorldPosition() {
 	pos.y = target_->matWorld_.m[3][1];
 	pos.z = target_->matWorld_.m[3][2];
 	return pos;
+}
+
+void FollowCamera::ApplyGlobalVariables() {
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "FollowCamera";
+	delay_ = globalVariables->GetFloatValue(groupName, "Delay");
 }
