@@ -1,6 +1,4 @@
 #include "Laser.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Math/MathFunction.h"
 
 void Laser::Initialize()
 {
@@ -11,7 +9,7 @@ void Laser::Initialize()
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_.y = 3.0f;
-	worldTransform_.scale_ = { 0.01f,0.01f,70.0f };
+	worldTransform_.scale_ = { 0.01f,0.01f,50.0f };
 
 	//衝突属性を設定
 	obbSize = {
@@ -54,7 +52,7 @@ void Laser::Update()
 
 	if (lifeTimer_ > kLifeTime - 5)
 	{
-		worldTransform_.scale_ = Mathf::Lerp(worldTransform_.scale_, { 0.0f,0.0f,70.0f }, 0.2f);
+		worldTransform_.scale_ = Mathf::Lerp(worldTransform_.scale_, { 0.0f,0.0f,50.0f }, 0.2f);
 	}
 
 	//レーザーの寿命

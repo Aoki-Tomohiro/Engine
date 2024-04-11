@@ -1,49 +1,28 @@
 #pragma once
+#include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
+#include "Engine/Math/MathFunction.h"
 #include "Engine/3D/Model/ModelManager.h"
 
 class Missile : public Collider
 {
 public:
+	//追尾時間
 	static const uint32_t kTrackingTime = 60 * 2;
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
 	void Initialize(const Vector3& position, const Vector3& velocity);
 
-	/// <summary>
-	/// 更新
-	/// </summary>
 	void Update();
 
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="camera"></param>
 	void Draw(const Camera& camera);
 
-	/// <summary>
-	/// 衝突判定
-	/// </summary>
 	void OnCollision(Collider* collider) override;
 
-	/// <summary>
-	/// ワールド座標を取得
-	/// </summary>
-	/// <returns></returns>
 	const Vector3 GetWorldPosition() const override;
 
-	/// <summary>
-	/// ワールド変換データを取得
-	/// </summary>
-	/// <returns></returns>
 	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
-	/// <summary>
-	/// 死亡フラグを取得
-	/// </summary>
-	/// <returns></returns>
 	const bool GetIsDead() const { return isDead_; };
 
 private:
@@ -57,7 +36,7 @@ private:
 	Vector3 velocity_{};
 
 	//媒介変数
-	float t_ = 0.0f;
+	float trackingParameter_ = 0.0f;
 
 	//追尾
 	bool isTrackingComplete_ = false;

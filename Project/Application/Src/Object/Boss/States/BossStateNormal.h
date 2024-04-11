@@ -1,11 +1,13 @@
 #pragma once
 #include "IBossState.h"
+#include "Engine/Math/MathFunction.h"
 
 class BossStateNormal : public IBossState
 {
 public:
+	//攻撃までの最小時間
 	static const uint32_t kMinAttackInterval = 60 * 2;
-
+	//攻撃までの最大時間
 	static const uint32_t kMaxAttackInterval = 60 * 4;
 
 	void Initialize(Boss* pBoss) override;

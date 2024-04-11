@@ -1,18 +1,32 @@
 #include "Player.h"
-#include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Base/TextureManager.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Application/Src/Object/LockOn/LockOn.h"
-#include "Application/Src/Object/Boss/Boss.h"
+#include <numbers>
 
 void Player::Initialize()
 {
+	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_.y = 1.0f;
 	worldTransform_.translation_.z = -20.0f;
+	//worldTransform_.scale_ = { 0.8f,0.8f,0.8f };
+
+	//パーツのワールドトランスフォームの初期化
+	for (uint32_t i = 0; i < kCountOfParts; ++i)
+	{
+		worldTransforms[i].Initialize();
+	}
+	worldTransforms[kHead].translation_ = { 0.0f,1.85f,0.0f };
+	worldTransforms[kHead].rotation_ = { 0.0f,0.0f,0.0f };
+	worldTransforms[kL_Arm].translation_ = { -0.7f,1.8f,0.0f };
+	worldTransforms[kL_Arm].rotation_ = { 0.0f,0.0f,0.0f };
+	worldTransforms[kR_Arm].translation_ = { 0.7f,1.8f,0.0f };
+	worldTransforms[kR_Arm].rotation_ = { 0.0f,0.0f,0.0f };
+
+	//親子付け
+	worldTransforms[kBody].parent_ = &worldTransform_;
+	worldTransforms[kHead].parent_ = &worldTransforms[kBody];
+	worldTransforms[kL_Arm].parent_ = &worldTransforms[kBody];
+	worldTransforms[kR_Arm].parent_ = &worldTransforms[kBody];
 
 	//入力クラスのインスタンスを取得
 	input_ = Input::GetInstance();
@@ -25,46 +39,47 @@ void Player::Initialize()
 	modelWeapon_->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	weapon_->SetModel(modelWeapon_.get());
-	weapon_->SetPlayerWorldTransform(&worldTransform_);
+	weapon_->SetParent(&worldTransform_);
+
+	//スプライトの生成
+	TextureManager::Load("HpBar.png");
+	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 80.0f,32.0f }));
+	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	TextureManager::Load("HpBarFrame.png");
+	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 79.0f,31.0f }));
+	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	damageSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	damageSprite_->SetColor(damageSpriteColor_);
+	damageSprite_->SetSize({ 1280.0f,720.0f });
+
+	//パーティクルシステムの初期化
+	particleModel_.reset(ModelManager::CreateFromOBJ("Cube", Opaque));
+	particleSystem_ = ParticleManager::Create("Dash");
+	particleSystem_->SetModel(particleModel_.get());
+	particleSystem_->SetIsBillBoard(false);
 
 	//オーディオの読み込み
 	swishAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Swish.wav");
-	damageAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Damage1.wav");
+	damageAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Damage.wav");
 	dashAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Dash.wav");
-	jumpAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Jump1.wav");
-
-	//テクスチャ読み込み
-	TextureManager::Load("HpBarFrame.png");
-	TextureManager::Load("HpBar.png");
-
-	//スプライトの生成
-	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 80.0f,32.0f }));
-	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 79.0f,31.0f }));
-	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	jumpAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Jump.wav");
 
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
 	SetCollisionMask(kCollisionMaskPlayer);
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
-
-	//パーティクルの生成
-	particleModel_.reset(ModelManager::CreateFromOBJ("Cube", Transparent));
-	particleModel_->SetEnableLighting(false);
-	particleSystem_ = ParticleManager::Create("Dash");
-	particleSystem_->SetModel(particleModel_.get());
-	particleSystem_->SetIsBillBoard(false);
 }
 
 void Player::Update()
 {
-	isHit_ = false;
-
 	//ダッシュのクールタイム
 	if (workDash_.coolTime != workDash_.dashCoolTime)
 	{
 		workDash_.coolTime++;
 	}
+
+	//ヒットフラグのリセット
+	isHit_ = false;
 
 	//Behaviorの遷移処理
 	if (behaviorRequest_)
@@ -86,14 +101,8 @@ void Player::Update()
 		case Behavior::kAttack:
 			BehaviorAttackInitialize();
 			break;
-		case Behavior::kAirAttack:
-			BehaviorAirAttackInitialize();
-			break;
 		case Behavior::kKnockBack:
 			BehaviorKnockBackInitialize();
-			break;
-		case Behavior::kRapidApproach:
-			BehaviorRapidApproachInitialize();
 			break;
 		}
 		behaviorRequest_ = std::nullopt;
@@ -115,14 +124,8 @@ void Player::Update()
 	case Behavior::kAttack:
 		BehaviorAttackUpdate();
 		break;
-	case Behavior::kAirAttack:
-		BehaviorAirAttackUpdate();
-		break;
 	case Behavior::kKnockBack:
 		BehaviorKnockBackUpdate();
-		break;
-	case Behavior::kRapidApproach:
-		BehaviorRapidApproachUpdate();
 		break;
 	}
 
@@ -137,31 +140,42 @@ void Player::Update()
 	//ワールドトランスフォームの更新
 	worldTransform_.quaternion_ = Mathf::Slerp(worldTransform_.quaternion_, destinationQuaternion_, 0.4f);
 	worldTransform_.UpdateMatrixFromQuaternion();
-
-	//HPバーの処理
-	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
-	spriteHpBar_->SetSize(hpBarSize_);
-
-	//無敵時間の処理
-	if (invincibleFlag_)
+	for (uint32_t i = 0; i < kCountOfParts; ++i)
 	{
-		if (++invincibleTimer_ > kInvincibleTime)
-		{
-			invincibleFlag_ = false;
-		}
+		worldTransforms[i].UpdateMatrixFromEuler();
 	}
 
-	ImGui::Begin("Player");
-	ImGui::Text("HP : %f", hp_);
-	ImGui::End();
+	//無敵時間の処理
+	if (workInvincible_.invincibleFlag)
+	{
+		if (++workInvincible_.invincibleTimer > workInvincible_.kInvincibleTime)
+		{
+			workInvincible_.invincibleFlag = false;
+		}
+
+		//ダメージスプライトを徐々に透明にする
+		damageSpriteColor_.w = 0.1f * (1.0f - (static_cast<float>(workInvincible_.invincibleTimer) / workInvincible_.kInvincibleTime));
+
+		//ダメージスプライトの色を設定
+		damageSprite_->SetColor(damageSpriteColor_);
+	}
+
+	//HPバーの処理
+	hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
+	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
+	spriteHpBar_->SetSize(hpBarSize_);
 }
 
 void Player::Draw(const Camera& camera)
 {
-	model_->Draw(worldTransform_, camera);
+	//プレイヤーのモデルの描画
+	for (uint32_t i = 0; i < kCountOfParts; ++i)
+	{
+		models_[i]->Draw(worldTransforms[i], camera);
+	}
 
 	//武器の描画
-	if (behavior_ == Behavior::kAttack || behavior_ == Behavior::kAirAttack)
+	if (behavior_ == Behavior::kAttack)
 	{
 		weapon_->SetIsVisible(true);
 	}
@@ -175,6 +189,11 @@ void Player::DrawUI()
 {
 	spriteHpBar_->Draw();
 	spriteHpBarFrame_->Draw();
+
+	if (workInvincible_.invincibleFlag)
+	{
+		damageSprite_->Draw();
+	}
 }
 
 void Player::OnCollision(Collider* collider)
@@ -225,20 +244,29 @@ void Player::OnCollision(Collider* collider)
 		{
 			if (behavior_ != Behavior::kDash)
 			{
-				Vector3 kKnockBackSpeed = { 0.0f,0.2f,0.4f };
+				//ノックバック状態にする
+				Vector3 kKnockBackSpeed = { 0.0f,0.4f,0.4f };
 				knockBackVelocity_ = Mathf::TransformNormal(kKnockBackSpeed, boss->GetWorldTransform().matWorld_);
 				behaviorRequest_ = Behavior::kKnockBack;
-				if (!invincibleFlag_)
+
+				//無敵状態でなければ
+				if (!workInvincible_.invincibleFlag)
 				{
-					audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
-					isHit_ = true;
-					invincibleFlag_ = true;
-					invincibleTimer_ = 0;
+					//HPを減らす
 					hp_ -= boss->GetDamage();
-					if (hp_ <= 0.0f)
-					{
-						hp_ = 0.0f;
-					}
+
+					//無敵状態にする
+					workInvincible_.invincibleFlag = true;
+					workInvincible_.invincibleTimer = 0;
+
+					//SEを再生
+					audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+
+					//ダメージスプライトのアルファ値を設定
+					damageSpriteColor_.w = 0.5f;
+
+					//ヒットフラグを立てる
+					isHit_ = true;
 				}
 			}
 		}
@@ -249,17 +277,24 @@ void Player::OnCollision(Collider* collider)
 	{
 		if (behavior_ != Behavior::kDash)
 		{
-			if (!invincibleFlag_)
+			//無敵状態でなければ
+			if (!workInvincible_.invincibleFlag)
 			{
-				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
-				isHit_ = true;
-				invincibleFlag_ = true;
-				invincibleTimer_ = 0;
+				//HPを減らす
 				hp_ -= 10.0f;
-				if (hp_ <= 0.0f)
-				{
-					hp_ = 0.0f;
-				}
+
+				//無敵状態にする
+				workInvincible_.invincibleFlag = true;
+				workInvincible_.invincibleTimer = 0;
+
+				//SEを再生
+				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+
+				//ダメージスプライトのアルファ値を設定
+				damageSpriteColor_.w = 0.5f;
+
+				//ヒットフラグを立てる
+				isHit_ = true;
 			}
 		}
 	}
@@ -269,17 +304,24 @@ void Player::OnCollision(Collider* collider)
 	{
 		if (behavior_ != Behavior::kDash)
 		{
-			if (!invincibleFlag_)
+			//無敵状態でなければ
+			if (!workInvincible_.invincibleFlag)
 			{
-				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
-				isHit_ = true;
-				invincibleFlag_ = true;
-				invincibleTimer_ = 0;
+				//HPを減らす
 				hp_ -= 10.0f;
-				if (hp_ <= 0.0f)
-				{
-					hp_ = 0.0f;
-				}
+
+				//無敵状態にする
+				workInvincible_.invincibleFlag = true;
+				workInvincible_.invincibleTimer = 0;
+
+				//SEを再生
+				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+
+				//ダメージスプライトのアルファ値を設定
+				damageSpriteColor_.w = 0.5f;
+
+				//ヒットフラグを立てる
+				isHit_ = true;
 			}
 		}
 	}
@@ -289,152 +331,227 @@ const Vector3 Player::GetWorldPosition() const
 {
 	Vector3 pos{};
 	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1];
+	pos.y = worldTransform_.matWorld_.m[3][1] + 1.0f;
 	pos.z = worldTransform_.matWorld_.m[3][2];
 	return pos;
 }
 
+const uint32_t Player::GetAttackTotalTime() const
+{
+	//攻撃の合計時間
+	uint32_t attackTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
+
+	return attackTime;
+}
+
 void Player::BehaviorRootInitialize()
 {
-	fallingSpeed_ = 0.0f;
+	gravity_ = { 0.0f,0.0f,0.0f };
+	if (!particleSystem_->GetParticleEmitter("Move"))
+	{
+		Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0], 0.0f ,worldTransforms[kBody].matWorld_.m[3][2] };
+		ParticleEmitter* emitter = ParticleEmitterBuilder()
+			.SetDeleteTime(60)
+			.SetEmitterName("Move")
+			.SetPopArea({ -0.5f,0.0f,-0.5f }, { 0.5f,0.0f,0.5f })
+			.SetPopAzimuth(0.0f, 0.0f)
+			.SetPopColor({ 0.1f,0.1f,0.1f,1.0f }, { 0.1f,0.1f,0.1f,1.0f })
+			.SetPopCount(1)
+			.SetPopElevation(0.0f, 0.0f)
+			.SetPopFrequency(0.01f)
+			.SetPopLifeTime(0.2f, 0.4f)
+			.SetPopQuaternion(destinationQuaternion_)
+			.SetPopRotation({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			.SetPopScale({ 0.1f,0.1f,0.1f }, { 0.2f,0.2f,0.2f })
+			.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			.SetTranslation(translation)
+			.Build();
+		particleSystem_->AddParticleEmitter(emitter);
+	}
 }
 
 void Player::BehaviorRootUpdate()
 {
-	if (input_->IsControllerConnected())
+	//移動処理
+	const float speed = 0.6f;
+	Move(speed);
+
+	//移動しているときにアニメーションをする
+	if (velocity_ != Vector3{ 0.0f,0.0f,0.0f })
 	{
-		//しきい値
-		const float threshold = 0.7f;
+		MoveAnimation();
 
-		//移動フラグ
-		bool isMoving = false;
-
-		//移動量
-		velocity_ = {
-			input_->GetLeftStickX(),
-			0.0f,
-			input_->GetLeftStickY(),
-		};
-
-		//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
-		if (Mathf::Length(velocity_) > threshold)
+		//パーティクルの座標を更新
+		Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0], 0.0f ,worldTransforms[kBody].matWorld_.m[3][2] };
+		ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
+		if (emitter)
 		{
-			isMoving = true;
+			emitter->SetPopCount(1);
+			emitter->SetTranslation(translation);
 		}
-
-		//スティックによる入力がある場合
-		if (isMoving)
-		{
-			isParticleActive_ = true;
-
-			//速さ
-			//const float speed = 0.3f;
-			const float speed = 0.6f;
-
-			//移動量に速さを反映
-			velocity_ = Mathf::Normalize(velocity_) * speed;
-
-			//移動ベクトルをカメラの角度だけ回転する
-			Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
-			velocity_ = Mathf::TransformNormal(velocity_, rotateMatrix);
-
-			//移動
-			worldTransform_.translation_ += velocity_;
-
-			//回転
-			Rotate(velocity_);
-
-			////パーティクルの生成
-			//if (particleSystem_->GetParticleEmitter("Move") == nullptr)
-			//{
-			//	ParticleEmitter* emitter = ParticleEmitterBuilder()
-			//		.SetDeleteTime(60.0f * 3.0f)
-			//		.SetEmitterName("Move")
-			//		.SetPopArea({ -worldTransform_.scale_.x,0.0f,-worldTransform_.scale_.z }, { worldTransform_.scale_.x,0.0f,worldTransform_.scale_.x })
-			//		.SetPopAzimuth(0.0f, 0.0f)
-			//		.SetPopColor({ 0.5f, 0.5f, 0.5f, 1.0f }, { 0.5f, 0.5f, 0.5f, 1.0f })
-			//		.SetPopCount(4)
-			//		.SetPopElevation(0.0f, 0.0f)
-			//		.SetPopFrequency(0.1f)
-			//		.SetPopLifeTime(0.2f, 0.4f)
-			//		.SetPopRotation({ 0.0f,0.0f,0.0f }, { 3.14f,3.14f,3.14f })
-			//		.SetPopScale({ 0.2f,0.2f,0.2f }, { 0.4f,0.4f,0.4f })
-			//		.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
-			//		.SetTranslation({ worldTransform_.translation_.x ,0.0f,worldTransform_.translation_.z })
-			//		.Build();
-			//	particleSystem_->AddParticleEmitter(emitter);
-			//}
-			//else
-			//{
-			//	particleSystem_->GetParticleEmitter("Move")->SetTranslation({ worldTransform_.translation_.x ,0.0f,worldTransform_.translation_.z });
-			//	particleSystem_->GetParticleEmitter("Move")->SetPopCount(4);
-			//}
-		}
+		//エミッターが消えてたら再生成
 		else
 		{
-			//isParticleActive_ = false;
-			//if (particleSystem_->GetParticleEmitter("Move"))
-			//{
-			//	particleSystem_->GetParticleEmitter("Move")->SetPopCount(0);
-			//}
+			ParticleEmitter* emitter = ParticleEmitterBuilder()
+				.SetDeleteTime(60)
+				.SetEmitterName("Move")
+				.SetPopArea({ -0.5f,0.0f,-0.5f }, { 0.5f,0.0f,0.5f })
+				.SetPopAzimuth(0.0f, 0.0f)
+				.SetPopColor({ 0.1f,0.1f,0.1f,1.0f }, { 0.1f,0.1f,0.1f,1.0f })
+				.SetPopCount(1)
+				.SetPopElevation(0.0f, 0.0f)
+				.SetPopFrequency(0.01f)
+				.SetPopLifeTime(0.2f, 0.4f)
+				.SetPopQuaternion(destinationQuaternion_)
+				.SetPopRotation({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+				.SetPopScale({ 0.1f,0.1f,0.1f }, { 0.2f,0.2f,0.2f })
+				.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+				.SetTranslation(translation)
+				.Build();
+			particleSystem_->AddParticleEmitter(emitter);
+		}
+	}
+	else
+	{
+		moveAnimationWork_.startRotation_ = 0.0f;
+		worldTransforms[kL_Arm].rotation_.x = 0.0f;
+		worldTransforms[kR_Arm].rotation_.x = 0.0f;
+
+		//パーティクルを出さないようにする
+		ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
+		if (emitter)
+		{
+			emitter->SetPopCount(0);
 		}
 	}
 
 	//地面にいなかったら落下する
-	if (worldTransform_.translation_.y >= 1.0f)
+	if (worldTransform_.translation_.y >= 0.0f)
 	{
 		const float kGravityAcceleration = 0.05f;
-		fallingSpeed_ -= kGravityAcceleration;
-		worldTransform_.translation_.y += fallingSpeed_;
-
-		if (worldTransform_.translation_.y < 1.0f)
-		{
-			worldTransform_.translation_.y = 1.0f;
-			isAirAttack_ = false;
-		}
+		gravity_.y -= kGravityAcceleration;
+		worldTransform_.translation_ += gravity_;
 	}
 
-	//ダッシュ行動に変更
+	//地面に埋まらないようにする
+	if (worldTransform_.translation_.y < 0.0f)
+	{
+		worldTransform_.translation_.y = 0.0f;
+
+		//地面に最初に触れたときにパーティクルを出す
+		if (!isGroundHit_)
+		{
+			isGroundHit_ = true;
+			//パーティクルの生成
+			Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0], 0.0f ,worldTransforms[kBody].matWorld_.m[3][2] };
+			for (float i = 0.0f; i < 6.32f; i += 0.1f)
+			{
+				Vector3 velocity = { 0.0f,0.0f,0.1f };
+				Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(i);
+				velocity = Mathf::TransformNormal(velocity, rotateYMatrix);
+				ParticleEmitter* emitter = ParticleEmitterBuilder()
+					.SetDeleteTime(0.4f)
+					.SetEmitterName("Jump")
+					.SetPopAzimuth(0.0f, 0.0f)
+					.SetPopColor({ 1.0f,1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f })
+					.SetPopCount(1)
+					.SetPopElevation(0.0f, 0.0f)
+					.SetPopFrequency(2.0f)
+					.SetPopLifeTime(0.2f, 0.2f)
+					.SetPopRotation({ 0.0f,i,0.0f }, { 0.0f,i,0.0f })
+					.SetPopScale({ 0.1f,0.1f,0.1f }, { 0.1f,0.1f,0.1f })
+					.SetPopVelocity(velocity, velocity)
+					.SetTranslation(translation)
+					.Build();
+				particleSystem_->AddParticleEmitter(emitter);
+			}
+		}
+	}
+	else
+	{
+		isGroundHit_ = false;
+	}
+
 	if (input_->IsControllerConnected())
 	{
+		//ダッシュ行動に変更
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
 		{
 			if (workDash_.coolTime == workDash_.dashCoolTime)
 			{
 				behaviorRequest_ = Behavior::kDash;
+				//パーティクルを出さないようにする
+				ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
+				if (emitter)
+				{
+					emitter->SetPopCount(0);
+				}
 			}
 		}
-	}
 
-	//ジャンプ行動に変更
-	if (input_->IsControllerConnected())
-	{
+		//ジャンプ行動に変更
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
 		{
-			behaviorRequest_ = Behavior::kJump;
+			if (worldTransform_.translation_.y == 0.0f)
+			{
+				behaviorRequest_ = Behavior::kJump;
+				//パーティクルを出さないようにする
+				ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
+				if (emitter)
+				{
+					emitter->SetPopCount(0);
+				}
+			}
 		}
-	}
 
-	//攻撃行動に変更
-	if (input_->IsControllerConnected())
-	{
+		//攻撃行動に変更
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{
-			if (!isAirAttack_)
+			if (worldTransform_.translation_.y == 0.0f)
 			{
 				behaviorRequest_ = Behavior::kAttack;
+				//パーティクルを出さないようにする
+				ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
+				if (emitter)
+				{
+					emitter->SetPopCount(0);
+				}
 			}
 		}
 	}
+}
 
-	////急接近行動に変更
-	//if (input_->IsControllerConnected())
-	//{
-	//	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-	//	{
-	//		behaviorRequest_ = Behavior::kRapidApproach;
-	//	}
-	//}
+void Player::MoveAnimation()
+{
+	//パラメータを加算
+	moveAnimationWork_.parameter_ += 1.0f / 10.0f;
+
+	//イージングが終わったら回転の向きを変える
+	if (moveAnimationWork_.parameter_ > 1.0f)
+	{
+		moveAnimationWork_.rotationChange_ = true;
+		moveAnimationWork_.parameter_ = 0.0f;
+	}
+
+	if (moveAnimationWork_.rotationChange_)
+	{
+		if (moveAnimationWork_.endRotation_ == 1.0f)
+		{
+			moveAnimationWork_.startRotation_ = 1.0f;
+			moveAnimationWork_.endRotation_ = -1.0f;
+		}
+		else
+		{
+			moveAnimationWork_.startRotation_ = -1.0f;
+			moveAnimationWork_.endRotation_ = 1.0f;
+		}
+
+		moveAnimationWork_.rotationChange_ = false;
+	}
+
+	//回転処理
+	worldTransforms[kL_Arm].rotation_.x = moveAnimationWork_.startRotation_ + (moveAnimationWork_.endRotation_ - moveAnimationWork_.startRotation_) * Mathf::EaseInOutSine(moveAnimationWork_.parameter_);
+	worldTransforms[kR_Arm].rotation_.x = -moveAnimationWork_.startRotation_ + (-moveAnimationWork_.endRotation_ - -moveAnimationWork_.startRotation_) * Mathf::EaseInOutSine(moveAnimationWork_.parameter_);
 }
 
 void Player::BehaviorDashInitialize()
@@ -442,70 +559,68 @@ void Player::BehaviorDashInitialize()
 	workDash_.dashParameter = 0;
 	workDash_.coolTime = 0;
 	worldTransform_.quaternion_ = destinationQuaternion_;
-
-	if (input_->IsControllerConnected())
-	{
-		//しきい値
-		const float threshold = 0.7f;
-
-		//移動フラグ
-		bool isMoving = false;
-
-		//移動量
-		velocity_ = {
-			input_->GetLeftStickX(),
-			0.0f,
-			input_->GetLeftStickY(),
-		};
-
-		//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
-		if (Mathf::Length(velocity_) > threshold)
-		{
-			isMoving = true;
-		}
-
-		//スティックによる入力がある場合
-		if (isMoving)
-		{
-			//速さ
-			float kSpeed = 1.0f;
-
-			//移動量に速さを反映
-			velocity_ = Mathf::Normalize(velocity_) * kSpeed;
-
-			//移動ベクトルをカメラの角度だけ回転する
-			Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
-			velocity_ = Mathf::TransformNormal(velocity_, rotateMatrix);
-		}
-		//入力がない場合後ろに下がるようにする
-		else
-		{
-			velocity_ = { 0.0f,0.0f,-1.0f };
-
-			//移動ベクトルをプレイヤーの角度だけ回転する
-			velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
-		}
-	}
-
+	workDash_.backStep = false;
+	workDash_.backStepRotation = 0.0f;
 	audio_->SoundPlayWave(dashAudioHandle_, false, 0.5f);
 
-	////パーティクルの生成
-	//ParticleEmitter* emitter = ParticleEmitterBuilder()
-	//	.SetDeleteTime(10)
-	//	.SetEmitterName("Dash")
-	//	.SetPopArea({ -worldTransform_.scale_.x,worldTransform_.scale_.y,-worldTransform_.scale_.z }, { worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.x })
-	//	.SetPopAzimuth(0.0f, 0.0f)
-	//	.SetPopColor({ 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f })
-	//	.SetPopCount(100)
-	//	.SetPopElevation(0.0f, 0.0f)
-	//	.SetPopFrequency(20.0f)
-	//	.SetPopLifeTime(0.2f, 0.4f)
-	//	.SetPopRotation({0.0f,0.0f,0.0f}, { 0.0f,0.0f,0.0f })
-	//	.SetPopScale({ 0.01f,0.01f,0.8f }, { 0.01f,0.01f,1.2f })
-	//	.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
-	//	.SetTranslation(worldTransform_.translation_)
-	//	.Build();
-	//particleSystem_->AddParticleEmitter(emitter);
+	if (velocity_ != Vector3{ 0.0f,0.0f,0.0f })
+	{
+		//速さ
+		float kSpeed = 1.0f;
+
+		//移動量
+		if (input_->IsControllerConnected())
+		{
+			velocity_ = {
+				input_->GetLeftStickX(),
+				0.0f,
+				input_->GetLeftStickY(),
+			};
+		}
+
+		//移動量に速さを反映
+		velocity_ = Mathf::Normalize(velocity_) * kSpeed;
+
+		//移動ベクトルをカメラの角度だけ回転する
+		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
+		velocity_ = Mathf::TransformNormal(velocity_, rotateMatrix);
+
+		//回転処理
+		Vector3 nVelocity = Mathf::Normalize(velocity_);
+		Vector3 axis = Mathf::Normalize(Mathf::Cross({ 0.0f,1.0f,0.0f }, nVelocity));
+		Quaternion rotationQuaternion = Mathf::MakeRotateAxisAngleQuaternion(axis, 0.2f);
+		destinationQuaternion_ = rotationQuaternion * destinationQuaternion_;
+
+		//パーティクルの生成
+		Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0],worldTransforms[kBody].matWorld_.m[3][1] ,worldTransforms[kBody].matWorld_.m[3][2] };
+		ParticleEmitter* emitter = ParticleEmitterBuilder()
+			.SetDeleteTime(1.0f / 60.0f * 10)
+			.SetEmitterName("Dash")
+			.SetPopArea({ -0.8f,-0.8f,-0.8f }, { 0.8f,0.8f,0.8f })
+			.SetPopAzimuth(0.0f, 0.0f)
+			.SetPopColor({ 1.0f,1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f })
+			.SetPopCount(10)
+			.SetPopElevation(0.0f, 0.0f)
+			.SetPopFrequency(1.0f / 60.0f)
+			.SetPopLifeTime(0.2f, 0.4f)
+			.SetPopQuaternion(worldTransform_.quaternion_)
+			.SetPopScale({ 0.01f,0.01f,0.6f }, { 0.01f,0.01f,0.8f })
+			.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			.SetTranslation(translation)
+			.Build();
+		particleSystem_->AddParticleEmitter(emitter);
+	}
+	else
+	{
+		//バックステップのフラグを立てる
+		workDash_.backStep = true;
+
+		//入力がない場合後ろに下がるようにする
+		velocity_ = { 0.0f,0.2f,-1.0f };
+
+		//移動ベクトルをプレイヤーの角度だけ回転する
+		velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+	}
 }
 
 void Player::BehaviorDashUpdate()
@@ -513,139 +628,131 @@ void Player::BehaviorDashUpdate()
 	//移動
 	worldTransform_.translation_ += velocity_;
 
+	//バックステップしていなかったらパーティクルの位置を更新
+	if (!workDash_.backStep)
+	{
+		Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0],worldTransforms[kBody].matWorld_.m[3][1] ,worldTransforms[kBody].matWorld_.m[3][2] };
+		std::list<ParticleEmitter*> emitters = particleSystem_->GetParticleEmitters("Dash");
+		for (ParticleEmitter* emitter : emitters)
+		{
+			emitter->SetTranslation(translation);
+		}
+	}
+	//バックステップだったらアニメーションを挟む
+	else
+	{
+		BackStepAnimation();
+	}
+
 	//規定の時間経過で通常行動に戻る
 	const float dashTime = 10;
 	if (++workDash_.dashParameter >= dashTime)
 	{
 		behaviorRequest_ = Behavior::kRoot;
-	}
 
-	////エミッターの座標をずらす
-	//if (particleSystem_->GetParticleEmitter("Dash"))
-	//{
-	//	particleSystem_->GetParticleEmitter("Dash")->SetTranslation(worldTransform_.translation_);
-	//}
+		//元の姿勢に戻す
+		if (!workDash_.backStep)
+		{
+			Rotate(velocity_);
+			std::list<ParticleEmitter*> emitters = particleSystem_->GetParticleEmitters("Dash");
+			for (ParticleEmitter* emitter : emitters)
+			{
+				emitter->SetPopCount(0);
+			}
+		}
+	}
+}
+
+void Player::BackStepAnimation()
+{
+	workDash_.backStepRotation += std::numbers::pi_v<float> *2.0f / 10.0f;
+	Vector3 nVelocity = Mathf::Normalize(velocity_);
+	Vector3 axis = Mathf::Normalize(Mathf::Cross({ 0.0f,1.0f,0.0f }, nVelocity));
+	Quaternion rotationQuaternion = Mathf::MakeRotateAxisAngleQuaternion(axis, workDash_.backStepRotation);
+	worldTransform_.quaternion_ = rotationQuaternion * destinationQuaternion_;
 }
 
 void Player::BehaviorJumpInitialize()
 {
-	const float kJumpFirstSpeed = 0.7f;
-	velocity_.x = 0.0f;
+	const float kJumpFirstSpeed = 0.75f;
 	velocity_.y = kJumpFirstSpeed;
-	velocity_.z = 0.0f;
+	isGroundHit_ = false;
 	audio_->SoundPlayWave(jumpAudioHandle_, false, 0.2f);
 }
 
 void Player::BehaviorJumpUpdate()
 {
-	if (input_->IsControllerConnected())
-	{
-		//しきい値
-		const float threshold = 0.7f;
-
-		//移動フラグ
-		bool isMoving = false;
-
-		//移動量
-		Vector3 move = {
-			input_->GetLeftStickX(),
-			0.0f,
-			input_->GetLeftStickY(),
-		};
-
-		//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
-		if (Mathf::Length(move) > threshold)
-		{
-			isMoving = true;
-		}
-
-		//スティックによる入力がある場合
-		if (isMoving)
-		{
-			//速さ
-			const float speed = 0.3f;
-			//const float speed = 0.6f;
-
-			//移動量に速さを反映
-			move = Mathf::Normalize(move) * speed;
-
-			//移動ベクトルをカメラの角度だけ回転する
-			Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
-			move = Mathf::TransformNormal(move, rotateMatrix);
-
-			//移動
-			worldTransform_.translation_ += move;
-
-			//回転
-			Rotate(move);
-		}
-	}
-
-	worldTransform_.translation_ += velocity_;
+	//ジャンプ処理
 	const float kGravityAcceleration = 0.05f;
 	Vector3 accelerationVector = { 0.0f,-kGravityAcceleration,0.0f };
 	velocity_ += accelerationVector;
+	worldTransform_.translation_ += velocity_;
 
-	//攻撃行動に変更
 	if (input_->IsControllerConnected())
 	{
+		//攻撃行動に変更
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{
-			if (!isAirAttack_)
-			{
-				behaviorRequest_ = Behavior::kAirAttack;
-			}
-		}
-	}
-
-	//ダッシュ行動に変更
-	if (input_->IsControllerConnected())
-	{
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
-		{
-			if (workDash_.coolTime == workDash_.dashCoolTime)
-			{
-				behaviorRequest_ = Behavior::kDash;
-			}
+			behaviorRequest_ = Behavior::kAttack;
 		}
 	}
 
 	//通常状態に変更
-	if (worldTransform_.translation_.y <= 1.0f)
+	if (worldTransform_.translation_.y <= 0.0f)
 	{
 		behaviorRequest_ = Behavior::kRoot;
-		worldTransform_.translation_.y = 1.0f;
+		worldTransform_.translation_.y = 0.0f;
 	}
-}
-
-void Player::BehaviorAttackInitialize()
-{
-	//攻撃用の変数を初期化
-	workAttack_.translation = { 0.0f,0.0f,0.0f };
-	workAttack_.rotation = { 0.0f,0.0f,0.0f };
-	workAttack_.attackParameter = 0;
-	workAttack_.comboIndex = 0;
-	workAttack_.inComboPhase = 0;
-	workAttack_.comboNext = false;
 }
 
 //コンボ定数表
-//アニメーション開始座標 //アニメーション開始角度 振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 振りかぶりの移動速度 振りかぶりの回転速度 ための移動速度 ための回転速度,攻撃降りの移動速度 攻撃降りの回転速度
-std::array<Player::ConstAttack, Player::ComboNum> Player::kConstAttacks_ = {
+const std::array<Player::ConstAttack, Player::ComboNum> Player::kConstAttacks_ =
+{
 	{
-		//開始座標             開始角度              振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間  振りかぶりの移動速度  振りかぶりの回転速度  ための移動速度      ための回転速度       攻撃降りの移動速度   攻撃降りの回転速度      
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       5,          16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 2.8f,0.0f,-1.57f}, 0,            0,       5,          16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.4f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,1.57f }, 0,            0,       20,         16,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.75f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },  10,           10,      5,          22,      {0.0f,0.0f,0.0f}, {-0.1f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.56f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 2.345f,0.0f,0.0f}, 0,            0,       8,          10,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.26f,0.0f,0.0f},{0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       40,         10,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.72f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 0.0f,0.0f,0.0f },  0,            0,       20,         60,      {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.4f,0.0f,0.0f},  {0.0f,0.0f,0.0f}},
+		////振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
+		//{15,        10,       15,        0,   0.2f,        0.0f,        0.0f },
+		//{0,         0,        20,        0,   0.0f,        0.0f,        0.15f},
+		//{15,        10,       15,        30,  0.2f,        0.0f,        0.0f },
+
+		////振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
+		//{0,         0,        5,         16,  0.2f,        0.0f,        0.0f },
+		//{0,         0,        5,         16,  0.0f,        0.0f,        0.15f},
+		//{0,         0,        20,        16,  0.2f,        0.0f,        0.0f },
+
+		//振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
+		{5,         0,        5,         16,  0.2f,        0.0f,        0.0f },
+		{0,         0,        5,         16,  0.0f,        0.0f,        0.15f},
+		{5,         0,        25,        16,  0.2f,        0.0f,        0.0f },
+		{10,        10,       5,         22,  0.2f,        0.0f,        0.0f },
 	}
 };
+
+void Player::BehaviorAttackInitialize()
+{
+	//攻撃用の変数の初期化
+	workAttack_.attackParameter = 0;
+	workAttack_.comboIndex = 0;
+	workAttack_.comboNext = false;
+	workAttack_.inComboPhase = 0;
+	workAttack_.inComboPhaseAttackParameter = 0.0f;
+
+	//パーツの初期値を設定
+	worldTransforms[kL_Arm].rotation_.x = 0.0f;
+	worldTransforms[kR_Arm].rotation_.x = 0.0f;
+
+	//速度の設定
+	velocity_ = { 0.0f,0.0f,0.6f };
+	velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+	//武器の初期値を設定
+	Vector3 weaponTranslation = { 0.0f,1.5f,0.0f };
+	Vector3 weaponRotation = { std::numbers::pi_v<float> / 2.0f, 0.0f, std::numbers::pi_v<float> / 2.0f };
+	weapon_->SetTranslation(weaponTranslation);
+	weapon_->SetRotation(weaponRotation);
+
+	//ダメージを設定
+	workAttack_.damage = 8;
+}
 
 void Player::BehaviorAttackUpdate()
 {
@@ -655,299 +762,43 @@ void Player::BehaviorAttackUpdate()
 		if (input_->IsControllerConnected())
 		{
 			//攻撃ボタンをトリガーしたら
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-			{
-				if (!isAttack_)
-				{
-					//コンボ有効
-					workAttack_.comboNext = true;
-					isAttack_ = true;
-				}
-			}
-
-			if (!input_->IsPressButton(XINPUT_GAMEPAD_X))
-			{
-				isAttack_ = false;
-			}
-		}
-	}
-
-	//攻撃の合計時間
-	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
-	//既定の時間経過で通常行動に戻る
-	if (++workAttack_.attackParameter >= totalTime)
-	{
-		//コンボ継続なら次のコンボに進む
-		if (workAttack_.comboNext)
-		{
-			//コンボ継続フラグをリセット
-			workAttack_.comboNext = false;
-			workAttack_.attackParameter = 0;
-			workAttack_.comboIndex++;
-			if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
-			{
-				workAttack_.translation = kConstAttacks_[workAttack_.comboIndex].startPosition;
-				workAttack_.rotation = kConstAttacks_[workAttack_.comboIndex].startRotation;
-			}
-			weapon_->SetIsAttack(false);
-
-			if (input_->IsControllerConnected())
-			{
-				//しきい値
-				const float threshold = 0.7f;
-
-				//移動フラグ
-				bool isRotation = false;
-
-				//移動量
-				Vector3 direction = {
-					input_->GetLeftStickX(),
-					0.0f,
-					input_->GetLeftStickY(),
-				};
-
-				//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
-				if (Mathf::Length(direction) > threshold)
-				{
-					isRotation = true;
-				}
-
-				//スティックによる入力がある場合
-				if (isRotation)
-				{
-					//移動量に速さを反映
-					direction = Mathf::Normalize(direction);
-
-					//移動ベクトルをカメラの角度だけ回転する
-					Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
-					direction = Mathf::TransformNormal(direction, rotateMatrix);
-
-					//回転
-					Rotate(direction);
-				}
-			}
-		}
-		//コンボ継続でないなら攻撃を終了してルートビヘイビアに戻る
-		else
-		{
-			behaviorRequest_ = Behavior::kRoot;
-			workAttack_.comboIndex = 0;
-			weapon_->SetIsAttack(false);
-		}
-	}
-
-	//移動フラグ
-	bool isMove = true;
-
-	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
-
-	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
-
-	//Y軸は必要ないので0にする
-	sub.y = 0.0f;
-
-	//距離を計算
-	float distance = Mathf::Length(sub);
-
-	//閾値
-	float threshold = 16.0f;
-
-	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
-	if (distance < threshold || lockOn_->ExistTarget())
-	{
-		//回転
-		Rotate(sub);
-
-		if (distance < 6.0f)
-		{
-			//アニメーションの移動フラグをfalseにする
-			isMove = false;
-		}
-	}
-
-
-	switch (workAttack_.comboIndex)
-	{
-	case 0:
-		AttackAnimation(isMove);
-		damage_ = 8;
-		break;
-	case 1:
-		AttackAnimation(isMove);
-		damage_ = 8;
-		break;
-	case 2:
-		AttackAnimation(isMove);
-		damage_ = 5;
-		break;
-	case 3:
-		AttackAnimation(isMove);
-		damage_ = 30;
-		break;
-	}
-
-	weapon_->SetTranslation(workAttack_.translation);
-	weapon_->SetRotation(workAttack_.rotation);
-}
-
-void Player::AttackAnimation(bool isMove)
-{
-	//総合時間
-	uint32_t totalTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
-
-	//現在のコンボの情報を取得
-	uint32_t anticipationTime = 0, chargeTime = 0, swingTime = 0, recoveryTime = 0;
-
-	//移動速度
-	velocity_ = kConstAttacks_[workAttack_.comboIndex].velocity;
-	velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
-
-	//配列外参照を防ぐ
-	if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
-	{
-		anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
-		chargeTime = anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime;
-		swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
-		recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
-	}
-
-	//振りかぶりの処理
-	if (workAttack_.attackParameter < anticipationTime)
-	{
-		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].anticipationSpeed;
-		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].anticipationRotateSpeed;
-		if (isMove)
-		{
-			worldTransform_.translation_ += velocity_;
-		}
-	}
-
-	//チャージの処理
-	if (workAttack_.attackParameter >= anticipationTime && workAttack_.attackParameter < chargeTime)
-	{
-		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].chargeSpeed;
-		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].chargeRotateSpeed;
-		if (isMove)
-		{
-			worldTransform_.translation_ += velocity_;
-		}
-	}
-
-	//攻撃振りの処理
-	if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
-	{
-		//移動処理
-		workAttack_.translation += kConstAttacks_[workAttack_.comboIndex].swingSpeed;
-		workAttack_.rotation += kConstAttacks_[workAttack_.comboIndex].swingRotateSpeed;
-		if (isMove)
-		{
-			worldTransform_.translation_ += velocity_;
-		}
-
-		//衝突判定をつける処理
-		uint32_t collisionTime = swingTime - chargeTime;
-		int collisionInterval = collisionTime / 4;
-		if (workAttack_.attackParameter % collisionInterval == 0)
-		{
-			weapon_->SetIsAttack(true);
-			//オーディオ再生
-			if (!isSwishPlayed_)
-			{
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
-				isSwishPlayed_ = true;
-			}
-		}
-		else
-		{
-			weapon_->SetIsAttack(false);
-			isSwishPlayed_ = false;
-		}
-	}
-
-	//硬直時間
-	if (workAttack_.attackParameter >= swingTime && workAttack_.attackParameter < recoveryTime)
-	{
-		weapon_->SetIsAttack(false);
-		isSwishPlayed_ = false;
-	}
-
-	//入力受付時間
-	if (workAttack_.attackParameter >= recoveryTime && workAttack_.attackParameter < totalTime)
-	{
-		if (input_->IsControllerConnected())
-		{
-			//攻撃ボタンをトリガーしたら
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-			{
-				//コンボ有効
-				workAttack_.attackParameter = totalTime;
-			}
-		}
-	}
-}
-
-void Player::BehaviorAirAttackInitialize()
-{
-	//攻撃用の変数を初期化
-	workAttack_.translation = kConstAirAttacks_[0].startPosition;
-	workAttack_.rotation = kConstAirAttacks_[0].startRotation;
-	workAttack_.attackParameter = 0;
-	workAttack_.comboIndex = 0;
-	workAttack_.inComboPhase = 0;
-	workAttack_.comboNext = false;
-	isAirAttack_ = true;
-}
-
-//コンボ定数表
-//アニメーション開始座標 //アニメーション開始角度 振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間 入力受付時間 振りかぶりの移動速度 振りかぶりの回転速度 ための移動速度 ための回転速度,攻撃降りの移動速度 攻撃降りの回転速度
-std::array<Player::ConstAttack, Player::airComboNum> Player::kConstAirAttacks_ = {
-	{
-		//開始座標             開始角度              振りかぶりの時間 ための時間 攻撃振りの時間 硬直時間  振りかぶりの移動速度  振りかぶりの回転速度  ための移動速度      ための回転速度       攻撃降りの移動速度   攻撃降りの回転速度      
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,-0.45f }, 0,            0,       5,          16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.45f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.45f },  0,            0,       5,          16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.45f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },   0,            0,       20,         16,     {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.75f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-		{{ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f },   10,           10,      5,          22,     {0.0f,0.0f,0.0f}, {-0.1f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.56f,0.0f,0.0f}, {0.0f,0.0f,0.0f}},
-		//{{ 0.0f,0.8f,0.0f }, { 2.8f,0.0f,-1.57f }, 17,           0,       5,          20,          {0.0f,0.0f,0.0f}, {-0.36f,0.0f,0.0f},{0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {0.0f,0.0f,0.0f}, {-0.8f,0.0f,0.0f}, {0.0f,0.0f,0.6f}},
-	}
-};
-
-void Player::BehaviorAirAttackUpdate()
-{
-	//コンボ上限に達していない
-	if (workAttack_.comboIndex < airComboNum - 1)
-	{
-		if (input_->IsControllerConnected())
-		{
-			//攻撃ボタンをトリガーしたら
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && !workAttack_.isAttack)
 			{
 				//コンボ有効
 				workAttack_.comboNext = true;
+				workAttack_.isAttack = true;
+			}
+
+			//ボタンを離したときに攻撃フラグをfalseにする
+			if (!input_->IsPressButton(XINPUT_GAMEPAD_X))
+			{
+				workAttack_.isAttack = false;
 			}
 		}
 	}
 
-	//攻撃の合計時間
-	uint32_t totalTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
-	//既定の時間経過で通常行動に戻る
-	if (++workAttack_.attackParameter >= totalTime)
+	//コンボの合計時間
+	uint32_t anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
+	uint32_t chargeTime = kConstAttacks_[workAttack_.comboIndex].chargeTime;
+	uint32_t swingTime = kConstAttacks_[workAttack_.comboIndex].swingTime;
+	uint32_t recoveryTime = kConstAttacks_[workAttack_.comboIndex].recoveryTime;
+	uint32_t totalTime = anticipationTime + chargeTime + swingTime + recoveryTime;
+
+	//規定の時間経過で通常状態に戻る
+	if (++workAttack_.attackParameter > totalTime)
 	{
 		//コンボ継続なら次のコンボに進む
 		if (workAttack_.comboNext)
 		{
 			//コンボ継続フラグをリセット
 			workAttack_.comboNext = false;
-			workAttack_.attackParameter = 0;
+			//攻撃の色々な変数をリセットする
 			workAttack_.comboIndex++;
-			if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
-			{
-				workAttack_.translation = kConstAirAttacks_[workAttack_.comboIndex].startPosition;
-				workAttack_.rotation = kConstAirAttacks_[workAttack_.comboIndex].startRotation;
-			}
-			weapon_->SetIsAttack(false);
+			workAttack_.inComboPhase = 0;
+			workAttack_.attackParameter = 0;
+			workAttack_.inComboPhaseAttackParameter = 0.0f;
 
+			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け付ける
 			if (input_->IsControllerConnected())
 			{
 				//しきい値
@@ -983,15 +834,108 @@ void Player::BehaviorAirAttackUpdate()
 					Rotate(direction);
 				}
 			}
+
+			//各パーツの角度などを次のコンボ用に初期化
+			Vector3 weaponTranslation{};
+			Vector3 weaponRotation{};
+			switch (workAttack_.comboIndex)
+			{
+			case 0:
+				//パーツの初期値を設定
+				worldTransforms[kL_Arm].rotation_.x = 0.0f;
+				worldTransforms[kR_Arm].rotation_.x = 0.0f;
+
+				//速度の設定
+				velocity_ = { 0.0f,0.0f,0.6f };
+				velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+				//武器の初期値を設定
+				weaponRotation = { std::numbers::pi_v<float> / 2.0f, 0.0f, std::numbers::pi_v<float> / 2.0f };
+				weaponTranslation = { 0.0f,1.5f,0.0f };
+				weapon_->SetTranslation(weaponTranslation);
+				weapon_->SetRotation(weaponRotation);
+
+				//ダメージを設定
+				workAttack_.damage = 8;
+
+				break;
+			case 1:
+				//パーツの初期値を設定
+				worldTransforms[kBody].rotation_.y = 0.0f;
+				worldTransforms[kL_Arm].rotation_.x = -std::numbers::pi_v<float>;
+				worldTransforms[kR_Arm].rotation_.x = -std::numbers::pi_v<float>;
+
+				//速度の設定
+				velocity_ = { 0.0f,0.0f,0.6f };
+				velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+				//武器の初期値を設定
+				weaponRotation = { 0.0f, 0.0f, 0.0f };
+				weaponTranslation = { 0.0f,1.5f,0.0f };
+				weapon_->SetTranslation(weaponTranslation);
+				weapon_->SetRotation(weaponRotation);
+
+				//ダメージを設定
+				workAttack_.damage = 8;
+
+				break;
+			case 2:
+				//パーツの初期値を設定
+				worldTransforms[kL_Arm].rotation_.x = 0.0f;
+				worldTransforms[kR_Arm].rotation_.x = 0.0f;
+
+				//速度の設定
+				velocity_ = { 0.0f,0.0f,0.6f };
+				velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+				//武器の初期値を設定
+				weaponRotation = { std::numbers::pi_v<float> / 2.0f, 0.0f, std::numbers::pi_v<float> / 2.0f };
+				weaponTranslation = { 0.0f,1.5f,0.0f };
+				weapon_->SetTranslation(weaponTranslation);
+				weapon_->SetRotation(weaponRotation);
+
+				//ダメージを設定
+				workAttack_.damage = 5;
+
+				break;
+			case 3:
+				//パーツの初期値を設定
+				worldTransforms[kBody].rotation_.y = 0.0f;
+				worldTransforms[kL_Arm].rotation_.x = -std::numbers::pi_v<float> / 2.0f;
+				worldTransforms[kR_Arm].rotation_.x = -std::numbers::pi_v<float> / 2.0f;
+
+				//速度の設定
+				velocity_ = { 0.0f,0.0f,0.0f };
+				velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+				//武器の初期値を設定
+				weaponRotation = { std::numbers::pi_v<float> / 2.0f, 0.0f, 0.0f };
+				weaponTranslation = { 0.0f,1.5f,0.0f };
+				weapon_->SetTranslation(weaponTranslation);
+				weapon_->SetRotation(weaponRotation);
+
+				//ダメージを設定
+				workAttack_.damage = 30;
+
+				break;
+			}
 		}
 		//コンボ継続でないなら攻撃を終了してルートビヘイビアに戻る
 		else
 		{
 			behaviorRequest_ = Behavior::kRoot;
-			weapon_->SetIsAttack(false);
+			worldTransforms[kBody].rotation_ = { 0.0f,0.0f,0.0f };
+			worldTransforms[kL_Arm].rotation_ = { 0.0f,0.0f,0.0f };
+			worldTransforms[kR_Arm].rotation_ = { 0.0f,0.0f,0.0f };
 		}
 	}
 
+	//攻撃アニメーション
+	AttackAnimation();
+}
+
+void Player::AttackAnimation()
+{
 	//移動フラグ
 	bool isMove = true;
 
@@ -1016,137 +960,329 @@ void Player::BehaviorAirAttackUpdate()
 		//回転
 		Rotate(sub);
 
-		if (distance < 6.0f)
-		{
-			//アニメーションの移動フラグをfalseにする
-			isMove = false;
-		}
+		//ボスとの距離が近かったら移動しないようにする
+		isMove = (distance < 6.0f) ? false : true;
 	}
 
+	//各パラメーターの時間
+	uint32_t anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
+	uint32_t chargeTime = kConstAttacks_[workAttack_.comboIndex].chargeTime;
+	uint32_t swingTime = kConstAttacks_[workAttack_.comboIndex].swingTime;
+	uint32_t recoveryTime = kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 
+	//コンボ段階によってモーションを分岐
 	switch (workAttack_.comboIndex)
 	{
+		//攻撃1
 	case 0:
-		AirAttackAnimation(isMove);
-		damage_ = 8;
-		break;
-	case 1:
-		AirAttackAnimation(isMove);
-		damage_ = 8;
-		break;
-	case 2:
-		AirAttackAnimation(isMove);
-		damage_ = 5;
-		break;
-	case 3:
-		AirAttackAnimation(isMove);
-		damage_ = 20;
-		break;
-	}
-
-	weapon_->SetTranslation(workAttack_.translation);
-	weapon_->SetRotation(workAttack_.rotation);
-}
-
-void Player::AirAttackAnimation(bool isMove)
-{
-	//総合時間
-	uint32_t totalTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
-
-	//現在のコンボの情報を取得
-	uint32_t anticipationTime = 0, chargeTime = 0, swingTime = 0, recoveryTime = 0;
-
-	//移動速度
-	velocity_ = kConstAirAttacks_[workAttack_.comboIndex].velocity;
-	velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
-
-	//配列外参照を防ぐ
-	if (workAttack_.comboIndex >= 0 && workAttack_.comboIndex <= ComboNum - 1)
-	{
-		anticipationTime = kConstAirAttacks_[workAttack_.comboIndex].anticipationTime;
-		chargeTime = anticipationTime + kConstAirAttacks_[workAttack_.comboIndex].chargeTime;
-		swingTime = chargeTime + kConstAirAttacks_[workAttack_.comboIndex].swingTime;
-		recoveryTime = swingTime + kConstAirAttacks_[workAttack_.comboIndex].recoveryTime;
-	}
-
-	//振りかぶりの処理
-	if (workAttack_.attackParameter < anticipationTime)
-	{
-		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].anticipationSpeed;
-		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].anticipationRotateSpeed;
-		if (isMove)
-		{
-			worldTransform_.translation_ += velocity_;
-		}
-	}
-
-	//チャージの処理
-	if (workAttack_.attackParameter >= anticipationTime && workAttack_.attackParameter < chargeTime)
-	{
-		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].chargeSpeed;
-		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].chargeRotateSpeed;
-		if (isMove)
-		{
-			worldTransform_.translation_ += velocity_;
-		}
-	}
-
-	//攻撃振りの処理
-	if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
-	{
 		//移動処理
-		workAttack_.translation += kConstAirAttacks_[workAttack_.comboIndex].swingSpeed;
-		workAttack_.rotation += kConstAirAttacks_[workAttack_.comboIndex].swingRotateSpeed;
-		if (isMove)
+		if (workAttack_.inComboPhase != kRecovery && isMove)
 		{
 			worldTransform_.translation_ += velocity_;
 		}
 
-		//衝突判定をつける処理
-		uint32_t collisionTime = swingTime - chargeTime;
-		int collisionInterval = collisionTime / 4;
-		if (workAttack_.attackParameter % collisionInterval == 0)
+		//振りかぶり
+		if (workAttack_.inComboPhase == kAnticipation)
 		{
-			weapon_->SetIsAttack(true);
-			//オーディオ再生
-			if (!isSwishPlayed_)
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)anticipationTime;
+			worldTransforms[kBody].rotation_.y = 0.0f + (-1.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kL_Arm].rotation_.x = 0.0f + (-std::numbers::pi_v<float> / 2.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kR_Arm].rotation_.x = 0.0f + (-std::numbers::pi_v<float> / 2.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = std::numbers::pi_v<float> / 2.0f + (std::numbers::pi_v<float> / 2.0f - 1.0f - std::numbers::pi_v<float> / 2.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
 			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//チャージ
+		if (workAttack_.inComboPhase == kCharge)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)chargeTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//攻撃振り
+		if (workAttack_.inComboPhase == kSwing)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)swingTime;
+			worldTransforms[kBody].rotation_.y = -1.0f + (1.0f - -1.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = (std::numbers::pi_v<float> / 2.0f - 1.0f) + ((std::numbers::pi_v<float> / 2.0f + 1.0f) - (std::numbers::pi_v<float> / 2.0f - 1.0f)) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			//衝突判定をつける処理
+			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
+			{
+				weapon_->SetIsAttack(true);
 				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
-				isSwishPlayed_ = true;
 			}
-		}
-		else
-		{
-			weapon_->SetIsAttack(false);
-			isSwishPlayed_ = false;
-		}
-	}
-
-	//硬直時間
-	if (workAttack_.attackParameter >= swingTime && workAttack_.attackParameter < recoveryTime)
-	{
-		weapon_->SetIsAttack(false);
-		isSwishPlayed_ = false;
-	}
-
-	//入力受付時間
-	if (workAttack_.attackParameter >= recoveryTime && workAttack_.attackParameter < totalTime)
-	{
-		if (input_->IsControllerConnected())
-		{
-			//攻撃ボタンをトリガーしたら
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+			else
 			{
-				//コンボ有効
-				workAttack_.attackParameter = totalTime;
+				weapon_->SetIsAttack(false);
+			}
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+				workAttack_.collisionParameter = 0;
+				weapon_->SetIsAttack(false);
 			}
 		}
+
+		//硬直
+		if (workAttack_.inComboPhase == kRecovery)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)recoveryTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		break;
+		//攻撃2
+	case 1:
+		//移動処理
+		if (workAttack_.inComboPhase != kRecovery && isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+
+		//振りかぶり
+		if (workAttack_.inComboPhase == kAnticipation)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)anticipationTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//チャージ
+		if (workAttack_.inComboPhase == kCharge)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)chargeTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//攻撃振り
+		if (workAttack_.inComboPhase == kSwing)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)swingTime;
+			worldTransforms[kL_Arm].rotation_.x = -std::numbers::pi_v<float> +(0.0f - -std::numbers::pi_v<float>) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kR_Arm].rotation_.x = -std::numbers::pi_v<float> +(0.0f - -std::numbers::pi_v<float>) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = 0.0f + (std::numbers::pi_v<float> -0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			//衝突判定をつける処理
+			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
+			{
+				weapon_->SetIsAttack(true);
+				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+			}
+			else
+			{
+				weapon_->SetIsAttack(false);
+			}
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+				workAttack_.collisionParameter = 0;
+				weapon_->SetIsAttack(false);
+			}
+		}
+
+		//硬直
+		if (workAttack_.inComboPhase == kRecovery)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)recoveryTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		break;
+		//攻撃3
+	case 2:
+		//移動処理
+		if (workAttack_.inComboPhase != kRecovery && isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+
+		//振りかぶり
+		if (workAttack_.inComboPhase == kAnticipation)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)anticipationTime;
+			worldTransforms[kBody].rotation_.y = 0.0f + (-1.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kL_Arm].rotation_.x = 0.0f + (-std::numbers::pi_v<float> / 2.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kR_Arm].rotation_.x = 0.0f + (-std::numbers::pi_v<float> / 2.0f - 0.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = std::numbers::pi_v<float> / 2.0f + (std::numbers::pi_v<float> / 2.0f - 1.0f - std::numbers::pi_v<float> / 2.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//チャージ
+		if (workAttack_.inComboPhase == kCharge)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)chargeTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//攻撃振り
+		if (workAttack_.inComboPhase == kSwing)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)swingTime;
+			worldTransforms[kBody].rotation_.y = -1.0f + (std::numbers::pi_v<float> *8.0f + 1.0f - -1.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = (std::numbers::pi_v<float> / 2.0f - 1.0f) + ((std::numbers::pi_v<float> *6.0f + std::numbers::pi_v<float> / 2.0f + 1.0f) - (std::numbers::pi_v<float> / 2.0f - 1.0f)) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			//衝突判定をつける処理
+			if (++workAttack_.collisionParameter % (swingTime / 4) == 0)
+			{
+				weapon_->SetIsAttack(true);
+				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+			}
+			else
+			{
+				weapon_->SetIsAttack(false);
+			}
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+				workAttack_.collisionParameter = 0;
+				weapon_->SetIsAttack(false);
+			}
+		}
+
+		//硬直
+		if (workAttack_.inComboPhase == kRecovery)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)recoveryTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		break;
+		//攻撃4
+	case 3:
+		//移動処理
+		if (workAttack_.inComboPhase != kRecovery && isMove)
+		{
+			worldTransform_.translation_ += velocity_;
+		}
+
+		//振りかぶり
+		if (workAttack_.inComboPhase == kAnticipation)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)anticipationTime;
+			worldTransforms[kL_Arm].rotation_.x = -std::numbers::pi_v<float> / 2.0f + (-std::numbers::pi_v<float> -1.0f - -std::numbers::pi_v<float> / 2.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kR_Arm].rotation_.x = -std::numbers::pi_v<float> / 2.0f + (-std::numbers::pi_v<float> -1.0f - -std::numbers::pi_v<float> / 2.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = std::numbers::pi_v<float> / 2.0f + (-1.0f - std::numbers::pi_v<float> / 2.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//チャージ
+		if (workAttack_.inComboPhase == kCharge)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)chargeTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		//攻撃振り
+		if (workAttack_.inComboPhase == kSwing)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)swingTime;
+			worldTransforms[kL_Arm].rotation_.x = (-std::numbers::pi_v<float> -1.0f) + (0.0f - (-std::numbers::pi_v<float> -1.0f)) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			worldTransforms[kR_Arm].rotation_.x = (-std::numbers::pi_v<float> -1.0f) + (0.0f - (-std::numbers::pi_v<float> -1.0f)) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			Vector3 weaponRotation = weapon_->GetRotation();
+			weaponRotation.x = -1.0f + (std::numbers::pi_v<float> - -1.0f) * Mathf::EaseInSine(workAttack_.inComboPhaseAttackParameter);
+			weapon_->SetRotation(weaponRotation);
+
+			//衝突判定をつける処理
+			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
+			{
+				weapon_->SetIsAttack(true);
+				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+			}
+			else
+			{
+				weapon_->SetIsAttack(false);
+			}
+
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhase++;
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+				workAttack_.collisionParameter = 0;
+				weapon_->SetIsAttack(false);
+			}
+		}
+
+		//硬直
+		if (workAttack_.inComboPhase == kRecovery)
+		{
+			workAttack_.inComboPhaseAttackParameter += 1.0f / (float)recoveryTime;
+			if (workAttack_.inComboPhaseAttackParameter >= 1.0f)
+			{
+				workAttack_.inComboPhaseAttackParameter = 0.0f;
+			}
+		}
+
+		break;
 	}
 }
 
 void Player::BehaviorKnockBackInitialize()
 {
-
+	worldTransforms[kBody].rotation_ = { 0.0f,0.0f,0.0f };
+	worldTransforms[kL_Arm].rotation_ = { 0.0f,0.0f,0.0f };
+	worldTransforms[kR_Arm].rotation_ = { 0.0f,0.0f,0.0f };
 }
 
 void Player::BehaviorKnockBackUpdate()
@@ -1163,22 +1299,49 @@ void Player::BehaviorKnockBackUpdate()
 	}
 }
 
-void Player::BehaviorRapidApproachInitialize()
+void Player::Move(const float speed)
 {
-	const float kRapidApproachSpeed = 2.0f;
-	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
-	rapidApproachVelocity_ = Mathf::Normalize(targetPosition_ - worldTransform_.translation_) * kRapidApproachSpeed;
-	rapidApproachVelocity_.y = 0.0f;
-}
-
-void Player::BehaviorRapidApproachUpdate()
-{
-	worldTransform_.translation_ += rapidApproachVelocity_;
-	Rotate(rapidApproachVelocity_);
-
-	if (Mathf::Length(targetPosition_ - worldTransform_.translation_) <= 6.0f)
+	if (input_->IsControllerConnected())
 	{
-		behaviorRequest_ = Behavior::kRoot;
+		//しきい値
+		const float threshold = 0.7f;
+
+		//移動フラグ
+		bool isMoving = false;
+
+		//移動量
+		velocity_ = {
+			input_->GetLeftStickX(),
+			0.0f,
+			input_->GetLeftStickY(),
+		};
+
+		//スティックの押し込みが遊び範囲を超えていたら移動フラグをtrueにする
+		if (Mathf::Length(velocity_) > threshold)
+		{
+			isMoving = true;
+		}
+
+		//スティックによる入力がある場合
+		if (isMoving)
+		{
+			//移動量に速さを反映
+			velocity_ = Mathf::Normalize(velocity_) * speed;
+
+			//移動ベクトルをカメラの角度だけ回転する
+			Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
+			velocity_ = Mathf::TransformNormal(velocity_, rotateMatrix);
+
+			//移動
+			worldTransform_.translation_ += velocity_;
+
+			//回転
+			Rotate(velocity_);
+		}
+		else
+		{
+			velocity_ = { 0.0f,0.0f,0.0f };
+		}
 	}
 }
 
@@ -1188,12 +1351,4 @@ void Player::Rotate(const Vector3& v)
 	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
 	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
-}
-
-const uint32_t Player::GetAttackTime() const
-{
-	//総合時間
-	uint32_t attackTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
-
-	return attackTime;
 }

@@ -1,15 +1,12 @@
 #include "LockOn.h"
-#include "Engine/Base/Application.h"
-#include "Engine/Base/TextureManager.h"
-#include "Engine/Math/MathFunction.h"
 
 void LockOn::Initialize()
 {
 	//インスタンスを取得
 	input_ = Input::GetInstance();
-	//テクスチャ読み込み
-	TextureManager::Load("Reticle.png");
+
 	//スプライトの生成
+	TextureManager::Load("Reticle.png");
 	lockOnMark_.reset(Sprite::Create("Reticle.png", { 0.0f,0.0f }));
 	lockOnMark_->SetAnchorPoint({ 0.5f,0.5f });
 }

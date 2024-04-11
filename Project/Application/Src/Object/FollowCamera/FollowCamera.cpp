@@ -1,6 +1,4 @@
 #include "FollowCamera.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Application/Src/Object/LockOn/LockOn.h"
 #include <numbers>
 
@@ -81,7 +79,7 @@ void FollowCamera::Update()
 			{
 				//回転速度
 				const float kRotSpeedX = 0.02f;
-				const float kRotSpeedY = 0.04f;
+				const float kRotSpeedY = 0.06f;
 
 				destinationAngleX_ -= rotation.x * kRotSpeedX;
 				destinationAngleY_ += rotation.y * kRotSpeedY;
@@ -90,7 +88,7 @@ void FollowCamera::Update()
 	}
 
 	//回転限界角度
-	const float kRotateMin = -0.14f;
+	const float kRotateMin = -0.06f;
 	const float kRotateMax = 0.4f;
 	destinationAngleX_ = min(destinationAngleX_, kRotateMax);
 	destinationAngleX_ = max(destinationAngleX_, kRotateMin);
@@ -106,7 +104,7 @@ void FollowCamera::Update()
 void FollowCamera::SetTarget(const WorldTransform* target)
 {
 	target_ = target;
-	FollowCamera::Reset();
+	Reset();
 }
 
 Vector3 FollowCamera::Offset()

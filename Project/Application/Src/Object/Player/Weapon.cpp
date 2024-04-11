@@ -1,8 +1,4 @@
 #include "Weapon.h"
-#include "Engine/Base/TextureManager.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Boss/Boss.h"
 
@@ -18,12 +14,12 @@ void Weapon::Initialize()
 	worldTransformCollision_.Initialize();
 
 	//テクスチャ読み込み
-	TextureManager::Load("Particle.png");
+	TextureManager::Load("DefaultParticle.png");
 	TextureManager::Load("ShockWave.png");
 
-	//パーティクルシステムの初期化
+	//パーティクルの初期化
 	particleSystem_ = ParticleManager::Create("Weapon");
-	particleSystem_->SetTexture("Particle.png");
+	particleSystem_->SetTexture("DefaultParticle.png");
 	shockWaveParticleSystem_ = ParticleManager::Create("ShockWave");
 	shockWaveParticleSystem_->SetTexture("ShockWave.png");
 
@@ -39,12 +35,6 @@ void Weapon::Initialize()
 
 void Weapon::Update()
 {
-	//親子付けされていなかったらする
-	if (worldTransform_.parent_ == nullptr)
-	{
-		worldTransform_.parent_ = playerWorldTransform_;
-	}
-
 	//前のフレームの当たり判定のフラグを取得
 	preOnCollision_ = onCollision_;
 	onCollision_ = false;
@@ -52,12 +42,13 @@ void Weapon::Update()
 
 	//当たり判定の位置を決める
 	Vector3 offset{ 0.0f,0.0f,2.0f };
-	offset = Mathf::TransformNormal(offset, playerWorldTransform_->matWorld_);
-	worldTransformCollision_.translation_ = playerWorldTransform_->translation_;
-	worldTransformCollision_.quaternion_ = playerWorldTransform_->quaternion_;
+	offset = Mathf::TransformNormal(offset, worldTransform_.parent_->matWorld_);
+	worldTransformCollision_.translation_ = worldTransform_.parent_->translation_;
+	worldTransformCollision_.quaternion_ = worldTransform_.parent_->quaternion_;
 	worldTransformCollision_.translation_ += offset;
 
 	//ワールドトランスフォームの更新
+	worldTransform_.UpdateMatrixFromEuler();
 	worldTransformCollision_.UpdateMatrixFromQuaternion();
 
 	//OBBのサイズを変更
@@ -70,8 +61,6 @@ void Weapon::Update()
 		.size{1.0f,1.0f,4.0f}
 	};
 	SetOBB(obbSize);
-
-	worldTransform_.UpdateMatrixFromEuler();
 }
 
 void Weapon::Draw(const Camera& camera)
@@ -98,7 +87,7 @@ void Weapon::OnCollision(Collider* collider)
 
 		//座標を決める
 		Vector3 offset{ 0.0f,0.0f,4.0f };
-		offset = Mathf::TransformNormal(offset, playerWorldTransform_->matWorld_);
+		offset = Mathf::TransformNormal(offset, worldTransform_.parent_->matWorld_);
 		Vector3 translation = GetWorldPosition() + offset;
 
 		//武器のワールド座標を取得
@@ -108,14 +97,14 @@ void Weapon::OnCollision(Collider* collider)
 			worldTransform_.matWorld_.m[3][2],
 		};
 		//ボスのワールド座標を取得
-		Vector3 bossPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+		Vector3 bossPosition = gameObjectManager_->GetGameObject<Boss>("Boss")->GetWorldPosition();
 
 		//差分ベクトルを計算
 		Vector3 velocity = worldPosition - bossPosition;
 		velocity.y = 2.0f;
 		velocity = Mathf::Normalize(velocity);
 
-		//エミッターの生成
+		//火花のパーティクルの生成
 		AccelerationField accelerationField = { { 0.0f,-0.04f,0.0f }, { {-100.0f,-100.0f,-100.0f}, {100.0f,100.0f,100.0f}},true };
 		ParticleEmitter* emitter = ParticleEmitterBuilder()
 			.SetAccelerationField(accelerationField)
@@ -123,7 +112,7 @@ void Weapon::OnCollision(Collider* collider)
 			.SetEmitterName("Hit")
 			.SetPopArea({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
 			.SetPopAzimuth(0.0f, 0.0f)
-			.SetPopColor({ 1.0f,1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f })
+			.SetPopColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
 			.SetPopCount(200)
 			.SetPopElevation(0.0f, 0.0f)
 			.SetPopFrequency(2.0f)
@@ -133,10 +122,9 @@ void Weapon::OnCollision(Collider* collider)
 			.SetPopVelocity({ velocity + Vector3{-0.2f,-0.2f,-0.2f} }, { velocity + Vector3{0.2f,0.2f,0.2f} })
 			.SetTranslation(translation)
 			.Build();
-		//エミッターを追加
 		particleSystem_->AddParticleEmitter(emitter);
 
-
+		//衝撃波のパーティクルの生成
 		ParticleEmitter* shockWaveEmitter = ParticleEmitterBuilder()
 			.SetDeleteTime(1.0f)
 			.SetEmitterName("ShockWave")
@@ -160,11 +148,4 @@ const Vector3 Weapon::GetWorldPosition() const
 	pos.y = worldTransformCollision_.matWorld_.m[3][1];
 	pos.z = worldTransformCollision_.matWorld_.m[3][2];
 	return pos;
-}
-
-void Weapon::UpdateImGui()
-{
-	ImGui::Begin("Weapon");
-	ImGui::DragFloat3("Translation", &worldTransformCollision_.translation_.x);
-	ImGui::End();
 }

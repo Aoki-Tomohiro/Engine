@@ -1,9 +1,5 @@
 #include "BossStateTackle.h"
 #include "Application/Src/Object/Boss/Boss.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Utilities/RandomGenerator.h"
 
 void BossStateTackle::Initialize(Boss* pBoss)
 {
@@ -48,43 +44,7 @@ void BossStateTackle::Initialize(Boss* pBoss)
 
 void BossStateTackle::Update(Boss* pBoss)
 {
-	//シェイク処理
-	if (isShake_)
-	{
-		if (++shakeTimer_ > kShakeTime)
-		{
-			isShake_ = false;
-			shakeTimer_ = 0;
-			worldTransform_.translation_ = originalPosition_;
-		}
-
-		if (shakeTimer_ < 2)
-		{
-			worldTransform_.translation_.x += RandomGenerator::GetRandomFloat(-0.2f, 0.2f);
-			worldTransform_.translation_.z += RandomGenerator::GetRandomFloat(-0.2f, 0.2f);
-		}
-		else if (shakeTimer_ >= 2 && shakeTimer_ < 4)
-		{
-			worldTransform_.translation_.x += RandomGenerator::GetRandomFloat(-0.16f, 0.16f);
-			worldTransform_.translation_.z += RandomGenerator::GetRandomFloat(-0.16f, 0.16f);
-		}
-		else if (shakeTimer_ >= 4 && shakeTimer_ < 6)
-		{
-			worldTransform_.translation_.x += RandomGenerator::GetRandomFloat(-0.12f, 0.12f);
-			worldTransform_.translation_.z += RandomGenerator::GetRandomFloat(-0.12f, 0.12f);
-		}
-		else if (shakeTimer_ >= 6 && shakeTimer_ < 8)
-		{
-			worldTransform_.translation_.x += RandomGenerator::GetRandomFloat(-0.08f, 0.08f);
-			worldTransform_.translation_.z += RandomGenerator::GetRandomFloat(-0.08f, 0.08f);
-		}
-		else if (shakeTimer_ >= 8 && shakeTimer_ < 10)
-		{
-			worldTransform_.translation_.x += RandomGenerator::GetRandomFloat(-0.04f, 0.04f);
-			worldTransform_.translation_.z += RandomGenerator::GetRandomFloat(-0.04f, 0.04f);
-		}
-	}
-
+	//攻撃待機
 	if (!isAttack_)
 	{
 		if (++waitTimer_ > kWaitTime)
@@ -94,28 +54,30 @@ void BossStateTackle::Update(Boss* pBoss)
 		}
 	}
 
-	if (!isRecovery_)
+	//攻撃処理
+	if (isAttack_ && !isRecovery_)
 	{
-		if (isAttack_)
-		{
-			worldTransform_.translation_ = Mathf::Lerp(worldTransform_.translation_, targetPosition_, 0.2f);
+		//目標座標に攻撃
+		worldTransform_.translation_ = Mathf::Lerp(worldTransform_.translation_, targetPosition_, 0.2f);
 
-			const float epsilon = 0.001f;
-			Vector3 abs = {
-				std::abs(worldTransform_.translation_.x - targetPosition_.x),
-				std::abs(worldTransform_.translation_.y - targetPosition_.y),
-				std::abs(worldTransform_.translation_.z - targetPosition_.z),
-			};
-			if (abs.x < epsilon && abs.y < epsilon && abs.z < epsilon)
-			{
-				isRecovery_ = true;
-				pBoss->SetIsAttack(false);
-			}
+		//大体同じ座標になったら攻撃終了
+		const float epsilon = 0.001f;
+		Vector3 abs = {
+			std::abs(worldTransform_.translation_.x - targetPosition_.x),
+			std::abs(worldTransform_.translation_.y - targetPosition_.y),
+			std::abs(worldTransform_.translation_.z - targetPosition_.z),
+		};
+		if (abs.x < epsilon && abs.y < epsilon && abs.z < epsilon)
+		{
+			isRecovery_ = true;
+			pBoss->SetIsAttack(false);
 		}
 	}
 
+	//硬直処理
 	if (isRecovery_)
 	{
+		//硬直状態が終わったら通常状態に戻す
 		if (++recoveryTimer_ > kRecoveryTime)
 		{
 			IBossState* newState = new BossStateNormal();
@@ -135,9 +97,6 @@ void BossStateTackle::Update(Boss* pBoss)
 
 	//警告用のワールドトランスフォームの更新
 	warningWorldTransform_.UpdateMatrixFromQuaternion();
-
-	ImGui::Begin("Tackle");
-	ImGui::End();
 }
 
 void BossStateTackle::Draw(Boss* pBoss, const Camera& camera)
@@ -150,12 +109,5 @@ void BossStateTackle::Draw(Boss* pBoss, const Camera& camera)
 
 void BossStateTackle::OnCollision(Collider* collider)
 {
-	if (collider->GetCollisionAttribute() == kCollisionAttributeWeapon)
-	{
-		if (!isShake_)
-		{
-			isShake_ = true;
-			originalPosition_ = worldTransform_.translation_;
-		}
-	}
+
 }

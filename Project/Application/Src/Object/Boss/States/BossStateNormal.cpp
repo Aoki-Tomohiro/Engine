@@ -1,11 +1,8 @@
 #include "BossStateNormal.h"
-#include "Application/Src/Object/Boss/Boss.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Application/Src/Object/Player/Player.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Application/Src/Object/Boss/Boss.h"
+#include "Application/Src/Object/Player/Player.h"
 
 void BossStateNormal::Initialize(Boss* pBoss)
 {
@@ -85,12 +82,6 @@ void BossStateNormal::Update(Boss* pBoss)
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
 	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
 	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
-
-	ImGui::Begin("Boss");
-	ImGui::DragFloat4("WorldQuaternion", &worldTransform_.quaternion_.x);
-	ImGui::DragFloat4("Quaternion", &destinationQuaternion_.x);
-	ImGui::DragFloat3("Sub", &sub.x);
-	ImGui::End();
 }
 
 void BossStateNormal::Draw(Boss* pBoss, const Camera& camera)
@@ -119,6 +110,6 @@ void BossStateNormal::OnCollision(Collider* collider)
 
 		//ノックバックのタイマーを設定
 		knockBackTimer_ = 0;
-		knockBackTime_ = player->GetAttackTime() - player->GetAttackParameter();
+		knockBackTime_ = player->GetAttackTotalTime() - player->GetAttackParameter();
 	}
 }

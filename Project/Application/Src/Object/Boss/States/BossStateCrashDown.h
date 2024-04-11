@@ -1,11 +1,14 @@
 #pragma once
 #include "IBossState.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/Math/MathFunction.h"
 
 class BossStateCrashDown : public IBossState
 {
 public:
+	//待機時間
 	static const uint32_t kWaitTime = 60;
+	//硬直時間
 	static const uint32_t kRecoveryTime = 60 * 2;
 
 	void Initialize(Boss* pBoss) override;
@@ -19,7 +22,7 @@ public:
 	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 private:
-	//モデル
+	//警告モデル
 	std::unique_ptr<Model> waringModel_ = nullptr;
 
 	//ワールドトランスフォーム

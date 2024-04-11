@@ -1,11 +1,14 @@
 #pragma once
 #include "IBossState.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/Math/MathFunction.h"
 
 class BossStateTackle : public IBossState
 {
 public:
+	//攻撃溜め時間
 	static const uint32_t kWaitTime = 120;
+	//硬直時間
 	static const uint32_t kRecoveryTime = 60 * 2;
 
 	void Initialize(Boss* pBoss) override;
@@ -19,7 +22,7 @@ public:
 	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 private:
-	//モデル
+	//警告用モデル
 	std::unique_ptr<Model> waringModel_ = nullptr;
 
 	//ワールドトランスフォーム
@@ -28,6 +31,9 @@ private:
 
 	//クォータニオン
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
+
+	//目標座標
+	Vector3 targetPosition_{};
 
 	//待機タイマー
 	uint32_t waitTimer_ = 0;
@@ -40,15 +46,5 @@ private:
 
 	//硬直フラグ
 	bool isRecovery_ = false;
-
-	//目標座標
-	Vector3 targetPosition_{};
-
-	//シェイクタイマー
-	static const uint32_t kShakeTime = 10;
-	uint32_t shakeTimer_ = 0;
-	bool isShake_ = false;
-
-	Vector3 originalPosition_{};
 };
 

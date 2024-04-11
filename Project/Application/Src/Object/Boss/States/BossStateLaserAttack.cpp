@@ -1,14 +1,11 @@
 #include "BossStateLaserAttack.h"
 #include "Application/Src/Object/Boss/Boss.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Components/Audio/Audio.h"
+#include <numbers>
 
 void BossStateLaserAttack::Initialize(Boss* pBoss)
 {
 	worldTransform_ = pBoss->GetWorldTransform();
-	destinationQuaternion_ = Quaternion{ 0.0f,0.0f,0.0f,1.0f };
+	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float> / 2.0f);
 
 	//警告モデルの作成
 	waringModel_.reset(ModelManager::CreateFromOBJ("Warning", Opaque));
@@ -19,14 +16,15 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	warningWorldTransform_.Initialize();
 	warningWorldTransform_.translation_ = targetPosition_;
 	warningWorldTransform_.translation_.y = 0.1f;
-	warningWorldTransform_.quaternion_ = destinationQuaternion_;
-	warningWorldTransform_.scale_ = { 2.0f,2.0f,70.0f };
+	warningWorldTransform_.quaternion_ = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+	warningWorldTransform_.scale_ = { 1.5f,1.5f,50.0f };
 
 	//音声データ読み込み
 	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Application/Resources/Sounds/Charge.wav");
 
-	particleSystem_ = ParticleManager::Create("Charge");
-	particleSystem_->SetTexture("Particle.png");
+	//パーティクルの生成
+	chargeParticle_ = ParticleManager::Create("Charge");
+	chargeParticle_->SetTexture("DefaultParticle.png");
 }
 
 void BossStateLaserAttack::Update(Boss* pBoss)
@@ -52,17 +50,18 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 				.SetEmitterName("Charge")
 				.SetGravityField(gravityField)
 				.SetPopArea({ worldTransform_.translation_ - worldTransform_.scale_ * 2.0f }, { worldTransform_.translation_ + worldTransform_.scale_ * 2.0f })
-				.SetPopAzimuth(0.0f,0.0f)
-				.SetPopColor({1.0f,1.0f,1.0f,1.0f},{1.0f,1.0f,1.0f,1.0f})
-				.SetPopCount(100)
-				.SetPopElevation(0.0f,0.0f)
-				.SetPopLifeTime(10.0f,10.0f)
-				.SetPopRotation({0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f})
-				.SetPopScale({0.1f,0.1f,0.1f},{0.1f,0.1f,0.1f})
-				.SetPopVelocity({0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f})
-				.SetTranslation(worldTransform_.translation_)
+				.SetPopAzimuth(0.0f, 0.0f)
+				.SetPopColor({ 1.0f,1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f,1.0f })
+				.SetPopCount(10)
+				.SetPopFrequency(0.01f)
+				.SetPopElevation(0.0f, 0.0f)
+				.SetPopLifeTime(1.0f, 1.0f)
+				.SetPopRotation({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+				.SetPopScale({ 0.1f,0.1f,0.1f }, { 0.2f,0.2f,0.2f })
+				.SetPopVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+				.SetTranslation(translation)
 				.Build();
-			particleSystem_->AddParticleEmitter(emitter);
+			chargeParticle_->AddParticleEmitter(emitter);
 		}
 
 		isCharge_ = true;
@@ -71,19 +70,19 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 		if (!isAttack_)
 		{
 			//音声再生
-			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.2f);
+			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.1f);
 
 			if (++chargeTimer_ > kChargeTime)
 			{
 				//攻撃フラグをtrueにする
 				isAttack_ = true;
 				isCharge_ = false;
-				particleSystem_->GetParticleEmitter("Charge")->SetIsDead();
+				chargeParticle_->GetParticleEmitter("Charge")->SetPopCount(0);
 
 				//レーザーを追加
 				Laser* newLaser = new Laser();
 				newLaser->Initialize();
-				pBoss->AddLaser(newLaser);				
+				pBoss->AddLaser(newLaser);
 			}
 
 			if (chargeTimer_ > kChargeTime - 60)
@@ -134,9 +133,6 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 
 	//警告用のワールドトランスフォームの更新
 	warningWorldTransform_.UpdateMatrixFromQuaternion();
-
-	ImGui::Begin("LaserAttack");
-	ImGui::End();
 }
 
 void BossStateLaserAttack::Draw(Boss* pBoss, const Camera& camera)

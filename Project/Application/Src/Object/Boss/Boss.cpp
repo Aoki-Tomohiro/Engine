@@ -1,7 +1,4 @@
 #include "Boss.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Base/Renderer.h"
-#include "Engine/Base/TextureManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 
@@ -12,48 +9,54 @@ Boss::~Boss()
 
 void Boss::Initialize()
 {
+	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
-	worldTransform_.translation_.y = 3.0f;
 	worldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 
 	//状態の初期化
 	state_ = new BossStateNormal();
 	state_->Initialize(this);
 
-	//テクスチャ読み込み
-	TextureManager::Load("HpBarFrame.png");
+	//体力バーのスプライトの生成
 	TextureManager::Load("HpBar.png");
-
-	//スプライトの生成
 	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 720.0f,32.0f }));
 	spriteHpBar_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
+
+	//体力バーのフレームのスプライトの生成
+	TextureManager::Load("HpBarFrame.png");
 	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 719.0f,31.0f }));
 	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 
 	//衝突属性を設定
+	AABB aabb{
+	.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z},
+	.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
+	SetAABB(aabb);
 	SetCollisionAttribute(kCollisionAttributeEnemy);
 	SetCollisionMask(kCollisionMaskEnemy);
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
-	AABB aabb{
-		.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z},
-		.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
-	SetAABB(aabb);
-
-	//パーティクルシステムの生成
-	particleSystem_ = ParticleManager::Create("Charge");
 }
 
 void Boss::Update()
 {
-	//前のフレームの座標を取得
-	oldPosition_ = worldTransform_.translation_;
+	//プレイヤーの動いたらボスも動き出す
+	if (!isActive_)
+	{
+		if (GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetVelocity() != Vector3{ 0.0f,0.0f,0.0f })
+		{
+			isActive_ = true;
+		}
+	}
 
 	//前のフレームの当たり判定のフラグを取得
 	preOnCollision_ = onCollision_;
 	onCollision_ = false;
 
 	//状態の更新
-	state_->Update(this);
+	if (isActive_)
+	{
+		state_->Update(this);
+	}
 
 	//死亡フラグの立ったミサイルを削除
 	missiles_.remove_if([](std::unique_ptr<Missile>& missile)
@@ -91,10 +94,8 @@ void Boss::Update()
 		laser->Update();
 	}
 
-	//ワールドトランスフォームを取得
-	worldTransform_ = state_->GetWorldTransform();
-
 	//ワールドトランスフォームの更新
+	worldTransform_ = state_->GetWorldTransform();
 	worldTransform_.UpdateMatrixFromQuaternion();
 
 	//HPバーの処理
@@ -104,6 +105,7 @@ void Boss::Update()
 
 void Boss::Draw(const Camera& camera)
 {
+	//モデルの描画
 	model_->Draw(worldTransform_, camera);
 
 	//状態の描画
@@ -126,12 +128,6 @@ void Boss::DrawUI()
 {
 	spriteHpBar_->Draw();
 	spriteHpBarFrame_->Draw();
-}
-
-void Boss::ChangeState(IBossState* newState)
-{
-	delete state_;
-	state_ = newState;
 }
 
 void Boss::OnCollision(Collider* collider)
@@ -160,7 +156,13 @@ const Vector3 Boss::GetWorldPosition() const
 {
 	Vector3 pos{};
 	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1];
+	pos.y = worldTransform_.matWorld_.m[3][1] + 3.0f;
 	pos.z = worldTransform_.matWorld_.m[3][2];
 	return pos;
+}
+
+void Boss::ChangeState(IBossState* newState)
+{
+	delete state_;
+	state_ = newState;
 }

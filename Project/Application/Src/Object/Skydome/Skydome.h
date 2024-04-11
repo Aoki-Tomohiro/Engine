@@ -11,8 +11,5 @@ public:
 	void Draw(const Camera& camera) override;
 
 	void DrawUI() override;
-
-private:
-
 };
 

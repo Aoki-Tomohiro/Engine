@@ -1,11 +1,16 @@
 #pragma once
 #include "IBossState.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Particle/ParticleManager.h"
+#include "Engine/Math/MathFunction.h"
 
 class BossStateLaserAttack : public IBossState
 {
 public:
+	//チャージ時間
 	static const uint32_t kChargeTime = 60 * 5;
+	//硬直時間
 	static const uint32_t kRecoveryTime = 60 * 2;
 
 	void Initialize(Boss* pBoss) override;
@@ -19,7 +24,7 @@ public:
 	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 private:
-	//モデル
+	//警告用モデル
 	std::unique_ptr<Model> waringModel_ = nullptr;
 
 	//ワールドトランスフォーム
@@ -30,32 +35,30 @@ private:
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
 	//目標座標
-	Vector3 targetPosition_ = { 0.0f,3.0f,0.0f };
-
-	//レーザーのタイマー
-	uint32_t chargeTimer_ = 0;
-	uint32_t attackTimer_ = 0;
-
-	//硬直時間
-	uint32_t recoveryTimer_ = 0;
-
-	//レーザー攻撃のフラグ
-	bool isAttack_ = false;
-
-	//硬直しているかのフラグ
-	bool isRecovery_ = false;
+	Vector3 targetPosition_ = { 0.0f,0.0f,0.0f };
 
 	//チャージフラグ
 	bool isCharge_ = false;
 
-	//シェイクタイマー
-	static const uint32_t kShakeTime = 10;
-	uint32_t shakeTimer_ = 0;
+	//チャージタイマー
+	uint32_t chargeTimer_ = 0;
+
+	//攻撃フラグ
+	bool isAttack_ = false;
+
+	//攻撃タイマー
+	uint32_t attackTimer_ = 0;
+
+	//硬直フラグ
+	bool isRecovery_ = false;
+
+	//硬直タイマー
+	uint32_t recoveryTimer_ = 0;
 
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;
 
 	//パーティクル
-	ParticleSystem* particleSystem_ = nullptr;
+	ParticleSystem* chargeParticle_ = nullptr;
 };
 

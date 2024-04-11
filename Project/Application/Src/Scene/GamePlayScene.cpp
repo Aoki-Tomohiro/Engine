@@ -1,7 +1,6 @@
 #include "GamePlayScene.h"
-#include "Engine/Base/TextureManager.h"
 #include "Engine/Framework/Scene/SceneManager.h"
-#include "Engine/Math/MathFunction.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
 void GamePlayScene::Initialize()
@@ -12,30 +11,45 @@ void GamePlayScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	camera_.Initialize();
+	//ゲームオブジェクトをクリア
+	gameObjectManager_ = GameObjectManager::GetInstance();
+	gameObjectManager_->Clear();
 
+	//パーティクルをクリア
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
+
+	//衝突マネージャーの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
 
-	GameObjectManager::GetInstance()->Clear();
+	//カメラの初期化
+	camera_.Initialize();
 
 	//ロックオンの初期化
 	lockOn_ = std::make_unique<LockOn>();
 	lockOn_->Initialize();
 
-	//プレイヤーの生成
-	playerModel_.reset(ModelManager::CreateFromOBJ("Player", Opaque));
-	playerModel_->SetColor({ 0.45f, 0.85f, 0.45f, 1.0f });
-	playerModel_->SetEnableLighting(false);
-	player_ = GameObjectManager::CreateGameObject<Player>();
-	player_->SetTag("Player");
-	player_->SetModel(playerModel_.get());
-	player_->SetCamera(&camera_);
-	player_->SetLockOn(lockOn_.get());
-
 	//追従カメラの生成
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
 	followCamera_->SetLockOn(lockOn_.get());
+
+	//プレイヤーの生成
+	playerModelHead_.reset(ModelManager::CreateFromOBJ("PlayerHead", Opaque));
+	playerModelHead_->SetEnableLighting(false);
+	playerModelBody_.reset(ModelManager::CreateFromOBJ("PlayerBody", Opaque));
+	playerModelBody_->SetEnableLighting(false);
+	playerModelL_Arm_.reset(ModelManager::CreateFromOBJ("PlayerL_arm", Opaque));
+	playerModelL_Arm_->SetEnableLighting(false);
+	playerModelR_Arm_.reset(ModelManager::CreateFromOBJ("PlayerR_arm", Opaque));
+	playerModelR_Arm_->SetEnableLighting(false);
+	std::vector<Model*> playerModels = { playerModelBody_.get(),playerModelHead_.get(),playerModelL_Arm_.get(),playerModelR_Arm_.get() };
+	player_ = GameObjectManager::CreateGameObject<Player>();
+	player_->SetModels(playerModels);
+	player_->SetTag("Player");
+	player_->SetCamera(&camera_);
+	player_->SetLockOn(lockOn_.get());
+	//追従対象にプレイヤーを設定
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
@@ -46,31 +60,30 @@ void GamePlayScene::Initialize()
 	boss_->SetModel(bossModel_.get());
 	boss_->SetTag("Boss");
 
-	//天球の生成
+	//天球の作成
 	skydomeModel_.reset(ModelManager::CreateFromOBJ("Skydome", Opaque));
 	skydomeModel_->SetEnableLighting(false);
 	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
 	skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromOBJ("Cube", Opaque));
-	groundModel_->SetColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+	groundModel_.reset(ModelManager::CreateFromOBJ("Ground", Opaque));
 	groundModel_->SetEnableLighting(false);
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
 	ground_->SetModel(groundModel_.get());
 
-	//スプライトの生成
-	sprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
-	sprite_->SetSize({ 1280.0f,720.0f });
-	sprite_->SetColor(spriteColor_);
+	//トランジションの初期化
+	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	transitionSprite_->SetSize({ 1280.0f,720.0f });
+	transitionSprite_->SetColor(transitionSpriteColor_);
 
-	//UI
+	//ガイドのスプライトの生成
 	TextureManager::Load("Guide.png");
-	UISprite_.reset(Sprite::Create("Guide.png", { 0.0f,0.0f }));
+	guideSprite_.reset(Sprite::Create("Guide.png", { 0.0f,0.0f }));
 
-	//BGM
-	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Application/Resources/Sounds/GamePlay2.wav");
-	Audio::GetInstance()->SoundPlayWave(audioHandle_, true, 0.5f);
+	//BGMの読み込みと再生
+	bgmHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/GamePlay.wav");
+	audio_->SoundPlayWave(bgmHandle_, true, 0.5f);
 }
 
 void GamePlayScene::Finalize()
@@ -80,57 +93,31 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
-	//トランジションの処理
-	if (!isTransitionEnd_)
-	{
-		transitionTimer_ += 1.0f / kTransitionTime;
-		spriteColor_.w = Mathf::Lerp(spriteColor_.w, 0.0f, transitionTimer_);
-		sprite_->SetColor(spriteColor_);
+	//トランジションの更新
+	UpdateTransition();
 
-		if (spriteColor_.w <= 0.0f)
-		{
-			isTransitionEnd_ = true;
-			transitionTimer_ = 0.0f;
-		}
-	}
+	//パーティクルの更新
+	particleManager_->Update();
 
-	if (isTransition_)
-	{
-		transitionTimer_ += 1.0f / kTransitionTime;
-		spriteColor_.w = Mathf::Lerp(spriteColor_.w, 1.0f, transitionTimer_);
-		sprite_->SetColor(spriteColor_);
-
-		if (spriteColor_.w >= 1.0f)
-		{
-			switch (nextScene)
-			{
-			case GameClearScene:
-				sceneManager_->ChangeScene("GameClearScene");
-				Audio::GetInstance()->StopAudio(audioHandle_);
-				break;
-			case GameOverScene:
-				sceneManager_->ChangeScene("GameOverScene");
-				Audio::GetInstance()->StopAudio(audioHandle_);
-				break;
-			}
-		}
-	}
-
-	//カメラシェイクのフラグを立てる
+	//プレイヤーの攻撃がヒットしたか、またはプレイヤーがダメージを受けたとき
 	if (player_->GetWeapon()->GetIsHit() || player_->GetIsHit())
 	{
+		//カメラシェイクのフラグを立てる
 		cameraShakeEnable_ = true;
 
+		//最後の攻撃の時
 		if (player_->GetComboIndex() == 3)
 		{
 			shakeIntensityX = 0.0f;
-			shakeIntensityY = 0.6f;
+			shakeIntensityY = 0.4f;
 		}
+		//プレイヤーがダメージを食らった時
 		else if (player_->GetIsHit())
 		{
 			shakeIntensityX = 0.6f;
 			shakeIntensityY = 0.6f;
 		}
+		//そのほか
 		else
 		{
 			shakeIntensityX = 0.0f;
@@ -138,23 +125,6 @@ void GamePlayScene::Update()
 		}
 	}
 
-	//ヒットストップのフラグを立てる
-	if (!isStop_ && player_->GetWeapon()->GetIsHit())
-	{
-		isStop_ = true;
-		if (player_->GetComboIndex() == 3)
-		{
-			kStopTime = 10;
-		}
-		else
-		{
-			kStopTime = 2;
-		}
-		player_->GetWeapon()->SetIsHit(false);
-	}
-
-	//カメラの処理
-	camera_ = followCamera_->GetCamera();
 	//カメラシェイクの処理
 	if (cameraShakeEnable_)
 	{
@@ -167,16 +137,25 @@ void GamePlayScene::Update()
 		camera_.translation_.x += RandomGenerator::GetRandomFloat(-shakeIntensityX, shakeIntensityX);
 		camera_.translation_.y += RandomGenerator::GetRandomFloat(-shakeIntensityY, shakeIntensityY);
 	}
-	//行列の更新
+
+	//カメラの更新
 	camera_.UpdateMatrix();
 
-	//パーティクルの更新
-	ParticleManager::GetInstance()->Update();
+	//ヒットストップ中じゃないときに武器が当たったら
+	if (!isStop_ && player_->GetWeapon()->GetIsHit())
+	{
+		//ヒットストップのフラグを立てる
+		isStop_ = true;
+		//最後の攻撃の時はヒットストップを長めに
+		stopTime_ = (player_->GetComboIndex() == 3) ? 10 : 2;
+		//ヒットフラグをリセット
+		player_->GetWeapon()->SetIsHit(false);
+	}
 
 	//ヒットストップの処理
 	if (isStop_)
 	{
-		if (++stopTimer_ >= kStopTime)
+		if (++stopTimer_ >= stopTime_)
 		{
 			isStop_ = false;
 			stopTimer_ = 0;
@@ -185,13 +164,14 @@ void GamePlayScene::Update()
 	}
 
 	//ゲームオブジェクトの更新
-	GameObjectManager::GetInstance()->Update();
+	gameObjectManager_->Update();
 
 	//ロックオンの処理
 	lockOn_->Update(boss_, camera_);
 
 	//追従カメラの更新
 	followCamera_->Update();
+	camera_ = followCamera_->GetCamera();
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
@@ -201,7 +181,6 @@ void GamePlayScene::Update()
 	{
 		collisionManager_->SetColliderList(weapon);
 	}
-	collisionManager_->SetColliderList(boss_);
 	for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
 	{
 		collisionManager_->SetColliderList(missile.get());
@@ -210,37 +189,8 @@ void GamePlayScene::Update()
 	{
 		collisionManager_->SetColliderList(laser.get());
 	}
+	collisionManager_->SetColliderList(boss_);
 	collisionManager_->CheckAllCollisions();
-
-	//ゲームクリア処理
-	if (boss_->GetHP() <= 0.0f)
-	{
-		nextScene = GameClearScene;
-		isTransition_ = true;
-	}
-
-	//ゲームオーバー処理
-	if (player_->GetHP() <= 0.0f)
-	{
-		nextScene = GameOverScene;
-		isTransition_ = true;
-	}
-
-	//シーン切り替え
-	if (isTransitionEnd_)
-	{
-		if (input_->IsPushKeyEnter(DIK_F1))
-		{
-			nextScene = GameClearScene;
-			isTransition_ = true;
-		}
-
-		if (input_->IsPushKeyEnter(DIK_F2))
-		{
-			nextScene = GameOverScene;
-			isTransition_ = true;
-		}
-	}
 }
 
 void GamePlayScene::Draw()
@@ -257,8 +207,8 @@ void GamePlayScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
-	//ゲームオブジェクトの描画
-	GameObjectManager::GetInstance()->Draw(camera_);
+	//ゲームオブジェクトのモデル描画
+	gameObjectManager_->Draw(camera_);
 
 	//3Dオブジェクト描画
 	renderer_->Render();
@@ -269,7 +219,7 @@ void GamePlayScene::Draw()
 	renderer_->PreDrawParticles();
 
 	//パーティクルの描画
-	ParticleManager::GetInstance()->Draw(camera_);
+	particleManager_->Draw(camera_);
 
 	//パーティクル描画後処理
 	renderer_->PostDrawParticles();
@@ -282,16 +232,86 @@ void GamePlayScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
-	//ゲームオブジェクトのUIの描画
-	GameObjectManager::GetInstance()->DrawUI();
+	//ゲームオブジェクトのスプライト描画
+	gameObjectManager_->DrawUI();
 
+	//ロックオンの描画
 	lockOn_->Draw();
 
-	UISprite_->Draw();
+	//ガイドのスプライトの描画
+	guideSprite_->Draw();
 
-	sprite_->Draw();
+	//トランジション用のスプライトの描画
+	transitionSprite_->Draw();
 
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();
 #pragma endregion
+}
+
+void GamePlayScene::UpdateTransition()
+{
+	//フェードアウトの処理
+	if (isFadeOut_)
+	{
+		//徐々に透明にする
+		transitionTimer_ += 1.0f / 60.0f;
+		transitionSpriteColor_.w = Mathf::Lerp(transitionSpriteColor_.w, 0.0f, transitionTimer_);
+		transitionSprite_->SetColor(transitionSpriteColor_);
+
+		//完全に透明になったら終了
+		if (transitionSpriteColor_.w <= 0.0f)
+		{
+			isFadeOut_ = false;
+			transitionTimer_ = 0.0f;
+		}
+	}
+
+	//フェードインの処理
+	if (isFadeIn_)
+	{
+		//徐々に暗くする
+		transitionTimer_ += 1.0f / 60.0f;
+		transitionSpriteColor_.w = Mathf::Lerp(transitionSpriteColor_.w, 1.0f, transitionTimer_);
+		transitionSprite_->SetColor(transitionSpriteColor_);
+
+		//完全に暗くなったらシーンを変える
+		if (transitionSpriteColor_.w >= 1.0f)
+		{
+			switch (nextScene_)
+			{
+			case kGameClear:
+				sceneManager_->ChangeScene("GameClearScene");
+				break;
+			case kGameOver:
+				sceneManager_->ChangeScene("GameOverScene");
+				break;
+			}
+			audio_->StopAudio(bgmHandle_);
+		}
+	}
+
+	//トランジションが行われていないときに入力を受け付ける
+	if (!isFadeOut_ && !isFadeIn_)
+	{
+		//ボスの体力が0になったらゲームクリア
+		if (boss_->GetHP() <= 0.0f)
+		{
+			isFadeIn_ = true;
+			nextScene_ = kGameClear;
+		}
+
+		//プレイヤーの体力が0になったらゲームオーバー
+		if (player_->GetHP() <= 0.0f)
+		{
+			isFadeIn_ = true;
+			nextScene_ = kGameOver;
+		}
+
+		//キーボード
+		if (input_->IsPushKeyEnter(DIK_T))
+		{
+			isFadeIn_ = true;
+		}
+	}
 }

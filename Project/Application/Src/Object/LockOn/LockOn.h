@@ -1,38 +1,23 @@
 #pragma once
-#include "Engine/2D/Sprite.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Base/Application.h"
+#include "Engine/Base/TextureManager.h"
+#include "Engine/3D/Camera/Camera.h"
+#include "Engine/2D/Sprite.h"
+#include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Boss/Boss.h"
 
 class LockOn
 {
 public:
-	/// <summary>
-	/// 初期化
-	/// </summary>
 	void Initialize();
 
-	/// <summary>
-	/// 更新
-	/// </summary>
-	/// <param name="boss"></param>
-	/// <param name="camera"></param>
 	void Update(const Boss* boss, const Camera& camera);
 
-	/// <summary>
-	/// 描画
-	/// </summary>
 	void Draw();
 
-	/// <summary>
-	/// ロックオン対象の座標を取得
-	/// </summary>
-	/// <returns></returns>
 	Vector3 GetTargetPosition() const;
 
-	/// <summary>
-	/// ロックオン中かどうか
-	/// </summary>
-	/// <returns></returns>
 	bool ExistTarget() const { return target_ ? true : false; };
 
 private:

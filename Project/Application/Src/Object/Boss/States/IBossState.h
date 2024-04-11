@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/3D/Camera/Camera.h"
 
 class Boss;
@@ -18,7 +19,4 @@ public:
 	virtual void OnCollision(Collider* collider) = 0;
 
 	virtual const WorldTransform& GetWorldTransform() const = 0;
-
-private:
-
 };

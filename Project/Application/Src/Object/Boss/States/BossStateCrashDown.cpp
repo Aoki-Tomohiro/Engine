@@ -1,9 +1,7 @@
 #include "BossStateCrashDown.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Boss/Boss.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
 
 void BossStateCrashDown::Initialize(Boss* pBoss)
 {
@@ -55,8 +53,10 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 
 void BossStateCrashDown::Update(Boss* pBoss)
 {
+	//攻撃待機
 	if (!isAttack_)
 	{
+		//目標の上に移動する
 		worldTransform_.translation_ = Mathf::Lerp(worldTransform_.translation_, targetPosition_, 0.2f);
 
 		const float epsilon = 0.001f;
@@ -65,6 +65,8 @@ void BossStateCrashDown::Update(Boss* pBoss)
 			std::abs(worldTransform_.translation_.y - targetPosition_.y),
 			std::abs(worldTransform_.translation_.z - targetPosition_.z),
 		};
+
+		//大体同じ座標になったら攻撃終了
 		if (abs.x < epsilon && abs.y < epsilon && abs.z < epsilon)
 		{
 			if (++waitTimer_ > kWaitTime)
@@ -75,22 +77,23 @@ void BossStateCrashDown::Update(Boss* pBoss)
 		}
 	}
 
-	if (isAttack_)
+	//攻撃処理
+	if (isAttack_ && !isRecovery_)
 	{
-		if (!isRecovery_)
-		{
-			const float kAttackSpeed = 2.0f;
-			worldTransform_.translation_.y -= kAttackSpeed;
+		//攻撃処理
+		const float kAttackSpeed = 2.0f;
+		worldTransform_.translation_.y -= kAttackSpeed;
 
-			if (worldTransform_.translation_.y <= 3.0f)
-			{
-				worldTransform_.translation_.y = 3.0f;
-				isRecovery_ = true;
-				pBoss->SetIsAttack(false);
-			}
+		//地面についたら攻撃終了
+		if (worldTransform_.translation_.y <= 0.0f)
+		{
+			worldTransform_.translation_.y = 0.0f;
+			isRecovery_ = true;
+			pBoss->SetIsAttack(false);
 		}
 	}
 
+	//硬直処理
 	if (isRecovery_)
 	{
 		if (++recoveryTimer_ > kRecoveryTime)
@@ -115,9 +118,6 @@ void BossStateCrashDown::Update(Boss* pBoss)
 
 	//警告用のワールドトランスフォームの更新
 	warningWorldTransform_.UpdateMatrixFromQuaternion();
-
-	ImGui::Begin("CrashDown");
-	ImGui::End();
 }
 
 void BossStateCrashDown::Draw(Boss* pBoss, const Camera& camera)

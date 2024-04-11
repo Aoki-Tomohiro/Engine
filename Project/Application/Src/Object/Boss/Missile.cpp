@@ -1,15 +1,12 @@
 #include "Missile.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Components/Audio/Audio.h"
 #include "Application/Src/Object/Player/Player.h"
 
 void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 {
 	//モデルの生成
-	model_.reset(ModelManager::CreateFromOBJ("Sphere", Opaque));
-	model_->SetEnableLighting(false);
+	model_.reset(ModelManager::CreateFromOBJ("Cube", Opaque));
+	model_->SetEnableLighting(true);
 
 	//速度の初期化
 	velocity_ = velocity;
@@ -17,7 +14,13 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
+	worldTransform_.scale_ = { 0.6f,0.6f,0.6f };
 
+	AABB aabb = {
+		.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z,},
+		.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z}
+	};
+	SetAABB(aabb);
 	SetCollisionAttribute(kCollisionAttributeMissile);
 	SetCollisionMask(kCollisionMaskMissile);
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
@@ -40,8 +43,8 @@ void Missile::Update()
 	velocity_ = Mathf::Normalize(velocity_);
 
 	//媒介変数の更新
-	if (t_ < 0.1f) {
-		t_ += 1.0f / (60.0f * 10.0f);
+	if (trackingParameter_ < 0.1f) {
+		trackingParameter_ += 1.0f / (60.0f * 10.0f);
 	}
 
 	//追尾タイマーを進める
@@ -50,8 +53,8 @@ void Missile::Update()
 		trackingTimer_++;
 	}
 
-	//プレイヤーとの距離が離れていたら追尾する
-	if (/*distance < 8.0f || */trackingTimer_ >= kTrackingTime)
+	//一定時間追尾するようにする
+	if (trackingTimer_ >= kTrackingTime)
 	{
 		isTrackingComplete_ = true;
 	}
@@ -59,14 +62,22 @@ void Missile::Update()
 	//追捕終了していなかったら
 	if (!isTrackingComplete_)
 	{
-		velocity_ = Mathf::Slerp(velocity_, sub, t_);
+		velocity_ = Mathf::Slerp(velocity_, sub, trackingParameter_);
 	}
 
-	const float kSpeed = 0.8f;
+	//移動処理
+	const float kSpeed = 0.6f;
 	velocity_ *= kSpeed;
 	worldTransform_.translation_ += velocity_;
-	worldTransform_.UpdateMatrixFromQuaternion();
 
+	//回転処理
+	worldTransform_.rotation_.x += 0.2f;
+	worldTransform_.rotation_.y += 0.2f;
+
+	//ワールドトランスフォームの更新
+	worldTransform_.UpdateMatrixFromEuler();
+
+	//フィールド外に出たら死亡フラグを立てる
 	if (worldTransform_.translation_.x <= -100.0f || worldTransform_.translation_.x >= 100.0f || worldTransform_.translation_.y <= 1.0f || worldTransform_.translation_.z <= -100.0f || worldTransform_.translation_.z >= 100.0f)
 	{
 		isDead_ = true;
