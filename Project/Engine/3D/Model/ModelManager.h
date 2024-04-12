@@ -2,6 +2,7 @@
 #include "Model.h"
 #include <filesystem>
 #include <unordered_map>
+#include <variant>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -33,6 +34,8 @@ private:
 
 	Model::Node ReadNode(aiNode* node);
 
+	Model::Animation LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
+
 	//Model::ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
 	//Model::MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
@@ -40,6 +43,6 @@ private:
 private:
 	static ModelManager* instance_;
 
-	std::unordered_map<std::string, Model::ModelData> modelDatas_;
+	std::unordered_map<std::string, std::variant<Model::ModelData, Model::Animation>> modelDatas_;
 };
 

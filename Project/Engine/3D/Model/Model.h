@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 class Model
 {
@@ -42,7 +43,38 @@ public:
 		Node rootNode;
 	};
 
-	void Create(const ModelData& modelData, DrawPass drawPass);
+	//Keyframe構造体
+	template <typename tValue>
+	struct Keyframe{
+		float time;
+		tValue value;
+	};
+	using KeyframeVector3 = Keyframe<Vector3>;
+	using KeyframeQuaternion = Keyframe<Quaternion>;
+
+	//AnimationCurve構造体
+	template <typename tValue>
+	struct AnimationCurve {
+		std::vector<Keyframe<tValue>> keyframes;
+	};
+
+	//NodeAnimation構造体
+	struct NodeAnimation {
+		AnimationCurve<Vector3> translate;
+		AnimationCurve<Quaternion> rotate;
+		AnimationCurve<Vector3> scale;
+	};
+
+	//Animation構造体
+	struct Animation {
+		float duration;//アニメーション全体の尺(単位は秒)
+		//NodeAnimationの集合。Node名でひけるようにしておく
+		std::map<std::string, NodeAnimation> nodeAnimations;
+	};
+
+	void Create(const ModelData& modelData, const Animation& animationData, DrawPass drawPass);
+
+	void Update(WorldTransform& worldTransform);
 
 	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
@@ -91,8 +123,14 @@ private:
 
 	void UpdateMaterailConstBuffer();
 
+	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);
+
+	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
+
 private:
 	ModelData modelData_{};
+
+	Animation animationData_{};
 
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
@@ -121,6 +159,8 @@ private:
 	DrawPass drawPass_ = Opaque;
 
 	const Texture* texture_ = nullptr;
+
+	float animationTime_ = 0.0f;
 
 	friend class ParticleSystem;
 };

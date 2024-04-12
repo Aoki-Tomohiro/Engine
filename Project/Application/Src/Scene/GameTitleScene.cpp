@@ -7,6 +7,12 @@ void GameTitleScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
+
+	camera_.Initialize();
+
+	worldTransform_.Initialize();
+
+	model_.reset(ModelManager::CreateFromModelFile("AnimatedCube.gltf", Opaque));
 }
 
 void GameTitleScene::Finalize()
@@ -16,7 +22,19 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update() 
 {
+	worldTransform_.UpdateMatrixFromEuler();
 
+	camera_.UpdateMatrix();
+
+	model_->Update(worldTransform_);
+
+	ImGui::Begin("GameTitleScene");
+	ImGui::DragFloat3("WorldTransform.translation", &worldTransform_.translation_.x, 0.1f);
+	ImGui::DragFloat3("WorldTransform.rotation", &worldTransform_.rotation_.x, 0.1f);
+	ImGui::DragFloat3("WorldTransform.scale", &worldTransform_.scale_.x, 0.1f);
+	ImGui::DragFloat3("Camera.translation", &camera_.translation_.x, 0.1f);
+	ImGui::DragFloat3("Camera.rotation", &worldTransform_.rotation_.x, 0.1f);
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()
@@ -33,6 +51,8 @@ void GameTitleScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
+	model_->Draw(worldTransform_, camera_);
+
 	//3Dオブジェクト描画
 	renderer_->Render();
 #pragma endregion
