@@ -54,11 +54,12 @@ public:
 	void Initialize();
 
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
-		UINT vertexCount,
+		UINT indexCount,
 		DrawPass drawPass);
 
 	void Render();
@@ -100,11 +101,12 @@ private:
 private:
 	struct SortObject {
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
-		UINT vertexCount;
+		UINT indexCount;
 		DrawPass type;
 	};
 

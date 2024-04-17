@@ -27,6 +27,8 @@ public:
 
 	void SetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& vertexBufferView);
 
+	void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& indexBufferView);
+
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
 
 	void SetConstantBuffer(UINT rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS cbv);
@@ -38,6 +40,8 @@ public:
 	void SetPipelineState(const PipelineState& pipelineState);
 
 	void DrawInstanced(UINT vertexCount, UINT instanceCount);
+
+	void DrawIndexedInstanced(UINT indexCount, UINT instanceCount);
 
 	void Close();
 

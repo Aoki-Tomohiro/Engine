@@ -31,6 +31,9 @@ void Model::Create(const ModelData& modelData, const Animation& animationData, D
 	//頂点バッファの作成
 	CreateVertexBuffer();
 
+	//Indexバッファの作成
+	CreateIndexBuffer();
+
 	//マテリアル用のリソースの作成
 	CreateMaterialConstBuffer();
 }
@@ -104,7 +107,7 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
 	//SortObjectの追加
-	renderer_->AddObject(vertexBufferView_, materialConstBuffer_->GetGpuVirtualAddress(),
+	renderer_->AddObject(vertexBufferView_,indexBufferView_, materialConstBuffer_->GetGpuVirtualAddress(),
 		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
 		texture_->GetSRVHandle(), UINT(modelData_.vertices.size()), drawPass_);
 }
@@ -124,6 +127,20 @@ void Model::CreateVertexBuffer()
 	VertexDataPosUVNormal* vertexData = static_cast<VertexDataPosUVNormal*>(vertexBuffer_->Map());
 	std::memcpy(vertexData, modelData_.vertices.data(), sizeof(VertexDataPosUVNormal) * modelData_.vertices.size());
 	vertexBuffer_->Unmap();
+}
+
+void Model::CreateIndexBuffer()
+{
+	indexBuffer_ = std::make_unique<UploadBuffer>();
+	indexBuffer_->Create(sizeof(uint32_t) * modelData_.indices.size());
+
+	indexBufferView_.BufferLocation = indexBuffer_->GetGpuVirtualAddress();
+	indexBufferView_.SizeInBytes = UINT(sizeof(uint32_t) * modelData_.indices.size());
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	uint32_t* indexData = static_cast<uint32_t*>(indexBuffer_->Map());
+	std::memcpy(indexData, modelData_.indices.data(), sizeof(uint32_t) * modelData_.indices.size());
+	indexBuffer_->Unmap();
 }
 
 void Model::CreateMaterialConstBuffer()
