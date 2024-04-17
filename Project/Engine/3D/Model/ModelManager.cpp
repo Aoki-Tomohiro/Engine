@@ -1,4 +1,5 @@
 #include "ModelManager.h"
+#include "Engine/Math/MathFunction.h"
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -84,6 +85,7 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals());//法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0));//TexcoordがないMeshは今回は非対応
+		modelData.vertices.resize(mesh->mNumVertices);//最初に頂点数分のメモリを確保しておく
 		//ここからMeshの中身(Face)の解析を行っていく
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
 		{
@@ -129,15 +131,13 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 Model::Node ModelManager::ReadNode(aiNode* node)
 {
 	Model::Node result{};
-	aiMatrix4x4 aiLocalMatrix = node->mTransformation;//nodeのlocalMatrixを取得
-	aiLocalMatrix.Transpose();//列ベクトル形式を行ベクトル形式に転置
-	for (uint32_t i = 0; i < 4; i++)
-	{
-		for (uint32_t j = 0; j < 4; j++)
-		{
-			result.localMatrix.m[i][j] = aiLocalMatrix[i][j];
-		}
-	}
+	aiVector3D scale, translate;
+	aiQuaternion rotate;
+	node->mTransformation.Decompose(scale, rotate, translate);//assimpの行列からSRTを抽出する関数を利用
+	result.scale = { scale.x,scale.y,scale.z };//Scaleはそのまま
+	result.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w };//X軸を反転、さらに回転方向が逆なので軸を反転させる
+	result.translate = { -translate.x,translate.y,translate.z };//X軸を反転
+	result.localMatrix = Mathf::MakeAffineMatrix(result.scale, result.rotate, result.translate);
 	result.name = node->mName.C_Str();//Node名を格納
 	result.children.resize(node->mNumChildren);//子供の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)

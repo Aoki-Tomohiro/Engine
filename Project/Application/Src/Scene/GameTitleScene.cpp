@@ -26,6 +26,8 @@ void GameTitleScene::Update()
 
 	camera_.UpdateMatrix();
 
+	model_->ApplyAnimation();
+
 	model_->Update(worldTransform_);
 
 	ImGui::Begin("GameTitleScene");
@@ -33,7 +35,7 @@ void GameTitleScene::Update()
 	ImGui::DragFloat3("WorldTransform.rotation", &worldTransform_.rotation_.x, 0.1f);
 	ImGui::DragFloat3("WorldTransform.scale", &worldTransform_.scale_.x, 0.1f);
 	ImGui::DragFloat3("Camera.translation", &camera_.translation_.x, 0.1f);
-	ImGui::DragFloat3("Camera.rotation", &worldTransform_.rotation_.x, 0.1f);
+	ImGui::DragFloat3("Camera.rotation", &camera_.rotation_.x, 0.1f);
 	ImGui::End();
 }
 

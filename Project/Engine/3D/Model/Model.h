@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <optional>
 
 class Model
 {
@@ -26,6 +27,9 @@ public:
 
 	//ノード構造体
 	struct Node {
+		Vector3 translate{};
+		Quaternion rotate{};
+		Vector3 scale{};
 		Matrix4x4 localMatrix{};
 		std::string name;
 		std::vector<Node> children;
@@ -72,9 +76,31 @@ public:
 		std::map<std::string, NodeAnimation> nodeAnimations;
 	};
 
+	struct Joint
+	{
+		Vector3 translate;//translate
+		Quaternion rotate;//rotate
+		Vector3 scale;//scale
+		Matrix4x4 localMatrix;//localMatrix
+		Matrix4x4 skeletonSpaceMatrix;//SkeletonSpaceでの変換行列
+		std::string name;//名前
+		std::vector<int32_t> children;//子JointのIndexのリスト。いなければ空
+		int32_t index;//自身のIndex
+		std::optional<int32_t> parent;//親JointのIndex。いなければnull
+	};
+
+	struct Skelton
+	{
+		int32_t root;//RootJointのIndex
+		std::map<std::string, int32_t> jointMap;//Joint名とIndexとの辞書
+		std::vector<Joint> joints;//所属しているジョイント
+	};
+
 	void Create(const ModelData& modelData, const Animation& animationData, DrawPass drawPass);
 
 	void Update(WorldTransform& worldTransform);
+
+	void ApplyAnimation();
 
 	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
@@ -127,10 +153,16 @@ private:
 
 	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
 
+	Skelton CreateSkeleton(const Model::Node& rootNode);
+
+	int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Model::Joint>& joints);
+
 private:
 	ModelData modelData_{};
 
 	Animation animationData_{};
+
+	Skelton skeletonData_{};
 
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 

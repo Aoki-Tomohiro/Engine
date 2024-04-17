@@ -11,6 +11,9 @@ void Model::Create(const ModelData& modelData, const Animation& animationData, D
 	//アニメーションデータを設定
 	animationData_ = animationData;
 
+	//スケルトンを作成
+	skeletonData_ = CreateSkeleton(modelData_.rootNode);
+
 	//描画パスを設定
 	drawPass_ = drawPass;
 
@@ -34,14 +37,40 @@ void Model::Create(const ModelData& modelData, const Animation& animationData, D
 
 void Model::Update(WorldTransform& worldTransform)
 {
+	//全てのJointを更新。親が若いので通常ループで処理可能になっている
+	for (Joint& joint : skeletonData_.joints)
+	{
+		joint.localMatrix = Mathf::MakeAffineMatrix(joint.scale, joint.rotate, joint.translate);
+		worldTransform.matWorld_ = joint.localMatrix * worldTransform.matWorld_;
+		//親がいれば親の行列を掛ける
+		if (joint.parent)
+		{
+			joint.skeletonSpaceMatrix = joint.localMatrix * skeletonData_.joints[*joint.parent].skeletonSpaceMatrix;
+		}
+		//親がいないのでlocalMatrixとskeletonSpaceMatrixは一致する
+		else
+		{
+			joint.skeletonSpaceMatrix = joint.localMatrix;
+		}
+	}
+}
+
+void Model::ApplyAnimation()
+{
 	animationTime_ += 1.0f / 60.0f;//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
 	animationTime_ = std::fmod(animationTime_, animationData_.duration);//最後までいったら最初からリピート再生。リピートしなくても別にいい
-	NodeAnimation& rootNodeAnimation = animationData_.nodeAnimations[modelData_.rootNode.name];
-	Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-	Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-	Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-	Matrix4x4 localMatrix = Mathf::MakeAffineMatrix(scale, rotate, translate);
-	worldTransform.matWorld_ = localMatrix * worldTransform.matWorld_;
+	
+	for (Joint& joint : skeletonData_.joints)
+	{
+		//対象のJointのAnimationがあれば、他の適用を行う。下記のif文はc++17から可能になった初期化付きif文
+		if (auto it = animationData_.nodeAnimations.find(joint.name); it != animationData_.nodeAnimations.end())
+		{
+			const NodeAnimation& rootNodeAnimation = (*it).second;
+			joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+			joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+			joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+		}
+	}
 }
 
 void Model::UpdateMaterailConstBuffer()
@@ -159,4 +188,40 @@ Quaternion Model::CalculateValue(const std::vector<KeyframeQuaternion>& keyframe
 		}
 	}
 	return (*keyframes.rbegin()).value;
+}
+
+Model::Skelton Model::CreateSkeleton(const Model::Node& rootNode)
+{
+	Model::Skelton skeleton;
+	skeleton.root = CreateJoint(rootNode, {}, skeleton.joints);
+
+	//名前とindexのマッピングを行いアクセスしやすくする
+	for (const Model::Joint& joint : skeleton.joints)
+	{
+		skeleton.jointMap.emplace(joint.name, joint.index);
+	}
+
+	return skeleton;
+}
+
+int32_t Model::CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Model::Joint>& joints)
+{
+	Model::Joint joint;
+	joint.name = node.name;
+	joint.localMatrix = node.localMatrix;
+	joint.skeletonSpaceMatrix = Mathf::MakeIdentity4x4();
+	joint.translate = node.translate;
+	joint.rotate = node.rotate;
+	joint.scale = node.scale;
+	joint.index = int32_t(joints.size());//現在登録されている数をIndexに
+	joint.parent = parent;
+	joints.push_back(joint);//SkeletonのJoint列に追加
+	for (const Model::Node& child : node.children)
+	{
+		//子Jointを作成し、そのIndexを登録
+		int32_t childIndex = CreateJoint(child, joint.index, joints);
+		joints[joint.index].children.push_back(childIndex);
+	}
+	//自身のIndexを返す
+	return joint.index;
 }
