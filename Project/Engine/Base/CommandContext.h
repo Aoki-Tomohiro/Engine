@@ -27,6 +27,8 @@ public:
 
 	void SetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& vertexBufferView);
 
+	void SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* vertexBufferView);
+
 	void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& indexBufferView);
 
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);

@@ -14,6 +14,9 @@ void Model::Create(const ModelData& modelData, const Animation& animationData, D
 	//スケルトンを作成
 	skeletonData_ = CreateSkeleton(modelData_.rootNode);
 
+	//SkinClusterを作成
+	skinCluster_ = CreateSkinCluster(skeletonData_, modelData_);
+
 	//描画パスを設定
 	drawPass_ = drawPass;
 
@@ -44,7 +47,6 @@ void Model::Update(WorldTransform& worldTransform)
 	for (Joint& joint : skeletonData_.joints)
 	{
 		joint.localMatrix = Mathf::MakeAffineMatrix(joint.scale, joint.rotate, joint.translate);
-		worldTransform.matWorld_ = joint.localMatrix * worldTransform.matWorld_;
 		//親がいれば親の行列を掛ける
 		if (joint.parent)
 		{
@@ -55,6 +57,14 @@ void Model::Update(WorldTransform& worldTransform)
 		{
 			joint.skeletonSpaceMatrix = joint.localMatrix;
 		}
+	}
+
+	//SkeletonSpaceの情報を基に、SkinClusterのMatrixPaletteを更新する
+	for (size_t jointIndex = 0; jointIndex < skeletonData_.joints.size(); ++jointIndex)
+	{
+		assert(jointIndex < skinCluster_.inverseBindPoseMatrices.size());
+		skinCluster_.mappedPalette[jointIndex].skeletonSpaceMatrix = skinCluster_.inverseBindPoseMatrices[jointIndex] * skeletonData_.joints[jointIndex].skeletonSpaceMatrix;
+		skinCluster_.mappedPalette[jointIndex].skeletonSpaceInverseTransposeMatrix = Mathf::Transpose(Mathf::Inverse(skinCluster_.mappedPalette[jointIndex].skeletonSpaceMatrix));
 	}
 }
 
@@ -107,7 +117,7 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
 	//SortObjectの追加
-	renderer_->AddObject(vertexBufferView_,indexBufferView_, materialConstBuffer_->GetGpuVirtualAddress(),
+	renderer_->AddObject(vertexBufferView_, skinCluster_.influenceBufferView, indexBufferView_, materialConstBuffer_->GetGpuVirtualAddress(),
 		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
 		texture_->GetSRVHandle(), UINT(modelData_.vertices.size()), drawPass_);
 }
@@ -207,7 +217,7 @@ Quaternion Model::CalculateValue(const std::vector<KeyframeQuaternion>& keyframe
 	return (*keyframes.rbegin()).value;
 }
 
-Model::Skelton Model::CreateSkeleton(const Model::Node& rootNode)
+Model::Skelton Model::CreateSkeleton(const Node& rootNode)
 {
 	Model::Skelton skeleton;
 	skeleton.root = CreateJoint(rootNode, {}, skeleton.joints);
@@ -221,7 +231,7 @@ Model::Skelton Model::CreateSkeleton(const Model::Node& rootNode)
 	return skeleton;
 }
 
-int32_t Model::CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Model::Joint>& joints)
+int32_t Model::CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints)
 {
 	Model::Joint joint;
 	joint.name = node.name;
@@ -241,4 +251,63 @@ int32_t Model::CreateJoint(const Model::Node& node, const std::optional<int32_t>
 	}
 	//自身のIndexを返す
 	return joint.index;
+}
+
+Model::SkinCluster Model::CreateSkinCluster(const Skelton& skeleton, const ModelData& modelData)
+{
+	//palette用のResourceを確保
+	SkinCluster skinCluster;
+	skinCluster.paletteResource = std::make_unique<StructuredBuffer>();
+	skinCluster.paletteResource->Create(uint32_t(skeleton.joints.size()), sizeof(WellForGPU));
+	WellForGPU* mappedPalette = static_cast<WellForGPU*>(skinCluster.paletteResource->Map());
+	skinCluster.mappedPalette = { mappedPalette,skeleton.joints.size() };//spanを使ってアクセスするようにする
+	skinCluster.paletteResource->Unmap();
+
+	//influence用のResourceを確保。頂点ごとにinfluenced情報を追加できるようにする
+	skinCluster.influenceResource = std::make_unique<UploadBuffer>();
+	skinCluster.influenceResource->Create(sizeof(VertexInfluence) * modelData.vertices.size());
+	VertexInfluence* mappedInfluence = static_cast<VertexInfluence*>(skinCluster.influenceResource->Map());
+	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * modelData.vertices.size());//0埋め。weightを0にしておく。
+	skinCluster.influenceResource->Unmap();
+
+	//Influence用のVBVを作成
+	skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGpuVirtualAddress();
+	skinCluster.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * modelData.vertices.size());
+	skinCluster.influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
+
+	//InverseBindPoseMatrixを格納する場所を作成して、単位行列で埋める
+	skinCluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
+	for (Matrix4x4 inverseBindPoseMatrix : skinCluster.inverseBindPoseMatrices)
+	{
+		inverseBindPoseMatrix = Mathf::MakeIdentity4x4();
+	}
+	//std::generate(skinCluster.inverseBindPoseMatrices.begin(), skinCluster.inverseBindPoseMatrices.end(), Mathf::MakeIdentity4x4());
+
+	//ModelDataを解析してInfluenceを埋める
+	for (const auto& jointWeight : modelData.skinClusterData)//ModelのSkinClusterの情報を解析
+	{
+		auto it = skeleton.jointMap.find(jointWeight.first);//JointWeight,firstはjoint名なので、skeletonに対象となるjointが含まれているか判断
+		if (it == skeleton.jointMap.end())//そんな名前のJointは存在しない。なので次に回す
+		{
+			continue;
+		}
+
+		//(*it).secondにはjointのindexが入っているので、該当のindexのinverseBindPoseMatrixを代入
+		skinCluster.inverseBindPoseMatrices[(*it).second] = jointWeight.second.inverseBindPoseMatrix;
+		for (const auto& vertexWeight : jointWeight.second.vertexWeights)
+		{
+			auto& currentInfluence = skinCluster.mappedInfluence[vertexWeight.vertexIndex];//該当のvertexIndexのinfluence情報を参照しておく
+			for (uint32_t index = 0; index < kNumMaxInfluence; ++index)//空いているところに入れる
+			{
+				if (currentInfluence.weights[index] == 0.0f)//Weight == 0が空いている状態なので、その場所にweightとjointのindexを代入
+				{
+					currentInfluence.weights[index] = vertexWeight.weight;
+					currentInfluence.jointIndices[index] = (*it).second;
+					break;
+				}
+			}
+		}
+	}
+
+	return skinCluster;
 }

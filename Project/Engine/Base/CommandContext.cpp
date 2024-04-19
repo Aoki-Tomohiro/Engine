@@ -80,6 +80,11 @@ void CommandContext::SetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& vertexBuffe
 	commandList_->IASetVertexBuffers(0, 1, &vertexBufferView);
 }
 
+void CommandContext::SetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* vertexBufferView)
+{
+	commandList_->IASetVertexBuffers(startSlot, numViews, vertexBufferView);
+}
+
 void CommandContext::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& indexBufferView)
 {
 	commandList_->IASetIndexBuffer(&indexBufferView);

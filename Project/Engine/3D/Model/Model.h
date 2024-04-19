@@ -1,13 +1,16 @@
 #pragma once
 #include "Engine/Base/Renderer.h"
 #include "Engine/Base/Texture.h"
+#include "Engine/Base/StructuredBuffer.h"
 #include "Engine/3D/Camera/Camera.h"
 #include "WorldTransform.h"
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
 #include <map>
 #include <optional>
+#include <span>
 
 class Model
 {
@@ -40,8 +43,21 @@ public:
 		std::string textureFilePath;
 	};
 
+	struct VertexWeightData
+	{
+		float weight;
+		uint32_t vertexIndex;
+	};
+
+	struct JointWeightData
+	{
+		Matrix4x4 inverseBindPoseMatrix;
+		std::vector<VertexWeightData> vertexWeights;
+	};
+
 	//モデルデータ構造体
 	struct ModelData {
+		std::map<std::string, JointWeightData> skinClusterData;
 		std::vector<VertexDataPosUVNormal> vertices;
 		std::vector<uint32_t> indices;
 		MaterialData material;
@@ -95,6 +111,29 @@ public:
 		int32_t root;//RootJointのIndex
 		std::map<std::string, int32_t> jointMap;//Joint名とIndexとの辞書
 		std::vector<Joint> joints;//所属しているジョイント
+	};
+
+	static const uint32_t kNumMaxInfluence = 4;
+	struct VertexInfluence
+	{
+		std::array<float, kNumMaxInfluence> weights;
+		std::array<int32_t, kNumMaxInfluence> jointIndices;
+	};
+
+	struct WellForGPU
+	{
+		Matrix4x4 skeletonSpaceMatrix;//位置用
+		Matrix4x4 skeletonSpaceInverseTransposeMatrix;//法線用
+	};
+
+	struct SkinCluster
+	{
+		std::vector<Matrix4x4> inverseBindPoseMatrices;
+		std::unique_ptr<UploadBuffer> influenceResource;
+		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+		std::span<VertexInfluence> mappedInfluence;
+		std::unique_ptr<StructuredBuffer> paletteResource;
+		std::span<WellForGPU> mappedPalette;
 	};
 
 	void Create(const ModelData& modelData, const Animation& animationData, DrawPass drawPass);
@@ -156,9 +195,11 @@ private:
 
 	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
 
-	Skelton CreateSkeleton(const Model::Node& rootNode);
+	Skelton CreateSkeleton(const Node& rootNode);
 
-	int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Model::Joint>& joints);
+	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
+
+	SkinCluster CreateSkinCluster(const Skelton& skeleton, const ModelData& modelData);
 
 private:
 	ModelData modelData_{};
@@ -166,6 +207,8 @@ private:
 	Animation animationData_{};
 
 	Skelton skeletonData_{};
+
+	SkinCluster skinCluster_{};
 
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 

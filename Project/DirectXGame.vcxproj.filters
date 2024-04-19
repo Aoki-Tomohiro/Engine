@@ -696,6 +696,7 @@
     <FxCompile Include="Project\Resources\Shaders\VerticalBlur.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\SkinningObject3d.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
