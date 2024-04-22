@@ -42,20 +42,6 @@ public:
 		WAVEFORMATEX fmt;//波形フォーマット
 	};
 
-	////音声データ
-	//struct SoundData {
-	//	//波形フォーマット
-	//	WAVEFORMATEX wfex;
-	//	//バッファの先頭アドレス
-	//	BYTE* pBuffer;
-	//	//バッファのサイズ
-	//	unsigned int bufferSize;
-	//	//名前
-	//	std::string name;
-	//	//オーディオハンドル
-	//	uint32_t audioHandle;
-	//};
-
 	//音声データ
 	struct SoundData {
 		//波形フォーマット
@@ -82,15 +68,13 @@ public:
 
 	void Initialize();
 
-	uint32_t SoundLoadWave(const std::string& filename);
+	uint32_t LoadAudioFile(const std::string& filename);
 
 	void SoundUnload(SoundData* soundData);
 
-	uint32_t SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume);
+	uint32_t PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
 
 	void StopAudio(uint32_t voiceHandle);
-
-	uint32_t LoadAudioFile(const std::string& filename);
 
 private:
 	Audio() = default;
