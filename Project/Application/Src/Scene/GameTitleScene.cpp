@@ -25,13 +25,13 @@ void GameTitleScene::Initialize()
 	camera_.rotation_.x = 0.3f;
 
 	//プレイヤーの生成
-	playerModelHead_.reset(ModelManager::CreateFromOBJ("PlayerHead", Opaque));
+	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
 	playerModelHead_->SetEnableLighting(false);
-	playerModelBody_.reset(ModelManager::CreateFromOBJ("PlayerBody", Opaque));
+	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
 	playerModelBody_->SetEnableLighting(false);
-	playerModelL_Arm_.reset(ModelManager::CreateFromOBJ("PlayerL_arm", Opaque));
+	playerModelL_Arm_.reset(ModelManager::CreateFromModelFile("PlayerL_arm.obj", Opaque));
 	playerModelL_Arm_->SetEnableLighting(false);
-	playerModelR_Arm_.reset(ModelManager::CreateFromOBJ("PlayerR_arm", Opaque));
+	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
 	playerModelR_Arm_->SetEnableLighting(false);
 
 	//ワールドトランスフォームの初期化
@@ -54,7 +54,7 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromOBJ("Boss", Opaque));
+	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.obj", Opaque));
 	bossModel_->SetEnableLighting(false);
 	bossModel_->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
@@ -62,13 +62,13 @@ void GameTitleScene::Initialize()
 	bossWorldTransform_.quaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>);
 
 	//天球の作成
-	skydomeModel_.reset(ModelManager::CreateFromOBJ("Skydome", Opaque));
+	skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
 	skydomeModel_->SetEnableLighting(false);
 	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
 	skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromOBJ("Ground", Opaque));
+	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
 	groundModel_->SetEnableLighting(false);
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
 	ground_->SetModel(groundModel_.get());

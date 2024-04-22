@@ -35,13 +35,13 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
-	playerModelHead_.reset(ModelManager::CreateFromOBJ("PlayerHead", Opaque));
+	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
 	playerModelHead_->SetEnableLighting(false);
-	playerModelBody_.reset(ModelManager::CreateFromOBJ("PlayerBody", Opaque));
+	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
 	playerModelBody_->SetEnableLighting(false);
-	playerModelL_Arm_.reset(ModelManager::CreateFromOBJ("PlayerL_arm", Opaque));
+	playerModelL_Arm_.reset(ModelManager::CreateFromModelFile("PlayerL_arm.obj", Opaque));
 	playerModelL_Arm_->SetEnableLighting(false);
-	playerModelR_Arm_.reset(ModelManager::CreateFromOBJ("PlayerR_arm", Opaque));
+	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
 	playerModelR_Arm_->SetEnableLighting(false);
 	std::vector<Model*> playerModels = { playerModelBody_.get(),playerModelHead_.get(),playerModelL_Arm_.get(),playerModelR_Arm_.get() };
 	player_ = GameObjectManager::CreateGameObject<Player>();
@@ -53,7 +53,7 @@ void GamePlayScene::Initialize()
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromOBJ("Boss", Opaque));
+	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.obj", Opaque));
 	bossModel_->SetEnableLighting(false);
 	bossModel_->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	boss_ = GameObjectManager::CreateGameObject<Boss>();
@@ -61,13 +61,13 @@ void GamePlayScene::Initialize()
 	boss_->SetTag("Boss");
 
 	//天球の作成
-	skydomeModel_.reset(ModelManager::CreateFromOBJ("Skydome", Opaque));
+	skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
 	skydomeModel_->SetEnableLighting(false);
 	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
 	skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromOBJ("Ground", Opaque));
+	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
 	groundModel_->SetEnableLighting(false);
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
 	ground_->SetModel(groundModel_.get());

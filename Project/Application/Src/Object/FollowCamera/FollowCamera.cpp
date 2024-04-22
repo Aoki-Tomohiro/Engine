@@ -90,8 +90,8 @@ void FollowCamera::Update()
 	//回転限界角度
 	const float kRotateMin = -0.06f;
 	const float kRotateMax = 0.4f;
-	destinationAngleX_ = min(destinationAngleX_, kRotateMax);
-	destinationAngleX_ = max(destinationAngleX_, kRotateMin);
+	destinationAngleX_ = std::min<float>(destinationAngleX_, kRotateMax);
+	destinationAngleX_ = std::max<float>(destinationAngleX_, kRotateMin);
 
 	//回転
 	camera_.rotation_.x = Mathf::LerpShortAngle(camera_.rotation_.x, destinationAngleX_, 0.1f);

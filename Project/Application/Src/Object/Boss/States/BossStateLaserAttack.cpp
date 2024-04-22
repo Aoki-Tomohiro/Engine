@@ -8,7 +8,7 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float> / 2.0f);
 
 	//警告モデルの作成
-	waringModel_.reset(ModelManager::CreateFromOBJ("Warning", Opaque));
+	waringModel_.reset(ModelManager::CreateFromModelFile("Warning.obj", Opaque));
 	waringModel_->SetEnableLighting(false);
 	waringModel_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 
@@ -126,10 +126,10 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 	//移動限界座標
 	const float kMoveLimitX = 47;
 	const float kMoveLimitZ = 47;
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
-	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
-	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
+	worldTransform_.translation_.x = std::max<float>(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = std::min<float>(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.z = std::max<float>(worldTransform_.translation_.z, -kMoveLimitZ);
+	worldTransform_.translation_.z = std::min<float>(worldTransform_.translation_.z, +kMoveLimitZ);
 
 	//警告用のワールドトランスフォームの更新
 	warningWorldTransform_.UpdateMatrixFromQuaternion();

@@ -78,10 +78,10 @@ void BossStateNormal::Update(Boss* pBoss)
 	//移動限界座標
 	const float kMoveLimitX = 47;
 	const float kMoveLimitZ = 47;
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
-	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
-	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
+	worldTransform_.translation_.x = std::max<float>(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = std::min<float>(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.z = std::max<float>(worldTransform_.translation_.z, -kMoveLimitZ);
+	worldTransform_.translation_.z = std::min<float>(worldTransform_.translation_.z, +kMoveLimitZ);
 }
 
 void BossStateNormal::Draw(Boss* pBoss, const Camera& camera)

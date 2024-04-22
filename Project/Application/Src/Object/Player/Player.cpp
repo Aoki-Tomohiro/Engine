@@ -35,7 +35,7 @@ void Player::Initialize()
 	audio_ = Audio::GetInstance();
 
 	//武器の生成
-	modelWeapon_.reset(ModelManager::CreateFromOBJ("Weapon", Opaque));
+	modelWeapon_.reset(ModelManager::CreateFromModelFile("Weapon.obj", Opaque));
 	modelWeapon_->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	weapon_->SetModel(modelWeapon_.get());
@@ -53,7 +53,7 @@ void Player::Initialize()
 	damageSprite_->SetSize({ 1280.0f,720.0f });
 
 	//パーティクルシステムの初期化
-	particleModel_.reset(ModelManager::CreateFromOBJ("Cube", Opaque));
+	particleModel_.reset(ModelManager::CreateFromModelFile("Cube.obj", Opaque));
 	particleSystem_ = ParticleManager::Create("Dash");
 	particleSystem_->SetModel(particleModel_.get());
 	particleSystem_->SetIsBillBoard(false);
@@ -144,10 +144,10 @@ void Player::Update()
 	//移動限界座標
 	const float kMoveLimitX = 49;
 	const float kMoveLimitZ = 49;
-	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
-	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
-	worldTransform_.translation_.z = max(worldTransform_.translation_.z, -kMoveLimitZ);
-	worldTransform_.translation_.z = min(worldTransform_.translation_.z, +kMoveLimitZ);
+	worldTransform_.translation_.x = std::max<float>(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = std::min<float>(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.z = std::max<float>(worldTransform_.translation_.z, -kMoveLimitZ);
+	worldTransform_.translation_.z = std::min<float>(worldTransform_.translation_.z, +kMoveLimitZ);
 
 	//ワールドトランスフォームの更新
 	worldTransform_.quaternion_ = Mathf::Slerp(worldTransform_.quaternion_, destinationQuaternion_, 0.4f);
