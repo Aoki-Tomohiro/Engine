@@ -44,6 +44,9 @@
     <ClCompile Include="Engine\3D\Camera\Camera.cpp" />
     <ClCompile Include="Engine\3D\Camera\DebugCamera.cpp" />
     <ClCompile Include="Engine\3D\Lights\LightManager.cpp" />
+    <ClCompile Include="Engine\3D\Model\Animation.cpp" />
+    <ClCompile Include="Engine\3D\Model\Material.cpp" />
+    <ClCompile Include="Engine\3D\Model\Mesh.cpp" />
     <ClCompile Include="Engine\3D\Model\Model.cpp" />
     <ClCompile Include="Engine\3D\Model\ModelManager.cpp" />
     <ClCompile Include="Engine\3D\Model\WorldTransform.cpp" />
@@ -142,6 +145,9 @@
     <ClInclude Include="Engine\3D\Lights\LightManager.h" />
     <ClInclude Include="Engine\3D\Lights\PointLight.h" />
     <ClInclude Include="Engine\3D\Lights\SpotLight.h" />
+    <ClInclude Include="Engine\3D\Model\Animation.h" />
+    <ClInclude Include="Engine\3D\Model\Material.h" />
+    <ClInclude Include="Engine\3D\Model\Mesh.h" />
     <ClInclude Include="Engine\3D\Model\Model.h" />
     <ClInclude Include="Engine\3D\Model\ModelManager.h" />
     <ClInclude Include="Engine\3D\Model\WorldTransform.h" />

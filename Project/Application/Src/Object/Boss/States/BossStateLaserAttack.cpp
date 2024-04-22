@@ -9,8 +9,8 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 
 	//警告モデルの作成
 	waringModel_.reset(ModelManager::CreateFromModelFile("Warning.obj", Opaque));
-	waringModel_->SetEnableLighting(false);
-	waringModel_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+	waringModel_->GetMaterial()->SetEnableLighting(false);
+	waringModel_->GetMaterial()->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 
 	//警告用のワールドトランスフォームの初期化
 	warningWorldTransform_.Initialize();
