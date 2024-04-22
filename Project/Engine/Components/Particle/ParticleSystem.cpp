@@ -7,7 +7,7 @@ void ParticleSystem::Initialize()
 {
 	if (!model_)
 	{
-		defaultModel_.reset(ModelManager::CreateFromOBJ("Plane", Transparent));
+		defaultModel_.reset(ModelManager::CreateFromModelFile("Plane.obj", Transparent));
 	}
 
 	CreateInstancingResource();

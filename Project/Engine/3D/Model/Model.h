@@ -6,9 +6,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-//#include <assimp/Importer.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
 
 class Model
 {
@@ -47,7 +44,7 @@ public:
 
 	void Create(const ModelData& modelData, DrawPass drawPass);
 
-	void Draw(const WorldTransform& worldTransform, const Camera& camera);
+	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
 	const Vector4& GetColor() const { return color_; };
 
