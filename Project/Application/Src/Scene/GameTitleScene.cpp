@@ -7,6 +7,9 @@ void GameTitleScene::Initialize()
 	input_ = Input::GetInstance();
 
 	audio_ = Audio::GetInstance();
+
+	audioHandle_ = audio_->LoadAudioFile("BGM.mp3");
+	audio_->PlayAudio(audioHandle_, false, 0.4f);
 }
 
 void GameTitleScene::Finalize()
