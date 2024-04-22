@@ -36,7 +36,7 @@ void Player::Initialize()
 
 	//武器の生成
 	modelWeapon_.reset(ModelManager::CreateFromModelFile("Weapon.obj", Opaque));
-	modelWeapon_->SetEnableLighting(false);
+	modelWeapon_->GetMaterial()->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	weapon_->SetModel(modelWeapon_.get());
 	weapon_->SetParent(&worldTransform_);
