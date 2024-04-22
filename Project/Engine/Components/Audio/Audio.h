@@ -1,15 +1,24 @@
 #pragma once
 #include <array>
+#include <vector>
 #include <set>
 #include <fstream>
 #include <wrl.h>
 #include <xaudio2.h>
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
 #pragma comment(lib,"xaudio2.lib")
+#pragma comment(lib,"Mf.lib")
+#pragma comment(lib,"mfplat.lib")
+#pragma comment(lib,"Mfreadwrite.lib")
+#pragma comment(lib,"mfuuid.lib")
 
 class Audio {
 private:
 	//エイリアステンプレート
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+	static const std::string kBaseDirectory;
 
 public:
 	//音声データの最大数
@@ -33,14 +42,28 @@ public:
 		WAVEFORMATEX fmt;//波形フォーマット
 	};
 
+	////音声データ
+	//struct SoundData {
+	//	//波形フォーマット
+	//	WAVEFORMATEX wfex;
+	//	//バッファの先頭アドレス
+	//	BYTE* pBuffer;
+	//	//バッファのサイズ
+	//	unsigned int bufferSize;
+	//	//名前
+	//	std::string name;
+	//	//オーディオハンドル
+	//	uint32_t audioHandle;
+	//};
+
 	//音声データ
 	struct SoundData {
 		//波形フォーマット
 		WAVEFORMATEX wfex;
 		//バッファの先頭アドレス
-		BYTE* pBuffer;
+		std::vector<BYTE> pBuffer;
 		//バッファのサイズ
-		unsigned int bufferSize;
+		size_t bufferSize;
 		//名前
 		std::string name;
 		//オーディオハンドル
@@ -59,13 +82,15 @@ public:
 
 	void Initialize();
 
-	uint32_t SoundLoadWave(const char* filename);
+	uint32_t SoundLoadWave(const std::string& filename);
 
 	void SoundUnload(SoundData* soundData);
 
 	uint32_t SoundPlayWave(uint32_t audioHandle, bool loopFlag, float volume);
 
 	void StopAudio(uint32_t voiceHandle);
+
+	uint32_t LoadAudioFile(const std::string& filename);
 
 private:
 	Audio() = default;
