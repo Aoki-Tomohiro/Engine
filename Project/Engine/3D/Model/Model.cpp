@@ -14,7 +14,7 @@ void Model::Create(const ModelData& modelData, DrawPass drawPass)
 
 	//マテリアルの作成
 	material_ = std::make_unique<Material>();
-	material_->Initialize();
+	material_->Initialize(modelData_.material.textureFilePath);
 
 	//描画パスを設定
 	drawPass_ = drawPass;
@@ -25,7 +25,7 @@ void Model::Update()
 	material_->Update();
 }
 
-void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
+void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 {
 	//RootのMatrixを適用
 	worldTransform.matWorld_ *= modelData_.rootNode.localMatrix;

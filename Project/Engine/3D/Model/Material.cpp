@@ -2,11 +2,22 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 
-void Material::Initialize()
+void Material::Initialize(const std::string& textureName)
 {
 	//マテリアル用のリソースの作成
 	materialConstBuffer_ = std::make_unique<UploadBuffer>();
 	materialConstBuffer_->Create(sizeof(ConstBuffDataMaterial));
+
+	//テクスチャを設定
+	if (textureName != "")
+	{
+		TextureManager::Load(textureName);
+		SetTexture(textureName);
+	}
+	else
+	{
+		SetTexture("white.png");
+	}
 
 	//更新
 	Update();
