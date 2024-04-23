@@ -5,7 +5,7 @@ void BossStateMissileAttack::Initialize(Boss* pBoss)
 {
 	worldTransform_ = pBoss->GetWorldTransform();
 	destinationQuaternion_ = worldTransform_.quaternion_;
-	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Application/Resources/Sounds/Fire.wav");
+	audioHandle_ = Audio::GetInstance()->LoadAudioFile("Application/Resources/Sounds/Fire.mp3");
 }
 
 void BossStateMissileAttack::Update(Boss* pBoss)
@@ -42,7 +42,7 @@ void BossStateMissileAttack::Update(Boss* pBoss)
 			pBoss->AddMissile(newMissile2);
 
 			//音声再生
-			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
+			Audio::GetInstance()->PlayAudio(audioHandle_, false, 0.5f);
 		}
 
 		if (fireCount_ >= 3)

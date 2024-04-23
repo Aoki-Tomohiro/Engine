@@ -24,7 +24,7 @@ void Weapon::Initialize()
 	shockWaveParticleSystem_->SetTexture("ShockWave.png");
 
 	//オーディオ読み込み
-	slashAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Slash.wav");
+	slashAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Slash.mp3");
 
 	//衝突属性を設定
 	SetOBB(obbSize);
@@ -85,7 +85,7 @@ void Weapon::OnCollision(Collider* collider)
 			isHit_ = true;
 
 			//オーディオ再生
-			audio_->SoundPlayWave(slashAudioHandle_, false, 0.5f);
+			audio_->PlayAudio(slashAudioHandle_, false, 0.5f);
 
 			//座標を決める
 			Vector3 offset{ 0.0f,0.0f,4.0f };

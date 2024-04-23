@@ -27,7 +27,7 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 	SetCollisionPrimitive(kCollisionPrimitiveAABB);
 
 	//音声データ読み込み
-	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Application/Resources/Sounds/Explosion.wav");
+	audioHandle_ = Audio::GetInstance()->LoadAudioFile("Application/Resources/Sounds/Explosion.mp3");
 }
 
 void Missile::Update()
@@ -85,7 +85,7 @@ void Missile::Update()
 	if (worldTransform_.translation_.x <= -100.0f || worldTransform_.translation_.x >= 100.0f || worldTransform_.translation_.y <= 1.0f || worldTransform_.translation_.z <= -100.0f || worldTransform_.translation_.z >= 100.0f)
 	{
 		isDead_ = true;
-		Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
+		Audio::GetInstance()->PlayAudio(audioHandle_, false, 0.5f);
 	}
 }
 
@@ -113,7 +113,7 @@ void Missile::OnCollision(Collider* collider)
 		if (collider->GetCollisionAttribute() & kCollisionAttributeEnemy)
 		{
 			isDead_ = true;
-			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
+			Audio::GetInstance()->PlayAudio(audioHandle_, false, 0.5f);
 		}
 	}
 	else
@@ -121,7 +121,7 @@ void Missile::OnCollision(Collider* collider)
 		if (collider->GetCollisionAttribute() & kCollisionAttributePlayer)
 		{
 			isDead_ = true;
-			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.5f);
+			Audio::GetInstance()->PlayAudio(audioHandle_, false, 0.5f);
 		}
 	}
 }

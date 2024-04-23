@@ -99,8 +99,8 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 				vertex.normal = { normal.x,normal.y,normal.z };
 				vertex.texcoord = { texcoord.x,texcoord.y };
 				//aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
-				vertex.position.x *= -1.0f;
-				vertex.normal.x *= -1.0f;
+				vertex.position.z *= -1.0f;
+				vertex.normal.z *= -1.0f;
 				modelData.vertices.push_back(vertex);
 			}
 		}

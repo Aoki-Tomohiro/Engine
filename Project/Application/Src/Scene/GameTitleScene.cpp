@@ -85,8 +85,8 @@ void GameTitleScene::Initialize()
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
 
 	//BGMの読み込みと再生
-	bgmHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Title.wav");
-	audio_->SoundPlayWave(bgmHandle_, true, 0.5f);
+	bgmHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Title.mp3");
+	audio_->PlayAudio(bgmHandle_, true, 0.5f);
 }
 
 void GameTitleScene::Finalize()

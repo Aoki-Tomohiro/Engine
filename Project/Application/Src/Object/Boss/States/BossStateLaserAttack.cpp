@@ -20,7 +20,7 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	warningWorldTransform_.scale_ = { 1.5f,1.5f,50.0f };
 
 	//音声データ読み込み
-	audioHandle_ = Audio::GetInstance()->SoundLoadWave("Application/Resources/Sounds/Charge.wav");
+	audioHandle_ = Audio::GetInstance()->LoadAudioFile("Application/Resources/Sounds/Charge.mp3");
 
 	//パーティクルの生成
 	chargeParticle_ = ParticleManager::Create("Charge");
@@ -70,7 +70,7 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 		if (!isAttack_)
 		{
 			//音声再生
-			Audio::GetInstance()->SoundPlayWave(audioHandle_, false, 0.1f);
+			Audio::GetInstance()->PlayAudio(audioHandle_, false, 0.1f);
 
 			if (++chargeTimer_ > kChargeTime)
 			{

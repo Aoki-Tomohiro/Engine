@@ -17,9 +17,9 @@ void Player::Initialize()
 	}
 	worldTransforms[kHead].translation_ = { 0.0f,1.85f,0.0f };
 	worldTransforms[kHead].rotation_ = { 0.0f,0.0f,0.0f };
-	worldTransforms[kL_Arm].translation_ = { 0.7f,1.8f,0.0f };
+	worldTransforms[kL_Arm].translation_ = { -0.7f,1.8f,0.0f };
 	worldTransforms[kL_Arm].rotation_ = { 0.0f,0.0f,0.0f };
-	worldTransforms[kR_Arm].translation_ = { -0.7f,1.8f,0.0f };
+	worldTransforms[kR_Arm].translation_ = { 0.7f,1.8f,0.0f };
 	worldTransforms[kR_Arm].rotation_ = { 0.0f,0.0f,0.0f };
 
 	//親子付け
@@ -59,10 +59,10 @@ void Player::Initialize()
 	particleSystem_->SetIsBillBoard(false);
 
 	//オーディオの読み込み
-	swishAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Swish.wav");
-	damageAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Damage.wav");
-	dashAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Dash.wav");
-	jumpAudioHandle_ = audio_->SoundLoadWave("Application/Resources/Sounds/Jump.wav");
+	swishAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Swish.mp3");
+	damageAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Damage.mp3");
+	dashAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Dash.mp3");
+	jumpAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Jump.mp3");
 
 	//衝突属性を設定
 	SetCollisionAttribute(kCollisionAttributePlayer);
@@ -155,16 +155,16 @@ void Player::Update()
 	for (uint32_t i = 0; i < kCountOfParts; ++i)
 	{
 		worldTransforms[i].UpdateMatrixFromEuler();
-		std::string name;
-		if (i == 0) name = "kBody";
-		if (i == 1) name = "kHead";
-		if (i == 2) name = "kL_Arm";
-		if (i == 3) name = "kR_Arm";
-		ImGui::Begin(name.c_str());
-		ImGui::DragFloat3("Translation", &worldTransforms[i].translation_.x, 0.1f);
-		ImGui::DragFloat3("Scale", &worldTransforms[i].scale_.x, 0.1f);
-		ImGui::DragFloat3("Rotation", &worldTransforms[i].rotation_.x, 0.1f);
-		ImGui::End();
+		//std::string name;
+		//if (i == 0) name = "kBody";
+		//if (i == 1) name = "kHead";
+		//if (i == 2) name = "kL_Arm";
+		//if (i == 3) name = "kR_Arm";
+		//ImGui::Begin(name.c_str());
+		//ImGui::DragFloat3("Translation", &worldTransforms[i].translation_.x, 0.1f);
+		//ImGui::DragFloat3("Scale", &worldTransforms[i].scale_.x, 0.1f);
+		//ImGui::DragFloat3("Rotation", &worldTransforms[i].rotation_.x, 0.1f);
+		//ImGui::End();
 	}
 
 	//無敵時間の処理
@@ -287,7 +287,7 @@ void Player::OnCollision(Collider* collider)
 					workInvincible_.invincibleTimer = 0;
 
 					//SEを再生
-					audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+					audio_->PlayAudio(damageAudioHandle_, false, 0.5f);
 
 					//ダメージスプライトのアルファ値を設定
 					damageSpriteColor_.w = 0.5f;
@@ -320,7 +320,7 @@ void Player::OnCollision(Collider* collider)
 				workInvincible_.invincibleTimer = 0;
 
 				//SEを再生
-				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(damageAudioHandle_, false, 0.5f);
 
 				//ダメージスプライトのアルファ値を設定
 				damageSpriteColor_.w = 0.5f;
@@ -352,7 +352,7 @@ void Player::OnCollision(Collider* collider)
 				workInvincible_.invincibleTimer = 0;
 
 				//SEを再生
-				audio_->SoundPlayWave(damageAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(damageAudioHandle_, false, 0.5f);
 
 				//ダメージスプライトのアルファ値を設定
 				damageSpriteColor_.w = 0.5f;
@@ -629,7 +629,7 @@ void Player::BehaviorDashInitialize()
 	worldTransform_.quaternion_ = destinationQuaternion_;
 	workDash_.backStep = false;
 	workDash_.backStepRotation = 0.0f;
-	audio_->SoundPlayWave(dashAudioHandle_, false, 0.5f);
+	audio_->PlayAudio(dashAudioHandle_, false, 0.5f);
 
 	if (velocity_ != Vector3{ 0.0f,0.0f,0.0f })
 	{
@@ -754,7 +754,7 @@ void Player::BehaviorJumpInitialize()
 	const float kJumpFirstSpeed = 0.75f;
 	velocity_.y = kJumpFirstSpeed;
 	isGroundHit_ = false;
-	audio_->SoundPlayWave(jumpAudioHandle_, false, 0.2f);
+	audio_->PlayAudio(jumpAudioHandle_, false, 0.2f);
 }
 
 void Player::BehaviorJumpUpdate()
@@ -1157,7 +1157,7 @@ void Player::AttackAnimation()
 				if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 				{
 					weapon_->SetIsAttack(true);
-					audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+					audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 				}
 				else
 				{
@@ -1233,7 +1233,7 @@ void Player::AttackAnimation()
 				if (++workAttack_.collisionParameter % (swingTime / 4) == 0)
 				{
 					weapon_->SetIsAttack(true);
-					audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+					audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 				}
 				else
 				{
@@ -1306,7 +1306,7 @@ void Player::AttackAnimation()
 			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -1383,7 +1383,7 @@ void Player::AttackAnimation()
 			if (++workAttack_.collisionParameter % (swingTime / 4) == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -1460,7 +1460,7 @@ void Player::AttackAnimation()
 			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -1807,7 +1807,7 @@ void Player::AirAttackAnimation()
 			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -1878,7 +1878,7 @@ void Player::AirAttackAnimation()
 			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -1955,7 +1955,7 @@ void Player::AirAttackAnimation()
 			if (++workAttack_.collisionParameter % (swingTime / 4) == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
@@ -2032,7 +2032,7 @@ void Player::AirAttackAnimation()
 			if (++workAttack_.collisionParameter % swingTime - 1 == 0)
 			{
 				weapon_->SetIsAttack(true);
-				audio_->SoundPlayWave(swishAudioHandle_, false, 0.5f);
+				audio_->PlayAudio(swishAudioHandle_, false, 0.5f);
 			}
 			else
 			{
