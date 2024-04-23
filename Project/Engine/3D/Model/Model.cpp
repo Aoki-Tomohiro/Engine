@@ -3,7 +3,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 
-void Model::Create(const ModelData& modelData, DrawPass drawPass)
+void Model::Create(const ModelData& modelData, const Animation::AnimationData& animationData, DrawPass drawPass)
 {
 	//モデルデータを設定
 	modelData_ = modelData;
@@ -16,13 +16,20 @@ void Model::Create(const ModelData& modelData, DrawPass drawPass)
 	material_ = std::make_unique<Material>();
 	material_->Initialize(modelData_.material.textureFilePath);
 
+	//アニメーションの作成
+	animation_ = std::make_unique<Animation>();
+	animation_->Initialize(animationData);
+
 	//描画パスを設定
 	drawPass_ = drawPass;
 }
 
-void Model::Update()
+void Model::Update(WorldTransform& worldTransform)
 {
-	material_->Update();
+	//アニメーションの適用
+	animation_->Update(modelData_.rootNode.name);
+	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
+	worldTransform.TransferMatrix();
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
@@ -30,6 +37,9 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	//RootのMatrixを適用
 	worldTransform.matWorld_ *= modelData_.rootNode.localMatrix;
 	worldTransform.TransferMatrix();
+
+	//マテリアルの更新
+	material_->Update();
 
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
