@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include <variant>
 #include <filesystem>
 #include <unordered_map>
 #include <assimp/Importer.hpp>
@@ -33,6 +34,8 @@ private:
 
 	Model::Node ReadNode(aiNode* node);
 
+	Animation::AnimationData LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
+
 	//Model::ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
 	//Model::MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
@@ -40,6 +43,6 @@ private:
 private:
 	static ModelManager* instance_;
 
-	std::unordered_map<std::string, Model::ModelData> modelDatas_;
+	std::unordered_map<std::string, std::variant<Model::ModelData, Animation::AnimationData>> modelDatas_;
 };
 

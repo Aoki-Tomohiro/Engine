@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh.h"
 #include "Material.h"
+#include "Animation.h"
 #include "WorldTransform.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/3D/Camera/Camera.h"
@@ -27,9 +28,9 @@ public:
 		Node rootNode;
 	};
 
-	void Create(const ModelData& modelData, DrawPass drawPass);
+	void Create(const ModelData& modelData, const Animation::AnimationData& animationData, DrawPass drawPass);
 
-	void Update();
+	void Update(WorldTransform& worldTransform);
 
 	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
@@ -37,12 +38,16 @@ public:
 
 	Material* GetMaterial() { return material_.get(); };
 
+	Animation* GetAnimation() { return animation_.get(); };
+
 private:
 	ModelData modelData_{};
 
 	std::unique_ptr<Mesh> mesh_ = nullptr;
 
 	std::unique_ptr<Material> material_ = nullptr;
+
+	std::unique_ptr<Animation> animation_ = nullptr;
 
 	DrawPass drawPass_ = Opaque;
 

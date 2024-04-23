@@ -37,26 +37,32 @@ Model* ModelManager::CreateFromModelFile(const std::string& modelName, DrawPass 
 	return model;
 }
 
-Model* ModelManager::CreateInternal(const std::string& modelName,DrawPass drawPass)
+Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawPass)
 {
 	auto it = modelDatas_.find(modelName);
 
 	if (it != modelDatas_.end())
 	{
 		Model* model = new Model();
-		model->Create(it->second, drawPass);
+		model->Create(std::get<Model::ModelData>(it->second), std::get<Animation::AnimationData>(it->second), drawPass);
 		return model;
 	}
 
-	//モデルデータの読み込み
+	//ファイルパスを設定
 	size_t extensionIndex = modelName.find_last_of('.');
 	std::string directoryPath = kBaseDirectory + "/" + modelName.substr(0, extensionIndex);
+
+	//モデルデータの読み込み
 	Model::ModelData modelData = LoadModelFile(directoryPath, modelName);
 	modelDatas_[modelName] = modelData;
 
+	//アニメーションの読み込み
+	Animation::AnimationData animationData = LoadAnimationFile(directoryPath, modelName);
+	modelDatas_[modelName] = animationData;
+
 	//モデルの生成
 	Model* model = new Model();
-	model->Create(modelData, drawPass);
+	model->Create(modelData, animationData, drawPass);
 
 	return model;
 }
@@ -144,6 +150,54 @@ Model::Node ModelManager::ReadNode(aiNode* node)
 		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
 	}
 	return result;
+}
+
+Animation::AnimationData ModelManager::LoadAnimationFile(const std::string& directoryPath, const std::string& filename)
+{
+	Animation::AnimationData animation{};//今回作るアニメーション
+	Assimp::Importer importer;
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
+	//assert(scene->mAnimations != 0);//アニメーションがない
+	if (scene->mAnimations == 0) return animation;
+	aiAnimation* animationAssimp = scene->mAnimations[0];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない
+	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間の単位を秒に変換
+	//assimpでは個々のNodeのAnimationをchannelと読んでいるのでchannelを回してNodeAnimationの情報を取ってくる
+	for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex)
+	{
+		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+		Animation::NodeAnimation& nodeAnimation = animation.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+		//Translate
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex)
+		{
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+			Animation::KeyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);//ここも秒に変換
+			keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };//右手->左手
+			nodeAnimation.translate.keyframes.push_back(keyframe);
+		}
+		//Rotate
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex)
+		{
+			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+			Animation::KeyframeQuaternion keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			keyframe.value = { keyAssimp.mValue.x,-keyAssimp.mValue.y,-keyAssimp.mValue.z,keyAssimp.mValue.w };
+			nodeAnimation.rotate.keyframes.push_back(keyframe);
+		}
+		//Scale
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex)
+		{
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+			Animation::KeyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
+			nodeAnimation.scale.keyframes.push_back(keyframe);
+		}
+	}
+
+	//解析完了
+	return animation;
 }
 
 //Model::ModelData ModelManager::LoadObjFile(const std::string& directoryPath, const std::string& filename)

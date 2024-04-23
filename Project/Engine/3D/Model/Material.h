@@ -9,6 +9,12 @@
 class Material
 {
 public:
+	//マテリアルデータ構造体
+	struct MaterialData 
+	{
+		std::string textureFilePath;
+	};
+
 	enum DiffuseReflectionType
 	{
 		LambertianReflectance,
