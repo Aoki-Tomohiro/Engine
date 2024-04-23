@@ -19,7 +19,7 @@ void GameClearScene::Initialize()
 
 	//天球の作成
 	skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
-	skydomeModel_->SetEnableLighting(false);
+	skydomeModel_->GetMaterial()->SetEnableLighting(false);
 	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
 	skydome_->SetModel(skydomeModel_.get());
 

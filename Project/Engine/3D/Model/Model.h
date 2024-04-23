@@ -31,7 +31,7 @@ public:
 
 	void Update();
 
-	void Draw(const WorldTransform& worldTransform, const Camera& camera);
+	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
 	Mesh* GetMesh() { return mesh_.get(); };
 

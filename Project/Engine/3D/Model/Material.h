@@ -22,7 +22,7 @@ public:
 		NoSpecularReflection,
 	};
 
-	void Initialize();
+	void Initialize(const std::string& textureName);
 
 	void Update();
 
