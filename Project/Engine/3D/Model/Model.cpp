@@ -29,7 +29,6 @@ void Model::Update(WorldTransform& worldTransform)
 	//アニメーションの適用
 	animation_->Update(modelData_.rootNode.name);
 	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
-	worldTransform.TransferMatrix();
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
