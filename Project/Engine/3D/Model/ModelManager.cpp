@@ -159,7 +159,8 @@ Animation::AnimationData ModelManager::LoadAnimationFile(const std::string& dire
 	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
 	//assert(scene->mAnimations != 0);//アニメーションがない
-	if (scene->mAnimations == 0) return animation;
+	if (scene->mAnimations == 0) return animation;//アニメーションがない
+	animation.containsAnimation = true;
 	aiAnimation* animationAssimp = scene->mAnimations[0];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない
 	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間の単位を秒に変換
 	//assimpでは個々のNodeのAnimationをchannelと読んでいるのでchannelを回してNodeAnimationの情報を取ってくる
