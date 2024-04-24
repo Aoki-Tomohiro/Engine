@@ -34,7 +34,7 @@ void Model::Update(WorldTransform& worldTransform)
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 {
 	//RootのMatrixを適用
-	worldTransform.matWorld_ *= modelData_.rootNode.localMatrix;
+	worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
 	worldTransform.TransferMatrix();
 
 	//マテリアルの更新
