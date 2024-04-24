@@ -44,7 +44,9 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 	if (it != modelDatas_.end())
 	{
 		Model* model = new Model();
-		model->Create(std::get<Model::ModelData>(it->second), std::get<Animation::AnimationData>(it->second), drawPass);
+		Model::ModelData modelData = std::get<Model::ModelData>(it->second);
+		Animation::AnimationData animationData = std::get<Animation::AnimationData>(it->second);
+		model->Create(modelData, animationData, drawPass);
 		return model;
 	}
 
@@ -54,11 +56,10 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 
 	//モデルデータの読み込み
 	Model::ModelData modelData = LoadModelFile(directoryPath, modelName);
-	modelDatas_[modelName] = modelData;
-
 	//アニメーションの読み込み
 	Animation::AnimationData animationData = LoadAnimationFile(directoryPath, modelName);
-	modelDatas_[modelName] = animationData;
+	//モデルデータとアニメーションデータを保存
+	modelDatas_[modelName] = { modelData,animationData };
 
 	//モデルの生成
 	Model* model = new Model();
@@ -70,7 +71,8 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 void ModelManager::Initialize()
 {
 	Model::ModelData modelData = LoadModelFile("Application/Resources/Models/Cube", "Cube.obj");
-	modelDatas_["Cube.obj"] = modelData;
+	Animation::AnimationData animationData = LoadAnimationFile("Application/Resources/Models/Cube", "Cube.obj");
+	modelDatas_["Cube.obj"] = { modelData,animationData };
 }
 
 

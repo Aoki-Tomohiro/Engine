@@ -43,6 +43,6 @@ private:
 private:
 	static ModelManager* instance_;
 
-	std::unordered_map<std::string, std::variant<Model::ModelData, Animation::AnimationData>> modelDatas_;
+	std::unordered_map<std::string, std::pair<Model::ModelData, Animation::AnimationData>> modelDatas_;
 };
 
