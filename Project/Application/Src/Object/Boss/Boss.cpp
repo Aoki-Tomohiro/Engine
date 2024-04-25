@@ -11,6 +11,7 @@ void Boss::Initialize()
 {
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
+	worldTransform_.translation_.y = 3.0f;
 	worldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 
 	//状態の初期化
@@ -97,6 +98,7 @@ void Boss::Update()
 	//ワールドトランスフォームの更新
 	worldTransform_ = state_->GetWorldTransform();
 	worldTransform_.UpdateMatrixFromQuaternion();
+	model_->Update(worldTransform_);
 
 	//HPバーの処理
 	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
@@ -156,7 +158,7 @@ const Vector3 Boss::GetWorldPosition() const
 {
 	Vector3 pos{};
 	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1] + 3.0f;
+	pos.y = worldTransform_.matWorld_.m[3][1];
 	pos.z = worldTransform_.matWorld_.m[3][2];
 	return pos;
 }

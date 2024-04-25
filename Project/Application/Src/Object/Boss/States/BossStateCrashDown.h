@@ -7,7 +7,7 @@ class BossStateCrashDown : public IBossState
 {
 public:
 	//待機時間
-	static const uint32_t kWaitTime = 60;
+	static const uint32_t kWaitTime = 20;
 	//硬直時間
 	static const uint32_t kRecoveryTime = 60 * 2;
 
@@ -32,6 +32,9 @@ private:
 	//クォータニオン
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
+	//開始座標
+	Vector3 startPosition_{};
+
 	//目標座標
 	Vector3 targetPosition_{};
 
@@ -46,5 +49,8 @@ private:
 
 	//硬直フラグ
 	bool isRecovery_ = false;
+
+	//イージングのパラメーター
+	float easingParameter_ = 0.0f;
 };
 

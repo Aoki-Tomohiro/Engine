@@ -53,7 +53,7 @@ void GamePlayScene::Initialize()
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.obj", Opaque));
+	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	boss_ = GameObjectManager::CreateGameObject<Boss>();

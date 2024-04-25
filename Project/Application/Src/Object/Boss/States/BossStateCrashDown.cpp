@@ -9,6 +9,9 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	destinationQuaternion_ = worldTransform_.quaternion_;
 	pBoss->SetDamage(10.0f);
 
+	//開始座標を設定
+	startPosition_ = worldTransform_.translation_;
+
 	//目標座標の設定
 	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetWorldPosition();
 	targetPosition_.y = 8.0f;
@@ -49,6 +52,9 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	warningWorldTransform_.translation_.y = 0.11f;
 	warningWorldTransform_.quaternion_ = worldTransform_.quaternion_;
 	warningWorldTransform_.scale_ = { worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z };
+
+	//アニメーションの再生
+	pBoss->GetModel()->GetAnimation()->PlayRigidAnimation();
 }
 
 void BossStateCrashDown::Update(Boss* pBoss)
@@ -57,12 +63,18 @@ void BossStateCrashDown::Update(Boss* pBoss)
 	if (!isAttack_)
 	{
 		//目標の上に移動する
-		worldTransform_.translation_ = Mathf::Lerp(worldTransform_.translation_, targetPosition_, 0.2f);
+		easingParameter_ += 1.0f / 40.0f;
+		if (easingParameter_ > 1.0f)
+		{
+			easingParameter_ = 1.0f;
+		}
+		worldTransform_.translation_.x = Mathf::Lerp(startPosition_.x, targetPosition_.x, easingParameter_);
+		worldTransform_.translation_.z = Mathf::Lerp(startPosition_.z, targetPosition_.z, easingParameter_);
 
 		const float epsilon = 0.001f;
 		Vector3 abs = {
 			std::abs(worldTransform_.translation_.x - targetPosition_.x),
-			std::abs(worldTransform_.translation_.y - targetPosition_.y),
+			0.0f,
 			std::abs(worldTransform_.translation_.z - targetPosition_.z),
 		};
 
@@ -80,14 +92,8 @@ void BossStateCrashDown::Update(Boss* pBoss)
 	//攻撃処理
 	if (isAttack_ && !isRecovery_)
 	{
-		//攻撃処理
-		const float kAttackSpeed = 2.0f;
-		worldTransform_.translation_.y -= kAttackSpeed;
-
-		//地面についたら攻撃終了
-		if (worldTransform_.translation_.y <= 0.0f)
+		if (!pBoss->GetModel()->GetAnimation()->IsPlaying())
 		{
-			worldTransform_.translation_.y = 0.0f;
 			isRecovery_ = true;
 			pBoss->SetIsAttack(false);
 		}

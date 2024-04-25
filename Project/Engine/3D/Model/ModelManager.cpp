@@ -81,7 +81,15 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	Model::ModelData modelData;
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	const aiScene* scene;
+	if (filePath.find(".obj") != std::string::npos)
+	{
+		scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_FlipWindingOrder);
+	}
+	else
+	{
+		scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	}
 	assert(scene->HasMeshes());//メッシュがないのは対応しない
 
 	//Meshの解析

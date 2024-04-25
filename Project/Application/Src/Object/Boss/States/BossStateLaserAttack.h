@@ -35,7 +35,7 @@ private:
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
 	//目標座標
-	Vector3 targetPosition_ = { 0.0f,0.0f,0.0f };
+	Vector3 targetPosition_ = { 0.0f,3.0f,0.0f };
 
 	//チャージフラグ
 	bool isCharge_ = false;

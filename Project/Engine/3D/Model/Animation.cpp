@@ -13,16 +13,65 @@ void Animation::Initialize(const AnimationData& animationData)
 
 void Animation::Update(const std::string& name)
 {
-	if (animationData_.containsAnimation)
+	//アニメーションがある場合かつ再生中の場合
+	if (animationData_.containsAnimation && isPlay_)
 	{
-		animationTime_ += 1.0f / 60.0f;//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-		animationTime_ = std::fmod(animationTime_, animationData_.duration);//最後までいったら最初からリピート再生。リピートしなくても別にいい
+		//一時停止中なら処理を飛ばす
+		if (isPause_)
+		{
+			return;
+		}
+
+		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
+		animationTime_ += 1.0f / speed_;
+
+		//最後までいったら最初からリピート再生。リピートしなくても別にいい
+		if (animationTime_ > animationData_.duration)
+		{
+			//ループフラグがtrueならば
+			if (isLoop_)
+			{
+				animationTime_ = 0.0f;
+				localMatrix_ = Mathf::MakeIdentity4x4();
+			}
+			else
+			{
+				animationTime_ = animationData_.duration;
+				isPlay_ = false;
+			}
+		}
+
+		//animationTime_ = std::fmod(animationTime_, animationData_.duration);
 		NodeAnimation& rootNodeAnimation = animationData_.nodeAnimations[name];
 		Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
 		Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
 		Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-		localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
+		localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate)/* + localMatrix_*/;
 	}
+}
+
+void Animation::PlayRigidAnimation()
+{
+	if (!isPause_)
+	{
+		localMatrix_ = Mathf::MakeIdentity4x4();
+		animationTime_ = 0.0f;
+	}
+	isPlay_ = true;
+	isPause_ = false;
+}
+
+void Animation::PauseRigidAnimation()
+{
+	isPause_ = true;
+}
+
+void Animation::StopRigidAnimation()
+{
+	animationTime_ = 0.0f;
+	isPlay_ = false;
+	isPause_ = false;
+	localMatrix_ = Mathf::MakeIdentity4x4();
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)

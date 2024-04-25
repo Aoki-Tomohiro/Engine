@@ -26,19 +26,24 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 
 void Model::Update(WorldTransform& worldTransform)
 {
-	//アニメーションの適用
+	//アニメーションの更新
 	animation_->Update(modelData_.rootNode.name);
-	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
+
+	//アニメーションを適用
+	if (animation_->IsPlaying())
+	{
+		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
+	}
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 {
+	//マテリアルの更新
+	material_->Update();
+
 	//RootのMatrixを適用
 	worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
 	worldTransform.TransferMatrix();
-
-	//マテリアルの更新
-	material_->Update();
 
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();

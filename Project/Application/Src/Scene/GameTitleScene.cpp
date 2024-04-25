@@ -54,10 +54,11 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.obj", Opaque));
+	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
+	bossWorldTransform_.translation_.y = 3.0f;
 	bossWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 	bossWorldTransform_.quaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>);
 
@@ -118,6 +119,24 @@ void GameTitleScene::Update()
 	offset = Mathf::TransformNormal(offset, rotateYMatrix);
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
+
+	bossModel_->GetAnimation()->SetSpeed(speed);
+	if (input_->IsPushKeyEnter(DIK_1))
+	{
+		bossModel_->GetAnimation()->PlayRigidAnimation();
+	}
+	else if (input_->IsPushKeyEnter(DIK_2))
+	{
+		bossModel_->GetAnimation()->StopRigidAnimation();
+	}
+	else if (input_->IsPushKeyEnter(DIK_3))
+	{
+		bossModel_->GetAnimation()->PauseRigidAnimation();
+	}
+	
+	ImGui::Begin("GameTitleScene");
+	ImGui::SliderFloat("Speed", &speed, 0, 600);
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()

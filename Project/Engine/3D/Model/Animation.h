@@ -40,10 +40,67 @@ public:
 		bool containsAnimation;
 	};
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="animationData"></param>
 	void Initialize(const AnimationData& animationData);
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update(const std::string& name);
 
+	/// <summary>
+	/// RigidAnimationの再生
+	/// </summary>
+	/// <param name="name"></param>
+	void PlayRigidAnimation();
+
+	/// <summary>
+	/// RigidAnimationの一時停止
+	/// </summary>
+	void PauseRigidAnimation();
+
+	/// <summary>
+	/// RigidAnimationの停止
+	/// </summary>
+	void StopRigidAnimation();
+
+	/// <summary>
+	/// 再生速度(フレーム)を設定
+	/// </summary>
+	/// <param name="speed"></param>
+	void SetSpeed(const float speed) { speed_ = speed; }
+
+	/// <summary>
+	/// ループ再生のフラグを設定
+	/// </summary>
+	/// <param name="isLoop"></param>
+	void SetLoop(const bool isLoop) { isLoop_ = isLoop; };
+
+	/// <summary>
+	/// アニメーションの再生中か
+	/// </summary>
+	/// <returns></returns>
+	const bool IsPlaying() const { return isPlay_; };
+
+	/// <summary>
+	/// アニメーションの一時停止中か
+	/// </summary>
+	/// <returns></returns>
+	const bool IsPaused() const { return isPause_; };
+
+	/// <summary>
+	/// ループ再生中か
+	/// </summary>
+	/// <returns></returns>
+	const bool IsLooping() const { return isLoop_; };
+
+	/// <summary>
+	/// ローカル座標を取得
+	/// </summary>
+	/// <returns></returns>
 	const Matrix4x4& GetLocalMatrix() const { return localMatrix_; };
 
 private:
@@ -57,5 +114,17 @@ private:
 	Matrix4x4 localMatrix_{};
 
 	float animationTime_ = 0.0f;
+
+	//再生速度
+	float speed_ = 60.0f;
+
+	//ループ再生中か
+	bool isLoop_ = false;
+
+	//再生中か
+	bool isPlay_ = false;
+
+	//一時停止中か
+	bool isPause_ = false;
 };
 

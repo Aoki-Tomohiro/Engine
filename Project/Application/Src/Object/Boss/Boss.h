@@ -51,6 +51,8 @@ public:
 
 	const float GetHP() const { return hp_; };
 
+	Model* GetModel() { return model_; };
+
 private:
 	//状態
 	IBossState* state_ = nullptr;

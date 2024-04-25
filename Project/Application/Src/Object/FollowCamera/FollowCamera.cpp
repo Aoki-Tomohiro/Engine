@@ -110,7 +110,7 @@ void FollowCamera::SetTarget(const WorldTransform* target)
 Vector3 FollowCamera::Offset()
 {
 	//追従対象からのオフセット
-	Vector3 offset = { 0.0f, 2.0f, -20.0f };
+	Vector3 offset = { 0.0f, 2.0f, -30.0f };
 	//回転行列の合成
 	Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(camera_.rotation_.x);
 	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_.rotation_.y);
