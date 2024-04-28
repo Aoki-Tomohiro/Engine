@@ -99,8 +99,8 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 			//右手系->左手系への変換を忘れずに
-			modelData.vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
-			modelData.vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
+			modelData.vertices[vertexIndex].position = { position.x,position.y,-position.z,1.0f };
+			modelData.vertices[vertexIndex].normal = { normal.x,normal.y,-normal.z };
 			modelData.vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
 		}
 		//Indexを解析する
@@ -115,28 +115,6 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 				modelData.indices.push_back(vertexIndex);
 			}
 		}
-
-		//for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
-		//{
-		//	aiFace& face = mesh->mFaces[faceIndex];
-		//	assert(face.mNumIndices == 3);//三角形のみサポート
-		//	//ここからFaceの中身(Vertex)の解析を行っていく
-		//	for (uint32_t element = 0; element < face.mNumIndices; ++element)
-		//	{
-		//		uint32_t vertexIndex = face.mIndices[element];
-		//		aiVector3D& position = mesh->mVertices[vertexIndex];
-		//		aiVector3D& normal = mesh->mNormals[vertexIndex];
-		//		aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-		//		VertexDataPosUVNormal vertex{};
-		//		vertex.position = { position.x,position.y,position.z,1.0f };
-		//		vertex.normal = { normal.x,normal.y,normal.z };
-		//		vertex.texcoord = { texcoord.x,texcoord.y };
-		//		//aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
-		//		vertex.position.z *= -1.0f;
-		//		vertex.normal.z *= -1.0f;
-		//		modelData.vertices.push_back(vertex);
-		//	}
-		//}
 	}
 
 	//Materialの解析
