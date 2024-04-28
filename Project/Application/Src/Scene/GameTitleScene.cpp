@@ -120,7 +120,7 @@ void GameTitleScene::Update()
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
 
-	bossModel_->GetAnimation()->SetSpeed(speed);
+	bossModel_->Update(bossWorldTransform_);
 	if (input_->IsPushKeyEnter(DIK_1))
 	{
 		bossModel_->GetAnimation()->PlayRigidAnimation();
@@ -133,10 +133,6 @@ void GameTitleScene::Update()
 	{
 		bossModel_->GetAnimation()->PauseRigidAnimation();
 	}
-	
-	ImGui::Begin("GameTitleScene");
-	ImGui::SliderFloat("Speed", &speed, 0, 600);
-	ImGui::End();
 }
 
 void GameTitleScene::Draw()

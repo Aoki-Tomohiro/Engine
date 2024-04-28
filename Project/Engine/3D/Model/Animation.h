@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <optional>
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Quaternion.h"
 #include "Engine/Math/Matrix4x4.h"
@@ -9,6 +10,16 @@
 class Animation
 {
 public:
+	//ノード構造体
+	struct Node {
+		Vector3 scale;
+		Quaternion rotate;
+		Vector3 translate;
+		Matrix4x4 localMatrix{};
+		std::string name;
+		std::vector<Node> children;
+	};
+
 	//Keyframe構造体
 	template <typename tValue>
 	struct Keyframe {
@@ -40,11 +51,31 @@ public:
 		bool containsAnimation;
 	};
 
+	struct Joint
+	{
+		Vector3 scale;//scale
+		Quaternion rotate;//rotate
+		Vector3 translate;//translate
+		Matrix4x4 localMatrix;//localMatrix
+		Matrix4x4 skeletonSpaceMatrix;//SkeletonSpaceでの変換行列
+		std::string name;//名前
+		std::vector<int32_t> children;//子JointのIndexのリスト。いなければ空
+		int32_t index;//自身のIndex
+		std::optional<int32_t> parent;//親JointのIndex。いなければnull
+	};
+
+	struct Skeleton
+	{
+		int32_t root;//RootJointのIndex
+		std::map<std::string, int32_t> jointMap;//Joint名とIndexとの辞書
+		std::vector<Joint> joints;//所属しているジョイント
+	};
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="animationData"></param>
-	void Initialize(const AnimationData& animationData);
+	void Initialize(const AnimationData& animationData, const Node& rootNode);
 
 	/// <summary>
 	/// 更新
@@ -107,9 +138,15 @@ private:
 	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);
 
 	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
+	
+	Skeleton CreateSkeleton(const Node& rootNode);
+
+	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 
 private:
 	AnimationData animationData_{};
+
+	Skeleton skeletonData_{};
 
 	Matrix4x4 localMatrix_{};
 

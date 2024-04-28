@@ -73,8 +73,5 @@ private:
 
 	//BGM
 	uint32_t bgmHandle_ = 0;
-
-
-	float speed = 60.0f;
 };
 

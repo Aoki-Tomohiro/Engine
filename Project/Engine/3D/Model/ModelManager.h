@@ -32,7 +32,7 @@ private:
 
 	Model::ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
-	Model::Node ReadNode(aiNode* node);
+	Animation::Node ReadNode(aiNode* node);
 
 	Animation::AnimationData LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 

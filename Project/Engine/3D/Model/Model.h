@@ -9,23 +9,12 @@
 class Model
 {
 public:
-	//ノード構造体
-	struct Node {
-		Matrix4x4 localMatrix{};
-		std::string name;
-		std::vector<Node> children;
-	};
-
-	//マテリアルデータ構造体
-	struct MaterialData {
-		std::string textureFilePath;
-	};
-
 	//モデルデータ構造体
 	struct ModelData {
 		std::vector<VertexDataPosUVNormal> vertices;
-		MaterialData material;
-		Node rootNode;
+		std::vector<uint32_t> indices;
+		Material::MaterialData material;
+		Animation::Node rootNode;
 	};
 
 	void Create(const ModelData& modelData, const Animation::AnimationData& animationData, DrawPass drawPass);

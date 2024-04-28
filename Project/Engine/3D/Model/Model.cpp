@@ -10,7 +10,7 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 
 	//メッシュの作成
 	mesh_ = std::make_unique<Mesh>();
-	mesh_->Initialize(modelData_.vertices);
+	mesh_->Initialize(modelData_.vertices, modelData_.indices);
 
 	//マテリアルの作成
 	material_ = std::make_unique<Material>();
@@ -18,7 +18,7 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 
 	//アニメーションの作成
 	animation_ = std::make_unique<Animation>();
-	animation_->Initialize(animationData);
+	animation_->Initialize(animationData, modelData_.rootNode);
 
 	//描画パスを設定
 	drawPass_ = drawPass;
@@ -48,7 +48,7 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
 	//SortObjectの追加
-	renderer_->AddObject(mesh_->GetVertexBufferView(), material_->GetConstantBuffer()->GetGpuVirtualAddress(),
+	renderer_->AddObject(mesh_->GetVertexBufferView(),mesh_->GetIndexBufferView(), material_->GetConstantBuffer()->GetGpuVirtualAddress(),
 		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-		material_->GetTexture()->GetSRVHandle(), UINT(mesh_->GetVerticesSize()), drawPass_);
+		material_->GetTexture()->GetSRVHandle(), UINT(mesh_->GetIndicesSize()), drawPass_);
 }

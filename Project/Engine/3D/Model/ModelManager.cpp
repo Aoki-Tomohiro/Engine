@@ -1,4 +1,5 @@
 #include "ModelManager.h"
+#include "Engine/Math/MathFunction.h"
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -81,15 +82,7 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	Model::ModelData modelData;
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene;
-	if (filePath.find(".obj") != std::string::npos)
-	{
-		scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_FlipWindingOrder);
-	}
-	else
-	{
-		scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
-	}
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes());//メッシュがないのは対応しない
 
 	//Meshの解析
@@ -98,28 +91,52 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals());//法線がないMeshは今回は非対応
 		assert(mesh->HasTextureCoords(0));//TexcoordがないMeshは今回は非対応
-		//ここからMeshの中身(Face)の解析を行っていく
+		modelData.vertices.resize(mesh->mNumVertices);//最初に頂点数分のメモリを確保しておく
+		//頂点を解析
+		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
+		{
+			aiVector3D& position = mesh->mVertices[vertexIndex];
+			aiVector3D& normal = mesh->mNormals[vertexIndex];
+			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+			//右手系->左手系への変換を忘れずに
+			modelData.vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
+			modelData.vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
+			modelData.vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
+		}
+		//Indexを解析する
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
 		{
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3);//三角形のみサポート
-			//ここからFaceの中身(Vertex)の解析を行っていく
+
 			for (uint32_t element = 0; element < face.mNumIndices; ++element)
 			{
 				uint32_t vertexIndex = face.mIndices[element];
-				aiVector3D& position = mesh->mVertices[vertexIndex];
-				aiVector3D& normal = mesh->mNormals[vertexIndex];
-				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-				VertexDataPosUVNormal vertex{};
-				vertex.position = { position.x,position.y,position.z,1.0f };
-				vertex.normal = { normal.x,normal.y,normal.z };
-				vertex.texcoord = { texcoord.x,texcoord.y };
-				//aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
-				vertex.position.z *= -1.0f;
-				vertex.normal.z *= -1.0f;
-				modelData.vertices.push_back(vertex);
+				modelData.indices.push_back(vertexIndex);
 			}
 		}
+
+		//for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
+		//{
+		//	aiFace& face = mesh->mFaces[faceIndex];
+		//	assert(face.mNumIndices == 3);//三角形のみサポート
+		//	//ここからFaceの中身(Vertex)の解析を行っていく
+		//	for (uint32_t element = 0; element < face.mNumIndices; ++element)
+		//	{
+		//		uint32_t vertexIndex = face.mIndices[element];
+		//		aiVector3D& position = mesh->mVertices[vertexIndex];
+		//		aiVector3D& normal = mesh->mNormals[vertexIndex];
+		//		aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+		//		VertexDataPosUVNormal vertex{};
+		//		vertex.position = { position.x,position.y,position.z,1.0f };
+		//		vertex.normal = { normal.x,normal.y,normal.z };
+		//		vertex.texcoord = { texcoord.x,texcoord.y };
+		//		//aiProcess_MakeLeftHandedはz*=-1で、右手->左手に変換するので手動で対処
+		//		vertex.position.z *= -1.0f;
+		//		vertex.normal.z *= -1.0f;
+		//		modelData.vertices.push_back(vertex);
+		//	}
+		//}
 	}
 
 	//Materialの解析
@@ -140,18 +157,16 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	return modelData;
 }
 
-Model::Node ModelManager::ReadNode(aiNode* node)
+Animation::Node ModelManager::ReadNode(aiNode* node)
 {
-	Model::Node result{};
-	aiMatrix4x4 aiLocalMatrix = node->mTransformation;//nodeのlocalMatrixを取得
-	aiLocalMatrix.Transpose();//列ベクトル形式を行ベクトル形式に転置
-	for (uint32_t i = 0; i < 4; i++)
-	{
-		for (uint32_t j = 0; j < 4; j++)
-		{
-			result.localMatrix.m[i][j] = aiLocalMatrix[i][j];
-		}
-	}
+	Animation::Node result{};
+	aiVector3D scale, translate;
+	aiQuaternion rotate;
+	node->mTransformation.Decompose(scale, rotate, translate);//assimpの行列からSRTを抽出する関数を利用
+	result.scale = { scale.x,scale.y,scale.z };//Scaleはそのまま
+	result.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w };//X軸を反転、さらに回転方向が逆なので軸を反転させる
+	result.translate = { -translate.x,translate.y,translate.z };//X軸を反転
+	result.localMatrix = Mathf::MakeAffineMatrix(result.scale, result.rotate, result.translate);
 	result.name = node->mName.C_Str();//Node名を格納
 	result.children.resize(node->mNumChildren);//子供の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex)
@@ -168,7 +183,6 @@ Animation::AnimationData ModelManager::LoadAnimationFile(const std::string& dire
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
-	//assert(scene->mAnimations != 0);//アニメーションがない
 	if (scene->mAnimations == 0) return animation;//アニメーションがない
 	animation.containsAnimation = true;
 	aiAnimation* animationAssimp = scene->mAnimations[0];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない

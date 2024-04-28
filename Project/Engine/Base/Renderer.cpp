@@ -53,16 +53,17 @@ void Renderer::Initialize()
 	CreateParticlePipelineState();
 }
 
-void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
-	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, UINT vertexCount, DrawPass drawPass)
+void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, UINT indexCount, DrawPass drawPass)
 {
 	SortObject sortObject{};
 	sortObject.vertexBufferView = vertexBufferView;
+	sortObject.indexBufferView = indexBufferView;
 	sortObject.materialCBV = materialCBV;
 	sortObject.worldTransformCBV = worldTransformCBV;
 	sortObject.cameraCBV = cameraCBV;
 	sortObject.textureSRV = textureSRV;
-	sortObject.vertexCount = vertexCount;
+	sortObject.indexCount = indexCount;
 	sortObject.type = drawPass;
 	sortObjects_.push_back(sortObject);
 }
@@ -98,6 +99,8 @@ void Renderer::Render()
 		commandContext->SetVertexBuffer(sortObject.vertexBufferView);
 		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
 		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//IndexBufferViewを設定
+		commandContext->SetIndexBuffer(sortObject.indexBufferView);
 		//マテリアルを設定
 		commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
 		//WorldTransformを設定
@@ -107,7 +110,7 @@ void Renderer::Render()
 		//Textureを設定
 		commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandContext->DrawInstanced(sortObject.vertexCount, 1);
+		commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
 	}
 
 	//オブジェクトをリセット
