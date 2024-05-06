@@ -53,6 +53,10 @@ public:
 
 	Model* GetModel() { return model_; };
 
+	void SetIsSlow(bool isSlow) { isSlow_ = isSlow; };
+
+	const bool GetIsSlow() { return isSlow_; };
+
 private:
 	//状態
 	IBossState* state_ = nullptr;
@@ -84,5 +88,10 @@ private:
 	//当たり判定のフラグ
 	bool onCollision_ = false;
 	bool preOnCollision_ = false;
+
+	//スロウ状態のフラグ
+	static const int kSlowTime = 60 * 5;
+	bool isSlow_ = false;
+	int slowTimer_ = 0;
 };
 

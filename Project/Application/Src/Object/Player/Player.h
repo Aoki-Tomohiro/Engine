@@ -69,6 +69,10 @@ public:
 
 	const Behavior& GetBehavior() const { return behavior_; };
 
+	const bool GetisJustAvoid() const { return workDash_.isJustAvoid; };
+
+	void SetJustAvoidInvincible(const bool justAvoidInvincible) { justAvoidInvincible_ = justAvoidInvincible; };
+
 private:
 	void BehaviorRootInitialize();
 
@@ -138,6 +142,10 @@ private:
 		const uint32_t dashCoolTime = 30;
 		bool backStep = false;
 		float backStepRotation = 0.0f;
+		//ジャスト回避
+		static const uint32_t kJustAvoidTime = 20;
+		int justAvoidTimer = 0;
+		bool isJustAvoid = false;
 	};
 
 	//攻撃用ワーク
@@ -278,6 +286,10 @@ private:
 	uint32_t dashAudioHandle_ = 0;
 	uint32_t jumpAudioHandle_ = 0;
 
+	//ダッシュ攻撃
 	bool isDashAttack_ = false;
+
+	//ジャスト回避
+	bool justAvoidInvincible_ = false;
 };
 

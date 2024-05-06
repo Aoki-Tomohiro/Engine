@@ -78,6 +78,9 @@ void Player::Update()
 		workDash_.coolTime++;
 	}
 
+	//ジャスト回避のフラグをリセット
+	workDash_.isJustAvoid = false;
+
 	//ヒットフラグのリセット
 	isHit_ = false;
 
@@ -264,7 +267,7 @@ void Player::OnCollision(Collider* collider)
 		//攻撃中の場合吹っ飛ばす
 		else
 		{
-			if (behavior_ != Behavior::kDash && behavior_ != Behavior::kKnockBack)
+			if (behavior_ != Behavior::kDash && behavior_ != Behavior::kKnockBack && !justAvoidInvincible_)
 			{
 				//ノックバック状態にする
 				Vector3 kKnockBackSpeed = { 0.0f,0.4f,0.4f };
@@ -302,7 +305,7 @@ void Player::OnCollision(Collider* collider)
 	//ミサイルの衝突判定
 	if (collider->GetCollisionAttribute() == kCollisionAttributeMissile)
 	{
-		if (behavior_ != Behavior::kDash)
+		if (behavior_ != Behavior::kDash && !justAvoidInvincible_)
 		{
 			//無敵状態でなければ
 			if (!workInvincible_.invincibleFlag)
@@ -334,7 +337,7 @@ void Player::OnCollision(Collider* collider)
 	//レーザーの衝突判定
 	if (collider->GetCollisionAttribute() == kCollisionAttributeLaser)
 	{
-		if (behavior_ != Behavior::kDash)
+		if (behavior_ != Behavior::kDash && !justAvoidInvincible_)
 		{
 			//無敵状態でなければ
 			if (!workInvincible_.invincibleFlag)
@@ -689,10 +692,33 @@ void Player::BehaviorDashInitialize()
 		//移動ベクトルをプレイヤーの角度だけ回転する
 		velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
 	}
+
+	workDash_.justAvoidTimer = 0;
 }
 
 void Player::BehaviorDashUpdate()
 {
+	if (workDash_.justAvoidTimer != workDash_.kJustAvoidTime)
+	{
+		workDash_.justAvoidTimer++;
+	}
+
+	//ジャスト回避
+	if (gameObjectManager_->GetGameObject<Boss>("Boss")->GetIsAttack())
+	{
+		if (workDash_.justAvoidTimer < workDash_.kJustAvoidTime && !workDash_.isJustAvoid)
+		{
+			const float threshold = 10.0f;
+			float distance = Mathf::Length(GetWorldPosition() - gameObjectManager_->GetGameObject<Boss>("Boss")->GetWorldPosition());
+			if (threshold > distance)
+			{
+				workDash_.isJustAvoid = true;
+				justAvoidInvincible_ = true;
+				workDash_.justAvoidTimer = workDash_.kJustAvoidTime;
+			}
+		}
+	}
+
 	//移動
 	worldTransform_.translation_ += velocity_;
 
@@ -717,6 +743,7 @@ void Player::BehaviorDashUpdate()
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && !workDash_.backStep)
 		{
 			isDashAttack_ = true;
+			workDash_.isJustAvoid = false;
 			behaviorRequest_ = Behavior::kAttack;
 		}
 	}
@@ -726,6 +753,7 @@ void Player::BehaviorDashUpdate()
 	if (++workDash_.dashParameter >= dashTime)
 	{
 		behaviorRequest_ = Behavior::kRoot;
+		workDash_.isJustAvoid = false;
 
 		//元の姿勢に戻す
 		if (!workDash_.backStep)

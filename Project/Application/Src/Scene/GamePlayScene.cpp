@@ -1,6 +1,7 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/TextureManager.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
 void GamePlayScene::Initialize()
@@ -161,6 +162,33 @@ void GamePlayScene::Update()
 			stopTimer_ = 0;
 		}
 		return;
+	}
+
+	//プレイヤーがジャスト回避をしていたら
+	if (player_->GetisJustAvoid())
+	{
+		boss_->SetIsSlow(true);
+		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
+		//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(true);
+		//PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
+	}
+
+	if (boss_->GetIsSlow())
+	{
+		if (length <= 1.0f)
+		{
+			length += 0.1f;
+		}
+		//PostEffects::GetInstance()->GetVignette()->SetIntensity(length);
+	}
+	else
+	{
+		length = 0.0f;
+		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
+		//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(false);
+		//PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
+		//PostEffects::GetInstance()->GetVignette()->SetIntensity(0.0f);
+		player_->SetJustAvoidInvincible(false);
 	}
 
 	//ゲームオブジェクトの更新

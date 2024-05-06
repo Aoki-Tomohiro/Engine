@@ -18,12 +18,19 @@ struct Vignette
     float intensity;
 };
 
+struct GrayScale
+{
+    int32_t isEnable;
+    int32_t isSepiaEnable;
+};
+
 Texture2D<float32_t4> gTexture : register(t0);
 Texture2D<float32_t4> gRenderedEffectsTexture : register(t1);
 SamplerState gSampler : register(s0);
 
 ConstantBuffer<LensDistortion> gLensDistortionParameter : register(b0);
 ConstantBuffer<Vignette> gVignetteParameter : register(b1);
+ConstantBuffer<GrayScale> gGrayScaleParameter : register(b2);
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
@@ -80,6 +87,20 @@ PixelShaderOutput main(VertexShaderOutput input)
         float2 uv = input.texcoord;
         uv = gVignetteParameter.intensity * uv - gVignetteParameter.intensity / 2;
         output.color *= 1.0 - dot(uv, uv);
+    }
+    
+    //GrayScale
+    if(gGrayScaleParameter.isEnable)
+    {
+        float32_t value = dot(output.color.rgb, float32_t3(0.2125f, 0.7154f, 0.0721f));
+        if(gGrayScaleParameter.isSepiaEnable)
+        {
+            output.color.rgb = value * float32_t3(1.0f, 74.0f / 107.0f, 43.0f / 107.0f);
+        }
+        else
+        {
+            output.color.rgb = float32_t3(value, value, value);
+        }
     }
     
     return output;

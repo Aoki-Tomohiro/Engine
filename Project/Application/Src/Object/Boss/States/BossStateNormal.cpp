@@ -23,7 +23,11 @@ void BossStateNormal::Update(Boss* pBoss)
 
 	//正規化して移動量を掛ける
 	sub = Mathf::Normalize(sub);
-	const float kSpeed = 0.1f;
+	float kSpeed = 0.2f;
+	if (pBoss->GetIsSlow())
+	{
+		kSpeed = 0.1f;
+	}
 
 	//回転処理
 	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, sub));
@@ -38,7 +42,7 @@ void BossStateNormal::Update(Boss* pBoss)
 	}
 
 	//攻撃処理
-	if (++attackTimer_ > attackTime_)
+	if (++attackTimer_ > attackTime_ && !pBoss->GetIsSlow())
 	{
 		uint32_t attackNum = 1;
 		IBossState* newState = nullptr;

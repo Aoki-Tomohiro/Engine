@@ -126,3 +126,9 @@ struct ConstBuffDataVignette
 	bool isEnable;
 	float intensity;
 };
+
+struct ConstBuffDataGrayScale
+{
+	int32_t isEnable;
+	int32_t isSepiaEnabled;
+};

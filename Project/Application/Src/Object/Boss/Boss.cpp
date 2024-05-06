@@ -56,7 +56,18 @@ void Boss::Update()
 	//状態の更新
 	if (isActive_)
 	{
-		state_->Update(this);
+		if (isSlow_)
+		{
+			if (++slowTimer_ > kSlowTime)
+			{
+				isSlow_ = false;
+				slowTimer_ = 0;
+			}
+		}
+		else
+		{
+			state_->Update(this);
+		}
 	}
 
 	//死亡フラグの立ったミサイルを削除

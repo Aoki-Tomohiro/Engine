@@ -109,5 +109,7 @@ private:
 
 	//ガイドのスプライト
 	std::unique_ptr<Sprite> guideSprite_ = nullptr;
+
+	float length = 0.0f;
 };
 
