@@ -27,6 +27,7 @@ void Animation::Update(const std::string& name)
 
 		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
 		animationTime_ += 1.0f / speed_;
+		animationTime_ = std::fmod(animationTime_, animationData_.duration);
 
 		//最後までいったら最初からリピート再生。リピートしなくても別にいい
 		if (animationTime_ > animationData_.duration)
@@ -46,9 +47,11 @@ void Animation::Update(const std::string& name)
 
 		//RigidAnimation
 		NodeAnimation& rootNodeAnimation = animationData_.nodeAnimations[name];
-		Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-		Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-		Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+		Vector3 translate, scale;
+		Quaternion rotate;
+		rootNodeAnimation.translate.keyframes.empty() ? translate = { 0.0f,0.0f,0.0f } : translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+		rootNodeAnimation.translate.keyframes.empty() ? rotate = { 1.0f,0.0f,0.0f,0.0f } : rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+		rootNodeAnimation.scale.keyframes.empty() ? scale = { 1.0f,1.0f,1.0f } : scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
 		localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
 
 		//SkeletonAnimation
@@ -58,9 +61,9 @@ void Animation::Update(const std::string& name)
 			if (auto it = animationData_.nodeAnimations.find(joint.name); it != animationData_.nodeAnimations.end())
 			{
 				const NodeAnimation& rootNodeAnimation = (*it).second;
-				joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-				joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-				joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+				rootNodeAnimation.translate.keyframes.empty() ? joint.translate = { 0.0f,0.0f,0.0f } : joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+				rootNodeAnimation.rotate.keyframes.empty() ? joint.rotate = { 1.0f,0.0f,0.0f,0.0f } : joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+				rootNodeAnimation.scale.keyframes.empty() ? joint.scale = { 1.0f,1.0f,1.0f } : joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
 			}
 		}
 	}

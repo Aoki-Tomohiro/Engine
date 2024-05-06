@@ -1,11 +1,11 @@
 #pragma once
+#include "Engine/Math/Vector3.h"
+#include "Engine/Math/Quaternion.h"
+#include "Engine/Math/Matrix4x4.h"
 #include <map>
 #include <string>
 #include <vector>
 #include <optional>
-#include "Engine/Math/Vector3.h"
-#include "Engine/Math/Quaternion.h"
-#include "Engine/Math/Matrix4x4.h"
 
 class Animation
 {
@@ -51,6 +51,7 @@ public:
 		bool containsAnimation;
 	};
 
+	//Joint構造体
 	struct Joint
 	{
 		Vector3 scale;//scale
@@ -64,6 +65,7 @@ public:
 		std::optional<int32_t> parent;//親JointのIndex。いなければnull
 	};
 
+	//スケルトン構造体
 	struct Skeleton
 	{
 		int32_t root;//RootJointのIndex
@@ -133,6 +135,18 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	const Matrix4x4& GetLocalMatrix() const { return localMatrix_; };
+
+	/// <summary>
+	/// Jointを取得
+	/// </summary>
+	/// <returns></returns>
+	std::vector<Joint>& GetJoints() { return skeletonData_.joints; };
+
+	/// <summary>
+	/// スケルトンを取得
+	/// </summary>
+	/// <returns></returns>
+	const Skeleton& GetSkeleton() const { return skeletonData_; };
 
 private:
 	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);

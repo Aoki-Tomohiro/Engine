@@ -45,6 +45,8 @@ public:
 		kTexture,
 		//ライト
 		kDirectionalLight,
+		//MatrixPalette
+		kMatrixPalette,
 	};
 
 	static Renderer* GetInstance();
@@ -54,11 +56,13 @@ public:
 	void Initialize();
 
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+		D3D12_VERTEX_BUFFER_VIEW influenceBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
+		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV,
 		UINT indexCount,
 		DrawPass drawPass);
 
@@ -92,6 +96,8 @@ private:
 
 	void CreateModelPipelineState();
 
+	void CreateSkinningModelPipelineState();
+
 	void CreateSpritePipelineState();
 
 	void CreateParticlePipelineState();
@@ -101,11 +107,13 @@ private:
 private:
 	struct SortObject {
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV;
 		UINT indexCount;
 		DrawPass type;
 	};
@@ -124,11 +132,15 @@ private:
 
 	RootSignature modelRootSignature_{};
 
+	RootSignature skinningModelRootSignature_{};
+
 	RootSignature spriteRootSignature_{};
 
 	RootSignature particleRootSignature_{};
 
 	std::vector<PipelineState> modelPipelineStates_{};
+
+	std::vector<PipelineState> skinningModelPipelineStates_{};
 
 	std::vector<PipelineState> spritePipelineStates_{};
 
