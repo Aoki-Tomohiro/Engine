@@ -66,6 +66,8 @@ public:
 
 	void Draw(WorldTransform& worldTransform, const Camera& camera);
 
+	void SetIsDebug(const bool isDebug) { isDebug_ = isDebug; };
+
 	Mesh* GetMesh() { return mesh_.get(); };
 
 	Material* GetMaterial() { return material_.get(); };
@@ -74,6 +76,10 @@ public:
 
 private:
 	SkinCluster CreateSkinCluster(const Animation::Skeleton& skeleton, const ModelData& modelData);
+
+	void CreateDebugVertexBuffer();
+
+	void UpdateDebugVertexBuffer();
 
 private:
 	ModelData modelData_{};
@@ -87,6 +93,14 @@ private:
 	std::unique_ptr<Animation> animation_ = nullptr;
 
 	DrawPass drawPass_ = Opaque;
+
+	std::unique_ptr<UploadBuffer> debugVertexBuffer_ = nullptr;
+
+	D3D12_VERTEX_BUFFER_VIEW debugVertexBufferView_{};
+
+	std::vector<Vector4> debugVertices_{};
+
+	bool isDebug_ = true;
 
 	friend class ParticleSystem;
 };

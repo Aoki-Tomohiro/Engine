@@ -19,9 +19,24 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 	//アニメーションの作成
 	animation_ = std::make_unique<Animation>();
 	animation_->Initialize(animationData, modelData_.rootNode);
+	animation_->Update(modelData_.rootNode.name);
 
 	//SkinClusterの作成
 	skinCluster_ = CreateSkinCluster(animation_->GetSkeleton(), modelData_);
+
+	//Debug用のVertexBufferの生成
+	std::vector<Animation::Joint>& joints = animation_->GetJoints();
+	for (const Animation::Joint& joint : joints)
+	{
+		if (joint.parent)
+		{
+			Vector4 childTranslate = { joint.skeletonSpaceMatrix.m[3][0],joint.skeletonSpaceMatrix.m[3][1],joint.skeletonSpaceMatrix.m[3][2],1.0f };
+			debugVertices_.push_back(childTranslate);
+			Vector4 parentTranslate = { joints[*joint.parent].skeletonSpaceMatrix.m[3][0],joints[*joint.parent].skeletonSpaceMatrix.m[3][1] ,joints[*joint.parent].skeletonSpaceMatrix.m[3][2],1.0f };
+			debugVertices_.push_back(parentTranslate);
+		}
+	}
+	CreateDebugVertexBuffer();
 
 	//描画パスを設定
 	drawPass_ = drawPass;
@@ -46,6 +61,19 @@ void Model::Update(WorldTransform& worldTransform)
 	{
 		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
 	}
+
+	//頂点データの更新
+	uint32_t index = 0;
+	for (const Animation::Joint& joint : joints)
+	{
+		if (joint.parent)
+		{
+			debugVertices_[index] = { joints[*joint.parent].skeletonSpaceMatrix.m[3][0],joints[*joint.parent].skeletonSpaceMatrix.m[3][1] ,joints[*joint.parent].skeletonSpaceMatrix.m[3][2],1.0f };
+			index++;
+			debugVertices_[index] = { joint.skeletonSpaceMatrix.m[3][0],joint.skeletonSpaceMatrix.m[3][1],joint.skeletonSpaceMatrix.m[3][2],1.0f };
+		}
+	}
+	UpdateDebugVertexBuffer();
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
@@ -63,6 +91,12 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	renderer_->AddObject(mesh_->GetVertexBufferView(), skinCluster_.influenceBufferView, mesh_->GetIndexBufferView(), material_->GetConstantBuffer()->GetGpuVirtualAddress(),
 		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
 		material_->GetTexture()->GetSRVHandle(), skinCluster_.paletteResource->GetSRVHandle(), UINT(mesh_->GetIndicesSize()), drawPass_);
+
+	//DebugObjectの追加
+	if (isDebug_)
+	{
+		renderer_->AddDebugObject(debugVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(debugVertices_.size()));
+	}
 }
 
 Model::SkinCluster Model::CreateSkinCluster(const Animation::Skeleton& skeleton, const ModelData& modelData)
@@ -122,4 +156,27 @@ Model::SkinCluster Model::CreateSkinCluster(const Animation::Skeleton& skeleton,
 	}
 
 	return skinCluster;
+}
+
+void Model::CreateDebugVertexBuffer()
+{
+	//頂点バッファを作成
+	debugVertexBuffer_ = std::make_unique<UploadBuffer>();
+	debugVertexBuffer_->Create(sizeof(Vector4) * debugVertices_.size());
+
+	//頂点バッファビューを作成
+	debugVertexBufferView_.BufferLocation = debugVertexBuffer_->GetGpuVirtualAddress();
+	debugVertexBufferView_.SizeInBytes = UINT(sizeof(Vector4) * debugVertices_.size());
+	debugVertexBufferView_.StrideInBytes = sizeof(Vector4);
+
+	//書き込み
+	UpdateDebugVertexBuffer();
+}
+
+void Model::UpdateDebugVertexBuffer()
+{
+	//頂点バッファにデータを書き込む
+	Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
+	std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
+	debugVertexBuffer_->Unmap();
 }
