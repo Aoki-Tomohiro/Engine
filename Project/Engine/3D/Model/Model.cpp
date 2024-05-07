@@ -25,17 +25,8 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 	skinCluster_ = CreateSkinCluster(animation_->GetSkeleton(), modelData_);
 
 	//Debug用のVertexBufferの生成
-	std::vector<Animation::Joint>& joints = animation_->GetJoints();
-	for (const Animation::Joint& joint : joints)
-	{
-		if (joint.parent)
-		{
-			Vector4 childTranslate = { joint.skeletonSpaceMatrix.m[3][0],joint.skeletonSpaceMatrix.m[3][1],joint.skeletonSpaceMatrix.m[3][2],1.0f };
-			debugVertices_.push_back(childTranslate);
-			Vector4 parentTranslate = { joints[*joint.parent].skeletonSpaceMatrix.m[3][0],joints[*joint.parent].skeletonSpaceMatrix.m[3][1] ,joints[*joint.parent].skeletonSpaceMatrix.m[3][2],1.0f };
-			debugVertices_.push_back(parentTranslate);
-		}
-	}
+	Animation::Skeleton skeleton = animation_->GetSkeleton();
+	CreateBoneLineVertices(skeleton, skeleton.root, debugVertices_);
 	CreateDebugVertexBuffer();
 
 	//描画パスを設定
@@ -63,17 +54,10 @@ void Model::Update(WorldTransform& worldTransform)
 	}
 
 	//頂点データの更新
-	uint32_t index = 0;
-	for (const Animation::Joint& joint : joints)
-	{
-		if (joint.parent)
-		{
-			debugVertices_[index] = { joints[*joint.parent].skeletonSpaceMatrix.m[3][0],joints[*joint.parent].skeletonSpaceMatrix.m[3][1] ,joints[*joint.parent].skeletonSpaceMatrix.m[3][2],1.0f };
-			index++;
-			debugVertices_[index] = { joint.skeletonSpaceMatrix.m[3][0],joint.skeletonSpaceMatrix.m[3][1],joint.skeletonSpaceMatrix.m[3][2],1.0f };
-		}
-	}
-	UpdateDebugVertexBuffer();
+	UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, debugVertices_);
+	Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
+	std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
+	debugVertexBuffer_->Unmap();
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
@@ -169,14 +153,33 @@ void Model::CreateDebugVertexBuffer()
 	debugVertexBufferView_.SizeInBytes = UINT(sizeof(Vector4) * debugVertices_.size());
 	debugVertexBufferView_.StrideInBytes = sizeof(Vector4);
 
-	//書き込み
-	UpdateDebugVertexBuffer();
-}
-
-void Model::UpdateDebugVertexBuffer()
-{
 	//頂点バッファにデータを書き込む
 	Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
 	std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
 	debugVertexBuffer_->Unmap();
+}
+
+void Model::CreateBoneLineVertices(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices)
+{
+	const Animation::Joint& parentJoint = skeleton.joints[parentIndex];
+	for (int32_t childIndex : parentJoint.children)
+	{
+		const Animation::Joint& childJoint = skeleton.joints[childIndex];
+		vertices.push_back({ parentJoint.skeletonSpaceMatrix.m[3][0],parentJoint.skeletonSpaceMatrix.m[3][1],parentJoint.skeletonSpaceMatrix.m[3][2],1.0f });
+		vertices.push_back({ childJoint.skeletonSpaceMatrix.m[3][0],childJoint.skeletonSpaceMatrix.m[3][1],childJoint.skeletonSpaceMatrix.m[3][2],1.0f });
+		CreateBoneLineVertices(skeleton, childIndex, vertices);
+	}
+}
+
+void Model::UpdateVertexData(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices)
+{
+	vertices.clear();
+	const Animation::Joint& parentJoint = skeleton.joints[parentIndex];
+	for (int32_t childIndex : parentJoint.children)
+	{
+		const Animation::Joint& childJoint = skeleton.joints[childIndex];
+		vertices.push_back({ parentJoint.skeletonSpaceMatrix.m[3][0],parentJoint.skeletonSpaceMatrix.m[3][1],parentJoint.skeletonSpaceMatrix.m[3][2],1.0f });
+		vertices.push_back({ childJoint.skeletonSpaceMatrix.m[3][0],childJoint.skeletonSpaceMatrix.m[3][1],childJoint.skeletonSpaceMatrix.m[3][2],1.0f });
+		CreateBoneLineVertices(skeleton, childIndex, vertices);
+	}
 }

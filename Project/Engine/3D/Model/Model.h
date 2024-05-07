@@ -77,9 +77,11 @@ public:
 private:
 	SkinCluster CreateSkinCluster(const Animation::Skeleton& skeleton, const ModelData& modelData);
 
-	void CreateDebugVertexBuffer();
+	void CreateBoneLineVertices(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices);
 
-	void UpdateDebugVertexBuffer();
+	void UpdateVertexData(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices);
+
+	void CreateDebugVertexBuffer();
 
 private:
 	ModelData modelData_{};
@@ -100,7 +102,7 @@ private:
 
 	std::vector<Vector4> debugVertices_{};
 
-	bool isDebug_ = true;
+	bool isDebug_ = false;
 
 	friend class ParticleSystem;
 };

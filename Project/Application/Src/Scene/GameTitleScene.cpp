@@ -54,9 +54,9 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("walk.gltf", Opaque));
-	bossModel_->GetMaterial()->SetEnableLighting(false);
-	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
+	bossModel_.reset(ModelManager::CreateFromModelFile("Test.gltf", Opaque));
+	//bossModel_->GetMaterial()->SetEnableLighting(false);
+	//bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
 	bossWorldTransform_.translation_.y = 3.0f;
 	bossWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
