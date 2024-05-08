@@ -98,7 +98,7 @@ void Boss::Update()
 	//ワールドトランスフォームの更新
 	worldTransform_ = state_->GetWorldTransform();
 	worldTransform_.UpdateMatrixFromQuaternion();
-	model_->Update(worldTransform_);
+	model_->Update(worldTransform_, 0);
 
 	//HPバーの処理
 	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };

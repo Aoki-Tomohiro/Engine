@@ -19,25 +19,32 @@ void Model::Create(const ModelData& modelData, const std::vector<Animation::Anim
 	//アニメーションの作成
 	animation_ = std::make_unique<Animation>();
 	animation_->Initialize(animationData, modelData_.rootNode);
-	animation_->ApplyAnimation(modelData_.rootNode.name);
-	animation_->Update();
 
 	//SkinClusterの作成
 	skinCluster_ = CreateSkinCluster(animation_->GetSkeleton(), modelData_);
 
 	//Debug用のVertexBufferの生成
-	Animation::Skeleton skeleton = animation_->GetSkeleton();
-	CreateBoneLineVertices(skeleton, skeleton.root, debugVertices_);
-	CreateDebugVertexBuffer();
+	if (!modelData_.skinClusterData.empty())
+	{
+		Animation::Skeleton skeleton = animation_->GetSkeleton();
+		CreateBoneLineVertices(skeleton, skeleton.root, debugVertices_);
+		CreateDebugVertexBuffer();
+	}
 
 	//描画パスを設定
 	drawPass_ = drawPass;
 }
 
-void Model::Update(WorldTransform& worldTransform)
+void Model::Update(WorldTransform& worldTransform, const uint32_t animationNumber)
 {
 	//アニメーションの更新を行って、骨ごとのLocal情報を更新する
-	animation_->ApplyAnimation(modelData_.rootNode.name);
+	animation_->ApplyAnimation(modelData_.rootNode.name, animationNumber);
+
+	//アニメーションを適用
+	if (animation_->IsPlaying())
+	{
+		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
+	}
 
 	//現在の骨ごとのLocal情報を基にSkeletonSpaceの情報を更新する
 	animation_->Update();
@@ -50,21 +57,6 @@ void Model::Update(WorldTransform& worldTransform)
 		skinCluster_.mappedPalette[jointIndex].skeletonSpaceMatrix = skinCluster_.inverseBindPoseMatrices[jointIndex] * joints[jointIndex].skeletonSpaceMatrix;
 		skinCluster_.mappedPalette[jointIndex].skeletonSpaceInverseTransposeMatrix = Mathf::Transpose(Mathf::Inverse(skinCluster_.mappedPalette[jointIndex].skeletonSpaceMatrix));
 	}
-
-	//アニメーションを適用
-	if (animation_->IsPlaying())
-	{
-		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
-	}
-
-	//デバッグ用の頂点データの更新
-	if (isDebug_)
-	{
-		UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, debugVertices_);
-		Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
-		std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
-		debugVertexBuffer_->Unmap();
-	}
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
@@ -73,8 +65,11 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 	material_->Update();
 
 	//RootのMatrixを適用
-	worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
-	worldTransform.TransferMatrix();
+	if (modelData_.skinClusterData.empty())
+	{
+		worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
+		worldTransform.TransferMatrix();
+	}
 
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
@@ -84,8 +79,9 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 		material_->GetTexture()->GetSRVHandle(), skinCluster_.paletteResource->GetSRVHandle(), UINT(mesh_->GetIndicesSize()), drawPass_);
 
 	//DebugObjectの追加
-	if (isDebug_)
+	if (isDebug_ && !modelData_.skinClusterData.empty())
 	{
+		UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, debugVertices_);
 		renderer_->AddDebugObject(debugVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(debugVertices_.size()));
 	}
 }
@@ -189,4 +185,7 @@ void Model::UpdateVertexData(const Animation::Skeleton& skeleton, int32_t parent
 		vertices.push_back({ childJoint.skeletonSpaceMatrix.m[3][0],childJoint.skeletonSpaceMatrix.m[3][1],childJoint.skeletonSpaceMatrix.m[3][2],1.0f });
 		CreateBoneLineVertices(skeleton, childIndex, vertices);
 	}
+	Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
+	std::memcpy(vertexData, vertices.data(), sizeof(Vector4) * vertices.size());
+	debugVertexBuffer_->Unmap();
 }

@@ -99,8 +99,8 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 			//右手系->左手系への変換を忘れずに
-			modelData.vertices[vertexIndex].position = { position.x,position.y,-position.z,1.0f };
-			modelData.vertices[vertexIndex].normal = { normal.x,normal.y,-normal.z };
+			modelData.vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
+			modelData.vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
 			modelData.vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
 		}
 		//Indexを解析する

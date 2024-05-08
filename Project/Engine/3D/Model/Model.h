@@ -62,7 +62,7 @@ public:
 
 	void Create(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, DrawPass drawPass);
 
-	void Update(WorldTransform& worldTransform);
+	void Update(WorldTransform& worldTransform, const uint32_t animationNumber);
 
 	void Draw(WorldTransform& worldTransform, const Camera& camera);
 

@@ -85,7 +85,7 @@ public:
 	/// <summary>
 	/// アニメーションの適用
 	/// </summary>
-	void ApplyAnimation(const std::string& name);
+	void ApplyAnimation(const std::string& name, const uint32_t animationNumber);
 
 	/// <summary>
 	/// RigidAnimationの再生
