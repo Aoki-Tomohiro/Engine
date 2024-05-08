@@ -60,7 +60,7 @@ public:
 		std::span<WellForGPU> mappedPalette;
 	};
 
-	void Create(const ModelData& modelData, const Animation::AnimationData& animationData, DrawPass drawPass);
+	void Create(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, DrawPass drawPass);
 
 	void Update(WorldTransform& worldTransform);
 
@@ -102,7 +102,7 @@ private:
 
 	std::vector<Vector4> debugVertices_{};
 
-	bool isDebug_ = false;
+	bool isDebug_ = true;
 
 	friend class ParticleSystem;
 };

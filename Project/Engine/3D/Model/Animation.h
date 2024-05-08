@@ -47,8 +47,6 @@ public:
 		float duration;//アニメーション全体の尺(単位は秒)
 		//NodeAnimationの集合。Node名でひけるようにしておく
 		std::map<std::string, NodeAnimation> nodeAnimations;
-		//アニメーションがあるか
-		bool containsAnimation;
 	};
 
 	//Joint構造体
@@ -77,12 +75,17 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="animationData"></param>
-	void Initialize(const AnimationData& animationData, const Node& rootNode);
+	void Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update(const std::string& name);
+	void Update();
+
+	/// <summary>
+	/// アニメーションの適用
+	/// </summary>
+	void ApplyAnimation(const std::string& name);
 
 	/// <summary>
 	/// RigidAnimationの再生
@@ -158,7 +161,7 @@ private:
 	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 
 private:
-	AnimationData animationData_{};
+	std::vector<AnimationData> animationData_{};
 
 	Skeleton skeletonData_{};
 

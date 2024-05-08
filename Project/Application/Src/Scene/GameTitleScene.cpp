@@ -54,7 +54,7 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Test.gltf", Opaque));
+	bossModel_.reset(ModelManager::CreateFromModelFile("Test2.gltf", Opaque));
 	//bossModel_->GetMaterial()->SetEnableLighting(false);
 	//bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
@@ -121,6 +121,7 @@ void GameTitleScene::Update()
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
 
+	//モデルの更新
 	bossModel_->Update(bossWorldTransform_);
 	if (input_->IsPushKeyEnter(DIK_1))
 	{

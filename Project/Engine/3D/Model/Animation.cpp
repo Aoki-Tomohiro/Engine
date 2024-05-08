@@ -2,7 +2,7 @@
 #include "Engine/Math/MathFunction.h"
 #include <cassert>
 
-void Animation::Initialize(const AnimationData& animationData, const Node& rootNode)
+void Animation::Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode)
 {
 	//アニメーションの初期化
 	animationData_ = animationData;
@@ -14,60 +14,8 @@ void Animation::Initialize(const AnimationData& animationData, const Node& rootN
 	skeletonData_ = CreateSkeleton(rootNode);
 }
 
-void Animation::Update(const std::string& name)
+void Animation::Update()
 {
-	//アニメーションがある場合かつ再生中の場合
-	if (animationData_.containsAnimation && isPlay_)
-	{
-		//一時停止中なら処理を飛ばす
-		if (isPause_)
-		{
-			return;
-		}
-
-		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-		animationTime_ += 1.0f / speed_;
-		animationTime_ = std::fmod(animationTime_, animationData_.duration);
-
-		//最後までいったら最初からリピート再生。リピートしなくても別にいい
-		if (animationTime_ > animationData_.duration)
-		{
-			//ループフラグがtrueならば
-			if (isLoop_)
-			{
-				animationTime_ = 0.0f;
-				localMatrix_ = Mathf::MakeIdentity4x4();
-			}
-			else
-			{
-				animationTime_ = animationData_.duration;
-				isPlay_ = false;
-			}
-		}
-
-		//RigidAnimation
-		NodeAnimation& rootNodeAnimation = animationData_.nodeAnimations[name];
-		Vector3 translate, scale;
-		Quaternion rotate;
-		rootNodeAnimation.translate.keyframes.empty() ? translate = { 0.0f,0.0f,0.0f } : translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-		rootNodeAnimation.translate.keyframes.empty() ? rotate = { 1.0f,0.0f,0.0f,0.0f } : rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-		rootNodeAnimation.scale.keyframes.empty() ? scale = { 1.0f,1.0f,1.0f } : scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-		localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
-
-		//SkeletonAnimation
-		for (Joint& joint : skeletonData_.joints)
-		{
-			//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
-			if (auto it = animationData_.nodeAnimations.find(joint.name); it != animationData_.nodeAnimations.end())
-			{
-				const NodeAnimation& rootNodeAnimation = (*it).second;
-				rootNodeAnimation.translate.keyframes.empty() ? joint.translate = { 0.0f,0.0f,0.0f } : joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-				rootNodeAnimation.rotate.keyframes.empty() ? joint.rotate = { 1.0f,0.0f,0.0f,0.0f } : joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-				rootNodeAnimation.scale.keyframes.empty() ? joint.scale = { 1.0f,1.0f,1.0f } : joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-			}
-		}
-	}
-
 	//全てのJointの更新。親が若いので通常ループで処理可能になっている
 	for (Joint& joint : skeletonData_.joints)
 	{
@@ -79,6 +27,64 @@ void Animation::Update(const std::string& name)
 		else//親がいないのでlocalMatrixとskeletonSpaceMatrixは一致する
 		{
 			joint.skeletonSpaceMatrix = joint.localMatrix;
+		}
+	}
+}
+
+void Animation::ApplyAnimation(const std::string& name)
+{
+	if (animationData_.size() != 0)
+	{
+		uint32_t index = 0;
+		//アニメーションがある場合かつ再生中の場合
+		if (isPlay_)
+		{
+			//一時停止中なら処理を飛ばす
+			if (isPause_)
+			{
+				return;
+			}
+
+			//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
+			animationTime_ += 1.0f / speed_;
+
+			//最後までいったら最初からリピート再生。リピートしなくても別にいい
+			if (animationTime_ > animationData_[index].duration)
+			{
+				//ループフラグがtrueならば
+				if (isLoop_)
+				{
+					animationTime_ = 0.0f;
+					localMatrix_ = Mathf::MakeIdentity4x4();
+				}
+				else
+				{
+					animationTime_ = animationData_[index].duration;
+					isPlay_ = false;
+				}
+			}
+
+			//RigidAnimation
+			NodeAnimation& rootNodeAnimation = animationData_[index].nodeAnimations[name];
+			Vector3 translate, scale;
+			Quaternion rotate;
+			rootNodeAnimation.translate.keyframes.empty() ? translate = { 0.0f,0.0f,0.0f } : translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+			rootNodeAnimation.translate.keyframes.empty() ? rotate = { 0.0f,0.0f,0.0f,1.0f } : rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+			rootNodeAnimation.scale.keyframes.empty() ? scale = { 1.0f,1.0f,1.0f } : scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+			localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
+
+			//SkeletonAnimation
+			for (Joint& joint : skeletonData_.joints)
+			{
+				//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
+				if (auto it = animationData_[index].nodeAnimations.find(joint.name); it != animationData_[index].nodeAnimations.end())
+				{
+					const NodeAnimation& rootNodeAnimation = (*it).second;
+					rootNodeAnimation.translate.keyframes.empty() ? joint.translate = { 0.0f,0.0f,0.0f } : joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+					rootNodeAnimation.rotate.keyframes.empty() ? joint.rotate = { 0.0f,0.0f,0.0f,1.0f } : joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+					rootNodeAnimation.scale.keyframes.empty() ? joint.scale = { 1.0f,1.0f,1.0f } : joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+				}
+			}
 		}
 	}
 }

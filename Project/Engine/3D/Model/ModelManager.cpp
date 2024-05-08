@@ -46,7 +46,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 	{
 		Model* model = new Model();
 		Model::ModelData modelData = std::get<Model::ModelData>(it->second);
-		Animation::AnimationData animationData = std::get<Animation::AnimationData>(it->second);
+		std::vector<Animation::AnimationData> animationData = std::get<std::vector<Animation::AnimationData>>(it->second);
 		model->Create(modelData, animationData, drawPass);
 		return model;
 	}
@@ -58,7 +58,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 	//モデルデータの読み込み
 	Model::ModelData modelData = LoadModelFile(directoryPath, modelName);
 	//アニメーションの読み込み
-	Animation::AnimationData animationData = LoadAnimationFile(directoryPath, modelName);
+	std::vector<Animation::AnimationData> animationData = LoadAnimationFile(directoryPath, modelName);
 	//モデルデータとアニメーションデータを保存
 	modelDatas_[modelName] = { modelData,animationData };
 
@@ -72,7 +72,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 void ModelManager::Initialize()
 {
 	Model::ModelData modelData = LoadModelFile("Application/Resources/Models/Cube", "Cube.obj");
-	Animation::AnimationData animationData = LoadAnimationFile("Application/Resources/Models/Cube", "Cube.obj");
+	std::vector<Animation::AnimationData> animationData = LoadAnimationFile("Application/Resources/Models/Cube", "Cube.obj");
 	modelDatas_["Cube.obj"] = { modelData,animationData };
 }
 
@@ -181,48 +181,52 @@ Animation::Node ModelManager::ReadNode(aiNode* node)
 	return result;
 }
 
-Animation::AnimationData ModelManager::LoadAnimationFile(const std::string& directoryPath, const std::string& filename)
+std::vector<Animation::AnimationData> ModelManager::LoadAnimationFile(const std::string& directoryPath, const std::string& filename)
 {
-	Animation::AnimationData animation{};//今回作るアニメーション
+	std::vector<Animation::AnimationData> animation{};//今回作るアニメーション
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
 	if (scene->mAnimations == 0) return animation;//アニメーションがない
-	animation.containsAnimation = true;
-	aiAnimation* animationAssimp = scene->mAnimations[0];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない
-	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間の単位を秒に変換
-	//assimpでは個々のNodeのAnimationをchannelと読んでいるのでchannelを回してNodeAnimationの情報を取ってくる
-	for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex)
+	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
 	{
-		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-		Animation::NodeAnimation& nodeAnimation = animation.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
-		//Translate
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex)
+		Animation::AnimationData currentAnimationData{};
+		aiAnimation* animationAssimp = scene->mAnimations[animationIndex];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない
+		currentAnimationData.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間の単位を秒に変換
+		//assimpでは個々のNodeのAnimationをchannelと読んでいるのでchannelを回してNodeAnimationの情報を取ってくる
+		for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex)
 		{
-			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-			Animation::KeyframeVector3 keyframe;
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);//ここも秒に変換
-			keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };//右手->左手
-			nodeAnimation.translate.keyframes.push_back(keyframe);
+			aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+			Animation::NodeAnimation& nodeAnimation = currentAnimationData.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+			//Translate
+			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex)
+			{
+				aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+				Animation::KeyframeVector3 keyframe;
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);//ここも秒に変換
+				keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };//右手->左手
+				nodeAnimation.translate.keyframes.push_back(keyframe);
+			}
+			//Rotate
+			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex)
+			{
+				aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+				Animation::KeyframeQuaternion keyframe;
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+				keyframe.value = { keyAssimp.mValue.x,-keyAssimp.mValue.y,-keyAssimp.mValue.z,keyAssimp.mValue.w };
+				nodeAnimation.rotate.keyframes.push_back(keyframe);
+			}
+			//Scale
+			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex)
+			{
+				aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+				Animation::KeyframeVector3 keyframe;
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+				keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
+				nodeAnimation.scale.keyframes.push_back(keyframe);
+			}
 		}
-		//Rotate
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex)
-		{
-			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
-			Animation::KeyframeQuaternion keyframe;
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
-			keyframe.value = { keyAssimp.mValue.x,-keyAssimp.mValue.y,-keyAssimp.mValue.z,keyAssimp.mValue.w };
-			nodeAnimation.rotate.keyframes.push_back(keyframe);
-		}
-		//Scale
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex)
-		{
-			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-			Animation::KeyframeVector3 keyframe;
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
-			keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
-			nodeAnimation.scale.keyframes.push_back(keyframe);
-		}
+		animation.push_back(currentAnimationData);
 	}
 
 	//解析完了

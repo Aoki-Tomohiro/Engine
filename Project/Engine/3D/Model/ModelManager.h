@@ -34,7 +34,7 @@ private:
 
 	Animation::Node ReadNode(aiNode* node);
 
-	Animation::AnimationData LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
+	std::vector<Animation::AnimationData> LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 
 	//Model::ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
@@ -43,6 +43,6 @@ private:
 private:
 	static ModelManager* instance_;
 
-	std::unordered_map<std::string, std::pair<Model::ModelData, Animation::AnimationData>> modelDatas_;
+	std::unordered_map<std::string, std::pair<Model::ModelData, std::vector<Animation::AnimationData>>> modelDatas_;
 };
 

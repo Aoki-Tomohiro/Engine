@@ -3,7 +3,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 
-void Model::Create(const ModelData& modelData, const Animation::AnimationData& animationData, DrawPass drawPass)
+void Model::Create(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, DrawPass drawPass)
 {
 	//モデルデータを設定
 	modelData_ = modelData;
@@ -19,7 +19,8 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 	//アニメーションの作成
 	animation_ = std::make_unique<Animation>();
 	animation_->Initialize(animationData, modelData_.rootNode);
-	animation_->Update(modelData_.rootNode.name);
+	animation_->ApplyAnimation(modelData_.rootNode.name);
+	animation_->Update();
 
 	//SkinClusterの作成
 	skinCluster_ = CreateSkinCluster(animation_->GetSkeleton(), modelData_);
@@ -35,11 +36,14 @@ void Model::Create(const ModelData& modelData, const Animation::AnimationData& a
 
 void Model::Update(WorldTransform& worldTransform)
 {
-	//アニメーションの更新
-	animation_->Update(modelData_.rootNode.name);
+	//アニメーションの更新を行って、骨ごとのLocal情報を更新する
+	animation_->ApplyAnimation(modelData_.rootNode.name);
+
+	//現在の骨ごとのLocal情報を基にSkeletonSpaceの情報を更新する
+	animation_->Update();
 
 	//SkeletonSpaceの情報を基に、SkinClusterのMatrixPaletteを更新する
-	std::vector<Animation::Joint>& joints = animation_->GetJoints();
+	const std::vector<Animation::Joint>& joints = animation_->GetJoints();
 	for (size_t jointIndex = 0; jointIndex < joints.size(); ++jointIndex)
 	{
 		assert(jointIndex < skinCluster_.inverseBindPoseMatrices.size());
@@ -53,11 +57,14 @@ void Model::Update(WorldTransform& worldTransform)
 		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
 	}
 
-	//頂点データの更新
-	UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, debugVertices_);
-	Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
-	std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
-	debugVertexBuffer_->Unmap();
+	//デバッグ用の頂点データの更新
+	if (isDebug_)
+	{
+		UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, debugVertices_);
+		Vector4* vertexData = static_cast<Vector4*>(debugVertexBuffer_->Map());
+		std::memcpy(vertexData, debugVertices_.data(), sizeof(Vector4) * debugVertices_.size());
+		debugVertexBuffer_->Unmap();
+	}
 }
 
 void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
