@@ -88,20 +88,26 @@ public:
 	void ApplyAnimation(const std::string& name, const uint32_t animationNumber);
 
 	/// <summary>
-	/// RigidAnimationの再生
+	/// Animationの再生
 	/// </summary>
 	/// <param name="name"></param>
-	void PlayRigidAnimation();
+	void PlayAnimation();
 
 	/// <summary>
-	/// RigidAnimationの一時停止
+	/// Animationの一時停止
 	/// </summary>
-	void PauseRigidAnimation();
+	void PauseAnimation();
 
 	/// <summary>
-	/// RigidAnimationの停止
+	/// Animationの停止
 	/// </summary>
-	void StopRigidAnimation();
+	void StopAnimation();
+
+	/// <summary>
+	/// 現在のアニメーションの時間を設定
+	/// </summary>
+	/// <param name="animationTime"></param>
+	void SetAnimationTime(const float animationTime) { animationTime_ = animationTime; };
 
 	/// <summary>
 	/// 再生速度(フレーム)を設定
@@ -114,6 +120,18 @@ public:
 	/// </summary>
 	/// <param name="isLoop"></param>
 	void SetLoop(const bool isLoop) { isLoop_ = isLoop; };
+
+	/// <summary>
+	/// 現在のアニメーションの時間を取得
+	/// </summary>
+	/// <returns></returns>
+	const float GetAnimationTime() const { return animationTime_; };
+
+	/// <summary>
+	/// アニメーションの時間を取得
+	/// </summary>
+	/// <param name="animationNumber"></param>
+	const float GetAnimationDuration(const uint32_t animationNumber) const { return animationData_[animationNumber].duration; };
 
 	/// <summary>
 	/// アニメーションの再生中か

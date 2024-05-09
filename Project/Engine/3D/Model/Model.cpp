@@ -41,10 +41,7 @@ void Model::Update(WorldTransform& worldTransform, const uint32_t animationNumbe
 	animation_->ApplyAnimation(modelData_.rootNode.name, animationNumber);
 
 	//アニメーションを適用
-	if (animation_->IsPlaying())
-	{
-		worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
-	}
+	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
 
 	//現在の骨ごとのLocal情報を基にSkeletonSpaceの情報を更新する
 	animation_->Update();

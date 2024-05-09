@@ -35,6 +35,7 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
+	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
 	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
 	playerModelHead_->GetMaterial()->SetEnableLighting(false);
 	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
@@ -43,7 +44,7 @@ void GamePlayScene::Initialize()
 	playerModelL_Arm_->GetMaterial()->SetEnableLighting(false);
 	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
 	playerModelR_Arm_->GetMaterial()->SetEnableLighting(false);
-	std::vector<Model*> playerModels = { playerModelBody_.get(),playerModelHead_.get(),playerModelL_Arm_.get(),playerModelR_Arm_.get() };
+	std::vector<Model*> playerModels = { playerModel_.get()};
 	player_ = GameObjectManager::CreateGameObject<Player>();
 	player_->SetModels(playerModels);
 	player_->SetTag("Player");

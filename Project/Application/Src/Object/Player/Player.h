@@ -279,5 +279,8 @@ private:
 	uint32_t jumpAudioHandle_ = 0;
 
 	bool isDashAttack_ = false;
+
+	//アニメーションの番号
+	uint32_t animationNumber_ = 0;
 };
 

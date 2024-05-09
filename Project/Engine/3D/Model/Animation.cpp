@@ -63,34 +63,34 @@ void Animation::ApplyAnimation(const std::string& name, const uint32_t animation
 					isPlay_ = false;
 				}
 			}
+		}
 
-			//RigidAnimation
-			if (auto it = animationData_[animationNumber].nodeAnimations.find(name); it != animationData_[animationNumber].nodeAnimations.end())
-			{
-				NodeAnimation& rootNodeAnimation = (*it).second;
-				Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-				Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-				Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-				localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
-			}
+		//RigidAnimation
+		if (auto it = animationData_[animationNumber].nodeAnimations.find(name); it != animationData_[animationNumber].nodeAnimations.end())
+		{
+			NodeAnimation& rootNodeAnimation = (*it).second;
+			Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+			Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+			Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+			localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
+		}
 
-			//SkeletonAnimation
-			for (Joint& joint : skeletonData_.joints)
+		//SkeletonAnimation
+		for (Joint& joint : skeletonData_.joints)
+		{
+			//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
+			if (auto it = animationData_[animationNumber].nodeAnimations.find(joint.name); it != animationData_[animationNumber].nodeAnimations.end())
 			{
-				//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
-				if (auto it = animationData_[animationNumber].nodeAnimations.find(joint.name); it != animationData_[animationNumber].nodeAnimations.end())
-				{
-					const NodeAnimation& rootNodeAnimation = (*it).second;
-					joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-					joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-					joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-				}
+				const NodeAnimation& rootNodeAnimation = (*it).second;
+				joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+				joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+				joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
 			}
 		}
 	}
 }
 
-void Animation::PlayRigidAnimation()
+void Animation::PlayAnimation()
 {
 	if (!isPause_)
 	{
@@ -101,12 +101,12 @@ void Animation::PlayRigidAnimation()
 	isPause_ = false;
 }
 
-void Animation::PauseRigidAnimation()
+void Animation::PauseAnimation()
 {
 	isPause_ = true;
 }
 
-void Animation::StopRigidAnimation()
+void Animation::StopAnimation()
 {
 	animationTime_ = 0.0f;
 	isPlay_ = false;

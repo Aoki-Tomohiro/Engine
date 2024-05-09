@@ -53,6 +53,8 @@ public:
 
 	Model* GetModel() { return model_; };
 
+	void ModelUpdate() { model_->Update(worldTransform_, 0); };
+
 private:
 	//状態
 	IBossState* state_ = nullptr;

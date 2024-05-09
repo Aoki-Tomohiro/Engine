@@ -100,16 +100,16 @@ void ParticleSystem::UpdateInstancingResource(const Camera& camera)
 	Matrix4x4 billboardMatrix{};
 	if (isBillboard_)
 	{
-		Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
-		billboardMatrix = backToFrontMatrix * cameraMatrix;
-		billboardMatrix.m[3][0] = 0.0f;
-		billboardMatrix.m[3][1] = 0.0f;
-		billboardMatrix.m[3][2] = 0.0f;
-		//billboardMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);;
+		//Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
+		//Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
+		//billboardMatrix = backToFrontMatrix * cameraMatrix;
 		//billboardMatrix.m[3][0] = 0.0f;
 		//billboardMatrix.m[3][1] = 0.0f;
 		//billboardMatrix.m[3][2] = 0.0f;
+		billboardMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);;
+		billboardMatrix.m[3][0] = 0.0f;
+		billboardMatrix.m[3][1] = 0.0f;
+		billboardMatrix.m[3][2] = 0.0f;
 	}
 	ParticleForGPU* instancingData = static_cast<ParticleForGPU*>(instancingResource_->Map());
 	for (std::list<std::unique_ptr<ParticleEmitter>>::iterator emitterIterator = particleEmitters_.begin(); emitterIterator != particleEmitters_.end();)

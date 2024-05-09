@@ -22,9 +22,10 @@ void GameTitleScene::Initialize()
 	camera_.Initialize();
 	camera_.translation_.y = 30.0f;
 	camera_.translation_.z = -100.0f;
-	//camera_.rotation_.x = 0.3f;
+	camera_.rotation_.x = 0.3f;
 
 	//プレイヤーの生成
+	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
 	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
 	playerModelHead_->GetMaterial()->SetEnableLighting(false);
 	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
@@ -54,9 +55,9 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("walk.gltf", Opaque));
-	//bossModel_->GetMaterial()->SetEnableLighting(false);
-	//bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
+	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
+	bossModel_->GetMaterial()->SetEnableLighting(false);
+	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
 	bossWorldTransform_.translation_.y = 3.0f;
 	bossWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
@@ -115,25 +116,25 @@ void GameTitleScene::Update()
 	const float kRotSpeed = 0.006f;
 	camera_.rotation_.y += kRotSpeed;
 	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_.rotation_.y);
-	//Vector3 offset = { 0.0f,30.0f ,-80.0f };
-	Vector3 offset = { 0.0f,10.0f ,-60.0f };
+	Vector3 offset = { 0.0f,30.0f ,-80.0f };
 	offset = Mathf::TransformNormal(offset, rotateYMatrix);
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
 
 	//モデルの更新
+	playerModel_->Update(playerWorldTransforms[0], 1);
 	bossModel_->Update(bossWorldTransform_, 0);
 	if (input_->IsPushKeyEnter(DIK_1))
 	{
-		bossModel_->GetAnimation()->PlayRigidAnimation();
+		bossModel_->GetAnimation()->PlayAnimation();
 	}
 	else if (input_->IsPushKeyEnter(DIK_2))
 	{
-		bossModel_->GetAnimation()->StopRigidAnimation();
+		bossModel_->GetAnimation()->StopAnimation();
 	}
 	else if (input_->IsPushKeyEnter(DIK_3))
 	{
-		bossModel_->GetAnimation()->PauseRigidAnimation();
+		bossModel_->GetAnimation()->PauseAnimation();
 	}
 }
 
@@ -151,17 +152,14 @@ void GameTitleScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
-	////プレイヤーのモデルの描画
-	//playerModelBody_->Draw(playerWorldTransforms[1], camera_);
-	//playerModelHead_->Draw(playerWorldTransforms[2], camera_);
-	//playerModelL_Arm_->Draw(playerWorldTransforms[3], camera_);
-	//playerModelR_Arm_->Draw(playerWorldTransforms[4], camera_);
+	//プレイヤーのモデルの描画
+	playerModel_->Draw(playerWorldTransforms[0], camera_);
 
 	//ボスのモデルの描画
 	bossModel_->Draw(bossWorldTransform_, camera_);
 
-	////ゲームオブジェクトのモデル描画
-	//gameObjectManager_->Draw(camera_);
+	//ゲームオブジェクトのモデル描画
+	gameObjectManager_->Draw(camera_);
 
 	//3Dオブジェクト描画
 	renderer_->Render();
@@ -182,14 +180,14 @@ void GameTitleScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
-	////タイトルのスプライトの描画
-	//titleSprite_->Draw();
+	//タイトルのスプライトの描画
+	titleSprite_->Draw();
 
-	////PressAのスプライトの描画
-	//pressASprite_->Draw();
+	//PressAのスプライトの描画
+	pressASprite_->Draw();
 
-	////トランジション用のスプライトの描画
-	//transitionSprite_->Draw();
+	//トランジション用のスプライトの描画
+	transitionSprite_->Draw();
 
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();
