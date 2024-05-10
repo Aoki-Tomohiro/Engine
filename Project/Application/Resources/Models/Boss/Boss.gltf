@@ -66,7 +66,7 @@
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "Material",
+            "name" : "Material.001",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0
@@ -109,29 +109,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 210,
+            "count" : 260,
             "max" : [
+                1.0000001192092896,
                 1,
-                1,
-                1
+                1.0000001192092896
             ],
             "min" : [
+                -1.0000001192092896,
                 -1,
-                -1,
-                -1
+                -1.0000001192092896
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 210,
+            "count" : 260,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 210,
+            "count" : 260,
             "type" : "VEC2"
         },
         {
@@ -174,47 +174,47 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 2520,
+            "byteLength" : 3120,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 2520,
-            "byteOffset" : 2520,
+            "byteLength" : 3120,
+            "byteOffset" : 3120,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1680,
-            "byteOffset" : 5040,
+            "byteLength" : 2080,
+            "byteOffset" : 6240,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 648,
-            "byteOffset" : 6720,
+            "byteOffset" : 8320,
             "target" : 34963
         },
         {
             "buffer" : 0,
             "byteLength" : 260,
-            "byteOffset" : 7368
+            "byteOffset" : 8968
         },
         {
             "buffer" : 0,
             "byteLength" : 780,
-            "byteOffset" : 7628
+            "byteOffset" : 9228
         },
         {
             "buffer" : 0,
             "byteLength" : 1040,
-            "byteOffset" : 8408
+            "byteOffset" : 10008
         },
         {
             "buffer" : 0,
             "byteLength" : 780,
-            "byteOffset" : 9448
+            "byteOffset" : 11048
         }
     ],
     "samplers" : [
@@ -225,7 +225,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 10228,
+            "byteLength" : 11828,
             "uri" : "Boss.bin"
         }
     ]

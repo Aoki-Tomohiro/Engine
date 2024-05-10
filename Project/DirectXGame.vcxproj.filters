@@ -765,6 +765,9 @@
     <None Include="Application\Resources\Shaders\Bloom.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\DebugObject3d.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
     <None Include="Application\Resources\Shaders\DepthOfField.hlsli">
       <Filter>Shaders</Filter>
     </None>
@@ -798,6 +801,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Bloom.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\DebugObject3d.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\DebugObject3d.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\DepthOfField.PS.hlsl">
@@ -840,6 +849,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\PostEffects.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\SkinningObject3d.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Sprite.PS.hlsl">

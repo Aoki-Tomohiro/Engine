@@ -153,22 +153,15 @@ void Player::Update()
 	worldTransform_.translation_.z = std::min<float>(worldTransform_.translation_.z, +kMoveLimitZ);
 
 	//ワールドトランスフォームの更新
-	worldTransform_.quaternion_ = Mathf::Slerp(worldTransform_.quaternion_, destinationQuaternion_, 0.4f);
+	worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 	worldTransform_.UpdateMatrixFromQuaternion();
 	for (uint32_t i = 0; i < kCountOfParts; ++i)
 	{
 		worldTransforms[i].UpdateMatrixFromEuler();
-		//std::string name;
-		//if (i == 0) name = "kBody";
-		//if (i == 1) name = "kHead";
-		//if (i == 2) name = "kL_Arm";
-		//if (i == 3) name = "kR_Arm";
-		//ImGui::Begin(name.c_str());
-		//ImGui::DragFloat3("Translation", &worldTransforms[i].translation_.x, 0.1f);
-		//ImGui::DragFloat3("Scale", &worldTransforms[i].scale_.x, 0.1f);
-		//ImGui::DragFloat3("Rotation", &worldTransforms[i].rotation_.x, 0.1f);
-		//ImGui::End();
 	}
+
+	//モデルの更新
+	models_[0]->Update(worldTransform_, animationNumber_);
 
 	//無敵時間の処理
 	if (workInvincible_.invincibleFlag)
@@ -189,15 +182,20 @@ void Player::Update()
 	hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
 	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
 	spriteHpBar_->SetSize(hpBarSize_);
+
+	ImGui::Begin("Player");
+	ImGui::Text("AnimationNumber : %d", animationNumber_);
+	ImGui::End();
 }
 
 void Player::Draw(const Camera& camera)
 {
 	//プレイヤーのモデルの描画
-	for (uint32_t i = 0; i < kCountOfParts; ++i)
-	{
-		models_[i]->Draw(worldTransforms[i], camera);
-	}
+	//for (uint32_t i = 0; i < kCountOfParts; ++i)
+	//{
+	//	models_[i]->Draw(worldTransforms[i], camera);
+	//}
+	models_[0]->Draw(worldTransform_, camera);
 
 	//武器の描画
 	if (behavior_ == Behavior::kAttack || behavior_ == Behavior::kAirAttack || behavior_ == Behavior::kGuard)
@@ -424,6 +422,12 @@ void Player::BehaviorRootInitialize()
 	worldTransforms[kBody].rotation_.y = 0.0f;
 	weapon_->SetTranslation({ 0.0f,0.0f,0.0f });
 	weapon_->SetRotation({ 0.0f,0.0f,0.0f });
+
+	//走りアニメーションに変更
+	animationNumber_ = 0;
+	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+	models_[0]->GetAnimation()->SetLoop(true);
+	models_[0]->GetAnimation()->SetSpeed(60.0f);
 }
 
 void Player::BehaviorRootUpdate()
@@ -436,6 +440,13 @@ void Player::BehaviorRootUpdate()
 	if (velocity_ != Vector3{ 0.0f,0.0f,0.0f })
 	{
 		MoveAnimation();
+
+		//アニメーションを再生
+		if (!models_[0]->GetAnimation()->IsPlaying())
+		{
+			animationNumber_ = 0;
+			models_[0]->GetAnimation()->PlayAnimation();
+		}
 
 		//パーティクルの座標を更新
 		Vector3 translation = { worldTransforms[kBody].matWorld_.m[3][0], 0.0f ,worldTransforms[kBody].matWorld_.m[3][2] };
@@ -472,6 +483,11 @@ void Player::BehaviorRootUpdate()
 		moveAnimationWork_.startRotation_ = 0.0f;
 		worldTransforms[kL_Arm].rotation_.x = 0.0f;
 		worldTransforms[kR_Arm].rotation_.x = 0.0f;
+		
+		//アニメーションを止める
+		animationNumber_ = 4;
+		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+		models_[0]->GetAnimation()->StopAnimation();
 
 		//パーティクルを出さないようにする
 		ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
@@ -691,6 +707,11 @@ void Player::BehaviorDashInitialize()
 
 		//移動ベクトルをプレイヤーの角度だけ回転する
 		velocity_ = Mathf::TransformNormal(velocity_, worldTransform_.matWorld_);
+
+		//アニメーションを止める
+		animationNumber_ = 4;
+		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+		models_[0]->GetAnimation()->StopAnimation();
 	}
 
 	workDash_.justAvoidTimer = 0;
@@ -824,12 +845,19 @@ const std::array<Player::ConstAttack, Player::ComboNum + 1> Player::kConstAttack
 		//{0,         0,        5,         16,  0.0f,        0.0f,        0.15f},
 		//{0,         0,        20,        16,  0.2f,        0.0f,        0.0f },
 
+		////振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
+		//{5,         0,        5,         14,  0.2f,        0.0f,        0.0f },
+		//{5,         0,        5,         14,  0.0f,        0.0f,        0.15f},
+		//{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
+		//{10,        10,       5,         20,  0.2f,        0.0f,        0.0f },
+		//{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
+
 		//振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
-		{5,         0,        5,         14,  0.2f,        0.0f,        0.0f },
-		{5,         0,        5,         14,  0.0f,        0.0f,        0.15f},
-		{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
-		{10,        10,       5,         20,  0.2f,        0.0f,        0.0f },
-		{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
+		{15 / 2,         0,        23 / 2,         36 / 2,  0.2f,        0.0f,        0.0f },
+		{13 / 2,         0,        22 / 2,         35 / 2,  0.0f,        0.0f,        0.15f},
+		{15 / 2,         0,        23 / 2,         36 / 2,  0.2f,        0.0f,        0.0f },
+		{15 / 2,         0,        15 / 2,         29 / 2,  0.2f,        0.0f,        0.0f },
+		{15 / 2,         0,        23 / 2,         36 / 2,  0.2f,        0.0f,        0.0f },
 	}
 };
 
@@ -860,6 +888,13 @@ void Player::BehaviorAttackInitialize()
 
 		//ダメージを設定
 		workAttack_.damage = 8;
+
+		//アニメーションを設定
+		animationNumber_ = 1;
+		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+		models_[0]->GetAnimation()->SetLoop(false);
+		models_[0]->GetAnimation()->SetSpeed(30);
+		models_[0]->GetAnimation()->PlayAnimation();
 	}
 	else
 	{
@@ -875,6 +910,13 @@ void Player::BehaviorAttackInitialize()
 
 		//ダメージを設定
 		workAttack_.damage = 5;
+
+		//アニメーションを設定
+		animationNumber_ = 1;
+		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+		models_[0]->GetAnimation()->SetLoop(false);
+		models_[0]->GetAnimation()->SetSpeed(30);
+		models_[0]->GetAnimation()->PlayAnimation();
 	}
 }
 
@@ -970,6 +1012,7 @@ void Player::BehaviorAttackUpdate()
 			//各パーツの角度などを次のコンボ用に初期化
 			Vector3 weaponTranslation{};
 			Vector3 weaponRotation{};
+			float animationSpeed;
 			switch (workAttack_.comboIndex)
 			{
 			case 0:
@@ -992,6 +1035,12 @@ void Player::BehaviorAttackUpdate()
 
 					//ダメージを設定
 					workAttack_.damage = 8;
+
+					//アニメーションを設定
+					animationNumber_ = 1;
+					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
 				else
 				{
@@ -1009,6 +1058,12 @@ void Player::BehaviorAttackUpdate()
 
 					//ダメージを設定
 					workAttack_.damage = 5;
+
+					//アニメーションを設定
+					animationNumber_ = 1;
+					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
 				break;
 			case 1:
@@ -1030,6 +1085,12 @@ void Player::BehaviorAttackUpdate()
 				//ダメージを設定
 				workAttack_.damage = 8;
 
+				//アニメーションを設定
+				animationNumber_ = 2;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+
 				break;
 			case 2:
 				//パーツの初期値を設定
@@ -1050,6 +1111,12 @@ void Player::BehaviorAttackUpdate()
 				//ダメージを設定
 				workAttack_.damage = 5;
 
+				//アニメーションを設定
+				animationNumber_ = 1;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+
 				break;
 			case 3:
 				//パーツの初期値を設定
@@ -1069,6 +1136,12 @@ void Player::BehaviorAttackUpdate()
 
 				//ダメージを設定
 				workAttack_.damage = 30;
+
+				//アニメーションを設定
+				animationNumber_ = 3;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 
 				break;
 			}
@@ -1531,11 +1604,17 @@ const std::array<Player::ConstAttack, Player::ComboNum> Player::kConstAirAttacks
 		//{0,         0,        5,         16,  0.0f,        0.0f,        0.15f},
 		//{0,         0,        20,        16,  0.2f,        0.0f,        0.0f },
 
+		////振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
+		//{5,         0,        5,         14,  0.2f,        0.0f,        0.0f },
+		//{5,         0,        5,         14,  0.0f,        0.0f,        0.15f},
+		//{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
+		//{10,        10,       5,         20,  0.2f,        0.0f,        0.0f },
+
 		//振りかぶり、攻撃前硬直、攻撃振り時間、硬直、振りかぶり速度、攻撃前硬直速度、攻撃振り速度
-		{5,         0,        5,         14,  0.2f,        0.0f,        0.0f },
-		{5,         0,        5,         14,  0.0f,        0.0f,        0.15f},
-		{5,         0,        25,        14,  0.2f,        0.0f,        0.0f },
-		{10,        10,       5,         20,  0.2f,        0.0f,        0.0f },
+		{15 / 2,         0,        23 / 2,         36 / 2,  0.2f,        0.0f,        0.0f },
+		{13 / 2,         0,        22 / 2,         35 / 2,  0.0f,        0.0f,        0.15f},
+		{15 / 2,         0,        23 / 2,         36 / 2,  0.2f,        0.0f,        0.0f },
+		{15 / 2,         0,        15 / 2,         29 / 2,  0.2f,        0.0f,        0.0f },
 	}
 };
 
@@ -1564,6 +1643,13 @@ void Player::BehaviorAirAttackInitialize()
 
 	//ダメージを設定
 	workAttack_.damage = 8;
+
+	//アニメーションを設定
+	animationNumber_ = 1;
+	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+	models_[0]->GetAnimation()->SetLoop(false);
+	models_[0]->GetAnimation()->SetSpeed(30);
+	models_[0]->GetAnimation()->PlayAnimation();
 }
 
 void Player::BehaviorAirAttackUpdate()
@@ -1650,6 +1736,7 @@ void Player::BehaviorAirAttackUpdate()
 			//各パーツの角度などを次のコンボ用に初期化
 			Vector3 weaponTranslation{};
 			Vector3 weaponRotation{};
+			float animationSpeed;
 			switch (workAttack_.comboIndex)
 			{
 			case 0:
@@ -1669,6 +1756,10 @@ void Player::BehaviorAirAttackUpdate()
 
 				//ダメージを設定
 				workAttack_.damage = 8;
+
+				//アニメーションを設定
+				animationNumber_ = 1;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			case 1:
@@ -1690,6 +1781,12 @@ void Player::BehaviorAirAttackUpdate()
 				//ダメージを設定
 				workAttack_.damage = 8;
 
+				//アニメーションを設定
+				animationNumber_ = 2;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
+				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+
 				break;
 			case 2:
 				//パーツの初期値を設定
@@ -1708,6 +1805,10 @@ void Player::BehaviorAirAttackUpdate()
 
 				//ダメージを設定
 				workAttack_.damage = 5;
+
+				//アニメーションを設定
+				animationNumber_ = 1;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			case 3:
@@ -1728,6 +1829,10 @@ void Player::BehaviorAirAttackUpdate()
 
 				//ダメージを設定
 				workAttack_.damage = 30;
+
+				//アニメーションを設定
+				animationNumber_ = 3;
+				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			}

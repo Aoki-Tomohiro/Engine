@@ -291,5 +291,8 @@ private:
 
 	//ジャスト回避
 	bool justAvoidInvincible_ = false;
+
+	//アニメーションの番号
+	uint32_t animationNumber_ = 0;
 };
 

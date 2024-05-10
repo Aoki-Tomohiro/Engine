@@ -42,6 +42,7 @@ private:
 	Camera camera_{};
 
 	//プレイヤー
+	std::unique_ptr<Model> playerModel_ = nullptr;
 	std::unique_ptr<Model> playerModelHead_ = nullptr;
 	std::unique_ptr<Model> playerModelBody_ = nullptr;
 	std::unique_ptr<Model> playerModelL_Arm_ = nullptr;
@@ -73,8 +74,5 @@ private:
 
 	//BGM
 	uint32_t bgmHandle_ = 0;
-
-
-	float speed = 60.0f;
 };
 

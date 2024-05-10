@@ -25,6 +25,7 @@ void GameTitleScene::Initialize()
 	camera_.rotation_.x = 0.3f;
 
 	//プレイヤーの生成
+	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
 	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
 	playerModelHead_->GetMaterial()->SetEnableLighting(false);
 	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
@@ -120,23 +121,21 @@ void GameTitleScene::Update()
 	camera_.translation_ = offset;
 	camera_.UpdateMatrix();
 
-	bossModel_->GetAnimation()->SetSpeed(speed);
+	//モデルの更新
+	playerModel_->Update(playerWorldTransforms[0], 1);
+	bossModel_->Update(bossWorldTransform_, 0);
 	if (input_->IsPushKeyEnter(DIK_1))
 	{
-		bossModel_->GetAnimation()->PlayRigidAnimation();
+		bossModel_->GetAnimation()->PlayAnimation();
 	}
 	else if (input_->IsPushKeyEnter(DIK_2))
 	{
-		bossModel_->GetAnimation()->StopRigidAnimation();
+		bossModel_->GetAnimation()->StopAnimation();
 	}
 	else if (input_->IsPushKeyEnter(DIK_3))
 	{
-		bossModel_->GetAnimation()->PauseRigidAnimation();
+		bossModel_->GetAnimation()->PauseAnimation();
 	}
-	
-	ImGui::Begin("GameTitleScene");
-	ImGui::SliderFloat("Speed", &speed, 0, 600);
-	ImGui::End();
 }
 
 void GameTitleScene::Draw()
@@ -154,10 +153,7 @@ void GameTitleScene::Draw()
 
 #pragma region 3Dオブジェクト描画
 	//プレイヤーのモデルの描画
-	playerModelBody_->Draw(playerWorldTransforms[1], camera_);
-	playerModelHead_->Draw(playerWorldTransforms[2], camera_);
-	playerModelL_Arm_->Draw(playerWorldTransforms[3], camera_);
-	playerModelR_Arm_->Draw(playerWorldTransforms[4], camera_);
+	playerModel_->Draw(playerWorldTransforms[0], camera_);
 
 	//ボスのモデルの描画
 	bossModel_->Draw(bossWorldTransform_, camera_);

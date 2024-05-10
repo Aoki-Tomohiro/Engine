@@ -54,7 +54,7 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	warningWorldTransform_.scale_ = { worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z };
 
 	//アニメーションの再生
-	pBoss->GetModel()->GetAnimation()->PlayRigidAnimation();
+	pBoss->GetModel()->GetAnimation()->PlayAnimation();
 }
 
 void BossStateCrashDown::Update(Boss* pBoss)
