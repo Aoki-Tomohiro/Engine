@@ -124,6 +124,7 @@ struct ConstBuffDataLensDistortion
 struct ConstBuffDataVignette
 {
 	bool isEnable;
+	float scale;
 	float intensity;
 };
 

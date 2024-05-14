@@ -15,6 +15,7 @@ struct LensDistortion
 struct Vignette
 {
     int32_t isEnable;
+    float scale;
     float intensity;
 };
 
@@ -84,9 +85,14 @@ PixelShaderOutput main(VertexShaderOutput input)
     //ビネット
     if (gVignetteParameter.isEnable)
     {
-        float2 uv = input.texcoord;
-        uv = gVignetteParameter.intensity * uv - gVignetteParameter.intensity / 2;
-        output.color *= 1.0 - dot(uv, uv);
+        //周囲を0に、中心になるほど明るくなるように計算で調整
+        float32_t2 correct = input.texcoord * (1.0f - input.texcoord.yx);
+        //correctだけで計算すると中心の最大値が0.0625で暗すぎるのでScaleで調整。この例では16倍して1にしている
+        float vignette = correct.x * correct.y * gVignetteParameter.scale;
+        //とりあえず0.8乗でそれっぽくしてみた
+        vignette = saturate(pow(vignette, gVignetteParameter.intensity));
+        //係数として乗算
+        output.color.rgb *= vignette;
     }
     
     //GrayScale
