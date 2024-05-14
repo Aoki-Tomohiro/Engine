@@ -2,6 +2,7 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/TextureManager.h"
 #include <numbers>
+#include "Engine/Components/PostEffects/PostEffects.h"
 
 void GameTitleScene::Initialize()
 {
@@ -124,18 +125,6 @@ void GameTitleScene::Update()
 	//モデルの更新
 	playerModel_->Update(playerWorldTransforms[0], 1);
 	bossModel_->Update(bossWorldTransform_, 0);
-	if (input_->IsPushKeyEnter(DIK_1))
-	{
-		bossModel_->GetAnimation()->PlayAnimation();
-	}
-	else if (input_->IsPushKeyEnter(DIK_2))
-	{
-		bossModel_->GetAnimation()->StopAnimation();
-	}
-	else if (input_->IsPushKeyEnter(DIK_3))
-	{
-		bossModel_->GetAnimation()->PauseAnimation();
-	}
 }
 
 void GameTitleScene::Draw()

@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Application/Src/Object/LockOn/LockOn.h"
 #include <numbers>
 
@@ -183,9 +184,16 @@ void Player::Update()
 	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
 	spriteHpBar_->SetSize(hpBarSize_);
 
-	ImGui::Begin("Player");
-	ImGui::Text("AnimationNumber : %d", animationNumber_);
-	ImGui::End();
+	//プレイヤーの体力が一定量以下になったらVignetteをかける
+	const float hpRatio = 4.0f;
+	if (hp_ <= kMaxHP / hpRatio)
+	{
+		PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
+	}
+	else
+	{
+		PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
+	}
 }
 
 void Player::Draw(const Camera& camera)
