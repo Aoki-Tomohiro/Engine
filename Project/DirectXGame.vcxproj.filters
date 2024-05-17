@@ -199,6 +199,12 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Player">
       <UniqueIdentifier>{0751cded-eda2-4ffa-9525-07d63475323f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Engine\3D\Skybox">
+      <UniqueIdentifier>{f82dbdf5-7a57-4889-ba80-4a886547eb96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\3D\Skybox">
+      <UniqueIdentifier>{2577eb0d-f1a1-4a0b-a400-0d42b862b8b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -446,6 +452,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Components\PostEffects\GrayScale.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Skybox\Skybox.cpp">
+      <Filter>ソース ファイル\Engine\3D\Skybox</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -755,6 +764,9 @@
     <ClInclude Include="Engine\Components\PostEffects\GrayScale.h">
       <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\Skybox\Skybox.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Skybox</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
@@ -793,6 +805,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Application\Resources\Shaders\VerticalBlur.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Application\Resources\Shaders\Skybox.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
@@ -864,6 +879,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\VerticalBlur.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Skybox.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Skybox.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

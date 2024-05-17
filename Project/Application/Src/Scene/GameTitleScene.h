@@ -5,6 +5,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
 
@@ -74,5 +75,9 @@ private:
 
 	//BGM
 	uint32_t bgmHandle_ = 0;
+
+	//Skybox
+	std::unique_ptr<Skybox> skybox_ = nullptr;
+	WorldTransform worldTransformSkybox_{};
 };
 

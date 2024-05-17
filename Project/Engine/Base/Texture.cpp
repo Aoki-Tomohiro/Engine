@@ -29,19 +29,30 @@ void Texture::Create(const DirectX::ScratchImage& mipImages)
 	assert(SUCCEEDED(hr));
 
 	//SRVの作成
-	CreateDerivedViews(device, metadata.format);
+	CreateDerivedViews(device, metadata);
 
 	//テクスチャのリソースにデータを転送する
 	UploadTextureData(resource_.Get(), mipImages);
 }
 
-void Texture::CreateDerivedViews(ID3D12Device* device, DXGI_FORMAT format)
+void Texture::CreateDerivedViews(ID3D12Device* device, const DirectX::TexMetadata& metadata)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = format;
-	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Format = metadata.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	//metadataからcubemapかどうか取得
+	if (metadata.IsCubemap())
+	{
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MostDetailedMip = 0;//unionがTextureCubeになったが、内部パラメータの意味はTexture2dと変わらない
+		srvDesc.TextureCube.MipLevels = UINT_MAX;
+		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+	}
+	else
+	{
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	}
 	srvHandle_ = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
 }
@@ -49,8 +60,6 @@ void Texture::CreateDerivedViews(ID3D12Device* device, DXGI_FORMAT format)
 void Texture::UploadTextureData(const Microsoft::WRL::ComPtr<ID3D12Resource>& texture, const DirectX::ScratchImage& mipImages)
 {
 	ID3D12Device* device = GraphicsCore::GetInstance()->GetDevice();
-	//CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	//CommandQueue* commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
 	CommandContext commandContext{};
 	commandContext.Initialize();
 	CommandQueue commandQueue{};

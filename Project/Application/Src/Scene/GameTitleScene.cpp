@@ -64,11 +64,11 @@ void GameTitleScene::Initialize()
 	bossWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 	bossWorldTransform_.quaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>);
 
-	//天球の作成
-	skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
-	skydomeModel_->GetMaterial()->SetEnableLighting(false);
-	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
-	skydome_->SetModel(skydomeModel_.get());
+	////天球の作成
+	//skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
+	//skydomeModel_->GetMaterial()->SetEnableLighting(false);
+	//skydome_ = GameObjectManager::CreateGameObject<Skydome>();
+	//skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
 	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
@@ -90,6 +90,12 @@ void GameTitleScene::Initialize()
 	//BGMの読み込みと再生
 	bgmHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Title.mp3");
 	audio_->PlayAudio(bgmHandle_, true, 0.5f);
+
+	//Skyboxの生成
+	TextureManager::Load("rostock_laage_airport_4k.dds");
+	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
+	worldTransformSkybox_.Initialize();
+	worldTransformSkybox_.scale_ = { 500.0f,500.0f,500.0f };
 }
 
 void GameTitleScene::Finalize()
@@ -101,6 +107,9 @@ void GameTitleScene::Update()
 {
 	//トランジションの更新
 	UpdateTransition();
+
+	//Skyboxの更新
+	worldTransformSkybox_.UpdateMatrixFromEuler();
 
 	//ゲームオブジェクトの更新
 	gameObjectManager_->Update();
@@ -139,6 +148,17 @@ void GameTitleScene::Draw()
 
 	//深度バッファをクリア
 	renderer_->ClearDepthBuffer();
+
+#pragma region Skyboxの描画
+	//Skybox描画前処理
+	renderer_->PreDrawSkybox();
+
+	//Skyboxの描画
+	skybox_->Draw(worldTransformSkybox_, camera_);
+
+	//Skybox描画処理
+	renderer_->PostDrawSkybox();
+#pragma endregion
 
 #pragma region 3Dオブジェクト描画
 	//プレイヤーのモデルの描画

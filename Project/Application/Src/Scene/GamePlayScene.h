@@ -7,6 +7,7 @@
 #include "Engine/Components/Collision/CollisionManager.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
 
@@ -112,5 +113,9 @@ private:
 	std::unique_ptr<Sprite> guideSprite_ = nullptr;
 
 	float length = 0.0f;
+
+	//Skybox
+	std::unique_ptr<Skybox> skybox_ = nullptr;
+	WorldTransform worldTransformSkybox_{};
 };
 

@@ -16,7 +16,7 @@ public:
 	const D3D12_RESOURCE_DESC& GetResourceDesc() const { return resourceDesc_; };
 
 private:
-	void CreateDerivedViews(ID3D12Device* device, DXGI_FORMAT format);
+	void CreateDerivedViews(ID3D12Device* device, const DirectX::TexMetadata& metadata);
 
 	void UploadTextureData(const Microsoft::WRL::ComPtr<ID3D12Resource>& texture, const DirectX::ScratchImage& mipImages);
 
