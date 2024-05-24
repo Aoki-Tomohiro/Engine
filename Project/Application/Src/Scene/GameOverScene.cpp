@@ -18,10 +18,10 @@ void GameOverScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//天球の作成
-	skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
-	skydomeModel_->GetMaterial()->SetEnableLighting(false);
-	skydome_ = GameObjectManager::CreateGameObject<Skydome>();
-	skydome_->SetModel(skydomeModel_.get());
+	TextureManager::Load("rostock_laage_airport_4k.dds");
+	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
+	backGround_ = std::make_unique<BackGround>();
+	backGround_->Initialize(skybox_.get());
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
@@ -43,6 +43,9 @@ void GameOverScene::Update()
 	//トランジションの更新
 	UpdateTransition();
 
+	//背景の更新
+	backGround_->Update();
+
 	//ゲームオブジェクトの更新
 	gameObjectManager_->Update();
 
@@ -62,6 +65,17 @@ void GameOverScene::Draw()
 
 	//深度バッファをクリア
 	renderer_->ClearDepthBuffer();
+
+#pragma region Skyboxの描画
+	//Skybox描画前処理
+	renderer_->PreDrawSkybox();
+
+	//Skyboxの描画
+	backGround_->Draw(camera_);
+
+	//Skybox描画処理
+	renderer_->PostDrawSkybox();
+#pragma endregion
 
 #pragma region 3Dオブジェクト描画
 	//ゲームオブジェクトのモデル描画

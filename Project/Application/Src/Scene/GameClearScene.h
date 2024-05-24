@@ -8,7 +8,7 @@
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
 
-#include "Application/Src/Object/Skydome/Skydome.h"
+#include "Application/Src/Object/BackGround/BackGround.h"
 
 class GameClearScene : public IScene
 {
@@ -39,8 +39,8 @@ private:
 	GameObjectManager* gameObjectManager_ = nullptr;
 
 	//天球
-	std::unique_ptr<Model> skydomeModel_ = nullptr;
-	Skydome* skydome_ = nullptr;
+	std::unique_ptr<Skybox> skybox_ = nullptr;
+	std::unique_ptr<BackGround> backGround_ = nullptr;
 
 	//トランジション関連
 	std::unique_ptr<Sprite> transitionSprite_ = nullptr;

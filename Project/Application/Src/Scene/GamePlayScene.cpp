@@ -90,8 +90,8 @@ void GamePlayScene::Initialize()
 	//Skyboxの生成
 	TextureManager::Load("rostock_laage_airport_4k.dds");
 	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
-	worldTransformSkybox_.Initialize();
-	worldTransformSkybox_.scale_ = { 500.0f,500.0f,500.0f };
+	backGround_ = std::make_unique<BackGround>();
+	backGround_->Initialize(skybox_.get());
 }
 
 void GamePlayScene::Finalize()
@@ -105,7 +105,7 @@ void GamePlayScene::Update()
 	UpdateTransition();
 
 	//Skyboxの更新
-	worldTransformSkybox_.UpdateMatrixFromEuler();
+	backGround_->Update();
 
 	//パーティクルの更新
 	particleManager_->Update();
@@ -249,7 +249,7 @@ void GamePlayScene::Draw()
 	renderer_->PreDrawSkybox();
 
 	//Skyboxの描画
-	skybox_->Draw(worldTransformSkybox_, camera_);
+	backGround_->Draw(camera_);
 
 	//Skybox描画処理
 	renderer_->PostDrawSkybox();

@@ -9,7 +9,7 @@
 #include "Engine/2D/Sprite.h"
 #include "Engine/Math/MathFunction.h"
 
-#include "Application/Src/Object/Skydome/Skydome.h"
+#include "Application/Src/Object/BackGround/BackGround.h"
 #include "Application/Src/Object/Ground/Ground.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Boss/Boss.h"
@@ -56,7 +56,7 @@ private:
 
 	//天球
 	std::unique_ptr<Model> skydomeModel_ = nullptr;
-	Skydome* skydome_ = nullptr;
+	Skybox* skydome_ = nullptr;
 
 	//地面
 	std::unique_ptr<Model> groundModel_ = nullptr;
@@ -78,6 +78,6 @@ private:
 
 	//Skybox
 	std::unique_ptr<Skybox> skybox_ = nullptr;
-	WorldTransform worldTransformSkybox_{};
+	std::unique_ptr<BackGround> backGround_ = nullptr;
 };
 
