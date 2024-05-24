@@ -9,6 +9,7 @@ struct Material
     int32_t specularReflectionType;
     float32_t shininess;
     float32_t3 specularColor;
+    float32_t environmentCoefficient;
 };
 
 struct DirectionLight
@@ -53,6 +54,7 @@ struct LightGroup
 };
 
 Texture2D<float32_t4> gTexture : register(t0);
+TextureCube<float32_t4> gEnvironmentTexture : register(t1);
 SamplerState gSampler : register(s0);
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<LightGroup> gLightGroup : register(b1);
@@ -215,6 +217,11 @@ PixelShaderOutput main(VertexShaderOutput input)
                 finalColor.rgb += diffuse + specular;
             }
         }
+        
+        //環境マップのLighting
+        float32_t3 reflectedVector = reflect(input.cameraToPosition, normalize(input.normal));
+        float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
+        finalColor.rgb *= environmentColor.rgb * gMaterial.environmentCoefficient;
     }
     else
     {

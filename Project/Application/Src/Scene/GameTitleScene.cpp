@@ -96,6 +96,9 @@ void GameTitleScene::Initialize()
 	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
 	backGround_ = std::make_unique<BackGround>();
 	backGround_->Initialize(skybox_.get());
+
+	////EnvironmentTextureを設定
+	//LightManager::GetInstance()->SetEnvironmentTexture("autumn_field_puresky_4k.dds");
 }
 
 void GameTitleScene::Finalize()

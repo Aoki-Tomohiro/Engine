@@ -30,7 +30,8 @@ VertexShaderOutput main(VertexShaderInput input)
     output.texcoord = input.texcoord;
     output.normal = normalize(mul(input.normal, (float32_t3x3) gWorldTransform.worldInverseTranspose));
     output.worldPosition = mul(input.position, gWorldTransform.world).xyz;
-    output.toEye = normalize(gCamera.worldPosition - mul(input.position, gWorldTransform.world).xyz);
+    output.toEye = normalize(gCamera.worldPosition - output.worldPosition);
+    output.cameraToPosition = normalize(output.worldPosition - gCamera.worldPosition);
     output.depth = (output.position.z - 0.1f) / (1000.0f - 0.1f);
 
     return output;

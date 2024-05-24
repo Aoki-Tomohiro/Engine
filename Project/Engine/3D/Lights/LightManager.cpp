@@ -1,4 +1,5 @@
 #include "LightManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 
 //実態定義
@@ -27,6 +28,9 @@ void LightManager::Initialize()
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(sizeof(ConstBuffDataLight));
 	Update();
+
+	TextureManager::Load("rostock_laage_airport_4k.dds");
+	SetEnvironmentTexture("rostock_laage_airport_4k.dds");
 }
 
 void LightManager::Update()
@@ -61,4 +65,12 @@ void LightManager::Update()
 		lightData->spotLights[i].isEnable = spotLights_[i].GetIsEnable();
 	}
 	constBuff_->Unmap();
+}
+
+void LightManager::SetEnvironmentTexture(const std::string& textureName)
+{
+	//テクスチャを設定
+	environmentTexture_ = TextureManager::GetInstance()->FindTexture(textureName);
+	//テクスチャがなかったら止める
+	assert(environmentTexture_);
 }

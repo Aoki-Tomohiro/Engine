@@ -68,6 +68,10 @@ public:
 
 	void SetSpecularColor(const Vector3& specularColor) { specularColor_ = specularColor; };
 
+	const float GetEnvironmentCoefficient() const { return environmentCoefficient_; };
+
+	void SetEnvironmentCoefficient(const float environmentCoefficient) { environmentCoefficient_ = environmentCoefficient; };
+
 	const Texture* GetTexture() const { return texture_; };
 
 	void SetTexture(const std::string& textureName);
@@ -94,6 +98,8 @@ private:
 	float shininess_ = 40.0f;
 
 	Vector3 specularColor_ = { 1.0f,1.0f,1.0f };
+
+	float environmentCoefficient_ = 0.6f;
 
 	const Texture* texture_ = nullptr;
 };

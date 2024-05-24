@@ -67,7 +67,8 @@ VertexShaderOutput main(VertexShaderInput input)
         output.texcoord = input.texcoord;
         output.normal = normalize(mul(input.normal, (float32_t3x3) gWorldTransform.worldInverseTranspose));
         output.worldPosition = mul(input.position, gWorldTransform.world).xyz;
-        output.toEye = normalize(gCamera.worldPosition - mul(input.position, gWorldTransform.world).xyz);
+        output.toEye = normalize(gCamera.worldPosition - output.worldPosition);
+        output.cameraToPosition = normalize(output.worldPosition - gCamera.worldPosition);
         output.depth = (output.position.z - 0.1f) / (1000.0f - 0.1f);
     }
     else
@@ -75,10 +76,11 @@ VertexShaderOutput main(VertexShaderInput input)
         //Skinning結果を使って変換
         Skinned skinned = Skinning(input);
         output.position = mul(skinned.position, mul(gWorldTransform.world, mul(gCamera.view, gCamera.projection)));
-        output.worldPosition = mul(skinned.position, gWorldTransform.world).xyz;
         output.texcoord = input.texcoord;
         output.normal = normalize(mul(skinned.normal, (float32_t3x3) gWorldTransform.worldInverseTranspose));
-        output.toEye = normalize(gCamera.worldPosition - mul(skinned.position, gWorldTransform.world).xyz);
+        output.worldPosition = mul(skinned.position, gWorldTransform.world).xyz;
+        output.toEye = normalize(gCamera.worldPosition - output.worldPosition);
+        output.cameraToPosition = normalize(output.worldPosition - gCamera.worldPosition);
         output.depth = (skinned.position.z - 0.1f) / (1000.0f - 0.1f);
     }
 

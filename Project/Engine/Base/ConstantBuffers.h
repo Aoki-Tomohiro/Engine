@@ -27,6 +27,7 @@ struct ConstBuffDataMaterial
 	int32_t specularReflectionType;
 	float shininess;
 	Vector3 specularColor;
+	float environmentCoefficient;
 };
 
 struct ConstBuffDataWorldTransform

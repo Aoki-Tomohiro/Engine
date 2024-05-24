@@ -39,6 +39,7 @@ void Material::Update()
 	materialData->specularReflectionType = specularReflectionType_;
 	materialData->shininess = shininess_;
 	materialData->specularColor = specularColor_;
+	materialData->environmentCoefficient = environmentCoefficient_;
 	materialConstBuffer_->Unmap();
 }
 

@@ -44,9 +44,11 @@ public:
 		//テクスチャ
 		kTexture,
 		//ライト
-		kDirectionalLight,
+		kLight,
 		//MatrixPalette
 		kMatrixPalette,
+		//環境テクスチャ
+		kEnvironmentTexture,
 	};
 
 	static Renderer* GetInstance();

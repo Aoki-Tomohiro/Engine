@@ -107,7 +107,10 @@ void Renderer::Render()
 	commandContext->SetPipelineState(skinningModelPipelineStates_[currentRenderingType]);
 
 	//DirectionalLightを設定
-	commandContext->SetConstantBuffer(kDirectionalLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//EnvironmentTextureを設定
+	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
 
 	for (const SortObject& sortObject : sortObjects_) {
 		//不透明オブジェクトに切り替わったらPSOも変える
@@ -268,12 +271,13 @@ void Renderer::PreDrawSkybox()
 
 void Renderer::PostDrawSkybox()
 {
+
 }
 
 void Renderer::CreateModelPipelineState()
 {
 	//RootSignatureの作成
-	modelRootSignature_.Create(5, 1);
+	modelRootSignature_.Create(6, 1);
 
 	//RootParameterを設定
 	modelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -281,6 +285,7 @@ void Renderer::CreateModelPipelineState()
 	modelRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
 	modelRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
+	modelRootSignature_[5].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
@@ -372,7 +377,7 @@ void Renderer::CreateModelPipelineState()
 void Renderer::CreateSkinningModelPipelineState()
 {
 	//RootSignatureの作成
-	skinningModelRootSignature_.Create(6, 1);
+	skinningModelRootSignature_.Create(7, 1);
 
 	//RootParameterを設定
 	skinningModelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -381,6 +386,7 @@ void Renderer::CreateSkinningModelPipelineState()
 	skinningModelRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	skinningModelRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
 	skinningModelRootSignature_[5].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
+	skinningModelRootSignature_[6].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
