@@ -3,7 +3,7 @@
 void Laser::Initialize()
 {
 	//モデルの生成
-	model_.reset(ModelManager::CreateFromModelFile("Laser.obj", Opaque));
+	model_ = ModelManager::CreateFromModelFile("Laser", Opaque);
 	model_->GetMaterial()->SetEnableLighting(false);
 
 	//ワールドトランスフォームの初期化

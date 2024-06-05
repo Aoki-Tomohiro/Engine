@@ -273,11 +273,11 @@ private:
 	float hp_ = kMaxHP;
 
 	//パーティクル
-	std::unique_ptr<Model> particleModel_ = nullptr;
+	Model* particleModel_ = nullptr;
 	ParticleSystem* particleSystem_ = nullptr;
 
 	//武器
-	std::unique_ptr<Model> modelWeapon_ = nullptr;
+	Model* modelWeapon_ = nullptr;
 	Weapon* weapon_ = nullptr;
 
 	//オーディオハンドル

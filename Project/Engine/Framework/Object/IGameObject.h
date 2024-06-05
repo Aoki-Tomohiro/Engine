@@ -8,17 +8,23 @@ class IGameObject
 public:
 	virtual ~IGameObject() = default;
 
-	virtual void Initialize() = 0;
+	virtual void Initialize();
 
-	virtual void Update() = 0;
+	virtual void Update();
 
-	virtual void Draw(const Camera& camera) = 0;
+	virtual void Draw(const Camera& camera);
 
-	virtual void DrawUI() = 0;
+	virtual void DrawUI();
 
 	const Model* GetModel() const { return model_; };
 
 	void SetModel(Model* model) { model_ = model; };
+
+	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; };
+
+	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
+
+	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
 
 	const std::string& GetTag() const { return tag_; };
 

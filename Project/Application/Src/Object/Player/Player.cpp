@@ -36,10 +36,10 @@ void Player::Initialize()
 	audio_ = Audio::GetInstance();
 
 	//武器の生成
-	modelWeapon_.reset(ModelManager::CreateFromModelFile("Weapon.obj", Opaque));
+	modelWeapon_ = ModelManager::CreateFromModelFile("Weapon", Opaque);
 	modelWeapon_->GetMaterial()->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
-	weapon_->SetModel(modelWeapon_.get());
+	weapon_->SetModel(modelWeapon_);
 	weapon_->SetParent(&worldTransform_);
 
 	//スプライトの生成
@@ -54,9 +54,9 @@ void Player::Initialize()
 	damageSprite_->SetSize({ 1280.0f,720.0f });
 
 	//パーティクルシステムの初期化
-	particleModel_.reset(ModelManager::CreateFromModelFile("Cube.obj", Opaque));
+	particleModel_ = ModelManager::CreateFromModelFile("Cube", Opaque);
 	particleSystem_ = ParticleManager::Create("Dash");
-	particleSystem_->SetModel(particleModel_.get());
+	particleSystem_->SetModel(particleModel_);
 	particleSystem_->SetIsBillBoard(false);
 
 	//オーディオの読み込み

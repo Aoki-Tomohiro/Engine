@@ -8,7 +8,7 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float> / 2.0f);
 
 	//警告モデルの作成
-	waringModel_.reset(ModelManager::CreateFromModelFile("Warning.obj", Opaque));
+	waringModel_ = ModelManager::CreateFromModelFile("Warning", Opaque);
 	waringModel_->GetMaterial()->SetEnableLighting(false);
 	waringModel_->GetMaterial()->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 

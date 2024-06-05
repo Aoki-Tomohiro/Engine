@@ -27,7 +27,7 @@ public:
 
 private:
 	//モデル
-	std::unique_ptr<Model> model_ = nullptr;
+	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_{};

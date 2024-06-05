@@ -36,16 +36,8 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
-	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
-	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
-	playerModelHead_->GetMaterial()->SetEnableLighting(false);
-	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
-	playerModelBody_->GetMaterial()->SetEnableLighting(false);
-	playerModelL_Arm_.reset(ModelManager::CreateFromModelFile("PlayerL_arm.obj", Opaque));
-	playerModelL_Arm_->GetMaterial()->SetEnableLighting(false);
-	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
-	playerModelR_Arm_->GetMaterial()->SetEnableLighting(false);
-	std::vector<Model*> playerModels = { playerModel_.get()};
+	playerModel_ = ModelManager::CreateFromModelFile("Player", Opaque);
+	std::vector<Model*> playerModels = { playerModel_};
 	player_ = GameObjectManager::CreateGameObject<Player>();
 	player_->SetModels(playerModels);
 	player_->SetTag("Player");
@@ -55,11 +47,11 @@ void GamePlayScene::Initialize()
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
+	bossModel_ = ModelManager::CreateFromModelFile("Boss", Opaque);
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	boss_ = GameObjectManager::CreateGameObject<Boss>();
-	boss_->SetModel(bossModel_.get());
+	boss_->SetModel(bossModel_);
 	boss_->SetTag("Boss");
 
 	////天球の作成
@@ -69,10 +61,10 @@ void GamePlayScene::Initialize()
 	//skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
+	groundModel_ = ModelManager::CreateFromModelFile("Ground.obj", Opaque);
 	groundModel_->GetMaterial()->SetEnableLighting(false);
 	ground_ = GameObjectManager::CreateGameObject<Ground>();
-	ground_->SetModel(groundModel_.get());
+	ground_->SetModel(groundModel_);
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
