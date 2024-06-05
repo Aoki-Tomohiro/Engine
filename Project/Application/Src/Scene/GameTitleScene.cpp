@@ -3,7 +3,6 @@
 #include "Engine/Base/TextureManager.h"
 #include <numbers>
 #include "Engine/Components/PostEffects/PostEffects.h"
-#include "Engine/LevelLoader/LevelLoader.h"
 
 void GameTitleScene::Initialize()
 {
@@ -66,7 +65,7 @@ void GameTitleScene::Initialize()
 	//地面の生成
 	groundModel_ = ModelManager::CreateFromModelFile("Ground", Opaque);
 	groundModel_->GetMaterial()->SetEnableLighting(false);
-	ground_ = GameObjectManager::CreateGameObject<Ground>();
+	ground_ = GameObjectManager::CreateGameObjectFromType<Ground>();
 	ground_->SetModel(groundModel_);
 
 	//トランジションの初期化
@@ -92,8 +91,6 @@ void GameTitleScene::Initialize()
 
 	////EnvironmentTextureを設定
 	//LightManager::GetInstance()->SetEnvironmentTexture("autumn_field_puresky_4k.dds");
-
-	LevelLoader::Load("untitled");
 }
 
 void GameTitleScene::Finalize()

@@ -16,7 +16,7 @@ public:
 
 	virtual void DrawUI();
 
-	const Model* GetModel() const { return model_; };
+	Model* GetModel() const { return model_; };
 
 	void SetModel(Model* model) { model_ = model; };
 

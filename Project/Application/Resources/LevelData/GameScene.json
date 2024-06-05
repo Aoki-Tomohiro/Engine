@@ -3,11 +3,33 @@
     "objects": [
         {
             "type": "MESH",
-            "name": "Cube",
+            "name": "Boss",
             "transform": {
                 "translation": [
                     0.0,
                     0.0,
+                    3.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    3.0,
+                    3.0,
+                    3.0
+                ]
+            },
+            "file_name": "Boss"
+        },
+        {
+            "type": "MESH",
+            "name": "Player",
+            "transform": {
+                "translation": [
+                    0.0,
+                    -20.0,
                     0.0
                 ],
                 "rotation": [
@@ -21,29 +43,20 @@
                     1.0
                 ]
             },
-            "children": [
-                {
-                    "type": "MESH",
-                    "name": "Cube",
-                    "transform": {
-                        "translation": [
-                            0.0,
-                            0.0,
-                            2.0
-                        ],
-                        "rotation": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scaling": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                }
-            ]
+            "file_name": "Player",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
         },
         {
             "type": "LIGHT",
@@ -86,6 +99,28 @@
                     1.0
                 ]
             }
+        },
+        {
+            "type": "MESH",
+            "name": "Ground",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    -2.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    50.0,
+                    50.0,
+                    2.0
+                ]
+            },
+            "file_name": "Ground"
         }
     ]
 }

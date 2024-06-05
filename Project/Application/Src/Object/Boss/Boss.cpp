@@ -9,6 +9,7 @@ Boss::~Boss()
 
 void Boss::Initialize()
 {
+	SetTag("Boss");
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_.y = 3.0f;

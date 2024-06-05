@@ -6,6 +6,7 @@
 
 void Player::Initialize()
 {
+	SetTag("Player");
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_.z = -20.0f;
@@ -38,7 +39,7 @@ void Player::Initialize()
 	//武器の生成
 	modelWeapon_ = ModelManager::CreateFromModelFile("Weapon", Opaque);
 	modelWeapon_->GetMaterial()->SetEnableLighting(false);
-	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
+	weapon_ = GameObjectManager::CreateGameObjectFromType<Weapon>();
 	weapon_->SetModel(modelWeapon_);
 	weapon_->SetParent(&worldTransform_);
 
@@ -162,7 +163,7 @@ void Player::Update()
 	}
 
 	//モデルの更新
-	models_[0]->Update(worldTransform_, animationNumber_);
+	model_->Update(worldTransform_, animationNumber_);
 
 	//無敵時間の処理
 	if (workInvincible_.invincibleFlag)
@@ -203,7 +204,7 @@ void Player::Draw(const Camera& camera)
 	//{
 	//	models_[i]->Draw(worldTransforms[i], camera);
 	//}
-	models_[0]->Draw(worldTransform_, camera);
+	model_->Draw(worldTransform_, camera);
 
 	//武器の描画
 	if (behavior_ == Behavior::kAttack || behavior_ == Behavior::kAirAttack || behavior_ == Behavior::kGuard)
@@ -433,9 +434,9 @@ void Player::BehaviorRootInitialize()
 
 	//走りアニメーションに変更
 	animationNumber_ = 0;
-	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-	models_[0]->GetAnimation()->SetLoop(true);
-	models_[0]->GetAnimation()->SetSpeed(60.0f);
+	model_->GetAnimation()->SetAnimationTime(0.0f);
+	model_->GetAnimation()->SetLoop(true);
+	model_->GetAnimation()->SetSpeed(60.0f);
 }
 
 void Player::BehaviorRootUpdate()
@@ -450,10 +451,10 @@ void Player::BehaviorRootUpdate()
 		MoveAnimation();
 
 		//アニメーションを再生
-		if (!models_[0]->GetAnimation()->IsPlaying())
+		if (!model_->GetAnimation()->IsPlaying())
 		{
 			animationNumber_ = 0;
-			models_[0]->GetAnimation()->PlayAnimation();
+			model_->GetAnimation()->PlayAnimation();
 		}
 
 		//パーティクルの座標を更新
@@ -494,8 +495,8 @@ void Player::BehaviorRootUpdate()
 		
 		//アニメーションを止める
 		animationNumber_ = 4;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->StopAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->StopAnimation();
 
 		//パーティクルを出さないようにする
 		ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
@@ -718,8 +719,8 @@ void Player::BehaviorDashInitialize()
 
 		//アニメーションを止める
 		animationNumber_ = 4;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->StopAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->StopAnimation();
 	}
 
 	workDash_.justAvoidTimer = 0;
@@ -899,10 +900,10 @@ void Player::BehaviorAttackInitialize()
 
 		//アニメーションを設定
 		animationNumber_ = 1;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->SetLoop(false);
-		models_[0]->GetAnimation()->SetSpeed(30);
-		models_[0]->GetAnimation()->PlayAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->SetLoop(false);
+		model_->GetAnimation()->SetSpeed(30);
+		model_->GetAnimation()->PlayAnimation();
 	}
 	else
 	{
@@ -1046,7 +1047,7 @@ void Player::BehaviorAttackUpdate()
 
 					//アニメーションを設定
 					animationNumber_ = 1;
-					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					model_->GetAnimation()->SetAnimationTime(0.0f);
 					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
@@ -1069,7 +1070,7 @@ void Player::BehaviorAttackUpdate()
 
 					//アニメーションを設定
 					animationNumber_ = 1;
-					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					model_->GetAnimation()->SetAnimationTime(0.0f);
 					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
@@ -1095,9 +1096,9 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 2;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
-				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / model_->GetAnimation()->GetAnimationDuration(animationNumber_));
+				model_->GetAnimation()->SetSpeed(animationSpeed);
 
 				break;
 			case 2:
@@ -1121,7 +1122,7 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 1;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 
@@ -1147,7 +1148,7 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 3;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 
@@ -1654,10 +1655,10 @@ void Player::BehaviorAirAttackInitialize()
 
 	//アニメーションを設定
 	animationNumber_ = 1;
-	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-	models_[0]->GetAnimation()->SetLoop(false);
-	models_[0]->GetAnimation()->SetSpeed(30);
-	models_[0]->GetAnimation()->PlayAnimation();
+	model_->GetAnimation()->SetAnimationTime(0.0f);
+	model_->GetAnimation()->SetLoop(false);
+	model_->GetAnimation()->SetSpeed(30);
+	model_->GetAnimation()->PlayAnimation();
 }
 
 void Player::BehaviorAirAttackUpdate()
@@ -1791,9 +1792,9 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 2;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
-				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / model_->GetAnimation()->GetAnimationDuration(animationNumber_));
+				model_->GetAnimation()->SetSpeed(animationSpeed);
 
 				break;
 			case 2:
@@ -1816,7 +1817,7 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 1;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			case 3:
@@ -1840,7 +1841,7 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 3;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			}

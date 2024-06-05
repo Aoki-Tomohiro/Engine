@@ -3,6 +3,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/LevelLoader/LevelLoader.h"
 
 void GamePlayScene::Initialize()
 {
@@ -16,9 +17,13 @@ void GamePlayScene::Initialize()
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
+
 	//パーティクルをクリア
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
+
+	//
+	LevelLoader::Load("GameScene");
 
 	//衝突マネージャーの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
@@ -36,35 +41,23 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
-	playerModel_ = ModelManager::CreateFromModelFile("Player", Opaque);
-	std::vector<Model*> playerModels = { playerModel_};
-	player_ = GameObjectManager::CreateGameObject<Player>();
-	player_->SetModels(playerModels);
-	player_->SetTag("Player");
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
 	player_->SetCamera(&camera_);
 	player_->SetLockOn(lockOn_.get());
 	//追従対象にプレイヤーを設定
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
-	bossModel_ = ModelManager::CreateFromModelFile("Boss", Opaque);
+	boss_ = gameObjectManager_->GetGameObject<Boss>("Boss");
+	bossModel_ = boss_->GetModel();
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
-	boss_ = GameObjectManager::CreateGameObject<Boss>();
-	boss_->SetModel(bossModel_);
-	boss_->SetTag("Boss");
 
-	////天球の作成
-	//skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
-	//skydomeModel_->GetMaterial()->SetEnableLighting(false);
-	//skydome_ = GameObjectManager::CreateGameObject<Skydome>();
-	//skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_ = ModelManager::CreateFromModelFile("Ground.obj", Opaque);
+	ground_ = gameObjectManager_->GetGameObject<Ground>("Ground");
+	groundModel_ = ground_->GetModel();
 	groundModel_->GetMaterial()->SetEnableLighting(false);
-	ground_ = GameObjectManager::CreateGameObject<Ground>();
-	ground_->SetModel(groundModel_);
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));

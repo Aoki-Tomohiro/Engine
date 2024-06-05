@@ -1,4 +1,5 @@
 #pragma once
+#include "AbstractGameObjectFactory.h"
 #include "IGameObject.h"
 #include <vector>
 
@@ -9,6 +10,10 @@ public:
 
 	static void Destroy();
 
+	static IGameObject* CreateGameObject(const std::string& objectName);
+
+	static Camera* CreateCamera(const std::string& cameraName);
+
 	void Update();
 
 	void Draw(const Camera& camera);
@@ -17,14 +22,16 @@ public:
 
 	void Clear();
 
-	template <typename Type>
-	static Type* CreateGameObject();
+	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
 	template <typename Type>
-	const Type* GetGameObject(const std::string& tag) const;
+	static Type* CreateGameObjectFromType();
 
 	template <typename Type>
-	const std::vector<Type*> GetGameObjects(const std::string& tag) const;
+	Type* GetGameObject(const std::string& tag) const;
+
+	template <typename Type>
+	std::vector<Type*> GetGameObjects(const std::string& tag) const;
 
 private:
 	GameObjectManager() = default;
@@ -32,24 +39,32 @@ private:
 	GameObjectManager(const GameObjectManager&) = delete;
 	const GameObjectManager& operator=(const GameObjectManager&) = delete;
 
+	IGameObject* CreateGameObjectInternal(const std::string& objectName);
+
+	Camera* CreateCameraInternal(const std::string& cameraName);
+
 	template <typename Type>
-	Type* CreateGameObjectInternal();
+	Type* CreateGameObjectInternalFromType();
 
 private:
 	static GameObjectManager* instance_;
 
 	std::vector<std::unique_ptr<IGameObject>> gameObjects_{};
+
+	std::vector<std::unique_ptr<Camera>> cameras_{};
+
+	AbstractGameObjectFactory* gameObjectFactory_ = nullptr;
 };
 
 template <typename Type>
-Type* GameObjectManager::CreateGameObject() {
+Type* GameObjectManager::CreateGameObjectFromType() {
 	//ゲームオブジェクトを作成
-	Type* newObject = GameObjectManager::GetInstance()->CreateGameObjectInternal<Type>();
+	Type* newObject = GameObjectManager::GetInstance()->CreateGameObjectInternalFromType<Type>();
 	return newObject;
 }
 
 template <typename Type>
-Type* GameObjectManager::CreateGameObjectInternal() {
+Type* GameObjectManager::CreateGameObjectInternalFromType() {
 	Type* newObject = new Type();
 	newObject->Initialize();
 	newObject->SetGameObjectManager(this);
@@ -58,7 +73,7 @@ Type* GameObjectManager::CreateGameObjectInternal() {
 }
 
 template <typename Type>
-const Type* GameObjectManager::GetGameObject(const std::string& tag) const
+Type* GameObjectManager::GetGameObject(const std::string& tag) const
 {
 	//ゲームオブジェクトを探す
 	for (const std::unique_ptr<IGameObject>& gameObject : gameObjects_)
@@ -72,7 +87,7 @@ const Type* GameObjectManager::GetGameObject(const std::string& tag) const
 }
 
 template <typename Type>
-const std::vector<Type*> GameObjectManager::GetGameObjects(const std::string& tag) const
+std::vector<Type*> GameObjectManager::GetGameObjects(const std::string& tag) const
 {
 	//ゲームオブジェクトを探す
 	std::vector<Type*> gameObjects{};
