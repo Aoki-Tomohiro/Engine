@@ -2,6 +2,7 @@
 
 void Ground::Initialize()
 {
+	SetTag("Ground");
 	worldTransform_.Initialize();
 	worldTransform_.translation_.y = -2.0f;
 	worldTransform_.scale_ = { 50.0f,2.0f,50.0f };

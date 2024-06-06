@@ -14,7 +14,7 @@ void BossStateNormal::Initialize(Boss* pBoss)
 void BossStateNormal::Update(Boss* pBoss)
 {
 	//移動方向を計算
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetCollider()->GetWorldPosition();
 	Vector3 sub = targetPosition - worldTransform_.translation_;
 	sub.y = 0.0f;
 
@@ -102,7 +102,7 @@ void BossStateNormal::OnCollision(Collider* collider)
 		knockBackVelocity_ = player->GetVelocity();
 		if (player->GetComboIndex() == 3)
 		{
-			Vector3 sub = worldTransform_.translation_ - player->GetWorldPosition();
+			Vector3 sub = worldTransform_.translation_ - player->GetCollider()->GetWorldPosition();
 			sub = Mathf::Normalize(sub);
 			sub.y = 0.0f;
 			const float kKnockBackSpeed = 2.0f;

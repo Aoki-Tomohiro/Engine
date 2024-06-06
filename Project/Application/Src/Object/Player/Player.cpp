@@ -6,6 +6,7 @@
 
 void Player::Initialize()
 {
+	SetTag("Player");
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 	worldTransform_.translation_.z = -20.0f;
@@ -36,11 +37,16 @@ void Player::Initialize()
 	audio_ = Audio::GetInstance();
 
 	//武器の生成
-	modelWeapon_.reset(ModelManager::CreateFromModelFile("Weapon.obj", Opaque));
+	modelWeapon_ = ModelManager::CreateFromModelFile("Weapon", Opaque);
 	modelWeapon_->GetMaterial()->SetEnableLighting(false);
-	weapon_ = GameObjectManager::CreateGameObject<Weapon>();
-	weapon_->SetModel(modelWeapon_.get());
+	weapon_ = GameObjectManager::CreateGameObjectFromType<Weapon>();
+	weapon_->SetCollider(new Collider());
+	weapon_->SetModel(modelWeapon_);
 	weapon_->SetParent(&worldTransform_);
+	weapon_->GetCollider()->SetCollisionAttribute(kCollisionAttributeWeapon);
+	weapon_->GetCollider()->SetCollisionMask(kCollisionMaskWeapon);
+	weapon_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveOBB);
+
 
 	//スプライトの生成
 	TextureManager::Load("HpBar.png");
@@ -54,9 +60,9 @@ void Player::Initialize()
 	damageSprite_->SetSize({ 1280.0f,720.0f });
 
 	//パーティクルシステムの初期化
-	particleModel_.reset(ModelManager::CreateFromModelFile("Cube.obj", Opaque));
+	particleModel_ = ModelManager::CreateFromModelFile("Cube", Opaque);
 	particleSystem_ = ParticleManager::Create("Dash");
-	particleSystem_->SetModel(particleModel_.get());
+	particleSystem_->SetModel(particleModel_);
 	particleSystem_->SetIsBillBoard(false);
 
 	//オーディオの読み込み
@@ -65,10 +71,10 @@ void Player::Initialize()
 	dashAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Dash.mp3");
 	jumpAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Jump.mp3");
 
-	//衝突属性を設定
-	SetCollisionAttribute(kCollisionAttributePlayer);
-	SetCollisionMask(kCollisionMaskPlayer);
-	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+	////衝突属性を設定
+	//SetCollisionAttribute(kCollisionAttributePlayer);
+	//SetCollisionMask(kCollisionMaskPlayer);
+	//SetCollisionPrimitive(kCollisionPrimitiveAABB);
 }
 
 void Player::Update()
@@ -162,7 +168,7 @@ void Player::Update()
 	}
 
 	//モデルの更新
-	models_[0]->Update(worldTransform_, animationNumber_);
+	model_->Update(worldTransform_, animationNumber_);
 
 	//無敵時間の処理
 	if (workInvincible_.invincibleFlag)
@@ -203,7 +209,7 @@ void Player::Draw(const Camera& camera)
 	//{
 	//	models_[i]->Draw(worldTransforms[i], camera);
 	//}
-	models_[0]->Draw(worldTransform_, camera);
+	model_->Draw(worldTransform_, camera);
 
 	//武器の描画
 	if (behavior_ == Behavior::kAttack || behavior_ == Behavior::kAirAttack || behavior_ == Behavior::kGuard)
@@ -235,8 +241,8 @@ void Player::OnCollision(Collider* collider)
 		if (!boss->GetIsAttack())
 		{
 			AABB aabbA = {
-				.min{worldTransform_.translation_.x + GetAABB().min.x,worldTransform_.translation_.y + GetAABB().min.y,worldTransform_.translation_.z + GetAABB().min.z},
-				.max{worldTransform_.translation_.x + GetAABB().max.x,worldTransform_.translation_.y + GetAABB().max.y,worldTransform_.translation_.z + GetAABB().max.z},
+				.min{worldTransform_.translation_.x + collider_->GetAABB().min.x,worldTransform_.translation_.y + collider_->GetAABB().min.y,worldTransform_.translation_.z + collider_->GetAABB().min.z},
+				.max{worldTransform_.translation_.x + collider_->GetAABB().max.x,worldTransform_.translation_.y + collider_->GetAABB().max.y,worldTransform_.translation_.z + collider_->GetAABB().max.z},
 			};
 			AABB aabbB = {
 				.min{collider->GetWorldTransform().translation_.x + collider->GetAABB().min.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().min.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().min.z},
@@ -373,14 +379,14 @@ void Player::OnCollision(Collider* collider)
 	}
 }
 
-const Vector3 Player::GetWorldPosition() const
-{
-	Vector3 pos{};
-	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1] + 1.0f;
-	pos.z = worldTransform_.matWorld_.m[3][2];
-	return pos;
-}
+//const Vector3 Player::GetWorldPosition() const
+//{
+//	Vector3 pos{};
+//	pos.x = worldTransform_.matWorld_.m[3][0];
+//	pos.y = worldTransform_.matWorld_.m[3][1] + 1.0f;
+//	pos.z = worldTransform_.matWorld_.m[3][2];
+//	return pos;
+//}
 
 const uint32_t Player::GetAttackTotalTime() const
 {
@@ -433,9 +439,9 @@ void Player::BehaviorRootInitialize()
 
 	//走りアニメーションに変更
 	animationNumber_ = 0;
-	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-	models_[0]->GetAnimation()->SetLoop(true);
-	models_[0]->GetAnimation()->SetSpeed(60.0f);
+	model_->GetAnimation()->SetAnimationTime(0.0f);
+	model_->GetAnimation()->SetLoop(true);
+	model_->GetAnimation()->SetSpeed(60.0f);
 }
 
 void Player::BehaviorRootUpdate()
@@ -450,10 +456,10 @@ void Player::BehaviorRootUpdate()
 		MoveAnimation();
 
 		//アニメーションを再生
-		if (!models_[0]->GetAnimation()->IsPlaying())
+		if (!model_->GetAnimation()->IsPlaying())
 		{
 			animationNumber_ = 0;
-			models_[0]->GetAnimation()->PlayAnimation();
+			model_->GetAnimation()->PlayAnimation();
 		}
 
 		//パーティクルの座標を更新
@@ -494,8 +500,8 @@ void Player::BehaviorRootUpdate()
 		
 		//アニメーションを止める
 		animationNumber_ = 4;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->StopAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->StopAnimation();
 
 		//パーティクルを出さないようにする
 		ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Move");
@@ -718,8 +724,8 @@ void Player::BehaviorDashInitialize()
 
 		//アニメーションを止める
 		animationNumber_ = 4;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->StopAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->StopAnimation();
 	}
 
 	workDash_.justAvoidTimer = 0;
@@ -738,7 +744,7 @@ void Player::BehaviorDashUpdate()
 		if (workDash_.justAvoidTimer < workDash_.kJustAvoidTime && !workDash_.isJustAvoid)
 		{
 			const float threshold = 10.0f;
-			float distance = Mathf::Length(GetWorldPosition() - gameObjectManager_->GetGameObject<Boss>("Boss")->GetWorldPosition());
+			float distance = Mathf::Length(collider_->GetWorldPosition() - gameObjectManager_->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition());
 			if (threshold > distance)
 			{
 				workDash_.isJustAvoid = true;
@@ -899,10 +905,10 @@ void Player::BehaviorAttackInitialize()
 
 		//アニメーションを設定
 		animationNumber_ = 1;
-		models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-		models_[0]->GetAnimation()->SetLoop(false);
-		models_[0]->GetAnimation()->SetSpeed(30);
-		models_[0]->GetAnimation()->PlayAnimation();
+		model_->GetAnimation()->SetAnimationTime(0.0f);
+		model_->GetAnimation()->SetLoop(false);
+		model_->GetAnimation()->SetSpeed(30);
+		model_->GetAnimation()->PlayAnimation();
 	}
 	else
 	{
@@ -1046,7 +1052,7 @@ void Player::BehaviorAttackUpdate()
 
 					//アニメーションを設定
 					animationNumber_ = 1;
-					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					model_->GetAnimation()->SetAnimationTime(0.0f);
 					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
@@ -1069,7 +1075,7 @@ void Player::BehaviorAttackUpdate()
 
 					//アニメーションを設定
 					animationNumber_ = 1;
-					models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+					model_->GetAnimation()->SetAnimationTime(0.0f);
 					//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 					//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 				}
@@ -1095,9 +1101,9 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 2;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
-				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / model_->GetAnimation()->GetAnimationDuration(animationNumber_));
+				model_->GetAnimation()->SetSpeed(animationSpeed);
 
 				break;
 			case 2:
@@ -1121,7 +1127,7 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 1;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 
@@ -1147,7 +1153,7 @@ void Player::BehaviorAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 3;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 				//animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
 				//models_[0]->GetAnimation()->SetSpeed(animationSpeed);
 
@@ -1174,10 +1180,10 @@ void Player::AttackAnimation()
 	bool isMove = true;
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;
@@ -1654,10 +1660,10 @@ void Player::BehaviorAirAttackInitialize()
 
 	//アニメーションを設定
 	animationNumber_ = 1;
-	models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-	models_[0]->GetAnimation()->SetLoop(false);
-	models_[0]->GetAnimation()->SetSpeed(30);
-	models_[0]->GetAnimation()->PlayAnimation();
+	model_->GetAnimation()->SetAnimationTime(0.0f);
+	model_->GetAnimation()->SetLoop(false);
+	model_->GetAnimation()->SetSpeed(30);
+	model_->GetAnimation()->PlayAnimation();
 }
 
 void Player::BehaviorAirAttackUpdate()
@@ -1791,9 +1797,9 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 2;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
-				animationSpeed = float(totalTime / models_[0]->GetAnimation()->GetAnimationDuration(animationNumber_));
-				models_[0]->GetAnimation()->SetSpeed(animationSpeed);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
+				animationSpeed = float(totalTime / model_->GetAnimation()->GetAnimationDuration(animationNumber_));
+				model_->GetAnimation()->SetSpeed(animationSpeed);
 
 				break;
 			case 2:
@@ -1816,7 +1822,7 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 1;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			case 3:
@@ -1840,7 +1846,7 @@ void Player::BehaviorAirAttackUpdate()
 
 				//アニメーションを設定
 				animationNumber_ = 3;
-				models_[0]->GetAnimation()->SetAnimationTime(0.0f);
+				model_->GetAnimation()->SetAnimationTime(0.0f);
 
 				break;
 			}
@@ -1865,10 +1871,10 @@ void Player::AirAttackAnimation()
 	bool isMove = true;
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;
@@ -2238,10 +2244,10 @@ void Player::BehaviorGuardUpdate()
 	Move(speed);
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;

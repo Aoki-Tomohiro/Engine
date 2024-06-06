@@ -10,6 +10,10 @@ void GameManager::Initialize()
 	sceneManager_->SetSceneFactory(sceneFactory_.get());
 	sceneManager_->ChangeScene("GameTitleScene");
 
+	//ゲームオブジェクトファクトリーを精製
+	gameObjectFactory_ = std::make_unique<GameObjectFactory>();
+	GameObjectManager::GetInstance()->SetGameObjectFactory(gameObjectFactory_.get());
+
 	//Bloomの有効化
 	postEffects_->SetIsEnable(true);
 	postEffects_->GetBloom()->SetIsEnable(true);

@@ -1,10 +1,11 @@
 #pragma once
+#include "Engine/Framework/Object/IGameObject.h"
 #include "Engine/Components/Collision/Collider.h"
 #include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Math/MathFunction.h"
 
-class Laser : public Collider
+class Laser : public IGameObject
 {
 public:
 	//レーザーの寿命
@@ -18,15 +19,15 @@ public:
 
 	void OnCollision(Collider* collider) override;
 
-	const Vector3 GetWorldPosition() const override;
+	//const Vector3 GetWorldPosition() const override;
 
-	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
+	//const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	const bool GetIsDead() const { return isDead_; };
 
 private:
 	//モデル
-	std::unique_ptr<Model> model_ = nullptr;
+	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_{};

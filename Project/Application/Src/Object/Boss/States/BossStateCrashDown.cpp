@@ -13,7 +13,7 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	startPosition_ = worldTransform_.translation_;
 
 	//目標座標の設定
-	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetWorldPosition();
+	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetCollider()->GetWorldPosition();
 	targetPosition_.y = 8.0f;
 	if (targetPosition_.x >= 47.0f)
 	{
@@ -42,7 +42,7 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	destinationQuaternion_ = Mathf::Normalize(Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot)));
 
 	//警告モデルの作成
-	waringModel_.reset(ModelManager::CreateFromModelFile("Warning.obj", Opaque));
+	waringModel_ = ModelManager::CreateFromModelFile("Warning", Opaque);
 	waringModel_->GetMaterial()->SetEnableLighting(false);
 	waringModel_->GetMaterial()->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 

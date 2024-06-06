@@ -43,15 +43,15 @@ private:
 	Camera camera_{};
 
 	//プレイヤー
-	std::unique_ptr<Model> playerModel_ = nullptr;
-	std::unique_ptr<Model> playerModelHead_ = nullptr;
-	std::unique_ptr<Model> playerModelBody_ = nullptr;
-	std::unique_ptr<Model> playerModelL_Arm_ = nullptr;
-	std::unique_ptr<Model> playerModelR_Arm_ = nullptr;
+	Model* playerModel_ = nullptr;
+	Model* playerModelHead_ = nullptr;
+	Model* playerModelBody_ = nullptr;
+	Model* playerModelL_Arm_ = nullptr;
+	Model* playerModelR_Arm_ = nullptr;
 	WorldTransform playerWorldTransforms[5]{};
 
 	//ボス
-	std::unique_ptr<Model> bossModel_ = nullptr;
+	Model* bossModel_ = nullptr;
 	WorldTransform bossWorldTransform_{};
 
 	//天球
@@ -59,7 +59,7 @@ private:
 	Skybox* skydome_ = nullptr;
 
 	//地面
-	std::unique_ptr<Model> groundModel_ = nullptr;
+	Model* groundModel_ = nullptr;
 	Ground* ground_ = nullptr;
 
 	//トランジション関連

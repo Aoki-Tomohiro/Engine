@@ -8,7 +8,7 @@ void BossStateLaserAttack::Initialize(Boss* pBoss)
 	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float> / 2.0f);
 
 	//警告モデルの作成
-	waringModel_.reset(ModelManager::CreateFromModelFile("Warning.obj", Opaque));
+	waringModel_ = ModelManager::CreateFromModelFile("Warning", Opaque);
 	waringModel_->GetMaterial()->SetEnableLighting(false);
 	waringModel_->GetMaterial()->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 
@@ -43,7 +43,7 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 	{
 		if (!isCharge_ && !isAttack_)
 		{
-			Vector3 translation = pBoss->GetWorldPosition();
+			Vector3 translation = pBoss->GetCollider()->GetWorldPosition();
 			GravityField gravityField = { translation,  { {-100.0f,-100.0f,-100.0f},{100.0f,100.0f,100.0f} } ,0.006f, 0.2f,true };
 			ParticleEmitter* emitter = ParticleEmitterBuilder()
 				.SetDeleteTime(kChargeTime / 80)
@@ -82,6 +82,10 @@ void BossStateLaserAttack::Update(Boss* pBoss)
 				//レーザーを追加
 				Laser* newLaser = new Laser();
 				newLaser->Initialize();
+				newLaser->SetCollider(new Collider());
+				newLaser->GetCollider()->SetCollisionAttribute(kCollisionAttributeLaser);
+				newLaser->GetCollider()->SetCollisionMask(kCollisionMaskLaser);
+				newLaser->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveOBB);
 				pBoss->AddLaser(newLaser);
 			}
 

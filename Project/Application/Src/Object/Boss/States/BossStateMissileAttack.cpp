@@ -32,13 +32,21 @@ void BossStateMissileAttack::Update(Boss* pBoss)
 			velocity[1] = { -0.2f,0.2f,0.0f };
 			velocity[1] = Mathf::TransformNormal(velocity[1], worldTransform_.matWorld_);
 
-			Vector3 translation = pBoss->GetWorldPosition();
+			Vector3 translation = pBoss->GetCollider()->GetWorldPosition();
 			Missile* newMissile1 = new Missile();
 			newMissile1->Initialize(translation, velocity[0]);
+			newMissile1->SetCollider(new Collider());
+			newMissile1->GetCollider()->SetCollisionAttribute(kCollisionAttributeMissile);
+			newMissile1->GetCollider()->SetCollisionMask(kCollisionMaskMissile);
+			newMissile1->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 			pBoss->AddMissile(newMissile1);
 
 			Missile* newMissile2 = new Missile();
 			newMissile2->Initialize(translation, velocity[1]);
+			newMissile2->SetCollider(new Collider());
+			newMissile2->GetCollider()->SetCollisionAttribute(kCollisionAttributeMissile);
+			newMissile2->GetCollider()->SetCollisionMask(kCollisionMaskMissile);
+			newMissile2->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 			pBoss->AddMissile(newMissile2);
 
 			//音声再生

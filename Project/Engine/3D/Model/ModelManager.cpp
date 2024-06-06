@@ -28,7 +28,7 @@ void ModelManager::Destroy()
 
 Model* ModelManager::Create()
 {
-	Model* model = ModelManager::GetInstance()->CreateInternal("Cube.obj", Opaque);
+	Model* model = ModelManager::GetInstance()->CreateInternal("Cube", Opaque);
 	return model;
 }
 
@@ -40,42 +40,44 @@ Model* ModelManager::CreateFromModelFile(const std::string& modelName, DrawPass 
 
 Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawPass)
 {
-	auto it = modelDatas_.find(modelName);
+	auto it = models_.find(modelName);
 
-	if (it != modelDatas_.end())
+	if (it != models_.end())
 	{
-		Model* model = new Model();
-		Model::ModelData modelData = std::get<Model::ModelData>(it->second);
-		std::vector<Animation::AnimationData> animationData = std::get<std::vector<Animation::AnimationData>>(it->second);
-		model->Create(modelData, animationData, drawPass);
-		return model;
+		return it->second.get();
 	}
 
 	//ファイルパスを設定
-	size_t extensionIndex = modelName.find_last_of('.');
-	std::string directoryPath = kBaseDirectory + "/" + modelName.substr(0, extensionIndex);
+	std::string directoryPath = kBaseDirectory + "/" + modelName;
+	std::string fileName;
+	if (std::filesystem::exists(directoryPath + "/" + modelName + ".gltf"))
+	{
+		fileName = modelName + ".gltf";
+	}
+	else if (std::filesystem::exists(directoryPath + "/" + modelName + ".obj"))
+	{
+		fileName = modelName + ".obj";
+	}
 
 	//モデルデータの読み込み
-	Model::ModelData modelData = LoadModelFile(directoryPath, modelName);
+	Model::ModelData modelData = LoadModelFile(directoryPath, fileName);
 	//アニメーションの読み込み
-	std::vector<Animation::AnimationData> animationData = LoadAnimationFile(directoryPath, modelName);
-	//モデルデータとアニメーションデータを保存
-	modelDatas_[modelName] = { modelData,animationData };
+	std::vector<Animation::AnimationData> animationData = LoadAnimationFile(directoryPath, fileName);
 
 	//モデルの生成
 	Model* model = new Model();
 	model->Create(modelData, animationData, drawPass);
+
+	//モデルデータとアニメーションデータを保存
+	models_[modelName] = std::unique_ptr<Model>(model);
 
 	return model;
 }
 
 void ModelManager::Initialize()
 {
-	Model::ModelData modelData = LoadModelFile("Application/Resources/Models/Cube", "Cube.obj");
-	std::vector<Animation::AnimationData> animationData = LoadAnimationFile("Application/Resources/Models/Cube", "Cube.obj");
-	modelDatas_["Cube.obj"] = { modelData,animationData };
+	Create();
 }
-
 
 Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, const std::string& filename)
 {

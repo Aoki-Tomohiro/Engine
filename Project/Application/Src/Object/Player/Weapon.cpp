@@ -27,10 +27,10 @@ void Weapon::Initialize()
 	slashAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Slash.mp3");
 
 	//衝突属性を設定
-	SetOBB(obbSize);
-	SetCollisionAttribute(kCollisionAttributeWeapon);
-	SetCollisionMask(kCollisionMaskWeapon);
-	SetCollisionPrimitive(kCollisionPrimitiveOBB);
+	//SetOBB(obbSize);
+	//SetCollisionAttribute(kCollisionAttributeWeapon);
+	//SetCollisionMask(kCollisionMaskWeapon);
+	//SetCollisionPrimitive(kCollisionPrimitiveOBB);
 }
 
 void Weapon::Update()
@@ -60,7 +60,7 @@ void Weapon::Update()
 			{worldTransformCollision_.matWorld_.m[2][0],worldTransformCollision_.matWorld_.m[2][1],worldTransformCollision_.matWorld_.m[2][2]},},
 		.size{2.0f,2.0f,4.0f}
 	};
-	SetOBB(obbSize);
+	collider_->SetOBB(obbSize);
 }
 
 void Weapon::Draw(const Camera& camera)
@@ -90,7 +90,7 @@ void Weapon::OnCollision(Collider* collider)
 			//座標を決める
 			Vector3 offset{ 0.0f,0.0f,4.0f };
 			offset = Mathf::TransformNormal(offset, worldTransform_.parent_->matWorld_);
-			Vector3 translation = GetWorldPosition() + offset;
+			Vector3 translation = collider_->GetWorldPosition() + offset;
 
 			//武器のワールド座標を取得
 			Vector3 worldPosition = {
@@ -99,7 +99,7 @@ void Weapon::OnCollision(Collider* collider)
 				worldTransform_.matWorld_.m[3][2],
 			};
 			//ボスのワールド座標を取得
-			Vector3 bossPosition = gameObjectManager_->GetGameObject<Boss>("Boss")->GetWorldPosition();
+			Vector3 bossPosition = gameObjectManager_->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 			//差分ベクトルを計算
 			Vector3 velocity = worldPosition - bossPosition;
@@ -147,7 +147,7 @@ void Weapon::OnCollision(Collider* collider)
 		//座標を決める
 		Vector3 offset{ 0.0f,0.0f,4.0f };
 		offset = Mathf::TransformNormal(offset, worldTransform_.parent_->matWorld_);
-		Vector3 translation = GetWorldPosition() + offset;
+		Vector3 translation = collider_->GetWorldPosition() + offset;
 
 		//衝撃波のパーティクルの生成
 		ParticleEmitter* shockWaveEmitter = ParticleEmitterBuilder()
@@ -164,13 +164,4 @@ void Weapon::OnCollision(Collider* collider)
 			.Build();
 		shockWaveParticleSystem_->AddParticleEmitter(shockWaveEmitter);
 	}
-}
-
-const Vector3 Weapon::GetWorldPosition() const
-{
-	Vector3 pos{};
-	pos.x = worldTransformCollision_.matWorld_.m[3][0];
-	pos.y = worldTransformCollision_.matWorld_.m[3][1];
-	pos.z = worldTransformCollision_.matWorld_.m[3][2];
-	return pos;
 }

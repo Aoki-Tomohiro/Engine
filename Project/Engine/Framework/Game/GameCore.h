@@ -60,6 +60,8 @@ protected:
 
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
 
+	std::unique_ptr<AbstractGameObjectFactory> gameObjectFactory_ = nullptr;
+
 	std::mutex mutex;
 
 	std::condition_variable condition;

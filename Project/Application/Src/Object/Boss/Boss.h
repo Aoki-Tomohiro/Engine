@@ -12,7 +12,7 @@
 #include "Application/Src/Object/Boss/Missile.h"
 #include "Application/Src/Object/Boss/Laser.h"
 
-class Boss : public IGameObject, public Collider
+class Boss : public IGameObject
 {
 public:
 	~Boss();
@@ -27,9 +27,9 @@ public:
 
 	void OnCollision(Collider* collider) override;
 
-	const Vector3 GetWorldPosition() const override;
+	//const Vector3 GetWorldPosition() const override;
 
-	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
+	//const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	void ChangeState(IBossState* newState);
 

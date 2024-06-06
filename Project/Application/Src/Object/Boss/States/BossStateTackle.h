@@ -23,7 +23,7 @@ public:
 
 private:
 	//警告用モデル
-	std::unique_ptr<Model> waringModel_ = nullptr;
+	Model* waringModel_ = nullptr;
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_{};

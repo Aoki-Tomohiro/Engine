@@ -12,7 +12,7 @@ void GameTitleScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//ゲームオブジェクトをクリア
+	////ゲームオブジェクトをクリア
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
@@ -26,15 +26,7 @@ void GameTitleScene::Initialize()
 	camera_.rotation_.x = 0.3f;
 
 	//プレイヤーの生成
-	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
-	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
-	playerModelHead_->GetMaterial()->SetEnableLighting(false);
-	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
-	playerModelBody_->GetMaterial()->SetEnableLighting(false);
-	playerModelL_Arm_.reset(ModelManager::CreateFromModelFile("PlayerL_arm.obj", Opaque));
-	playerModelL_Arm_->GetMaterial()->SetEnableLighting(false);
-	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
-	playerModelR_Arm_->GetMaterial()->SetEnableLighting(false);
+	playerModel_ = ModelManager::CreateFromModelFile("Player", Opaque);
 
 	//ワールドトランスフォームの初期化
 	for (uint32_t i = 0; i < 5; ++i)
@@ -56,7 +48,7 @@ void GameTitleScene::Initialize()
 	playerWorldTransforms[4].parent_ = &playerWorldTransforms[1];
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
+	bossModel_ = ModelManager::CreateFromModelFile("Boss", Opaque);
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
@@ -71,10 +63,10 @@ void GameTitleScene::Initialize()
 	//skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
+	groundModel_ = ModelManager::CreateFromModelFile("Ground", Opaque);
 	groundModel_->GetMaterial()->SetEnableLighting(false);
-	ground_ = GameObjectManager::CreateGameObject<Ground>();
-	ground_->SetModel(groundModel_.get());
+	ground_ = GameObjectManager::CreateGameObjectFromType<Ground>();
+	ground_->SetModel(groundModel_);
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));

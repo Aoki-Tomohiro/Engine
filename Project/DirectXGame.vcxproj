@@ -20,6 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
+    <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
+    <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp" />
     <ClCompile Include="Application\Src\Object\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\Src\Object\Boss\Boss.cpp" />
     <ClCompile Include="Application\Src\Object\Boss\Laser.cpp" />
@@ -119,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
+    <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
+    <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h" />
+    <ClInclude Include="Engine\LevelLoader\LevelLoader.h" />
     <ClInclude Include="Application\Src\Object\BackGround\BackGround.h" />
     <ClInclude Include="Application\Src\Object\Boss\Boss.h" />
     <ClInclude Include="Application\Src\Object\Boss\Laser.h" />

@@ -3,6 +3,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/LevelLoader/LevelLoader.h"
 
 void GamePlayScene::Initialize()
 {
@@ -16,9 +17,13 @@ void GamePlayScene::Initialize()
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
+
 	//パーティクルをクリア
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
+
+	//
+	LevelLoader::Load("GameScene");
 
 	//衝突マネージャーの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
@@ -36,43 +41,28 @@ void GamePlayScene::Initialize()
 	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの生成
-	playerModel_.reset(ModelManager::CreateFromModelFile("Player.gltf", Opaque));
-	playerModelHead_.reset(ModelManager::CreateFromModelFile("PlayerHead.obj", Opaque));
-	playerModelHead_->GetMaterial()->SetEnableLighting(false);
-	playerModelBody_.reset(ModelManager::CreateFromModelFile("PlayerBody.obj", Opaque));
-	playerModelBody_->GetMaterial()->SetEnableLighting(false);
-	playerModelL_Arm_.reset(ModelManager::CreateFromModelFile("PlayerL_arm.obj", Opaque));
-	playerModelL_Arm_->GetMaterial()->SetEnableLighting(false);
-	playerModelR_Arm_.reset(ModelManager::CreateFromModelFile("PlayerR_arm.obj", Opaque));
-	playerModelR_Arm_->GetMaterial()->SetEnableLighting(false);
-	std::vector<Model*> playerModels = { playerModel_.get()};
-	player_ = GameObjectManager::CreateGameObject<Player>();
-	player_->SetModels(playerModels);
-	player_->SetTag("Player");
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
 	player_->SetCamera(&camera_);
 	player_->SetLockOn(lockOn_.get());
+	player_->GetCollider()->SetCollisionAttribute(kCollisionAttributePlayer);
+	player_->GetCollider()->SetCollisionMask(kCollisionMaskPlayer);
+	player_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 	//追従対象にプレイヤーを設定
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
-	bossModel_.reset(ModelManager::CreateFromModelFile("Boss.gltf", Opaque));
+	boss_ = gameObjectManager_->GetGameObject<Boss>("Boss");
+	boss_->GetCollider()->SetCollisionAttribute(kCollisionAttributeEnemy);
+	boss_->GetCollider()->SetCollisionMask(kCollisionMaskEnemy);
+	boss_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
+	bossModel_ = boss_->GetModel();
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
-	boss_ = GameObjectManager::CreateGameObject<Boss>();
-	boss_->SetModel(bossModel_.get());
-	boss_->SetTag("Boss");
-
-	////天球の作成
-	//skydomeModel_.reset(ModelManager::CreateFromModelFile("Skydome.obj", Opaque));
-	//skydomeModel_->GetMaterial()->SetEnableLighting(false);
-	//skydome_ = GameObjectManager::CreateGameObject<Skydome>();
-	//skydome_->SetModel(skydomeModel_.get());
 
 	//地面の生成
-	groundModel_.reset(ModelManager::CreateFromModelFile("Ground.obj", Opaque));
+	ground_ = gameObjectManager_->GetGameObject<Ground>("Ground");
+	groundModel_ = ground_->GetModel();
 	groundModel_->GetMaterial()->SetEnableLighting(false);
-	ground_ = GameObjectManager::CreateGameObject<Ground>();
-	ground_->SetModel(groundModel_.get());
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
@@ -213,21 +203,36 @@ void GamePlayScene::Update()
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	collisionManager_->SetColliderList(player_);
+	if (player_->GetCollider())
+	{
+		collisionManager_->SetColliderList(player_->GetCollider());
+	}
 	Weapon* weapon = player_->GetWeapon();
 	if (weapon->GetIsAttack())
 	{
-		collisionManager_->SetColliderList(weapon);
+		if (weapon->GetCollider())
+		{
+			collisionManager_->SetColliderList(weapon->GetCollider());
+		}
 	}
 	for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
 	{
-		collisionManager_->SetColliderList(missile.get());
+		if (missile->GetCollider())
+		{
+			collisionManager_->SetColliderList(missile->GetCollider());
+		}
 	}
 	for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
 	{
-		collisionManager_->SetColliderList(laser.get());
+		if (laser->GetCollider())
+		{
+			collisionManager_->SetColliderList(laser->GetCollider());
+		}
 	}
-	collisionManager_->SetColliderList(boss_);
+	if (boss_->GetCollider())
+	{
+		collisionManager_->SetColliderList(boss_->GetCollider());
+	}
 	collisionManager_->CheckAllCollisions();
 }
 

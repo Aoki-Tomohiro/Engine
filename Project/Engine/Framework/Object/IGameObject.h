@@ -1,5 +1,7 @@
 #pragma once
 #include "Engine/3D/Model/Model.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 
 class GameObjectManager;
 
@@ -8,17 +10,31 @@ class IGameObject
 public:
 	virtual ~IGameObject() = default;
 
-	virtual void Initialize() = 0;
+	virtual void Initialize();
 
-	virtual void Update() = 0;
+	virtual void Update();
 
-	virtual void Draw(const Camera& camera) = 0;
+	virtual void Draw(const Camera& camera);
 
-	virtual void DrawUI() = 0;
+	virtual void DrawUI();
 
-	const Model* GetModel() const { return model_; };
+	virtual void OnCollision(Collider* collider);
+
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; };
+
+	Model* GetModel() const { return model_; };
 
 	void SetModel(Model* model) { model_ = model; };
+
+	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; };
+
+	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
+
+	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
+
+	void SetCollider(Collider* collider) { collider_.reset(collider); collider_->SetGameObject(this); };
+
+	Collider* GetCollider() const { return collider_.get(); };
 
 	const std::string& GetTag() const { return tag_; };
 
@@ -47,6 +63,9 @@ protected:
 
 	//モデル
 	Model* model_ = nullptr;
+
+	//Collider
+	std::unique_ptr<Collider> collider_ = nullptr;
 
 	//タグ
 	std::string tag_{};

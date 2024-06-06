@@ -44,7 +44,7 @@ private:
 
 	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
-	std::unique_ptr<Model> defaultModel_ = nullptr;
+	Model* defaultModel_ = nullptr;
 
 	Model* model_ = nullptr;
 

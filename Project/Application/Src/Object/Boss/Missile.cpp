@@ -6,7 +6,7 @@
 void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 {
 	//モデルの生成
-	model_.reset(ModelManager::CreateFromModelFile("Cube.obj", Opaque));
+	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
 	model_->GetMaterial()->SetEnableLighting(true);
 
 	//速度の初期化
@@ -17,14 +17,9 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = { 0.6f,0.6f,0.6f };
 
-	AABB aabb = {
-		.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z,},
-		.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z}
-	};
-	SetAABB(aabb);
-	SetCollisionAttribute(kCollisionAttributeMissile);
-	SetCollisionMask(kCollisionMaskMissile);
-	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+	//SetCollisionAttribute(kCollisionAttributeMissile);
+	//SetCollisionMask(kCollisionMaskMissile);
+	//SetCollisionPrimitive(kCollisionPrimitiveAABB);
 
 	//音声データ読み込み
 	audioHandle_ = Audio::GetInstance()->LoadAudioFile("Application/Resources/Sounds/Explosion.mp3");
@@ -32,8 +27,14 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 
 void Missile::Update()
 {
+	AABB aabb = {
+	.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z,},
+	.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z}
+	};
+	collider_->SetAABB(aabb);
+
 	//目標への差分ベクトルを計算
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetCollider()->GetWorldPosition();
 	Vector3 sub = targetPosition - worldTransform_.translation_;
 
 	if (!isRepelled_)
@@ -98,11 +99,11 @@ void Missile::OnCollision(Collider* collider)
 {
 	if (collider->GetCollisionAttribute() == kCollisionAttributeWeapon && !isDead_)
 	{
-		SetCollisionAttribute(kCollisionAttributeWeapon);
-		SetCollisionMask(kCollisionMaskWeapon);
+		collider_->SetCollisionAttribute(kCollisionAttributeWeapon);
+		collider_->SetCollisionMask(kCollisionMaskWeapon);
 		isRepelled_ = true;
 		const float kSpeed = 0.6f;
-		Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+		Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 		Vector3 sub = targetPosition - worldTransform_.translation_;
 		sub = Mathf::Normalize(sub);
 		velocity_ = sub * kSpeed;
@@ -126,11 +127,11 @@ void Missile::OnCollision(Collider* collider)
 	}
 }
 
-const Vector3 Missile::GetWorldPosition() const
-{
-	Vector3 pos{};
-	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1];
-	pos.z = worldTransform_.matWorld_.m[3][2];
-	return pos;
-}
+//const Vector3 Missile::GetWorldPosition() const
+//{
+//	Vector3 pos{};
+//	pos.x = worldTransform_.matWorld_.m[3][0];
+//	pos.y = worldTransform_.matWorld_.m[3][1];
+//	pos.z = worldTransform_.matWorld_.m[3][2];
+//	return pos;
+//}
