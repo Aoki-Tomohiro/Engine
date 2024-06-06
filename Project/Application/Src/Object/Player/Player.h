@@ -14,7 +14,7 @@
 
 class LockOn;
 
-class Player : public IGameObject, public Collider
+class Player : public IGameObject
 {
 public:
 	//プレイヤーの状態
@@ -39,9 +39,9 @@ public:
 
 	void OnCollision(Collider* collider) override;
 
-	const Vector3 GetWorldPosition() const override;
+	//const Vector3 GetWorldPosition() const override;
 
-	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
+	//const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	void SetModels(const std::vector<Model*> models) { models_ = models; };
 

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
+    <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp" />
     <ClCompile Include="Application\Src\Object\BackGround\BackGround.cpp" />
     <ClCompile Include="Application\Src\Object\Boss\Boss.cpp" />

@@ -24,3 +24,8 @@ void IGameObject::DrawUI()
 {
 
 }
+
+void IGameObject::OnCollision(Collider* collider)
+{
+
+}

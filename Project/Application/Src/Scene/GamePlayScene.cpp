@@ -53,7 +53,6 @@ void GamePlayScene::Initialize()
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 
-
 	//地面の生成
 	ground_ = gameObjectManager_->GetGameObject<Ground>("Ground");
 	groundModel_ = ground_->GetModel();

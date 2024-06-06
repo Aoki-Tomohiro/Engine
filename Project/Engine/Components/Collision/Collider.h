@@ -4,14 +4,24 @@
 #include "Engine/Math/AABB.h"
 #include "Engine/Math/OBB.h"
 
+class IGameObject;
+
 class Collider
 {
 public:
-	virtual void OnCollision(Collider* collider) = 0;
+	//virtual void OnCollision(Collider* collider) = 0;
 
-	virtual const Vector3 GetWorldPosition() const = 0;
+	//virtual const Vector3 GetWorldPosition() const = 0;
 
-	virtual const WorldTransform& GetWorldTransform() const = 0;
+	//virtual const WorldTransform& GetWorldTransform() const = 0;
+
+	void OnCollision(Collider* collider);
+
+	const Vector3& GetWorldPosition() const;
+
+	const WorldTransform& GetWorldTransform() const;
+
+	void SetGameObject(IGameObject* gameObject) { gameObject_ = gameObject; };
 
 	const float GetRadius() const { return radius_; };
 
@@ -38,6 +48,8 @@ public:
 	void SetCollisionPrimitive(uint32_t collisionPrimitive) { collisionPrimitive_ = collisionPrimitive; };
 
 private:
+	IGameObject* gameObject_ = nullptr;
+
 	float radius_ = 1.0f;
 
 	AABB aabb_{ {-1.0f,-1.0f,-1.0f},{1.0f,1.0f,1.0f} };

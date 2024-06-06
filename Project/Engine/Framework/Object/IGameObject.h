@@ -1,5 +1,7 @@
 #pragma once
 #include "Engine/3D/Model/Model.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 
 class GameObjectManager;
 
@@ -16,6 +18,10 @@ public:
 
 	virtual void DrawUI();
 
+	virtual void OnCollision(Collider* collider);
+
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; };
+
 	Model* GetModel() const { return model_; };
 
 	void SetModel(Model* model) { model_ = model; };
@@ -25,6 +31,10 @@ public:
 	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
 
 	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
+
+	void SetCollider(Collider* collider) { collider_.reset(collider); };
+
+	const Collider* GetCollider() const { return collider_.get(); };
 
 	const std::string& GetTag() const { return tag_; };
 
@@ -53,6 +63,9 @@ protected:
 
 	//モデル
 	Model* model_ = nullptr;
+
+	//Collider
+	std::unique_ptr<Collider> collider_ = nullptr;
 
 	//タグ
 	std::string tag_{};
