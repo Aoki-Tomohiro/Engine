@@ -44,11 +44,17 @@ void GamePlayScene::Initialize()
 	player_ = gameObjectManager_->GetGameObject<Player>("Player");
 	player_->SetCamera(&camera_);
 	player_->SetLockOn(lockOn_.get());
+	player_->GetCollider()->SetCollisionAttribute(kCollisionAttributePlayer);
+	player_->GetCollider()->SetCollisionMask(kCollisionMaskPlayer);
+	player_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 	//追従対象にプレイヤーを設定
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 
 	//ボスの生成
 	boss_ = gameObjectManager_->GetGameObject<Boss>("Boss");
+	boss_->GetCollider()->SetCollisionAttribute(kCollisionAttributeEnemy);
+	boss_->GetCollider()->SetCollisionMask(kCollisionMaskEnemy);
+	boss_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 	bossModel_ = boss_->GetModel();
 	bossModel_->GetMaterial()->SetEnableLighting(false);
 	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
@@ -197,21 +203,36 @@ void GamePlayScene::Update()
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	collisionManager_->SetColliderList(player_);
+	if (player_->GetCollider())
+	{
+		collisionManager_->SetColliderList(player_->GetCollider());
+	}
 	Weapon* weapon = player_->GetWeapon();
 	if (weapon->GetIsAttack())
 	{
-		collisionManager_->SetColliderList(weapon);
+		if (weapon->GetCollider())
+		{
+			collisionManager_->SetColliderList(weapon->GetCollider());
+		}
 	}
 	for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
 	{
-		collisionManager_->SetColliderList(missile.get());
+		if (missile->GetCollider())
+		{
+			collisionManager_->SetColliderList(missile->GetCollider());
+		}
 	}
 	for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
 	{
-		collisionManager_->SetColliderList(laser.get());
+		if (laser->GetCollider())
+		{
+			collisionManager_->SetColliderList(laser->GetCollider());
+		}
 	}
-	collisionManager_->SetColliderList(boss_);
+	if (boss_->GetCollider())
+	{
+		collisionManager_->SetColliderList(boss_->GetCollider());
+	}
 	collisionManager_->CheckAllCollisions();
 }
 

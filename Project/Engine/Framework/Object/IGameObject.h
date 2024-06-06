@@ -32,9 +32,9 @@ public:
 
 	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
 
-	void SetCollider(Collider* collider) { collider_.reset(collider); };
+	void SetCollider(Collider* collider) { collider_.reset(collider); collider_->SetGameObject(this); };
 
-	const Collider* GetCollider() const { return collider_.get(); };
+	Collider* GetCollider() const { return collider_.get(); };
 
 	const std::string& GetTag() const { return tag_; };
 

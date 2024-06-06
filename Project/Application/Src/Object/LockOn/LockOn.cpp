@@ -17,7 +17,7 @@ void LockOn::Update(const Boss* boss, const Camera& camera)
 	if (target_)
 	{
 		//ロックオンマークの座標計算
-		Vector3 positionWorld = target_->GetWorldPosition();
+		Vector3 positionWorld = target_->GetCollider()->GetWorldPosition();
 		// ビューポート行列
 		Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);
 		// ビュー行列とプロジェクション行列、ビューポート行列を合成する
@@ -66,7 +66,7 @@ Vector3 LockOn::GetTargetPosition() const
 {
 	if (target_)
 	{
-		return target_->GetWorldPosition();
+		return target_->GetCollider()->GetWorldPosition();
 	}
 	return Vector3();
 }
@@ -74,7 +74,7 @@ Vector3 LockOn::GetTargetPosition() const
 bool LockOn::InRange(const Camera& camera)
 {
 	//敵のロックオン座標取得
-	Vector3 positionWorld = target_->GetWorldPosition();
+	Vector3 positionWorld = target_->GetCollider()->GetWorldPosition();
 	//ワールド→ビュー座標変換
 	Vector3 positionView = Mathf::Transform(positionWorld, camera.matView_);
 
@@ -98,7 +98,7 @@ bool LockOn::InRange(const Camera& camera)
 
 void LockOn::SearchLockOnTarget(const Boss* boss, const Camera& camera) {
 	//敵のロックオン座標取得
-	Vector3 positionWorld = boss->GetWorldPosition();
+	Vector3 positionWorld = boss->GetCollider()->GetWorldPosition();
 	//ワールド→ビュー座標変換
 	Vector3 positionView = Mathf::Transform(positionWorld, camera.matView_);
 

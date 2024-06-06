@@ -40,8 +40,13 @@ void Player::Initialize()
 	modelWeapon_ = ModelManager::CreateFromModelFile("Weapon", Opaque);
 	modelWeapon_->GetMaterial()->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObjectFromType<Weapon>();
+	weapon_->SetCollider(new Collider());
 	weapon_->SetModel(modelWeapon_);
 	weapon_->SetParent(&worldTransform_);
+	weapon_->GetCollider()->SetCollisionAttribute(kCollisionAttributeWeapon);
+	weapon_->GetCollider()->SetCollisionMask(kCollisionMaskWeapon);
+	weapon_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveOBB);
+
 
 	//スプライトの生成
 	TextureManager::Load("HpBar.png");
@@ -66,10 +71,10 @@ void Player::Initialize()
 	dashAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Dash.mp3");
 	jumpAudioHandle_ = audio_->LoadAudioFile("Application/Resources/Sounds/Jump.mp3");
 
-	//衝突属性を設定
-	SetCollisionAttribute(kCollisionAttributePlayer);
-	SetCollisionMask(kCollisionMaskPlayer);
-	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+	////衝突属性を設定
+	//SetCollisionAttribute(kCollisionAttributePlayer);
+	//SetCollisionMask(kCollisionMaskPlayer);
+	//SetCollisionPrimitive(kCollisionPrimitiveAABB);
 }
 
 void Player::Update()
@@ -236,8 +241,8 @@ void Player::OnCollision(Collider* collider)
 		if (!boss->GetIsAttack())
 		{
 			AABB aabbA = {
-				.min{worldTransform_.translation_.x + GetAABB().min.x,worldTransform_.translation_.y + GetAABB().min.y,worldTransform_.translation_.z + GetAABB().min.z},
-				.max{worldTransform_.translation_.x + GetAABB().max.x,worldTransform_.translation_.y + GetAABB().max.y,worldTransform_.translation_.z + GetAABB().max.z},
+				.min{worldTransform_.translation_.x + collider_->GetAABB().min.x,worldTransform_.translation_.y + collider_->GetAABB().min.y,worldTransform_.translation_.z + collider_->GetAABB().min.z},
+				.max{worldTransform_.translation_.x + collider_->GetAABB().max.x,worldTransform_.translation_.y + collider_->GetAABB().max.y,worldTransform_.translation_.z + collider_->GetAABB().max.z},
 			};
 			AABB aabbB = {
 				.min{collider->GetWorldTransform().translation_.x + collider->GetAABB().min.x,collider->GetWorldTransform().translation_.y + collider->GetAABB().min.y,collider->GetWorldTransform().translation_.z + collider->GetAABB().min.z},
@@ -374,14 +379,14 @@ void Player::OnCollision(Collider* collider)
 	}
 }
 
-const Vector3 Player::GetWorldPosition() const
-{
-	Vector3 pos{};
-	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1] + 1.0f;
-	pos.z = worldTransform_.matWorld_.m[3][2];
-	return pos;
-}
+//const Vector3 Player::GetWorldPosition() const
+//{
+//	Vector3 pos{};
+//	pos.x = worldTransform_.matWorld_.m[3][0];
+//	pos.y = worldTransform_.matWorld_.m[3][1] + 1.0f;
+//	pos.z = worldTransform_.matWorld_.m[3][2];
+//	return pos;
+//}
 
 const uint32_t Player::GetAttackTotalTime() const
 {
@@ -739,7 +744,7 @@ void Player::BehaviorDashUpdate()
 		if (workDash_.justAvoidTimer < workDash_.kJustAvoidTime && !workDash_.isJustAvoid)
 		{
 			const float threshold = 10.0f;
-			float distance = Mathf::Length(GetWorldPosition() - gameObjectManager_->GetGameObject<Boss>("Boss")->GetWorldPosition());
+			float distance = Mathf::Length(collider_->GetWorldPosition() - gameObjectManager_->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition());
 			if (threshold > distance)
 			{
 				workDash_.isJustAvoid = true;
@@ -1175,10 +1180,10 @@ void Player::AttackAnimation()
 	bool isMove = true;
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;
@@ -1866,10 +1871,10 @@ void Player::AirAttackAnimation()
 	bool isMove = true;
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;
@@ -2239,10 +2244,10 @@ void Player::BehaviorGuardUpdate()
 	Move(speed);
 
 	//ボスの座標を取得
-	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetWorldPosition();
+	Vector3 targetPosition = GameObjectManager::GetInstance()->GetGameObject<Boss>("Boss")->GetCollider()->GetWorldPosition();
 
 	//差分ベクトルを計算
-	Vector3 sub = targetPosition - GetWorldPosition();
+	Vector3 sub = targetPosition - collider_->GetWorldPosition();
 
 	//Y軸は必要ないので0にする
 	sub.y = 0.0f;

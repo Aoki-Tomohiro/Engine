@@ -110,6 +110,7 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		if (object.contains("collider"))
 		{
 			nlohmann::json collider = object["collider"];
+			objectData.colliderData.type = collider["type"].get<std::string>();
 			objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
 			objectData.colliderData.size = { (float)collider["size"][0],(float)collider["size"][2] ,(float)collider["size"][1] };
 		}
@@ -165,13 +166,14 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		//Typeが無かったらColliderがないとみなす
 		if (objectData.colliderData.type != "")
 		{
-			//Collider* collider = new Collider();
-			//if (objectData.colliderData.type == "BOX")
-			//{
-			//	AABB aabb = { .min{objectData.colliderData.center - objectData.colliderData.size / 2.0f},.max{objectData.colliderData.center + objectData.colliderData.size / 2.0f} };
-			//	collider->SetAABB(aabb);
-			//	collider->SetCollisionPrimitive(kCollisionPrimitiveAABB);
-			//}
+			Collider* collider = new Collider();
+			newObject->SetCollider(collider);
+			if (objectData.colliderData.type == "BOX")
+			{
+				AABB aabb = { .min{objectData.colliderData.center - objectData.colliderData.size / 2.0f},.max{objectData.colliderData.center + objectData.colliderData.size / 2.0f} };
+				collider->SetAABB(aabb);
+				collider->SetCollisionPrimitive(kCollisionPrimitiveAABB);
+			}
 		}
 	}
 	//レベルデータからすべてのカメラを生成

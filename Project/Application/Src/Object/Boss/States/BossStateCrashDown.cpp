@@ -13,7 +13,7 @@ void BossStateCrashDown::Initialize(Boss* pBoss)
 	startPosition_ = worldTransform_.translation_;
 
 	//目標座標の設定
-	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetWorldPosition();
+	targetPosition_ = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetCollider()->GetWorldPosition();
 	targetPosition_.y = 8.0f;
 	if (targetPosition_.x >= 47.0f)
 	{

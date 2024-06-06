@@ -1,11 +1,12 @@
 #pragma once
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Framework/Object/IGameObject.h"
 #include "Engine/Components/Collision/Collider.h"
 #include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/3D/Model/ModelManager.h"
 
-class Missile : public Collider
+class Missile : public IGameObject
 {
 public:
 	//追尾時間
@@ -19,9 +20,9 @@ public:
 
 	void OnCollision(Collider* collider) override;
 
-	const Vector3 GetWorldPosition() const override;
+	//const Vector3 GetWorldPosition() const override;
 
-	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
+	//const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
 
 	const bool GetIsDead() const { return isDead_; };
 

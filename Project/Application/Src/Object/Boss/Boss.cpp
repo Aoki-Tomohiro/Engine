@@ -30,17 +30,22 @@ void Boss::Initialize()
 	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 
 	//衝突属性を設定
-	AABB aabb{
-	.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z},
-	.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
-	SetAABB(aabb);
-	SetCollisionAttribute(kCollisionAttributeEnemy);
-	SetCollisionMask(kCollisionMaskEnemy);
-	SetCollisionPrimitive(kCollisionPrimitiveAABB);
+	//AABB aabb{
+	//.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z},
+	//.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
+	//SetAABB(aabb);
+	//SetCollisionAttribute(kCollisionAttributeEnemy);
+	//SetCollisionMask(kCollisionMaskEnemy);
+	//SetCollisionPrimitive(kCollisionPrimitiveAABB);
 }
 
 void Boss::Update()
 {
+	AABB aabb{
+	.min{-worldTransform_.scale_.x,-worldTransform_.scale_.y,-worldTransform_.scale_.z},
+	.max{worldTransform_.scale_.x,worldTransform_.scale_.y,worldTransform_.scale_.z} };
+	collider_->SetAABB(aabb);
+
 	//プレイヤーの動いたらボスも動き出す
 	if (!isActive_)
 	{
@@ -164,15 +169,6 @@ void Boss::OnCollision(Collider* collider)
 			worldTransform_.UpdateMatrixFromQuaternion();
 		}
 	}
-}
-
-const Vector3 Boss::GetWorldPosition() const
-{
-	Vector3 pos{};
-	pos.x = worldTransform_.matWorld_.m[3][0];
-	pos.y = worldTransform_.matWorld_.m[3][1];
-	pos.z = worldTransform_.matWorld_.m[3][2];
-	return pos;
 }
 
 void Boss::ChangeState(IBossState* newState)

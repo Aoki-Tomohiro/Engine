@@ -17,7 +17,7 @@ public:
 
 	void OnCollision(Collider* collider);
 
-	const Vector3& GetWorldPosition() const;
+	const Vector3 GetWorldPosition() const;
 
 	const WorldTransform& GetWorldTransform() const;
 

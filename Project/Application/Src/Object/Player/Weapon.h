@@ -7,7 +7,7 @@
 #include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 
-class Weapon : public IGameObject, public Collider
+class Weapon : public IGameObject
 {
 public:
 	void Initialize() override;
@@ -18,11 +18,11 @@ public:
 
 	void DrawUI() override;
 
-	const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
-
 	void OnCollision(Collider* collider) override;
 
-	const Vector3 GetWorldPosition() const override;
+	//const WorldTransform& GetWorldTransform() const override { return worldTransform_; };
+
+	//const Vector3 GetWorldPosition() const override;
 
 	const Vector3& GetTranslation() const { return worldTransform_.translation_; };
 
