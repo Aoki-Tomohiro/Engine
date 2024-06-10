@@ -27,6 +27,26 @@ void FollowCamera::Update()
 	//カメラ座標を計算
 	camera_.translation_ = interTarget_ + offset;
 
+	//カメラの回転速度を設定
+	switch (cameraSensitivity_)
+	{
+	case 0:
+		rotSpeedY_ = 0.02f;
+		break;
+	case 1:
+		rotSpeedY_ = 0.04f;
+		break;
+	case 2:
+		rotSpeedY_ = 0.06f;
+		break;
+	case 3:
+		rotSpeedY_ = 0.08f;
+		break;
+	case 4:
+		rotSpeedY_ = 0.1f;
+		break;
+	}
+
 	//ロックオン中なら
 	if (lockOn_ && lockOn_->ExistTarget())
 	{
@@ -79,10 +99,9 @@ void FollowCamera::Update()
 			{
 				//回転速度
 				const float kRotSpeedX = 0.02f;
-				const float kRotSpeedY = 0.06f;
 
 				destinationAngleX_ -= rotation.x * kRotSpeedX;
-				destinationAngleY_ += rotation.y * kRotSpeedY;
+				destinationAngleY_ += rotation.y * rotSpeedY_;
 			}
 		}
 	}
@@ -99,6 +118,10 @@ void FollowCamera::Update()
 
 	//行列の更新
 	camera_.UpdateMatrix();
+
+	ImGui::Begin("FollowCamera");
+	ImGui::DragFloat("RotSpeed", &rotSpeedY_);
+	ImGui::End();
 }
 
 void FollowCamera::SetTarget(const WorldTransform* target)

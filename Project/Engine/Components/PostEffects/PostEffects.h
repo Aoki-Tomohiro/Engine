@@ -5,6 +5,7 @@
 #include "LensDistortion.h"
 #include "Vignette.h"
 #include "GrayScale.h"
+#include "BoxFilter.h"
 
 class PostEffects
 {
@@ -36,6 +37,8 @@ public:
 	Vignette* GetVignette() const { return vignette_.get(); };
 
 	GrayScale* GetGrayScale() const { return grayScale_.get(); };
+
+	BoxFilter* GetBoxFilter() const { return boxFilter_.get(); };
 
 private:
 	PostEffects() = default;
@@ -71,6 +74,8 @@ private:
 	std::unique_ptr<Vignette> vignette_ = nullptr;
 
 	std::unique_ptr<GrayScale> grayScale_ = nullptr;
+
+	std::unique_ptr<BoxFilter> boxFilter_ = nullptr;
 
 	bool isEnable_ = false;
 };

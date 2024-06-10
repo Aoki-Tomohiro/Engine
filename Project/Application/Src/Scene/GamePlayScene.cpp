@@ -82,6 +82,14 @@ void GamePlayScene::Initialize()
 	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
 	backGround_ = std::make_unique<BackGround>();
 	backGround_->Initialize(skybox_.get());
+
+	//ポーズ画面のスプライトの作成
+	TextureManager::Load("Pause.png");
+	TextureManager::Load("Arrow.png");
+	TextureManager::Load("Cursor.png");
+	pauseSprite_.reset(Sprite::Create("Pause.png", { 0.0f,0.0f }));
+	arrowSprite_.reset(Sprite::Create("Arrow.png", { 0.0f,0.0f }));
+	cursorSprite_.reset(Sprite::Create("Cursor.png", cameraSensitivityPositions_[2]));
 }
 
 void GamePlayScene::Finalize()
@@ -91,149 +99,159 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
+	//ポーズの更新
+	UpdatePause();
+
 	//トランジションの更新
 	UpdateTransition();
 
-	//Skyboxの更新
-	backGround_->Update();
-
-	//パーティクルの更新
-	particleManager_->Update();
-
-	//プレイヤーの攻撃がヒットしたか、またはプレイヤーがダメージを受けたとき
-	if (player_->GetWeapon()->GetIsHit() || player_->GetIsHit())
+	if (!isPause_)
 	{
-		//カメラシェイクのフラグを立てる
-		cameraShakeEnable_ = true;
+		//Skyboxの更新
+		backGround_->Update();
 
-		//最後の攻撃の時
-		if (player_->GetComboIndex() == 3)
+		//パーティクルの更新
+		particleManager_->Update();
+
+		//プレイヤーの攻撃がヒットしたか、またはプレイヤーがダメージを受けたとき
+		if (player_->GetWeapon()->GetIsHit() || player_->GetIsHit())
 		{
-			shakeIntensityX = 0.0f;
-			shakeIntensityY = 0.4f;
+			//カメラシェイクのフラグを立てる
+			cameraShakeEnable_ = true;
+
+			//最後の攻撃の時
+			if (player_->GetComboIndex() == 3)
+			{
+				shakeIntensityX = 0.0f;
+				shakeIntensityY = 0.4f;
+			}
+			//プレイヤーがダメージを食らった時
+			else if (player_->GetIsHit())
+			{
+				shakeIntensityX = 0.6f;
+				shakeIntensityY = 0.6f;
+			}
+			//そのほか
+			else
+			{
+				shakeIntensityX = 0.0f;
+				shakeIntensityY = 0.1f;
+			}
 		}
-		//プレイヤーがダメージを食らった時
-		else if (player_->GetIsHit())
+
+		//カメラシェイクの処理
+		if (cameraShakeEnable_)
 		{
-			shakeIntensityX = 0.6f;
-			shakeIntensityY = 0.6f;
+			if (++shakeTimer_ >= kShakeTime)
+			{
+				cameraShakeEnable_ = false;
+				shakeTimer_ = 0;
+			}
+
+			camera_.translation_.x += RandomGenerator::GetRandomFloat(-shakeIntensityX, shakeIntensityX);
+			camera_.translation_.y += RandomGenerator::GetRandomFloat(-shakeIntensityY, shakeIntensityY);
 		}
-		//そのほか
+
+		//カメラの更新
+		camera_.UpdateMatrix();
+
+		//ヒットストップ中じゃないときに武器が当たったら
+		if (!isStop_ && player_->GetWeapon()->GetIsHit())
+		{
+			//ヒットストップのフラグを立てる
+			isStop_ = true;
+			//最後の攻撃の時はヒットストップを長めに
+			stopTime_ = (player_->GetComboIndex() == 3) ? 10 : 2;
+			//ヒットフラグをリセット
+			player_->GetWeapon()->SetIsHit(false);
+		}
+
+		//ヒットストップの処理
+		if (isStop_)
+		{
+			if (++stopTimer_ >= stopTime_)
+			{
+				isStop_ = false;
+				stopTimer_ = 0;
+			}
+			return;
+		}
+
+		//プレイヤーがジャスト回避をしていたら
+		if (player_->GetisJustAvoid())
+		{
+			boss_->SetIsSlow(true);
+			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
+			//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(true);
+			//PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
+		}
+
+		if (boss_->GetIsSlow())
+		{
+			if (length <= 1.0f)
+			{
+				length += 0.1f;
+			}
+			//PostEffects::GetInstance()->GetVignette()->SetIntensity(length);
+		}
 		else
 		{
-			shakeIntensityX = 0.0f;
-			shakeIntensityY = 0.1f;
+			length = 0.0f;
+			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
+			//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(false);
+			//PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
+			//PostEffects::GetInstance()->GetVignette()->SetIntensity(0.0f);
+			player_->SetJustAvoidInvincible(false);
 		}
-	}
 
-	//カメラシェイクの処理
-	if (cameraShakeEnable_)
-	{
-		if (++shakeTimer_ >= kShakeTime)
+		//ゲームオブジェクトの更新
+		gameObjectManager_->Update();
+
+		//ロックオンの処理
+		lockOn_->Update(boss_, camera_);
+
+		//追従カメラの更新
+		followCamera_->Update();
+		camera_ = followCamera_->GetCamera();
+
+		//衝突判定
+		collisionManager_->ClearColliderList();
+		if (player_->GetCollider())
 		{
-			cameraShakeEnable_ = false;
-			shakeTimer_ = 0;
+			collisionManager_->SetColliderList(player_->GetCollider());
 		}
-
-		camera_.translation_.x += RandomGenerator::GetRandomFloat(-shakeIntensityX, shakeIntensityX);
-		camera_.translation_.y += RandomGenerator::GetRandomFloat(-shakeIntensityY, shakeIntensityY);
-	}
-
-	//カメラの更新
-	camera_.UpdateMatrix();
-
-	//ヒットストップ中じゃないときに武器が当たったら
-	if (!isStop_ && player_->GetWeapon()->GetIsHit())
-	{
-		//ヒットストップのフラグを立てる
-		isStop_ = true;
-		//最後の攻撃の時はヒットストップを長めに
-		stopTime_ = (player_->GetComboIndex() == 3) ? 10 : 2;
-		//ヒットフラグをリセット
-		player_->GetWeapon()->SetIsHit(false);
-	}
-
-	//ヒットストップの処理
-	if (isStop_)
-	{
-		if (++stopTimer_ >= stopTime_)
+		Weapon* weapon = player_->GetWeapon();
+		if (weapon->GetIsAttack())
 		{
-			isStop_ = false;
-			stopTimer_ = 0;
+			if (weapon->GetCollider())
+			{
+				collisionManager_->SetColliderList(weapon->GetCollider());
+			}
 		}
-		return;
-	}
-
-	//プレイヤーがジャスト回避をしていたら
-	if (player_->GetisJustAvoid())
-	{
-		boss_->SetIsSlow(true);
-		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
-		//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(true);
-		//PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
-	}
-
-	if (boss_->GetIsSlow())
-	{
-		if (length <= 1.0f)
+		for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
 		{
-			length += 0.1f;
+			if (missile->GetCollider())
+			{
+				collisionManager_->SetColliderList(missile->GetCollider());
+			}
 		}
-		//PostEffects::GetInstance()->GetVignette()->SetIntensity(length);
-	}
-	else
-	{
-		length = 0.0f;
-		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
-		//PostEffects::GetInstance()->GetGrayScale()->SetIsSepiaEnabled(false);
-		//PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
-		//PostEffects::GetInstance()->GetVignette()->SetIntensity(0.0f);
-		player_->SetJustAvoidInvincible(false);
-	}
-
-	//ゲームオブジェクトの更新
-	gameObjectManager_->Update();
-
-	//ロックオンの処理
-	lockOn_->Update(boss_, camera_);
-
-	//追従カメラの更新
-	followCamera_->Update();
-	camera_ = followCamera_->GetCamera();
-
-	//衝突判定
-	collisionManager_->ClearColliderList();
-	if (player_->GetCollider())
-	{
-		collisionManager_->SetColliderList(player_->GetCollider());
-	}
-	Weapon* weapon = player_->GetWeapon();
-	if (weapon->GetIsAttack())
-	{
-		if (weapon->GetCollider())
+		for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
 		{
-			collisionManager_->SetColliderList(weapon->GetCollider());
+			if (laser->GetCollider())
+			{
+				collisionManager_->SetColliderList(laser->GetCollider());
+			}
 		}
-	}
-	for (const std::unique_ptr<Missile>& missile : boss_->GetMissiles())
-	{
-		if (missile->GetCollider())
+		if (boss_->GetCollider())
 		{
-			collisionManager_->SetColliderList(missile->GetCollider());
+			collisionManager_->SetColliderList(boss_->GetCollider());
 		}
+		collisionManager_->CheckAllCollisions();
 	}
-	for (const std::unique_ptr<Laser>& laser : boss_->GetLasers())
-	{
-		if (laser->GetCollider())
-		{
-			collisionManager_->SetColliderList(laser->GetCollider());
-		}
-	}
-	if (boss_->GetCollider())
-	{
-		collisionManager_->SetColliderList(boss_->GetCollider());
-	}
-	collisionManager_->CheckAllCollisions();
+
+	ImGui::Begin("GamePlayScene");
+	ImGui::DragFloat2("CursorPosition", &cursorSpritePosition_.x);
+	ImGui::End();
 }
 
 void GamePlayScene::Draw()
@@ -294,6 +312,14 @@ void GamePlayScene::DrawUI()
 
 	//ガイドのスプライトの描画
 	guideSprite_->Draw();
+
+	//ポーズ画面
+	if (isPause_)
+	{
+		pauseSprite_->Draw();
+		arrowSprite_->Draw();
+		cursorSprite_->Draw();
+	}
 
 	//トランジション用のスプライトの描画
 	transitionSprite_->Draw();
@@ -368,4 +394,64 @@ void GamePlayScene::UpdateTransition()
 			isFadeIn_ = true;
 		}
 	}
+}
+
+void GamePlayScene::UpdatePause()
+{
+	if (!isFadeIn_ && !isFadeOut_)
+	{
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_START))
+		{
+			if (isPause_)
+			{
+				isPause_ = false;
+				PostEffects::GetInstance()->GetBoxFilter()->SetIsEnable(false);
+				PostEffects::GetInstance()->GetBoxFilter()->SetKernelSize(KernelSize::k5x5);
+			}
+			else
+			{
+				isPause_ = true;
+				PostEffects::GetInstance()->GetBoxFilter()->SetIsEnable(true);
+				PostEffects::GetInstance()->GetBoxFilter()->SetKernelSize(KernelSize::k5x5);
+			}
+		}
+	}
+
+	if (isPause_)
+	{
+		//スティックの操作
+		const float threshold = 0.7f;
+		float axis = input_->GetLeftStickX();
+		if (std::abs(axis) > threshold)
+		{
+			if (!isArrowMoved_)
+			{
+				isArrowMoved_ = true;
+				int currentCameraSensitivity = followCamera_->GetCameraSensitivity();
+				//右入力
+				if (axis > 0.7f)
+				{
+					currentCameraSensitivity++;
+				}
+				//左入力
+				else
+				{
+					currentCameraSensitivity--;
+				}
+
+				//設定の上限を超えていなかったら
+				if (currentCameraSensitivity >= 0 && currentCameraSensitivity < 5)
+				{
+					followCamera_->SetCameraSensitivity(currentCameraSensitivity);
+					cursorSprite_->SetPosition(cameraSensitivityPositions_[currentCameraSensitivity]);
+				}
+			}
+		}
+		else
+		{
+			isArrowMoved_ = false;
+		}
+	}
+
+	arrowSprite_->SetPosition(arrowSpritePosition_);
 }

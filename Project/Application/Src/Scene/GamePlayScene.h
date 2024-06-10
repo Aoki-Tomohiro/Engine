@@ -39,6 +39,8 @@ public:
 
 	void UpdateTransition();
 
+	void UpdatePause();
+
 private:
 	Renderer* renderer_ = nullptr;
 
@@ -117,5 +119,25 @@ private:
 	//Skybox
 	std::unique_ptr<Skybox> skybox_ = nullptr;
 	std::unique_ptr<BackGround> backGround_ = nullptr;
+
+	//ポーズフラグ
+	bool isPause_ = false;
+
+	//ポーズ画面
+	std::unique_ptr<Sprite> pauseSprite_ = nullptr;
+	std::unique_ptr<Sprite> arrowSprite_ = nullptr;
+	std::unique_ptr<Sprite> cursorSprite_ = nullptr;
+	Vector2 arrowSpritePosition_ = { 380.0f,316.0f };
+	Vector2 cursorSpritePosition_ = { 566.0f,321.0f };
+	std::array<Vector2, 5> cameraSensitivityPositions_ = {
+		{
+			{566.0f,321.0f},
+		    {649.0f,321.0f},
+			{733.0f,321.0f},
+			{812.0f,321.0f},
+			{888.0f,321.0f},
+		}
+	};
+	bool isArrowMoved_ = false;
 };
 

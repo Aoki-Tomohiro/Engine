@@ -59,6 +59,10 @@ void PostEffects::Initialize()
 	//GrayScaleの初期化
 	grayScale_ = std::make_unique<GrayScale>();
 	grayScale_->Initialize();
+
+	//BoxFilterの初期化
+	boxFilter_ = std::make_unique<BoxFilter>();
+	boxFilter_->Initialize();
 }
 
 void PostEffects::Update()
@@ -80,6 +84,9 @@ void PostEffects::Update()
 
 	//GrayScaleの更新
 	grayScale_->Update();
+
+	//BoxFilterの更新
+	boxFilter_->Update();
 }
 
 void PostEffects::Apply()
@@ -128,6 +135,7 @@ void PostEffects::Draw()
 	commandContext->SetConstantBuffer(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
 	commandContext->SetConstantBuffer(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
 	commandContext->SetConstantBuffer(4, grayScale_->GetConstBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(5, boxFilter_->GetConstBuffer()->GetGpuVirtualAddress());
 
 	//DrawCall
 	commandContext->DrawInstanced(6, 1);
@@ -162,7 +170,7 @@ void PostEffects::CreateVertexBuffer()
 void PostEffects::CreatePipelineState()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(5, 1);
+	rootSignature_.Create(6, 1);
 
 	//RootParameterの設定
 	rootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -170,6 +178,7 @@ void PostEffects::CreatePipelineState()
 	rootSignature_[2].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootSignature_[3].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootSignature_[4].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_[5].InitAsConstantBuffer(3, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};

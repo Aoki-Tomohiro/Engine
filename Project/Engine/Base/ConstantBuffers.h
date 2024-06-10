@@ -134,3 +134,15 @@ struct ConstBuffDataGrayScale
 	int32_t isEnable;
 	int32_t isSepiaEnabled;
 };
+
+struct ConstBuffDataBoxFilter
+{
+	int32_t isEnable;
+	int32_t kernelSize;
+};
+
+enum KernelSize
+{
+	k3x3,
+	k5x5
+};

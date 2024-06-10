@@ -20,6 +20,10 @@ public:
 
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; };
 
+	const int GetCameraSensitivity() const { return cameraSensitivity_; };
+
+	void SetCameraSensitivity(const int cameraSensitivity) { cameraSensitivity_ = cameraSensitivity; };
+
 private:
 	Vector3 Offset();
 
@@ -44,5 +48,11 @@ private:
 
 	//ロックオン
 	const LockOn* lockOn_ = nullptr;
+
+	//カメラの回転速度
+	float rotSpeedY_ = 0.06f;
+
+	//カメラの速度設定
+	int cameraSensitivity_ = 3;
 };
 
