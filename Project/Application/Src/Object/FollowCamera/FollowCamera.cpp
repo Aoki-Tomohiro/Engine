@@ -14,6 +14,18 @@ void FollowCamera::Initialize()
 
 void FollowCamera::Update()
 {
+	if (clearAnimation_)
+	{
+		const Vector3 endOffset = { 0.0f, 2.0f, -10.0f };
+		offset_ = Mathf::Lerp(offset_, endOffset, 0.1f);
+		destinationAngleY_ += 0.006f;
+		const float epsilon = 0.8f;
+		if (Mathf::Length(offset_ - endOffset) < epsilon)
+		{
+			clearAnimationEnd_ = true;
+		}
+	}
+
 	//追従対象がいれば
 	if (target_)
 	{
@@ -48,60 +60,63 @@ void FollowCamera::Update()
 	}
 
 	//ロックオン中なら
-	if (lockOn_ && lockOn_->ExistTarget())
+	if (!clearAnimation_)
 	{
-		//ロックオン座標
-		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
-		//追従対象からロックオン座標へのベクトル
-		Vector3 sub = lockOnPosition - target_->translation_;
-		sub.y = 0.0f;
-
-		//Y軸周り角度
-		if (sub.z != 0.0) {
-			destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
-
-			if (sub.z < 0.0) {
-				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
-			}
-		}
-		else {
-			destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
-		}
-
-		destinationAngleX_ = 0.2f;
-	}
-	else
-	{
-		//旋回操作
-		if (input_->IsControllerConnected())
+		if (lockOn_ && lockOn_->ExistTarget())
 		{
+			//ロックオン座標
+			Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+			//追従対象からロックオン座標へのベクトル
+			Vector3 sub = lockOnPosition - target_->translation_;
+			sub.y = 0.0f;
 
-			//しきい値
-			const float threshold = 0.7f;
+			//Y軸周り角度
+			if (sub.z != 0.0) {
+				destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
 
-			//回転フラグ
-			bool isRotation = false;
-
-			//回転量
-			Vector3 rotation = {
-				input_->GetRightStickY(),
-				input_->GetRightStickX(),
-				0.0f
-			};
-
-			//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
-			if (Mathf::Length(rotation) > threshold)
-			{
-				isRotation = true;
+				if (sub.z < 0.0) {
+					destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
+				}
+			}
+			else {
+				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
 			}
 
-			if (isRotation)
+			destinationAngleX_ = 0.2f;
+		}
+		else
+		{
+			//旋回操作
+			if (input_->IsControllerConnected())
 			{
-				//回転速度
-				const float kRotSpeedX = 0.02f;
 
-				destinationAngleX_ -= rotation.x * kRotSpeedX;
-				destinationAngleY_ += rotation.y * rotSpeedY_;
+				//しきい値
+				const float threshold = 0.7f;
+
+				//回転フラグ
+				bool isRotation = false;
+
+				//回転量
+				Vector3 rotation = {
+					input_->GetRightStickY(),
+					input_->GetRightStickX(),
+					0.0f
+				};
+
+				//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
+				if (Mathf::Length(rotation) > threshold)
+				{
+					isRotation = true;
+				}
+
+				if (isRotation)
+				{
+					//回転速度
+					const float kRotSpeedX = 0.02f;
+
+					destinationAngleX_ -= rotation.x * kRotSpeedX;
+					destinationAngleY_ += rotation.y * rotSpeedY_;
+				}
 			}
 		}
 	}
@@ -121,6 +136,7 @@ void FollowCamera::Update()
 
 	ImGui::Begin("FollowCamera");
 	ImGui::DragFloat("RotSpeed", &rotSpeedY_);
+	ImGui::DragFloat3("Offset", &offset_.x);
 	ImGui::End();
 }
 
@@ -133,7 +149,7 @@ void FollowCamera::SetTarget(const WorldTransform* target)
 Vector3 FollowCamera::Offset()
 {
 	//追従対象からのオフセット
-	Vector3 offset = { 0.0f, 2.0f, -30.0f };
+	Vector3 offset = offset_;
 	//回転行列の合成
 	Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(camera_.rotation_.x);
 	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_.rotation_.y);

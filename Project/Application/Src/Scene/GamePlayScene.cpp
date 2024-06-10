@@ -105,8 +105,29 @@ void GamePlayScene::Update()
 	//トランジションの更新
 	UpdateTransition();
 
-	if (!isPause_)
+	if (isCleared_)
 	{
+		ClearAnimation();
+
+		ImGui::Begin("GamePlayScene");
+		ImGui::DragFloat("nFocusWidth", &nFocusWidth_, 0.0001f);
+		ImGui::DragFloat("fFocusWidth", &nFocusWidth_, 0.0001f);
+		ImGui::DragFloat("focusDepth", &focusDepth_, 0.001f);
+		ImGui::End();
+	}
+
+	if (!isPause_ && !isCleared_)
+	{
+		if (input_->IsPushKeyEnter(DIK_C))
+		{
+			isCleared_ = true;
+			followCamera_->SetClearAnimation(true);
+			PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
+			PostEffects::GetInstance()->GetDepthOfField()->SetNFocusWidth(nFocusWidth_);
+			PostEffects::GetInstance()->GetDepthOfField()->SetFocusDepth(focusDepth_);
+			PostEffects::GetInstance()->GetDepthOfField()->SetFFocusWidth(fFocusWidth_);
+		}
+
 		//Skyboxの更新
 		backGround_->Update();
 
@@ -368,6 +389,7 @@ void GamePlayScene::UpdateTransition()
 				break;
 			}
 			audio_->StopAudio(bgmHandle_);
+			PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
 		}
 	}
 
@@ -377,8 +399,14 @@ void GamePlayScene::UpdateTransition()
 		//ボスの体力が0になったらゲームクリア
 		if (boss_->GetHP() <= 0.0f)
 		{
-			isFadeIn_ = true;
+			//isFadeIn_ = true;
 			nextScene_ = kGameClear;
+			PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
+			PostEffects::GetInstance()->GetDepthOfField()->SetNFocusWidth(nFocusWidth_);
+			PostEffects::GetInstance()->GetDepthOfField()->SetFocusDepth(focusDepth_);
+			PostEffects::GetInstance()->GetDepthOfField()->SetFFocusWidth(fFocusWidth_);
+			followCamera_->SetClearAnimation(true);
+			isCleared_ = true;
 		}
 
 		//プレイヤーの体力が0になったらゲームオーバー
@@ -454,4 +482,16 @@ void GamePlayScene::UpdatePause()
 	}
 
 	arrowSprite_->SetPosition(arrowSpritePosition_);
+}
+
+void GamePlayScene::ClearAnimation()
+{
+	if (followCamera_->GetClearAnimationEnd())
+	{
+		isFadeIn_ = true;
+	}
+
+	followCamera_->Update();
+	camera_ = followCamera_->GetCamera();
+	camera_.UpdateMatrix();
 }

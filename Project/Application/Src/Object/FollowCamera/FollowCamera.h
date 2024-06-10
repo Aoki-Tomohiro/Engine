@@ -24,6 +24,10 @@ public:
 
 	void SetCameraSensitivity(const int cameraSensitivity) { cameraSensitivity_ = cameraSensitivity; };
 
+	void SetClearAnimation(const bool clearAnimation) { clearAnimation_ = clearAnimation; };
+
+	const bool GetClearAnimationEnd() const { return clearAnimationEnd_; };
+
 private:
 	Vector3 Offset();
 
@@ -54,5 +58,12 @@ private:
 
 	//カメラの速度設定
 	int cameraSensitivity_ = 3;
+
+	//オフセット
+	Vector3 offset_ = { 0.0f, 2.0f, -30.0f };
+
+	//クリアアニメーションのフラグ
+	bool clearAnimation_ = false;
+	bool clearAnimationEnd_ = false;
 };
 

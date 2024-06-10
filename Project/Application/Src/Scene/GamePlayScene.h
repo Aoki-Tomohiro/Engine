@@ -41,6 +41,8 @@ public:
 
 	void UpdatePause();
 
+	void ClearAnimation();
+
 private:
 	Renderer* renderer_ = nullptr;
 
@@ -139,5 +141,12 @@ private:
 		}
 	};
 	bool isArrowMoved_ = false;
+	bool isCleared_ = false;
+
+	float focusDepth_ = 0.0f;
+
+	float nFocusWidth_ = 0.005f;
+
+	float fFocusWidth_ = 0.01f;
 };
 
