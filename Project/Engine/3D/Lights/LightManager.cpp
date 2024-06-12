@@ -29,8 +29,8 @@ void LightManager::Initialize()
 	constBuff_->Create(sizeof(ConstBuffDataLight));
 	Update();
 
-	TextureManager::Load("rostock_laage_airport_4k.dds");
-	SetEnvironmentTexture("rostock_laage_airport_4k.dds");
+	TextureManager::Load("Skybox.dds");
+	SetEnvironmentTexture("Skybox.dds");
 }
 
 void LightManager::Update()

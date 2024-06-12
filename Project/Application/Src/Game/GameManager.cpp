@@ -17,7 +17,7 @@ void GameManager::Initialize()
 	//Bloomの有効化
 	postEffects_->SetIsEnable(true);
 	postEffects_->GetBloom()->SetIsEnable(true);
-	postEffects_->GetBloom()->SetBlurCount(2);
+	postEffects_->GetBloom()->SetBlurCount(1);
 }
 
 void GameManager::Finalize()

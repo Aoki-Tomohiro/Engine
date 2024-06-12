@@ -78,8 +78,8 @@ void GamePlayScene::Initialize()
 	audio_->PlayAudio(bgmHandle_, true, 0.5f);
 
 	//Skyboxの生成
-	TextureManager::Load("rostock_laage_airport_4k.dds");
-	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
+	TextureManager::Load("Skybox.dds");
+	skybox_.reset(Skybox::Create("Skybox.dds"));
 	backGround_ = std::make_unique<BackGround>();
 	backGround_->Initialize(skybox_.get());
 

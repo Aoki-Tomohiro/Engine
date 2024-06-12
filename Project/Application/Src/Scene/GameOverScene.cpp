@@ -18,8 +18,8 @@ void GameOverScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//天球の作成
-	TextureManager::Load("rostock_laage_airport_4k.dds");
-	skybox_.reset(Skybox::Create("rostock_laage_airport_4k.dds"));
+	TextureManager::Load("Skybox.dds");
+	skybox_.reset(Skybox::Create("Skybox.dds"));
 	backGround_ = std::make_unique<BackGround>();
 	backGround_->Initialize(skybox_.get());
 
