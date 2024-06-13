@@ -30,43 +30,43 @@ void Fog::Update()
 void Fog::Apply(const DescriptorHandle& srvHandle)
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicsContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandContext->SetRenderTargets(1, &colorBuffer_->GetRTVHandle());
+	graphicsContext->SetRenderTargets(1, &colorBuffer_->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandContext->ClearColor(*colorBuffer_);
+	graphicsContext->ClearColor(*colorBuffer_);
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(rootSignature_);
+	graphicsContext->SetRootSignature(rootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(pipelineState_);
+	graphicsContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetLinearDepthDescriptorHandle());
-	commandContext->SetDescriptorTable(1, srvHandle);
+	graphicsContext->SetDescriptorTable(0, Renderer::GetInstance()->GetLinearDepthDescriptorHandle());
+	graphicsContext->SetDescriptorTable(1, srvHandle);
 
 	//CBVを設定
-	commandContext->SetConstantBuffer(2, constBuff_->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(2, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, Application::kClientWidth, Application::kClientHeight, 0.0f, 1.0f };
-	commandContext->SetViewport(viewport);
+	graphicsContext->SetViewport(viewport);
 
 	//シザー矩形を設定
 	D3D12_RECT scissorRect{ 0, 0, Application::kClientWidth, Application::kClientHeight };
-	commandContext->SetScissor(scissorRect);
+	graphicsContext->SetScissor(scissorRect);
 
 	//DrawCall
-	commandContext->DrawInstanced(6, 1);
+	graphicsContext->DrawInstanced(6, 1);
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	graphicsContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Fog::CreatePipelineState()

@@ -1,6 +1,5 @@
 #include "CommandContext.h"
 #include "GraphicsCore.h"
-#include <cassert>
 
 void CommandContext::Initialize()
 {
@@ -18,54 +17,6 @@ void CommandContext::Initialize()
 	assert(SUCCEEDED(hr));
 }
 
-void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState)
-{
-	D3D12_RESOURCE_STATES oldState = resource.currentState_;
-
-	if (oldState != newState)
-	{
-		D3D12_RESOURCE_BARRIER barrier{};
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource = resource.GetResource();
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		barrier.Transition.StateBefore = oldState;
-		barrier.Transition.StateAfter = newState;
-		resource.currentState_ = newState;
-		commandList_->ResourceBarrier(1, &barrier);
-	}
-}
-
-void CommandContext::SetRenderTargets(UINT num, const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[])
-{
-	commandList_->OMSetRenderTargets(num, rtvHandles, false, nullptr);
-}
-
-void CommandContext::SetRenderTargets(UINT num, const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[], D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
-{
-	commandList_->OMSetRenderTargets(num, rtvHandles, false, &dsvHandle);
-}
-
-void CommandContext::ClearColor(ColorBuffer& target)
-{
-	commandList_->ClearRenderTargetView(target.GetRTVHandle(), target.GetClearColor(), 0, nullptr);
-}
-
-void CommandContext::ClearDepth(DepthBuffer& target)
-{
-	commandList_->ClearDepthStencilView(target.GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-}
-
-void CommandContext::SetViewport(const D3D12_VIEWPORT& viewport)
-{
-	commandList_->RSSetViewports(1, &viewport);
-}
-
-void CommandContext::SetScissor(const D3D12_RECT& rect)
-{
-	commandList_->RSSetScissorRects(1, &rect);
-}
-
 void CommandContext::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, ID3D12DescriptorHeap* descriptorHeap)
 {
 	if (currentDescriptorHeaps_[type] != descriptorHeap)
@@ -75,62 +26,13 @@ void CommandContext::SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, ID3D12De
 	}
 }
 
-void CommandContext::SetVertexBuffer(const D3D12_VERTEX_BUFFER_VIEW& vertexBufferView)
-{
-	commandList_->IASetVertexBuffers(0, 1, &vertexBufferView);
-}
-
-void CommandContext::SetVertexBuffers(UINT startSlot, UINT count, const D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[])
-{
-	commandList_->IASetVertexBuffers(startSlot, count, vertexBufferViews);
-}
-
-void CommandContext::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& indexBufferView)
-{
-	commandList_->IASetIndexBuffer(&indexBufferView);
-}
-
-void CommandContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology)
-{
-	commandList_->IASetPrimitiveTopology(primitiveTopology);
-}
-
-void CommandContext::SetConstantBuffer(UINT rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS cbv)
-{
-	commandList_->SetGraphicsRootConstantBufferView(rootParameterIndex, cbv);
-}
-
-void CommandContext::SetDescriptorTable(UINT rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle)
-{
-	commandList_->SetGraphicsRootDescriptorTable(rootParameterIndex, gpuHandle);
-}
-
-void CommandContext::SetRootSignature(const RootSignature& rootSignature)
-{
-	if (rootSignature.GetRootSignature() == currentRootSignature_)
-	{
-		return;
-	}
-	commandList_->SetGraphicsRootSignature(currentRootSignature_ = rootSignature.GetRootSignature());
-}
-
-void CommandContext::SetPipelineState(const PipelineState& pipelineState)
+void CommandContext::SetPipelineState(const PSO& pipelineState)
 {
 	if (pipelineState.GetPipelineState() == currentPipelineState_)
 	{
 		return;
 	}
 	commandList_->SetPipelineState(currentPipelineState_ = pipelineState.GetPipelineState());
-}
-
-void CommandContext::DrawInstanced(UINT vertexCount, UINT instanceCount)
-{
-	commandList_->DrawInstanced(vertexCount, instanceCount, 0, 0);
-}
-
-void CommandContext::DrawIndexedInstanced(UINT indexCount, UINT instanceCount)
-{
-	commandList_->DrawIndexedInstanced(indexCount, instanceCount, 0, 0, 0);
 }
 
 void CommandContext::Close()

@@ -47,7 +47,7 @@ void Bloom::Update()
 void Bloom::Apply(const DescriptorHandle& srvHandle)
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//高輝度を描画
 	RenderHighLuminance(srvHandle);
@@ -56,44 +56,44 @@ void Bloom::Apply(const DescriptorHandle& srvHandle)
 	ApplyGaussianBlur();
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*bloomColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicsContext->TransitionResource(*bloomColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandContext->SetRenderTargets(1, &bloomColorBuffer_->GetRTVHandle());
+	graphicsContext->SetRenderTargets(1, &bloomColorBuffer_->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandContext->ClearColor(*bloomColorBuffer_);
+	graphicsContext->ClearColor(*bloomColorBuffer_);
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(bloomRootSignature_);
+	graphicsContext->SetRootSignature(bloomRootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(bloomPipelineState_);
+	graphicsContext->SetPipelineState(bloomPipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, srvHandle);
-	commandContext->SetDescriptorTable(1, highLumColorBuffer_->GetSRVHandle());
-	commandContext->SetDescriptorTable(2, gaussianBlurs_[0]->GetDescriptorHandle(GaussianBlur::kVertical));
-	commandContext->SetDescriptorTable(3, gaussianBlurs_[1]->GetDescriptorHandle(GaussianBlur::kVertical));
-	commandContext->SetDescriptorTable(4, gaussianBlurs_[2]->GetDescriptorHandle(GaussianBlur::kVertical));
-	commandContext->SetDescriptorTable(5, gaussianBlurs_[3]->GetDescriptorHandle(GaussianBlur::kVertical));
+	graphicsContext->SetDescriptorTable(0, srvHandle);
+	graphicsContext->SetDescriptorTable(1, highLumColorBuffer_->GetSRVHandle());
+	graphicsContext->SetDescriptorTable(2, gaussianBlurs_[0]->GetDescriptorHandle(GaussianBlur::kVertical));
+	graphicsContext->SetDescriptorTable(3, gaussianBlurs_[1]->GetDescriptorHandle(GaussianBlur::kVertical));
+	graphicsContext->SetDescriptorTable(4, gaussianBlurs_[2]->GetDescriptorHandle(GaussianBlur::kVertical));
+	graphicsContext->SetDescriptorTable(5, gaussianBlurs_[3]->GetDescriptorHandle(GaussianBlur::kVertical));
 
 	//CBVを設定
-	commandContext->SetConstantBuffer(6, constBuff_->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(6, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, Application::kClientWidth, Application::kClientHeight, 0.0f, 1.0f };
-	commandContext->SetViewport(viewport);
+	graphicsContext->SetViewport(viewport);
 
 	//シザー矩形を設定
 	D3D12_RECT scissorRect{ 0, 0, Application::kClientWidth, Application::kClientHeight };
-	commandContext->SetScissor(scissorRect);
+	graphicsContext->SetScissor(scissorRect);
 
 	//DrawCall
-	commandContext->DrawInstanced(6, 1);
+	graphicsContext->DrawInstanced(6, 1);
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*bloomColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	graphicsContext->TransitionResource(*bloomColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Bloom::CreateHighLumPipelineState()
@@ -245,37 +245,37 @@ void Bloom::CreateBloomPipelineState()
 void Bloom::RenderHighLuminance(const DescriptorHandle& srvHandle)
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*highLumColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicsContext->TransitionResource(*highLumColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandContext->SetRenderTargets(1, &highLumColorBuffer_->GetRTVHandle());
+	graphicsContext->SetRenderTargets(1, &highLumColorBuffer_->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandContext->ClearColor(*highLumColorBuffer_);
+	graphicsContext->ClearColor(*highLumColorBuffer_);
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(highLumRootSignature_);
+	graphicsContext->SetRootSignature(highLumRootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(highLumPipelineState_);
+	graphicsContext->SetPipelineState(highLumPipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, srvHandle);
+	graphicsContext->SetDescriptorTable(0, srvHandle);
 
 	//DrawCall
-	commandContext->DrawInstanced(6, 1);
+	graphicsContext->DrawInstanced(6, 1);
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*highLumColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	graphicsContext->TransitionResource(*highLumColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Bloom::ApplyGaussianBlur()
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	for (uint32_t i = 0; i < kMaxBlurCount; ++i)
 	{
@@ -285,10 +285,10 @@ void Bloom::ApplyGaussianBlur()
 		if (i < blurCount_)
 		{
 			//DescriptorTableを設定
-			commandContext->SetDescriptorTable(0, (i == 0) ? highLumColorBuffer_->GetSRVHandle() : gaussianBlurs_[i - 1]->GetDescriptorHandle(GaussianBlur::kVertical));
+			graphicsContext->SetDescriptorTable(0, (i == 0) ? highLumColorBuffer_->GetSRVHandle() : gaussianBlurs_[i - 1]->GetDescriptorHandle(GaussianBlur::kVertical));
 
 			//DrawCall
-			commandContext->DrawInstanced(6, 1);
+			graphicsContext->DrawInstanced(6, 1);
 		}
 
 		gaussianBlurs_[i]->PostBlur(GaussianBlur::kHorizontal);
@@ -299,10 +299,10 @@ void Bloom::ApplyGaussianBlur()
 		if (i < blurCount_)
 		{
 			//DescriptorTableを設定
-			commandContext->SetDescriptorTable(0, gaussianBlurs_[i]->GetDescriptorHandle(GaussianBlur::kHorizontal));
+			graphicsContext->SetDescriptorTable(0, gaussianBlurs_[i]->GetDescriptorHandle(GaussianBlur::kHorizontal));
 
 			//DrawCall
-			commandContext->DrawInstanced(6, 1);
+			graphicsContext->DrawInstanced(6, 1);
 		}
 
 		gaussianBlurs_[i]->PostBlur(GaussianBlur::kVertical);

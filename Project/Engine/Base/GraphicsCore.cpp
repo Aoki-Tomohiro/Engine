@@ -121,8 +121,10 @@ void GraphicsCore::Initialize()
 #endif
 
 	//コマンドコンテキストの初期化
-	commandContext_ = std::make_unique<CommandContext>();
-	commandContext_->Initialize();
+	graphicsContext_ = std::make_unique<GraphicsContext>();
+	graphicsContext_->Initialize();
+	computeContext_ = std::make_unique<ComputeContext>();
+	computeContext_->Initialize();
 
 	//コマンドキューの生成
 	commandQueue_ = std::make_unique<CommandQueue>();
@@ -158,10 +160,10 @@ void GraphicsCore::PreDraw()
 	ColorBuffer& currentBackBuffer = display_->GetCurrentBuffer();
 
 	//リソースの状態遷移
-	commandContext_->TransitionResource(currentBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicsContext_->TransitionResource(currentBackBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//レンダーターゲットとデプスバッファを設定
-	commandContext_->SetRenderTargets(1, &currentBackBuffer.GetRTVHandle(), depthBuffer_->GetDSVHandle());
+	graphicsContext_->SetRenderTargets(1, &currentBackBuffer.GetRTVHandle(), depthBuffer_->GetDSVHandle());
 
 	//レンダーターゲットをクリア
 	ClearRenderTarget();
@@ -179,7 +181,7 @@ void GraphicsCore::PreDraw()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	//ビューポートを設定
-	commandContext_->SetViewport(viewport);
+	graphicsContext_->SetViewport(viewport);
 
 	//シザー矩形
 	D3D12_RECT scissorRect{};
@@ -189,7 +191,7 @@ void GraphicsCore::PreDraw()
 	scissorRect.top = 0;
 	scissorRect.bottom = Application::kClientHeight;
 	//シザーを設定
-	commandContext_->SetScissor(scissorRect);
+	graphicsContext_->SetScissor(scissorRect);
 }
 
 void GraphicsCore::PostDraw()
@@ -198,13 +200,14 @@ void GraphicsCore::PostDraw()
 	ColorBuffer& currentBackBuffer = display_->GetCurrentBuffer();
 
 	//リソースの状態遷移
-	commandContext_->TransitionResource(currentBackBuffer, D3D12_RESOURCE_STATE_PRESENT);
+	graphicsContext_->TransitionResource(currentBackBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
 	//コマンドリストの内容を確定させる。すべてのコマンドを積んでからCloseすること
-	commandContext_->Close();
+	graphicsContext_->Close();
+	computeContext_->Close();
 
 	//GPUにコマンドリストの実行を行わせる
-	ID3D12CommandList* commandLists[] = { commandContext_->GetCommandList() };
+	ID3D12CommandList* commandLists[] = { graphicsContext_->GetCommandList(),computeContext_->GetCommandList() };
 	commandQueue_->ExecuteCommandList(commandLists);
 
 	//GPUとOSに画面の交換を行うよう通知する
@@ -217,7 +220,8 @@ void GraphicsCore::PostDraw()
 	frameRateController_->Update();
 
 	//次のフレーム用のコマンドリストを準備
-	commandContext_->Reset();
+	graphicsContext_->Reset();
+	computeContext_->Reset();
 }
 
 void GraphicsCore::ClearRenderTarget()
@@ -226,15 +230,15 @@ void GraphicsCore::ClearRenderTarget()
 	ColorBuffer currentBackBuffer = display_->GetCurrentBuffer();
 
 	//指定した色で画面全体をクリア
-	commandContext_->ClearColor(currentBackBuffer);
+	graphicsContext_->ClearColor(currentBackBuffer);
 }
 
 void GraphicsCore::ClearDepthBuffer()
 {
 	//深度値を書き込めるようにする
-	commandContext_->TransitionResource(*depthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	graphicsContext_->TransitionResource(*depthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	//デプスバッファをクリア
-	commandContext_->ClearDepth(*depthBuffer_);
+	graphicsContext_->ClearDepth(*depthBuffer_);
 }
 
 DescriptorHandle GraphicsCore::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type)

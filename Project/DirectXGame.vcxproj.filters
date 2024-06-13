@@ -246,7 +246,7 @@
     <ClCompile Include="Engine\Base\ImGuiManager.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\PipelineState.cpp">
+    <ClCompile Include="Engine\Base\GraphicsPSO.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Base\Renderer.cpp">
@@ -363,7 +363,7 @@
     <ClCompile Include="Application\Src\Scene\SceneFactory.cpp">
       <Filter>ソース ファイル\Application\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\CommandContext.cpp">
+    <ClCompile Include="Engine\Base\GraphicsContext.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Base\CommandQueue.cpp">
@@ -468,6 +468,18 @@
     <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Base\PSO.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\ComputePSO.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\ComputeContext.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\CommandContext.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -521,7 +533,7 @@
     <ClInclude Include="Engine\Base\Renderer.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Base\PipelineState.h">
+    <ClInclude Include="Engine\Base\GraphicsPSO.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\ImGuiManager.h">
@@ -680,7 +692,7 @@
     <ClInclude Include="Application\Src\Scene\SceneFactory.h">
       <Filter>ヘッダー ファイル\Application\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Base\CommandContext.h">
+    <ClInclude Include="Engine\Base\GraphicsContext.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\CommandQueue.h">
@@ -789,6 +801,18 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\PSO.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\ComputePSO.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\ComputeContext.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\CommandContext.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -911,5 +935,6 @@
     <FxCompile Include="Application\Resources\Shaders\Skybox.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl" />
   </ItemGroup>
 </Project>

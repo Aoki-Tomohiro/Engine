@@ -1,6 +1,7 @@
 #pragma once
 #include "Application.h"
-#include "CommandContext.h"
+#include "GraphicsContext.h"
+#include "ComputeContext.h"
 #include "CommandQueue.h"
 #include "Display.h"
 #include "DescriptorHeap.h"
@@ -35,7 +36,9 @@ public:
 
 	ID3D12Device* GetDevice() const { return device_.Get(); };
 
-	CommandContext* GetCommandContext() const { return commandContext_.get(); };
+	GraphicsContext* GetGraphicsContext() const { return graphicsContext_.get(); };
+
+	ComputeContext* GetComputeContext() const { return computeContext_.get(); };
 
 	CommandQueue* GetCommandQueue() const { return commandQueue_.get(); };
 
@@ -56,7 +59,9 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Device> device_ = nullptr;
 
-	std::unique_ptr<CommandContext> commandContext_ = nullptr;
+	std::unique_ptr<GraphicsContext> graphicsContext_ = nullptr;
+
+	std::unique_ptr<ComputeContext> computeContext_ = nullptr;
 
 	std::unique_ptr<CommandQueue> commandQueue_ = nullptr;
 

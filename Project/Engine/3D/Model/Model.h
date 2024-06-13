@@ -52,8 +52,7 @@ public:
 	{
 		std::vector<Matrix4x4> inverseBindPoseMatrices;
 		//Influence
-		std::unique_ptr<UploadBuffer> influenceResource;
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+		std::unique_ptr<StructuredBuffer> influenceResource;
 		std::span<VertexInfluence> mappedInfluence;
 		//MatrixPalette
 		std::unique_ptr<StructuredBuffer> paletteResource;

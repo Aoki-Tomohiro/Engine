@@ -12,16 +12,16 @@ Skybox* Skybox::Create(const std::string& textureName)
 
 void Skybox::Draw(const WorldTransform& worldTransform, const Camera& camera)
 {
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 	TextureManager* textureManager = TextureManager::GetInstance();
-	commandContext->SetVertexBuffer(vertexBufferView_);
-	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandContext->SetIndexBuffer(indexBufferView_);
-	commandContext->SetConstantBuffer(0, materialConstBuffer_->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(1, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
-	commandContext->SetDescriptorTable(3, texture_->GetSRVHandle());
-	commandContext->DrawIndexedInstanced(kMaxIndices, 1);
+	graphicsContext->SetVertexBuffer(vertexBufferView_);
+	graphicsContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphicsContext->SetIndexBuffer(indexBufferView_);
+	graphicsContext->SetConstantBuffer(0, materialConstBuffer_->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(1, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetDescriptorTable(3, texture_->GetSRVHandle());
+	graphicsContext->DrawIndexedInstanced(kMaxIndices, 1);
 }
 
 void Skybox::Initialize(const std::string& textureName)

@@ -92,13 +92,13 @@ void PostEffects::Update()
 void PostEffects::Apply()
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//VertexBufferViewを設定
-	commandContext->SetVertexBuffer(vertexBufferView_);
+	graphicsContext->SetVertexBuffer(vertexBufferView_);
 
 	//形状を設定
-	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphicsContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//ポストエフェクトが無効なら処理を飛ばす
 	if (!isEnable_)
@@ -119,26 +119,26 @@ void PostEffects::Apply()
 void PostEffects::Draw()
 {
 	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(rootSignature_);
+	graphicsContext->SetRootSignature(rootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(pipelineState_);
+	graphicsContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneColorDescriptorHandle());
-	commandContext->SetDescriptorTable(1, fog_->GetDescriptorHandle());
+	graphicsContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneColorDescriptorHandle());
+	graphicsContext->SetDescriptorTable(1, fog_->GetDescriptorHandle());
 
 	//CBVを設定
-	commandContext->SetConstantBuffer(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(4, grayScale_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(5, boxFilter_->GetConstBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(4, grayScale_->GetConstBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(5, boxFilter_->GetConstBuffer()->GetGpuVirtualAddress());
 
 	//DrawCall
-	commandContext->DrawInstanced(6, 1);
+	graphicsContext->DrawInstanced(6, 1);
 }
 
 void PostEffects::CreateVertexBuffer()

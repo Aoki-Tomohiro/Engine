@@ -60,8 +60,8 @@ void Texture::CreateDerivedViews(ID3D12Device* device, const DirectX::TexMetadat
 void Texture::UploadTextureData(const Microsoft::WRL::ComPtr<ID3D12Resource>& texture, const DirectX::ScratchImage& mipImages)
 {
 	ID3D12Device* device = GraphicsCore::GetInstance()->GetDevice();
-	CommandContext commandContext{};
-	commandContext.Initialize();
+	GraphicsContext graphicsContext{};
+	graphicsContext.Initialize();
 	CommandQueue commandQueue{};
 	commandQueue.Initialize();
 
@@ -92,12 +92,12 @@ void Texture::UploadTextureData(const Microsoft::WRL::ComPtr<ID3D12Resource>& te
 		IID_PPV_ARGS(&intermediateResource));
 	assert(SUCCEEDED(hr));
 
-	UpdateSubresources(commandContext.GetCommandList(), texture.Get(), intermediateResource.Get(), 0, 0, UINT(subresources.size()), subresources.data());
+	UpdateSubresources(graphicsContext.GetCommandList(), texture.Get(), intermediateResource.Get(), 0, 0, UINT(subresources.size()), subresources.data());
 
-	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_GENERIC_READ);
-	commandContext.Close();
-	ID3D12CommandList* commandLists[] = { commandContext.GetCommandList() };
+	graphicsContext.TransitionResource(*this, D3D12_RESOURCE_STATE_GENERIC_READ);
+	graphicsContext.Close();
+	ID3D12CommandList* commandLists[] = { graphicsContext.GetCommandList() };
 	commandQueue.ExecuteCommandList(commandLists);
 	commandQueue.WaitForFence();
-	commandContext.Reset();
+	graphicsContext.Reset();
 }

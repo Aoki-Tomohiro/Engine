@@ -1,11 +1,9 @@
 #pragma once
-#include "RootSignature.h"
+#include "PSO.h"
 
-class PipelineState
+class GraphicsPSO : public PSO
 {
 public:
-	void SetRootSignature(const RootSignature* rootSignature);
-
 	void SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* inputElementDescs);
 
 	void SetVertexShader(const void* binary, size_t size);
@@ -26,13 +24,7 @@ public:
 
 	void Finalize();
 
-	ID3D12PipelineState* GetPipelineState() const { return pipelineState_.Get(); };
-
 private:
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_ = nullptr;
-
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc_{};
-
-	const RootSignature* rootSignature_ = nullptr;
 };
 

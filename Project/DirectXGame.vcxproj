@@ -21,6 +21,10 @@
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
+    <ClCompile Include="Engine\Base\CommandContext.cpp" />
+    <ClCompile Include="Engine\Base\ComputeContext.cpp" />
+    <ClCompile Include="Engine\Base\ComputePSO.cpp" />
+    <ClCompile Include="Engine\Base\PSO.cpp" />
     <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp" />
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp" />
@@ -57,7 +61,7 @@
     <ClCompile Include="Engine\3D\Skybox\Skybox.cpp" />
     <ClCompile Include="Engine\Base\Application.cpp" />
     <ClCompile Include="Engine\Base\ColorBuffer.cpp" />
-    <ClCompile Include="Engine\Base\CommandContext.cpp" />
+    <ClCompile Include="Engine\Base\GraphicsContext.cpp" />
     <ClCompile Include="Engine\Base\CommandQueue.cpp" />
     <ClCompile Include="Engine\Base\DepthBuffer.cpp" />
     <ClCompile Include="Engine\Base\DescriptorHeap.cpp" />
@@ -65,7 +69,7 @@
     <ClCompile Include="Engine\Base\FrameRateController.cpp" />
     <ClCompile Include="Engine\Base\GraphicsCore.cpp" />
     <ClCompile Include="Engine\Base\ImGuiManager.cpp" />
-    <ClCompile Include="Engine\Base\PipelineState.cpp" />
+    <ClCompile Include="Engine\Base\GraphicsPSO.cpp" />
     <ClCompile Include="Engine\Base\Renderer.cpp" />
     <ClCompile Include="Engine\Base\RootParameter.cpp" />
     <ClCompile Include="Engine\Base\RootSignature.cpp" />
@@ -124,6 +128,10 @@
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
+    <ClInclude Include="Engine\Base\CommandContext.h" />
+    <ClInclude Include="Engine\Base\ComputeContext.h" />
+    <ClInclude Include="Engine\Base\ComputePSO.h" />
+    <ClInclude Include="Engine\Base\PSO.h" />
     <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h" />
     <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h" />
     <ClInclude Include="Engine\LevelLoader\LevelLoader.h" />
@@ -164,7 +172,7 @@
     <ClInclude Include="Engine\3D\Skybox\Skybox.h" />
     <ClInclude Include="Engine\Base\Application.h" />
     <ClInclude Include="Engine\Base\ColorBuffer.h" />
-    <ClInclude Include="Engine\Base\CommandContext.h" />
+    <ClInclude Include="Engine\Base\GraphicsContext.h" />
     <ClInclude Include="Engine\Base\CommandQueue.h" />
     <ClInclude Include="Engine\Base\ConstantBuffers.h" />
     <ClInclude Include="Engine\Base\DepthBuffer.h" />
@@ -175,7 +183,7 @@
     <ClInclude Include="Engine\Base\GpuResource.h" />
     <ClInclude Include="Engine\Base\GraphicsCore.h" />
     <ClInclude Include="Engine\Base\ImGuiManager.h" />
-    <ClInclude Include="Engine\Base\PipelineState.h" />
+    <ClInclude Include="Engine\Base\GraphicsPSO.h" />
     <ClInclude Include="Engine\Base\Renderer.h" />
     <ClInclude Include="Engine\Base\RootParameter.h" />
     <ClInclude Include="Engine\Base\RootSignature.h" />
@@ -358,6 +366,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\PostEffects.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

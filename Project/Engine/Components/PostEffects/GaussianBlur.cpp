@@ -4,7 +4,7 @@
 
 //実態定義
 std::unique_ptr<RootSignature> GaussianBlur::rootSignature_ = nullptr;
-std::array<std::unique_ptr<PipelineState>, GaussianBlur::kCountOfBlurDirection> GaussianBlur::pipelineStates_{};
+std::array<std::unique_ptr<GraphicsPSO>, GaussianBlur::kCountOfBlurDirection> GaussianBlur::pipelineStates_{};
 
 void GaussianBlur::StaticInitialize()
 {
@@ -72,7 +72,7 @@ void GaussianBlur::StaticInitialize()
 	//PSOを作成する
 	for (uint32_t i = 0; i < pipelineStates_.size(); ++i)
 	{
-		pipelineStates_[i] = std::make_unique<PipelineState>();
+		pipelineStates_[i] = std::make_unique<GraphicsPSO>();
 		pipelineStates_[i]->SetRootSignature(rootSignature_.get());
 		pipelineStates_[i]->SetInputLayout(2, inputElementDescs);
 		pipelineStates_[i]->SetVertexShader(vertexShaderBlob[i]->GetBufferPointer(), vertexShaderBlob[i]->GetBufferSize());
@@ -141,25 +141,25 @@ void GaussianBlur::Update()
 
 void GaussianBlur::PreBlur(uint32_t index)
 {
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 
 	//リソースの状態遷移
-	commandContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_RENDER_TARGET);
+	graphicsContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//RenderTargetを設定
-	commandContext->SetRenderTargets(1, &blurBuffers_[index]->GetRTVHandle());
+	graphicsContext->SetRenderTargets(1, &blurBuffers_[index]->GetRTVHandle());
 
 	//RenderTargetをクリア
-	commandContext->ClearColor(*blurBuffers_[index]);
+	graphicsContext->ClearColor(*blurBuffers_[index]);
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(*rootSignature_);
+	graphicsContext->SetRootSignature(*rootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(*pipelineStates_[index]);
+	graphicsContext->SetPipelineState(*pipelineStates_[index]);
 
 	//CBVを設定
-	commandContext->SetConstantBuffer(1, constBuff_->GetGpuVirtualAddress());
+	graphicsContext->SetConstantBuffer(1, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{};
@@ -169,7 +169,7 @@ void GaussianBlur::PreBlur(uint32_t index)
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	commandContext->SetViewport(viewport);
+	graphicsContext->SetViewport(viewport);
 
 	//シザー矩形
 	D3D12_RECT scissorRect{};
@@ -177,11 +177,11 @@ void GaussianBlur::PreBlur(uint32_t index)
 	scissorRect.right = textureWidth_;
 	scissorRect.top = 0;
 	scissorRect.bottom = textureHeight_;
-	commandContext->SetScissor(scissorRect);
+	graphicsContext->SetScissor(scissorRect);
 }
 
 void GaussianBlur::PostBlur(uint32_t index)
 {
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	commandContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
+	graphicsContext->TransitionResource(*blurBuffers_[index], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }

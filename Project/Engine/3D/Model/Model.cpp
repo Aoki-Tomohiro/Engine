@@ -70,10 +70,23 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
+	SortObject sortObject{};
+	sortObject.vertexBufferView = mesh_->GetVertexBufferView();
+	sortObject.indexBufferView = mesh_->GetIndexBufferView();
+	sortObject.materialCBV = material_->GetConstantBuffer()->GetGpuVirtualAddress();
+	sortObject.worldTransformCBV = worldTransform.GetConstantBuffer()->GetGpuVirtualAddress();
+	sortObject.cameraCBV = camera.GetConstantBuffer()->GetGpuVirtualAddress();
+	sortObject.textureSRV = material_->GetTexture()->GetSRVHandle();
+	sortObject.matrixPaletteSRV = skinCluster_.paletteResource->GetSRVHandle();
+	sortObject.inputVerticesSRV = mesh_->GetInputVerticesBuffer()->GetSRVHandle();
+	sortObject.influencesSRV = skinCluster_.influenceResource->GetSRVHandle();
+	sortObject.skininngInformationCBV = mesh_->GetSkinningInformationBuffer()->GetGpuVirtualAddress();
+	sortObject.outputVerticesUAV = mesh_->GetVertexBuffer()->GetUAVHandle();
+	sortObject.vertexCount = (UINT)mesh_->GetVerticesSize();
+	sortObject.indexCount = (UINT)mesh_->GetIndicesSize();
+	sortObject.type = drawPass_;
 	//SortObjectの追加
-	renderer_->AddObject(mesh_->GetVertexBufferView(), skinCluster_.influenceBufferView, mesh_->GetIndexBufferView(), material_->GetConstantBuffer()->GetGpuVirtualAddress(),
-		worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-		material_->GetTexture()->GetSRVHandle(), skinCluster_.paletteResource->GetSRVHandle(), UINT(mesh_->GetIndicesSize()), drawPass_);
+	renderer_->AddObject(sortObject);
 
 	//DebugObjectの追加
 	if (isDebug_ && !modelData_.skinClusterData.empty())
@@ -88,23 +101,23 @@ Model::SkinCluster Model::CreateSkinCluster(const Animation::Skeleton& skeleton,
 	//palette用のResourceを確保
 	SkinCluster skinCluster;
 	skinCluster.paletteResource = std::make_unique<StructuredBuffer>();
-	skinCluster.paletteResource->Create(uint32_t(skeleton.joints.size()), sizeof(WellForGPU));
+	skinCluster.paletteResource->Create(uint32_t(skeleton.joints.size()), sizeof(WellForGPU), false);
 	WellForGPU* mappedPalette = static_cast<WellForGPU*>(skinCluster.paletteResource->Map());
 	skinCluster.mappedPalette = { mappedPalette,skeleton.joints.size() };//spanを使ってアクセスするようにする
 	//skinCluster.paletteResource->Unmap();
 
 	//influence用のResourceを確保。頂点ごとにinfluenced情報を追加できるようにする
-	skinCluster.influenceResource = std::make_unique<UploadBuffer>();
-	skinCluster.influenceResource->Create(sizeof(VertexInfluence) * modelData.vertices.size());
+	skinCluster.influenceResource = std::make_unique<StructuredBuffer>();
+	skinCluster.influenceResource->Create((uint32_t)modelData.vertices.size(), sizeof(VertexInfluence), false);
 	VertexInfluence* mappedInfluence = static_cast<VertexInfluence*>(skinCluster.influenceResource->Map());
 	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * modelData.vertices.size());//0埋め。weightを0にしておく。
 	skinCluster.mappedInfluence = { mappedInfluence,modelData.vertices.size() };
-	//skinCluster.influenceResource->Unmap();
+	skinCluster.influenceResource->Unmap();
 
-	//Influence用のVBVを作成
-	skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGpuVirtualAddress();
-	skinCluster.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * modelData.vertices.size());
-	skinCluster.influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
+	////Influence用のVBVを作成
+	//skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGpuVirtualAddress();
+	//skinCluster.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * modelData.vertices.size());
+	//skinCluster.influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
 
 	//InverseBindPoseMatrixを格納する場所を作成して、単位行列で埋める
 	skinCluster.inverseBindPoseMatrices.resize(skeleton.joints.size());

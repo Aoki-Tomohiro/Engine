@@ -37,15 +37,15 @@ void ParticleSystem::Update()
 void ParticleSystem::Draw(const Camera& camera)
 {
 	UpdateInstancingResource(camera);
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	GraphicsContext* graphicsContext = GraphicsCore::GetInstance()->GetGraphicsContext();
 	Model* model = model_ ? model_ : defaultModel_;
-	commandContext->SetVertexBuffer(model->GetMesh()->GetVertexBufferView());
-	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandContext->SetConstantBuffer(0, model->GetMaterial()->GetConstantBuffer()->GetGpuVirtualAddress());
-	commandContext->SetDescriptorTable(1, instancingResource_->GetSRVHandle());
-	commandContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
-	commandContext->SetDescriptorTable(3, model->GetMaterial()->GetTexture()->GetSRVHandle());
-	commandContext->DrawInstanced(UINT(model->modelData_.vertices.size()), numInstance_);
+	graphicsContext->SetVertexBuffer(model->GetMesh()->GetVertexBufferView());
+	graphicsContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	graphicsContext->SetConstantBuffer(0, model->GetMaterial()->GetConstantBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetDescriptorTable(1, instancingResource_->GetSRVHandle());
+	graphicsContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
+	graphicsContext->SetDescriptorTable(3, model->GetMaterial()->GetTexture()->GetSRVHandle());
+	graphicsContext->DrawInstanced(UINT(model->modelData_.vertices.size()), numInstance_);
 }
 
 ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
@@ -81,7 +81,7 @@ void ParticleSystem::CreateInstancingResource()
 {
 	//Instancing用のWorldTransformリソースを作る
 	instancingResource_ = std::make_unique<StructuredBuffer>();
-	instancingResource_->Create(kMaxInstance, sizeof(ParticleForGPU));
+	instancingResource_->Create(kMaxInstance, sizeof(ParticleForGPU), false);
 
 	//書き込むためのアドレスを取得
 	ParticleForGPU* instancingData_ = static_cast<ParticleForGPU*>(instancingResource_->Map());
