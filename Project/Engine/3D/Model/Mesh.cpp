@@ -43,16 +43,11 @@ void Mesh::CreateSkinCluster(const Animation::Skeleton& skeleton, const std::map
 	skinClusterData_.mappedPalette = { mappedPalette,skeleton.joints.size() };//spanを使ってアクセスするようにする
 
 	//influence用のResourceを確保。頂点ごとにinfluenced情報を追加できるようにする
-	skinClusterData_.influenceResource = std::make_unique<UploadBuffer>();
-	skinClusterData_.influenceResource->Create(sizeof(VertexInfluence) * meshData_.vertices.size());
+	skinClusterData_.influenceResource = std::make_unique<StructuredBuffer>();
+	skinClusterData_.influenceResource->Create((uint32_t)meshData_.vertices.size(), sizeof(VertexInfluence));
 	VertexInfluence* mappedInfluence = static_cast<VertexInfluence*>(skinClusterData_.influenceResource->Map());
 	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * meshData_.vertices.size());//0埋め。weightを0にしておく。
 	skinClusterData_.mappedInfluence = { mappedInfluence, meshData_.vertices.size() };
-
-	//Influence用のVBVを作成
-	skinClusterData_.influenceBufferView.BufferLocation = skinClusterData_.influenceResource->GetGpuVirtualAddress();
-	skinClusterData_.influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * meshData_.vertices.size());
-	skinClusterData_.influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
 
 	//InverseBindPoseMatrixを格納する場所を作成して、単位行列で埋める
 	skinClusterData_.inverseBindPoseMatrices.resize(skeleton.joints.size());
@@ -90,19 +85,28 @@ void Mesh::CreateSkinCluster(const Animation::Skeleton& skeleton, const std::map
 
 void Mesh::CreateVertexBuffer()
 {
-	//頂点バッファを作成
-	vertexBuffer_ = std::make_unique<UploadBuffer>();
-	vertexBuffer_->Create(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+	//InputVerticeBufferの作成
+	inputVerticesBuffer_ = std::make_unique<StructuredBuffer>();
+	inputVerticesBuffer_->Create((uint32_t)meshData_.vertices.size(), sizeof(VertexDataPosUVNormal));
+	VertexDataPosUVNormal* inputVertexData = static_cast<VertexDataPosUVNormal*>(inputVerticesBuffer_->Map());
+	std::memcpy(inputVertexData, meshData_.vertices.data(), sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+	inputVerticesBuffer_->Unmap();
+
+	//OutputVerticesBufferの作成
+	outputVerticesBuffer_ = std::make_unique<RWStructuredBuffer>();
+	outputVerticesBuffer_->Create((uint32_t)meshData_.vertices.size(), sizeof(VertexDataPosUVNormal));
 
 	//頂点バッファビューを作成
-	vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
+	vertexBufferView_.BufferLocation = outputVerticesBuffer_->GetGpuVirtualAddress();
 	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
 	vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUVNormal);
 
-	//頂点バッファにデータを書き込む
-	VertexDataPosUVNormal* vertexData = static_cast<VertexDataPosUVNormal*>(vertexBuffer_->Map());
-	std::memcpy(vertexData, meshData_.vertices.data(), sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
-	vertexBuffer_->Unmap();
+	//SkinningInformationBufferの作成
+	skinningInformationBuffer_ = std::make_unique<UploadBuffer>();
+	skinningInformationBuffer_->Create(sizeof(uint32_t));
+	uint32_t* skinningInformationData = static_cast<uint32_t*>(skinningInformationBuffer_->Map());
+	*skinningInformationData = (uint32_t)meshData_.vertices.size();
+	skinningInformationBuffer_->Unmap();
 }
 
 void Mesh::CreateIndexBuffer()

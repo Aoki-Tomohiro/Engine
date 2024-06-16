@@ -35,9 +35,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 
 	if (it != models_.end())
 	{
-		Model* model = new Model();
-		model->Initialize(it->second.first, it->second.second, drawPass);
-		return model;
+		return it->second.get();
 	}
 
 	//ファイルパスを設定
@@ -61,7 +59,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 	model->Initialize(modelData, animationData, drawPass);
 
 	//モデルデータとアニメーションデータを保存
-	models_[modelName] = { modelData,animationData };
+	models_[modelName] = std::unique_ptr<Model>(model);
 
 	return model;
 }
@@ -81,8 +79,9 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	{
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals());//法線がないMeshは今回は非対応
-		//assert(mesh->HasTextureCoords(0));//TexcoordがないMeshは今回は非対応
+		assert(mesh->HasTextureCoords(0));//TexcoordがないMeshは今回は非対応
 		modelData.meshData[meshIndex].vertices.resize(mesh->mNumVertices);//最初に頂点数分のメモリを確保しておく
+		modelData.meshData[meshIndex].materialIndex = mesh->mMaterialIndex;
 		//頂点を解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
 		{
@@ -92,7 +91,7 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 			//右手系->左手系への変換を忘れずに
 			modelData.meshData[meshIndex].vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
 			modelData.meshData[meshIndex].vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
-			//modelData.meshData[meshIndex].vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
+			modelData.meshData[meshIndex].vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
 		}
 		//Indexを解析する
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex)
@@ -135,16 +134,15 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	}
 
 	//Materialの解析
-	uint32_t startIndex = (filename.find(".obj") != std::string::npos) ? 1 : 0;
-	modelData.materialData.resize(scene->mNumMaterials - startIndex);
-	for (uint32_t materialIndex = startIndex; materialIndex < scene->mNumMaterials; ++materialIndex)
+	modelData.materialData.resize(scene->mNumMaterials);
+	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex)
 	{
 		aiMaterial* material = scene->mMaterials[materialIndex];
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0)
 		{
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.materialData[materialIndex - startIndex].textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
+			modelData.materialData[materialIndex].textureFilePath = directoryPath + "/" + textureFilePath.C_Str();
 		}
 	}
 

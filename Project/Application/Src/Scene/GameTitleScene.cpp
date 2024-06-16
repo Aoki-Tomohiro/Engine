@@ -10,7 +10,7 @@ void GameTitleScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	model_.reset(ModelManager::CreateFromModelFile("BrainStem", Opaque));
+	model_ = ModelManager::CreateFromModelFile("BrainStem", Opaque);
 
 	worldTransform_.Initialize();
 

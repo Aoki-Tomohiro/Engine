@@ -25,7 +25,7 @@ private:
 
 	Audio* audio_ = nullptr;
 
-	std::unique_ptr<Model> model_ = nullptr;
+	Model* model_ = nullptr;
 
 	WorldTransform worldTransform_{};
 

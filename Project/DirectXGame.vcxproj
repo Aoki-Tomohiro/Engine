@@ -27,6 +27,10 @@
     <ClCompile Include="Engine\3D\Model\Model.cpp" />
     <ClCompile Include="Engine\3D\Model\ModelManager.cpp" />
     <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp" />
+    <ClCompile Include="Engine\Base\ComputePSO.cpp" />
+    <ClCompile Include="Engine\Base\GraphicsPSO.cpp" />
+    <ClCompile Include="Engine\Base\PSO.cpp" />
+    <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp" />
     <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp" />
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp" />
@@ -116,6 +120,10 @@
     <ClInclude Include="Engine\3D\Model\Model.h" />
     <ClInclude Include="Engine\3D\Model\ModelManager.h" />
     <ClInclude Include="Engine\3D\Transform\WorldTransform.h" />
+    <ClInclude Include="Engine\Base\ComputePSO.h" />
+    <ClInclude Include="Engine\Base\GraphicsPSO.h" />
+    <ClInclude Include="Engine\Base\PSO.h" />
+    <ClInclude Include="Engine\Base\RWStructuredBuffer.h" />
     <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h" />
     <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h" />
     <ClInclude Include="Engine\LevelLoader\LevelLoader.h" />

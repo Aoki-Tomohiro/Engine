@@ -2,6 +2,7 @@
 #include "Animation.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/StructuredBuffer.h"
+#include "Engine/Base/RWStructuredBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
 #include <array>
 #include <memory>
@@ -47,8 +48,7 @@ public:
 	{
 		std::vector<Matrix4x4> inverseBindPoseMatrices;
 		//Influence
-		std::unique_ptr<UploadBuffer> influenceResource;
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+		std::unique_ptr<StructuredBuffer> influenceResource;
 		std::span<VertexInfluence> mappedInfluence;
 		//MatrixPalette
 		std::unique_ptr<StructuredBuffer> paletteResource;
@@ -61,17 +61,23 @@ public:
 
 	const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const { return vertexBufferView_; };
 
-	const D3D12_VERTEX_BUFFER_VIEW& GetInfluenceBufferView() const { return skinClusterData_.influenceBufferView; };
-
 	const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const { return indexBufferView_; };
+
+	const uint32_t GetMaterialIndex() const { return meshData_.materialIndex; };
 
 	const size_t GetVerticesSize() const { return meshData_.vertices.size(); };
 
 	const size_t GetIndicesSize() const { return meshData_.indices.size(); };
 
-	const uint32_t GetMaterialIndex() const { return meshData_.materialIndex; };
-
 	StructuredBuffer* GetPaletteResource() const { return skinClusterData_.paletteResource.get(); };
+
+	StructuredBuffer* GetInfluenceResource() const { return skinClusterData_.influenceResource.get(); };
+
+	StructuredBuffer* GetInputVerticesBuffer() const { return inputVerticesBuffer_.get(); };
+
+	RWStructuredBuffer* GetOutputVerticesBuffer() const { return outputVerticesBuffer_.get(); };
+
+	UploadBuffer* GetSkinningInformationBuffer() const { return skinningInformationBuffer_.get(); };
 
 	const bool GetHasSkinCluster() const { return hasSkinCluster_; };
 
@@ -87,13 +93,17 @@ private:
 
 	SkinCluster skinClusterData_{};
 
-	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
+	std::unique_ptr<StructuredBuffer> inputVerticesBuffer_ = nullptr;
+
+	std::unique_ptr<RWStructuredBuffer> outputVerticesBuffer_ = nullptr;
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	std::unique_ptr<UploadBuffer> indexBuffer_ = nullptr;
 
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+
+	std::unique_ptr<UploadBuffer> skinningInformationBuffer_ = nullptr;
 
 	bool hasSkinCluster_ = false;
 };

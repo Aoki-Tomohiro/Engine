@@ -61,7 +61,7 @@ private:
 
 	RootSignature rootSignature_{};
 
-	PipelineState pipelineState_{};
+	GraphicsPSO pipelineState_{};
 
 	std::unique_ptr<DepthOfField> depthOfField_ = nullptr;
 

@@ -2,7 +2,7 @@
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
 #include "RootSignature.h"
-#include "PipelineState.h"
+#include "PSO.h"
 
 class CommandContext
 {
@@ -39,11 +39,19 @@ public:
 
 	void SetRootSignature(const RootSignature& rootSignature);
 
-	void SetPipelineState(const PipelineState& pipelineState);
+	void SetPipelineState(const PSO& pipelineState);
 
 	void DrawInstanced(UINT vertexCount, UINT instanceCount);
 
 	void DrawIndexedInstanced(UINT indexCount, UINT instanceCount);
+
+	void SetComputeRootSignature(const RootSignature& rootSignature);
+
+	void SetComputeDescriptorTable(UINT rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle);
+
+	void SetComputeConstantBuffer(UINT rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS cbv);
+
+	void Dispatch(size_t groupCountX, size_t groupCountY, size_t groupCountZ);
 
 	void Close();
 
