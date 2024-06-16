@@ -62,31 +62,46 @@ void Renderer::Initialize()
 	CreateSkyboxPipelineState();
 }
 
-void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_VERTEX_BUFFER_VIEW influenceBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
-	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV, UINT indexCount, DrawPass drawPass)
+void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, UINT indexCount, DrawPass drawPass)
 {
 	SortObject sortObject{};
 	sortObject.vertexBufferView = vertexBufferView;
-	sortObject.influenceBufferView = influenceBufferView;
 	sortObject.indexBufferView = indexBufferView;
 	sortObject.materialCBV = materialCBV;
 	sortObject.worldTransformCBV = worldTransformCBV;
 	sortObject.cameraCBV = cameraCBV;
 	sortObject.textureSRV = textureSRV;
-	sortObject.matrixPaletteSRV = matrixPaletteSRV;
 	sortObject.indexCount = indexCount;
 	sortObject.type = drawPass;
 	sortObjects_.push_back(sortObject);
 }
 
-void Renderer::AddDebugObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, UINT vertexCount)
+void Renderer::AddSkinningObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_VERTEX_BUFFER_VIEW influenceBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV, UINT indexCount, DrawPass drawPass)
 {
-	DebugObject debugObject{};
-	debugObject.vertexBufferView = vertexBufferView;
-	debugObject.worldTransformCBV = worldTransformCBV;
-	debugObject.cameraCBV = cameraCBV;
-	debugObject.vertexCount = vertexCount;
-	debugObjects_.push_back(debugObject);
+	SkinningSortObject skinningSortObject{};
+	skinningSortObject.vertexBufferView = vertexBufferView;
+	skinningSortObject.influenceBufferView = influenceBufferView;
+	skinningSortObject.indexBufferView = indexBufferView;
+	skinningSortObject.materialCBV = materialCBV;
+	skinningSortObject.worldTransformCBV = worldTransformCBV;
+	skinningSortObject.cameraCBV = cameraCBV;
+	skinningSortObject.textureSRV = textureSRV;
+	skinningSortObject.matrixPaletteSRV = matrixPaletteSRV;
+	skinningSortObject.indexCount = indexCount;
+	skinningSortObject.type = drawPass;
+	skinningSortObjects_.push_back(skinningSortObject);
+}
+
+void Renderer::AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, UINT vertexCount)
+{
+	Bone bone{};
+	bone.vertexBufferView = vertexBufferView;
+	bone.worldTransformCBV = worldTransformCBV;
+	bone.cameraCBV = cameraCBV;
+	bone.vertexCount = vertexCount;
+	bones_.push_back(bone);
 }
 
 void Renderer::Render()
@@ -101,6 +116,40 @@ void Renderer::Render()
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//RootSignatureを設定
+	commandContext->SetRootSignature(modelRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
+
+	//DirectionalLightを設定
+	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//EnvironmentTextureを設定
+	commandContext->SetDescriptorTable(kEnvironmentTexture - 1, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+
+	for (const SortObject& sortObject : sortObjects_) {
+		//不透明オブジェクトに切り替わったらPSOも変える
+		if (currentRenderingType == sortObject.type) {
+			//VertexBufferViewを設定
+			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
+			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//IndexBufferViewを設定
+			commandContext->SetIndexBuffer(sortObject.indexBufferView);
+			//マテリアルを設定
+			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
+			//WorldTransformを設定
+			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
+			//Cameraを設定
+			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
+			//Textureを設定
+			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
+		}
+	}
+
+	//RootSignatureを設定
 	commandContext->SetRootSignature(skinningModelRootSignature_);
 
 	//PipelineStateを設定
@@ -112,62 +161,139 @@ void Renderer::Render()
 	//EnvironmentTextureを設定
 	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
 
+	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
+		//不透明オブジェクトに切り替わったらPSOも変える
+		if (currentRenderingType == sortObject.type) {
+			//VertexBufferViewを設定
+			D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = {
+				sortObject.vertexBufferView,//VertexDataのVBV
+				sortObject.influenceBufferView,//InfluenceのVBV
+			};
+			commandContext->SetVertexBuffers(0, 2, vertexBufferViews);
+			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//IndexBufferViewを設定
+			commandContext->SetIndexBuffer(sortObject.indexBufferView);
+			//マテリアルを設定
+			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
+			//WorldTransformを設定
+			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
+			//Cameraを設定
+			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
+			//Textureを設定
+			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+			//MatrixPaletteを設定
+			commandContext->SetDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
+			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
+		}
+	}
+
+	//描画パスを変更
+	currentRenderingType = Transparent;
+
+	//RootSignatureを設定
+	commandContext->SetRootSignature(modelRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
+
+	//DirectionalLightを設定
+	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//EnvironmentTextureを設定
+	commandContext->SetDescriptorTable(kEnvironmentTexture - 1, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+
 	for (const SortObject& sortObject : sortObjects_) {
 		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType != sortObject.type) {
-			currentRenderingType = sortObject.type;
-			commandContext->SetPipelineState(skinningModelPipelineStates_[currentRenderingType]);
+		if (currentRenderingType == sortObject.type) {
+			//VertexBufferViewを設定
+			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
+			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//IndexBufferViewを設定
+			commandContext->SetIndexBuffer(sortObject.indexBufferView);
+			//マテリアルを設定
+			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
+			//WorldTransformを設定
+			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
+			//Cameraを設定
+			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
+			//Textureを設定
+			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
 		}
-
-		//VertexBufferViewを設定
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = {
-			sortObject.vertexBufferView,//VertexDataのVBV
-			sortObject.influenceBufferView,//InfluenceのVBV
-		};
-		commandContext->SetVertexBuffers(0, 2, vertexBufferViews);
-		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
-		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		//IndexBufferViewを設定
-		commandContext->SetIndexBuffer(sortObject.indexBufferView);
-		//マテリアルを設定
-		commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-		//WorldTransformを設定
-		commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-		//Cameraを設定
-		commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-		//Textureを設定
-		commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-		//MatrixPaletteを設定
-		commandContext->SetDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
-		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
 	}
 
 	//オブジェクトをリセット
 	sortObjects_.clear();
 
 	//RootSignatureを設定
-	commandContext->SetRootSignature(debugRootSignature_);
+	commandContext->SetRootSignature(skinningModelRootSignature_);
 
 	//PipelineStateを設定
-	commandContext->SetPipelineState(debugPipelineStates_[0]);
+	commandContext->SetPipelineState(skinningModelPipelineStates_[currentRenderingType]);
+
+	//DirectionalLightを設定
+	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//EnvironmentTextureを設定
+	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+
+	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
+		//不透明オブジェクトに切り替わったらPSOも変える
+		if (currentRenderingType == sortObject.type) {
+			//VertexBufferViewを設定
+			D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = {
+				sortObject.vertexBufferView,//VertexDataのVBV
+				sortObject.influenceBufferView,//InfluenceのVBV
+			};
+			commandContext->SetVertexBuffers(0, 2, vertexBufferViews);
+			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//IndexBufferViewを設定
+			commandContext->SetIndexBuffer(sortObject.indexBufferView);
+			//マテリアルを設定
+			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
+			//WorldTransformを設定
+			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
+			//Cameraを設定
+			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
+			//Textureを設定
+			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+			//MatrixPaletteを設定
+			commandContext->SetDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
+			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
+		}
+	}
+
+	//オブジェクトをリセット
+	skinningSortObjects_.clear();
+
+	//RootSignatureを設定
+	commandContext->SetRootSignature(boneRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(bonePipelineStates_[0]);
 
 	//DebugObjectの描画
-	for (const DebugObject& debugObject : debugObjects_) 
+	for (const Bone& bone : bones_) 
 	{
 		//VertexBufferViewを設定
-		commandContext->SetVertexBuffer(debugObject.vertexBufferView);
+		commandContext->SetVertexBuffer(bone.vertexBufferView);
 		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
 		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 		//WorldTransformを設定
-		commandContext->SetConstantBuffer(0, debugObject.worldTransformCBV);
+		commandContext->SetConstantBuffer(0, bone.worldTransformCBV);
 		//Cameraを設定
-		commandContext->SetConstantBuffer(1, debugObject.cameraCBV);
+		commandContext->SetConstantBuffer(1, bone.cameraCBV);
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandContext->DrawInstanced(debugObject.vertexCount, 1);
+		commandContext->DrawInstanced(bone.vertexCount, 1);
 	}
 
-	debugObjects_.clear();
+	bones_.clear();
 }
 
 void Renderer::PreDraw()
@@ -779,10 +905,10 @@ void Renderer::CreateSkyboxPipelineState()
 
 void Renderer::CreateDebugPipelineState()
 {
-	debugRootSignature_.Create(2, 0);
-	debugRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	debugRootSignature_[1].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-	debugRootSignature_.Finalize();
+	boneRootSignature_.Create(2, 0);
+	boneRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
+	boneRootSignature_[1].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
+	boneRootSignature_.Finalize();
 
 	//InputLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
@@ -813,9 +939,9 @@ void Renderer::CreateDebugPipelineState()
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"DebugObject3d.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"Bone.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"DebugObject3d.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"Bone.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilStateの設定
@@ -832,7 +958,7 @@ void Renderer::CreateDebugPipelineState()
 
 	//PSOの作成
 	PipelineState newPipelineState;
-	newPipelineState.SetRootSignature(&debugRootSignature_);
+	newPipelineState.SetRootSignature(&boneRootSignature_);
 	newPipelineState.SetInputLayout(1, inputElementDescs);
 	newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
 	newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
@@ -843,11 +969,13 @@ void Renderer::CreateDebugPipelineState()
 	newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
 	newPipelineState.SetDepthStencilState(depthStencilDesc);
 	newPipelineState.Finalize();
-	debugPipelineStates_.push_back(newPipelineState);
+	bonePipelineStates_.push_back(newPipelineState);
 }
 
 void Renderer::Sort()
 {
-	struct { bool operator()(const SortObject& a, const SortObject& b)const { return a.type < b.type; } } Cmp;
-	std::sort(sortObjects_.begin(), sortObjects_.end(), Cmp);
+	struct { bool operator()(const SkinningSortObject& a, const SkinningSortObject& b)const { return a.type < b.type; } } Cmp1;
+	std::sort(skinningSortObjects_.begin(), skinningSortObjects_.end(), Cmp1);
+	struct { bool operator()(const SortObject& a, const SortObject& b)const { return a.type < b.type; } } Cmp2;
+	std::sort(sortObjects_.begin(), sortObjects_.end(), Cmp2);
 }

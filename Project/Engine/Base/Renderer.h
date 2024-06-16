@@ -58,6 +58,15 @@ public:
 	void Initialize();
 
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+		D3D12_INDEX_BUFFER_VIEW indexBufferView,
+		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
+		UINT indexCount,
+		DrawPass drawPass);
+
+	void AddSkinningObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_VERTEX_BUFFER_VIEW influenceBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
@@ -68,7 +77,7 @@ public:
 		UINT indexCount,
 		DrawPass drawPass);
 
-	void AddDebugObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	void AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		UINT indexCount);
@@ -120,7 +129,19 @@ private:
 	void Sort();
 
 private:
-	struct SortObject {
+	struct SortObject
+	{
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+		UINT indexCount;
+		DrawPass type;
+	};
+
+	struct SkinningSortObject {
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
@@ -133,7 +154,7 @@ private:
 		DrawPass type;
 	};
 
-	struct DebugObject
+	struct Bone
 	{
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
@@ -145,7 +166,9 @@ private:
 
 	std::vector<SortObject> sortObjects_{};
 
-	std::vector<DebugObject> debugObjects_{};
+	std::vector<SkinningSortObject> skinningSortObjects_{};
+
+	std::vector<Bone> bones_{};
 
 	std::unique_ptr<ColorBuffer> sceneColorBuffer_ = nullptr;
 
@@ -159,7 +182,7 @@ private:
 
 	RootSignature skinningModelRootSignature_{};
 
-	RootSignature debugRootSignature_{};
+	RootSignature boneRootSignature_{};
 
 	RootSignature spriteRootSignature_{};
 
@@ -171,7 +194,7 @@ private:
 
 	std::vector<PipelineState> skinningModelPipelineStates_{};
 
-	std::vector<PipelineState> debugPipelineStates_{};
+	std::vector<PipelineState> bonePipelineStates_{};
 
 	std::vector<PipelineState> spritePipelineStates_{};
 

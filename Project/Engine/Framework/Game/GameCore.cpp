@@ -41,7 +41,7 @@ void GameCore::Initialize()
 
 	//ModelManagerの初期化
 	modelManager_ = ModelManager::GetInstance();
-	modelManager_->Initialize();
+	//modelManager_->Initialize();
 
 	//LightManagerの初期化
 	lightManager_ = LightManager::GetInstance();

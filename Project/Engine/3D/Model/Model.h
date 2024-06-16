@@ -2,107 +2,60 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Animation.h"
-#include "WorldTransform.h"
-#include "Engine/Base/Renderer.h"
-#include "Engine/Base/StructuredBuffer.h"
+#include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/3D/Camera/Camera.h"
-#include <span>
+#include "Engine/Base/Renderer.h"
 
 class Model
 {
 public:
-	struct VertexWeightData
+	struct ModelData
 	{
-		float weight;
-		uint32_t vertexIndex;
-	};
-
-	struct JointWeightData
-	{
-		Matrix4x4 inverseBindPoseMatrix;
-		std::vector<VertexWeightData> vertexWeights;
-	};
-
-	//モデルデータ構造体
-	struct ModelData {
-		std::map<std::string, JointWeightData> skinClusterData;
-		std::vector<VertexDataPosUVNormal> vertices;
-		std::vector<uint32_t> indices;
-		Material::MaterialData material;
+		std::vector<std::map<std::string, Mesh::JointWeightData>> skinClusterData;
+		std::vector<Mesh::MeshData> meshData;
+		std::vector<Material::MaterialData> materialData;
 		Animation::Node rootNode;
 	};
 
-	//Influence構造体
-	static const uint32_t kNumMaxInfluence = 4;
-	struct VertexInfluence
-	{
-		std::array<float, kNumMaxInfluence> weights;
-		std::array<int32_t, kNumMaxInfluence> jointIndices;
-	};
+	void Initialize(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, const DrawPass drawPass);
 
-	//Well構造体
-	struct WellForGPU
-	{
-		Matrix4x4 skeletonSpaceMatrix;//位置用
-		Matrix4x4 skeletonSpaceInverseTransposeMatrix;//法線用
-	};
+	void Update(WorldTransform& worldTransform, const std::string& animationName);
 
-	//SkinCluster構造体
-	struct SkinCluster
-	{
-		std::vector<Matrix4x4> inverseBindPoseMatrices;
-		//Influence
-		std::unique_ptr<UploadBuffer> influenceResource;
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
-		std::span<VertexInfluence> mappedInfluence;
-		//MatrixPalette
-		std::unique_ptr<StructuredBuffer> paletteResource;
-		std::span<WellForGPU> mappedPalette;
-	};
+	void Draw(const WorldTransform& worldTransform, const Camera& camera);
 
-	void Create(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, DrawPass drawPass);
+	Mesh* GetMesh(size_t index) { return meshes_[index].get(); };
 
-	void Update(WorldTransform& worldTransform, const uint32_t animationNumber);
-
-	void Draw(WorldTransform& worldTransform, const Camera& camera);
-
-	void SetIsDebug(const bool isDebug) { isDebug_ = isDebug; };
-
-	Mesh* GetMesh() { return mesh_.get(); };
-
-	Material* GetMaterial() { return material_.get(); };
+	Material* GetMaterial(size_t index) { return materials_[index].get(); };
 
 	Animation* GetAnimation() { return animation_.get(); };
 
 private:
-	SkinCluster CreateSkinCluster(const Animation::Skeleton& skeleton, const ModelData& modelData);
-
-	void CreateBoneLineVertices(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices);
+	void CreateBoneVertices(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices);
 
 	void UpdateVertexData(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices);
 
-	void CreateDebugVertexBuffer();
+	void CreateBoneVertexBuffer();
 
 private:
 	ModelData modelData_{};
 
-	SkinCluster skinCluster_{};
+	std::vector<std::unique_ptr<Mesh>> meshes_{};
 
-	std::unique_ptr<Mesh> mesh_ = nullptr;
-
-	std::unique_ptr<Material> material_ = nullptr;
+	std::vector<std::unique_ptr<Material>> materials_{};
 
 	std::unique_ptr<Animation> animation_ = nullptr;
 
 	DrawPass drawPass_ = Opaque;
 
-	std::unique_ptr<UploadBuffer> debugVertexBuffer_ = nullptr;
+	std::unique_ptr<UploadBuffer> boneVertexBuffer_ = nullptr;
 
-	D3D12_VERTEX_BUFFER_VIEW debugVertexBufferView_{};
+	D3D12_VERTEX_BUFFER_VIEW boneVertexBufferView_{};
 
-	std::vector<Vector4> debugVertices_{};
+	std::vector<Vector4> boneVertices_{};
 
-	bool isDebug_ = true;
+	bool isDebug_ = false;
+
+	bool hasSkinCluster_ = false;
 
 	friend class ParticleSystem;
 };

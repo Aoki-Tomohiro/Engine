@@ -1,32 +1,12 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
-#include "Engine/Components/Collision/CollisionManager.h"
-#include "Engine/Components/Particle/ParticleManager.h"
-#include "Engine/3D/Model/ModelManager.h"
-#include "Engine/3D/Skybox/Skybox.h"
-#include "Engine/2D/Sprite.h"
-#include "Engine/Math/MathFunction.h"
-
-#include "Application/Src/Object/BackGround/BackGround.h"
-#include "Application/Src/Object/Ground/Ground.h"
-#include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Boss/Boss.h"
-#include "Application/Src/Object/FollowCamera/FollowCamera.h"
-#include "Application/Src/Object/LockOn/LockOn.h"
 
 class GamePlayScene : public IScene
 {
 public:
-	enum NextScene
-	{
-		kGameClear,
-		kGameOver,
-	};
-
 	void Initialize() override;
 
 	void Finalize() override;
@@ -37,116 +17,11 @@ public:
 
 	void DrawUI() override;
 
-	void UpdateTransition();
-
-	void UpdatePause();
-
-	void ClearAnimation();
-
 private:
 	Renderer* renderer_ = nullptr;
 
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
-
-	//ゲームオブジェクトマネージャー
-	GameObjectManager* gameObjectManager_ = nullptr;
-
-	//パーティクル
-	ParticleManager* particleManager_ = nullptr;
-
-	//衝突マネージャー
-	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
-
-	//カメラ
-	Camera camera_{};
-
-	//ロックオン
-	std::unique_ptr<LockOn> lockOn_ = nullptr;
-
-	//追従カメラ
-	std::unique_ptr<FollowCamera> followCamera_ = nullptr;
-
-	//プレイヤー
-	Model* playerModel_ = nullptr;
-	Model* playerModelHead_ = nullptr;
-	Model* playerModelBody_ = nullptr;
-	Model* playerModelL_Arm_ = nullptr;
-	Model* playerModelR_Arm_ = nullptr;
-	Player* player_ = nullptr;
-
-	//ボス
-	Model* bossModel_ = nullptr;
-	Boss* boss_ = nullptr;
-
-	//天球
-	std::unique_ptr<Model> skydomeModel_ = nullptr;
-	Skybox* skydome_ = nullptr;
-
-	//地面
-	Model* groundModel_ = nullptr;
-	Ground* ground_ = nullptr;
-
-	//トランジション関連
-	std::unique_ptr<Sprite> transitionSprite_ = nullptr;
-	Vector4 transitionSpriteColor_{ 0.0f,0.0f,0.0f,1.0f };
-	float transitionTimer_ = 0;
-	bool isFadeIn_ = false;
-	bool isFadeOut_ = true;
-
-	//BGM
-	uint32_t bgmHandle_ = 0;
-
-	//次のシーン
-	NextScene nextScene_ = kGameClear;
-
-	//ヒットストップ関連
-	bool isStop_ = false;
-	uint32_t stopTime_ = 2;
-	uint32_t stopTimer_ = 0;
-
-	//カメラシェイク関連
-	bool cameraShakeEnable_ = false;
-	const uint32_t kShakeTime = 20;
-	uint32_t shakeTimer_ = 0;
-	float shakeIntensityX = 0.6f;
-	float shakeIntensityY = 0.6f;
-
-	//ガイドのスプライト
-	std::unique_ptr<Sprite> guideSprite_ = nullptr;
-
-	float length = 0.0f;
-
-	//Skybox
-	std::unique_ptr<Skybox> skybox_ = nullptr;
-	std::unique_ptr<BackGround> backGround_ = nullptr;
-
-	//ポーズフラグ
-	bool isPause_ = false;
-
-	//ポーズ画面
-	std::unique_ptr<Sprite> pauseSprite_ = nullptr;
-	std::unique_ptr<Sprite> arrowSprite_ = nullptr;
-	std::unique_ptr<Sprite> cursorSprite_ = nullptr;
-	Vector2 arrowSpritePosition_ = { 380.0f,316.0f };
-	Vector2 cursorSpritePosition_ = { 566.0f,321.0f };
-	std::array<Vector2, 5> cameraSensitivityPositions_ = {
-		{
-			{566.0f,321.0f},
-		    {649.0f,321.0f},
-			{733.0f,321.0f},
-			{812.0f,321.0f},
-			{888.0f,321.0f},
-		}
-	};
-	bool isArrowMoved_ = false;
-	bool isCleared_ = false;
-
-	float focusDepth_ = 0.0f;
-
-	float nFocusWidth_ = 0.005f;
-
-	float fFocusWidth_ = 0.01f;
 };
 

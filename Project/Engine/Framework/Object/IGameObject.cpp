@@ -14,10 +14,10 @@ void IGameObject::Update()
 
 void IGameObject::Draw(const Camera& camera)
 {
-	//モデルの描画
-	if (model_ != nullptr) {
-		model_->Draw(worldTransform_, camera);
-	}
+	////モデルの描画
+	//if (model_ != nullptr) {
+	//	model_->Draw(worldTransform_, camera);
+	//}
 }
 
 void IGameObject::DrawUI()

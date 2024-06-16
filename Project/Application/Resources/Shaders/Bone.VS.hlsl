@@ -1,4 +1,4 @@
-#include "DebugObject3d.hlsli"
+#include "Bone.hlsli"
 
 struct WorldTransform
 {
