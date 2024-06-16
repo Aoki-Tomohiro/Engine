@@ -9,8 +9,7 @@
 class Material
 {
 public:
-	//マテリアルデータ構造体
-	struct MaterialData 
+	struct MaterialData
 	{
 		std::string textureFilePath;
 	};

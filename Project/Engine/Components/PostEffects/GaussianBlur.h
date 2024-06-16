@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Base/PipelineState.h"
+#include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/ColorBuffer.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -47,7 +47,7 @@ public:
 private:
 	static std::unique_ptr<RootSignature> rootSignature_;
 
-	static std::array<std::unique_ptr<PipelineState>, kCountOfBlurDirection> pipelineStates_;
+	static std::array<std::unique_ptr<GraphicsPSO>, kCountOfBlurDirection> pipelineStates_;
 
 	std::array<std::unique_ptr<ColorBuffer>, kCountOfBlurDirection> blurBuffers_{};
 

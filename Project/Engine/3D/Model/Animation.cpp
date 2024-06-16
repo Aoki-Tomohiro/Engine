@@ -4,14 +4,14 @@
 
 void Animation::Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode)
 {
-	//アニメーションの初期化
+	//アニメーションデータの初期化
 	animationData_ = animationData;
-
-	//ワールド行列の初期化
-	localMatrix_ = Mathf::MakeIdentity4x4();
 
 	//スケルトンを作成
 	skeletonData_ = CreateSkeleton(rootNode);
+
+	//ワールド行列の初期化
+	localMatrix_ = Mathf::MakeIdentity4x4();
 }
 
 void Animation::Update()
@@ -33,9 +33,9 @@ void Animation::Update()
 
 void Animation::ApplyAnimation(const std::string& name, const uint32_t animationNumber)
 {
-	assert(animationNumber < animationData_.size());
 	if (animationData_.size() != 0)
 	{
+		assert(animationNumber < animationData_.size());
 		//アニメーションがある場合かつ再生中の場合
 		if (isPlay_)
 		{
@@ -94,7 +94,6 @@ void Animation::PlayAnimation()
 {
 	if (!isPause_)
 	{
-		localMatrix_ = Mathf::MakeIdentity4x4();
 		animationTime_ = 0.0f;
 	}
 	isPlay_ = true;
@@ -111,7 +110,6 @@ void Animation::StopAnimation()
 	animationTime_ = 0.0f;
 	isPlay_ = false;
 	isPause_ = false;
-	localMatrix_ = Mathf::MakeIdentity4x4();
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)

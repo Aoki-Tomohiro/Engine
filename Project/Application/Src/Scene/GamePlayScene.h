@@ -134,7 +134,7 @@ private:
 	std::array<Vector2, 5> cameraSensitivityPositions_ = {
 		{
 			{566.0f,321.0f},
-		    {649.0f,321.0f},
+			{649.0f,321.0f},
 			{733.0f,321.0f},
 			{812.0f,321.0f},
 			{888.0f,321.0f},

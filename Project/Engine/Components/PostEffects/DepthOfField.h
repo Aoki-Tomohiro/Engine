@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Base/PipelineState.h"
+#include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/ColorBuffer.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -39,7 +39,7 @@ private:
 	RootSignature rootSignature_{};
 
 	//PipelineState
-	PipelineState pipelineState_{};
+	GraphicsPSO pipelineState_{};
 
 	//ColorBuffer
 	std::unique_ptr<ColorBuffer> colorBuffer_ = nullptr;

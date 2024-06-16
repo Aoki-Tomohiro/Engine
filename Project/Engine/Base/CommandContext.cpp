@@ -114,7 +114,7 @@ void CommandContext::SetRootSignature(const RootSignature& rootSignature)
 	commandList_->SetGraphicsRootSignature(currentRootSignature_ = rootSignature.GetRootSignature());
 }
 
-void CommandContext::SetPipelineState(const PipelineState& pipelineState)
+void CommandContext::SetPipelineState(const PSO& pipelineState)
 {
 	if (pipelineState.GetPipelineState() == currentPipelineState_)
 	{
@@ -176,4 +176,28 @@ void CommandContext::BindDescriptorHeaps()
 	{
 		commandList_->SetDescriptorHeaps(nonNullHeaps, heapsToBind);
 	}
+}
+
+void CommandContext::SetComputeRootSignature(const RootSignature& rootSignature)
+{
+	if (rootSignature.GetRootSignature() == currentRootSignature_)
+	{
+		return;
+	}
+	commandList_->SetComputeRootSignature(currentRootSignature_ = rootSignature.GetRootSignature());
+}
+
+void CommandContext::SetComputeDescriptorTable(UINT rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle)
+{
+	commandList_->SetComputeRootDescriptorTable(rootParameterIndex, gpuHandle);
+}
+
+void CommandContext::SetComputeConstantBuffer(UINT rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS cbv)
+{
+	commandList_->SetComputeRootConstantBufferView(rootParameterIndex, cbv);
+}
+
+void CommandContext::Dispatch(size_t groupCountX, size_t groupCountY, size_t groupCountZ)
+{
+	commandList_->Dispatch((UINT)groupCountX, (UINT)groupCountY, (UINT)groupCountZ);
 }

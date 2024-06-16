@@ -1,8 +1,10 @@
 #pragma once
 #include "Engine/3D/Lights/LightManager.h"
+#include "RWStructuredBuffer.h"
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
-#include "PipelineState.h"
+#include "GraphicsPSO.h"
+#include "ComputePSO.h"
 #include <vector>
 
 enum DrawPass
@@ -45,10 +47,17 @@ public:
 		kTexture,
 		//ライト
 		kLight,
-		//MatrixPalette
-		kMatrixPalette,
 		//環境テクスチャ
 		kEnvironmentTexture,
+	};
+
+	enum ComputeRootBindings
+	{
+		kMatrixPalette,
+		kInputVertices,
+		kInfluences,
+		kOutputVertices,
+		kSkinningInformation,
 	};
 
 	static Renderer* GetInstance();
@@ -58,17 +67,30 @@ public:
 	void Initialize();
 
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView,
+		D3D12_INDEX_BUFFER_VIEW indexBufferView,
+		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
+		UINT indexCount,
+		DrawPass drawPass);
+
+	void AddSkinningObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
 		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV,
+		D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV,
+		D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV,
+		D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV,
+		RWStructuredBuffer* outpuVerticesBuffer,
 		UINT indexCount,
+		UINT vertexCount,
 		DrawPass drawPass);
 
-	void AddDebugObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	void AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		UINT indexCount);
@@ -105,6 +127,43 @@ private:
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
+	struct SortObject
+	{
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+		UINT indexCount;
+		DrawPass type;
+	};
+
+	struct SkinningSortObject {
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV;
+		D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV;
+		D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV;
+		D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV;
+		RWStructuredBuffer* outpuVerticesBuffer;
+		UINT indexCount;
+		UINT vertexCount;
+		DrawPass type;
+	};
+
+	struct Bone
+	{
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
+		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
+		UINT vertexCount;
+	};
+
 	void CreateModelPipelineState();
 
 	void CreateSkinningModelPipelineState();
@@ -119,33 +178,22 @@ private:
 
 	void Sort();
 
+	void SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState);
+
+	void RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects);
+
+	void RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects);
+
+	void RenderBones(CommandContext* commandContext);
+
 private:
-	struct SortObject {
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
-		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
-		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
-		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
-		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
-		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV;
-		UINT indexCount;
-		DrawPass type;
-	};
-
-	struct DebugObject
-	{
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
-		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
-		UINT vertexCount;
-	};
-
 	static Renderer* instance_;
 
 	std::vector<SortObject> sortObjects_{};
 
-	std::vector<DebugObject> debugObjects_{};
+	std::vector<SkinningSortObject> skinningSortObjects_{};
+
+	std::vector<Bone> bones_{};
 
 	std::unique_ptr<ColorBuffer> sceneColorBuffer_ = nullptr;
 
@@ -159,7 +207,7 @@ private:
 
 	RootSignature skinningModelRootSignature_{};
 
-	RootSignature debugRootSignature_{};
+	RootSignature boneRootSignature_{};
 
 	RootSignature spriteRootSignature_{};
 
@@ -167,16 +215,16 @@ private:
 
 	RootSignature skyboxRootSignature_{};
 
-	std::vector<PipelineState> modelPipelineStates_{};
+	std::vector<GraphicsPSO> modelPipelineStates_{};
 
-	std::vector<PipelineState> skinningModelPipelineStates_{};
+	std::vector<ComputePSO> skinningModelPipelineStates_{};
 
-	std::vector<PipelineState> debugPipelineStates_{};
+	std::vector<GraphicsPSO> bonePipelineStates_{};
 
-	std::vector<PipelineState> spritePipelineStates_{};
+	std::vector<GraphicsPSO> spritePipelineStates_{};
 
-	std::vector<PipelineState> particlePipelineStates_{};
+	std::vector<GraphicsPSO> particlePipelineStates_{};
 
-	std::vector<PipelineState> skyboxPipelineStates_{};
+	std::vector<GraphicsPSO> skyboxPipelineStates_{};
 };
 

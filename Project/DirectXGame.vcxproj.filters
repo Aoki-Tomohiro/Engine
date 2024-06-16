@@ -216,15 +216,6 @@
     <ClCompile Include="Engine\3D\Camera\DebugCamera.cpp">
       <Filter>ソース ファイル\Engine\3D\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Model.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\WorldTransform.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\3D\Lights\LightManager.cpp">
       <Filter>ソース ファイル\Engine\3D\Lights</Filter>
     </ClCompile>
@@ -399,62 +390,11 @@
     <ClCompile Include="Engine\Externals\imgui\imgui_widgets.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\States\BossStateCrashDown.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\States\BossStateLaserAttack.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\States\BossStateMissileAttack.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\States\BossStateNormal.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\States\BossStateTackle.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\Boss.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\Laser.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Boss\Missile.cpp">
-      <Filter>ソース ファイル\Application\Object\Boss</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
-      <Filter>ソース ファイル\Application\Object\Ground</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\LockOn\LockOn.cpp">
-      <Filter>ソース ファイル\Application\Object\Lockon</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\FollowCamera\FollowCamera.cpp">
-      <Filter>ソース ファイル\Application\Object\FollowCamera</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\Player.cpp">
-      <Filter>ソース ファイル\Application\Object\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\Weapon.cpp">
-      <Filter>ソース ファイル\Application\Object\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Material.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Animation.cpp">
-      <Filter>ソース ファイル\Engine\3D\Model</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Components\PostEffects\GrayScale.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\Skybox\Skybox.cpp">
       <Filter>ソース ファイル\Engine\3D\Skybox</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\BackGround\BackGround.cpp">
-      <Filter>ソース ファイル\Application\Object\BackGround</Filter>
     </ClCompile>
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp">
       <Filter>ソース ファイル</Filter>
@@ -466,6 +406,78 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Model.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Material.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Animation.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\PSO.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\GraphicsPSO.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\ComputePSO.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\Player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\Weapon.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\LockOn\LockOn.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\FollowCamera\FollowCamera.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\Boss.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\Laser.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\Missile.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\States\BossStateCrashDown.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\States\BossStateLaserAttack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\States\BossStateMissileAttack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\States\BossStateNormal.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Boss\States\BossStateTackle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\BackGround\BackGround.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -490,15 +502,6 @@
     </ClInclude>
     <ClInclude Include="Engine\3D\Lights\SpotLight.h">
       <Filter>ヘッダー ファイル\Engine\3D\Lights</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Model.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\ModelManager.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\WorldTransform.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\UploadBuffer.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
@@ -719,65 +722,11 @@
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\BossStateCrashDown.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\BossStateLaserAttack.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\BossStateMissileAttack.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\BossStateNormal.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\BossStateTackle.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\States\IBossState.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\Missile.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\Laser.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Boss\Boss.h">
-      <Filter>ヘッダー ファイル\Application\Object\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
-      <Filter>ヘッダー ファイル\Application\Object\Ground</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\LockOn\LockOn.h">
-      <Filter>ヘッダー ファイル\Application\Object\Lockon</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\FollowCamera\FollowCamera.h">
-      <Filter>ヘッダー ファイル\Application\Object\FollowCamera</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\Weapon.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\Player.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Material.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Mesh.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Animation.h">
-      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Components\PostEffects\GrayScale.h">
       <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\Skybox\Skybox.h">
       <Filter>ヘッダー ファイル\Engine\3D\Skybox</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\BackGround\BackGround.h">
-      <Filter>ヘッダー ファイル\Application\Object\BackGround</Filter>
     </ClInclude>
     <ClInclude Include="Engine\LevelLoader\LevelLoader.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -791,6 +740,81 @@
     <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\Transform\WorldTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Model.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Mesh.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Material.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\ModelManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Animation.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\PSO.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\GraphicsPSO.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\ComputePSO.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\RWStructuredBuffer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\Weapon.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\LockOn\LockOn.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\FollowCamera\FollowCamera.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\Boss.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\Laser.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\Missile.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\BossStateCrashDown.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\BossStateLaserAttack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\BossStateMissileAttack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\BossStateNormal.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\BossStateTackle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Boss\States\IBossState.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\BackGround\BackGround.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
@@ -801,7 +825,7 @@
     <None Include="Application\Resources\Shaders\Bloom.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Application\Resources\Shaders\DebugObject3d.hlsli">
+    <None Include="Application\Resources\Shaders\Bone.hlsli">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Application\Resources\Shaders\DepthOfField.hlsli">
@@ -842,10 +866,10 @@
     <FxCompile Include="Application\Resources\Shaders\Bloom.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\DebugObject3d.PS.hlsl">
+    <FxCompile Include="Application\Resources\Shaders\Bone.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\DebugObject3d.VS.hlsl">
+    <FxCompile Include="Application\Resources\Shaders\Bone.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\DepthOfField.PS.hlsl">
@@ -911,5 +935,6 @@
     <FxCompile Include="Application\Resources\Shaders\Skybox.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl" />
   </ItemGroup>
 </Project>

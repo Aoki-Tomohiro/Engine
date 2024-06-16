@@ -55,8 +55,8 @@ private:
 	RootSignature bloomRootSignature_{};
 
 	//PipelineState
-	PipelineState highLumPipelineState_{};
-	PipelineState bloomPipelineState_{};
+	GraphicsPSO highLumPipelineState_{};
+	GraphicsPSO bloomPipelineState_{};
 
 	//ColorBuffer
 	std::unique_ptr<ColorBuffer> highLumColorBuffer_ = nullptr;

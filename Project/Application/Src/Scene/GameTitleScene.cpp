@@ -27,6 +27,7 @@ void GameTitleScene::Initialize()
 
 	//プレイヤーの生成
 	playerModel_ = ModelManager::CreateFromModelFile("Player", Opaque);
+	playerModel_->GetAnimation()->PlayAnimation();
 
 	//ワールドトランスフォームの初期化
 	for (uint32_t i = 0; i < 5; ++i)
@@ -49,8 +50,8 @@ void GameTitleScene::Initialize()
 
 	//ボスの生成
 	bossModel_ = ModelManager::CreateFromModelFile("Boss", Opaque);
-	bossModel_->GetMaterial()->SetEnableLighting(false);
-	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
+	bossModel_->GetMaterial(0)->SetEnableLighting(false);
+	bossModel_->GetMaterial(0)->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 	bossWorldTransform_.Initialize();
 	bossWorldTransform_.translation_.y = 3.0f;
 	bossWorldTransform_.scale_ = { 3.0f,3.0f,3.0f };
@@ -64,7 +65,7 @@ void GameTitleScene::Initialize()
 
 	//地面の生成
 	groundModel_ = ModelManager::CreateFromModelFile("Ground", Opaque);
-	groundModel_->GetMaterial()->SetEnableLighting(false);
+	groundModel_->GetMaterial(1)->SetEnableLighting(false);
 	ground_ = GameObjectManager::CreateGameObjectFromType<Ground>();
 	ground_->SetModel(groundModel_);
 
@@ -126,6 +127,7 @@ void GameTitleScene::Update()
 	//モデルの更新
 	playerModel_->Update(playerWorldTransforms[0], 1);
 	bossModel_->Update(bossWorldTransform_, 0);
+	playerModel_->GetAnimation()->StopAnimation();
 }
 
 void GameTitleScene::Draw()

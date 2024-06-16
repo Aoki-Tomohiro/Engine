@@ -4,7 +4,7 @@
 
 //実態定義
 std::unique_ptr<RootSignature> GaussianBlur::rootSignature_ = nullptr;
-std::array<std::unique_ptr<PipelineState>, GaussianBlur::kCountOfBlurDirection> GaussianBlur::pipelineStates_{};
+std::array<std::unique_ptr<GraphicsPSO>, GaussianBlur::kCountOfBlurDirection> GaussianBlur::pipelineStates_{};
 
 void GaussianBlur::StaticInitialize()
 {
@@ -72,7 +72,7 @@ void GaussianBlur::StaticInitialize()
 	//PSOを作成する
 	for (uint32_t i = 0; i < pipelineStates_.size(); ++i)
 	{
-		pipelineStates_[i] = std::make_unique<PipelineState>();
+		pipelineStates_[i] = std::make_unique<GraphicsPSO>();
 		pipelineStates_[i]->SetRootSignature(rootSignature_.get());
 		pipelineStates_[i]->SetInputLayout(2, inputElementDescs);
 		pipelineStates_[i]->SetVertexShader(vertexShaderBlob[i]->GetBufferPointer(), vertexShaderBlob[i]->GetBufferSize());

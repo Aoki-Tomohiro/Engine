@@ -7,7 +7,7 @@ void Missile::Initialize(const Vector3& position, const Vector3& velocity)
 {
 	//モデルの生成
 	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
-	model_->GetMaterial()->SetEnableLighting(true);
+	model_->GetMaterial(1)->SetEnableLighting(true);
 
 	//速度の初期化
 	velocity_ = velocity;

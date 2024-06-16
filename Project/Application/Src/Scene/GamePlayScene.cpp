@@ -56,13 +56,13 @@ void GamePlayScene::Initialize()
 	boss_->GetCollider()->SetCollisionMask(kCollisionMaskEnemy);
 	boss_->GetCollider()->SetCollisionPrimitive(kCollisionPrimitiveAABB);
 	bossModel_ = boss_->GetModel();
-	bossModel_->GetMaterial()->SetEnableLighting(false);
-	bossModel_->GetMaterial()->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
+	bossModel_->GetMaterial(0)->SetEnableLighting(false);
+	bossModel_->GetMaterial(0)->SetColor({ 0.9f, 0.5f, 0.9f, 1.0f });
 
 	//地面の生成
 	ground_ = gameObjectManager_->GetGameObject<Ground>("Ground");
 	groundModel_ = ground_->GetModel();
-	groundModel_->GetMaterial()->SetEnableLighting(false);
+	groundModel_->GetMaterial(1)->SetEnableLighting(false);
 
 	//トランジションの初期化
 	transitionSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));

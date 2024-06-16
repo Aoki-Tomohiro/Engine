@@ -38,7 +38,7 @@ void Player::Initialize()
 
 	//武器の生成
 	modelWeapon_ = ModelManager::CreateFromModelFile("Weapon", Opaque);
-	modelWeapon_->GetMaterial()->SetEnableLighting(false);
+	modelWeapon_->GetMaterial(1)->SetEnableLighting(false);
 	weapon_ = GameObjectManager::CreateGameObjectFromType<Weapon>();
 	weapon_->SetCollider(new Collider());
 	weapon_->SetModel(modelWeapon_);
@@ -168,6 +168,7 @@ void Player::Update()
 	}
 
 	//モデルの更新
+	model_->SetIsBoneVisible(isBoneVisible_);
 	model_->Update(worldTransform_, animationNumber_);
 
 	//無敵時間の処理
@@ -200,6 +201,10 @@ void Player::Update()
 	{
 		PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
 	}
+
+	ImGui::Begin("Player");
+	ImGui::Checkbox("IsBoneVisible", &isBoneVisible_);
+	ImGui::End();
 }
 
 void Player::Draw(const Camera& camera)

@@ -30,7 +30,7 @@ public:
 
 	void SetModel(Model* model) { model_ = model; };
 
-	void SetTexture(const std::string& name) { model_ ? model_->GetMaterial()->SetTexture(name) : defaultModel_->GetMaterial()->SetTexture(name); };
+	void SetTexture(const std::string& name) { model_ ? model_->GetMaterial(0)->SetTexture(name) : defaultModel_->GetMaterial(0)->SetTexture(name); };
 
 private:
 	void CreateInstancingResource();
@@ -44,7 +44,7 @@ private:
 
 	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
-	Model* defaultModel_ = nullptr;
+	std::unique_ptr<Model> defaultModel_ = nullptr;
 
 	Model* model_ = nullptr;
 

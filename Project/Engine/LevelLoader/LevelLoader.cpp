@@ -22,6 +22,7 @@ void LevelLoader::LoadInternal(const std::string& fileName)
 	if (it != levelDatas_.end())
 	{
 		CreateGameObjects(it->second.get());
+		return;
 	}
 
 	//連結してフルパスを得る
