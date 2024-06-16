@@ -75,7 +75,31 @@ public:
 
 	void Update();
 
-	void ApplyAnimation(WorldTransform& worldTransform, const std::string& rootNodeName, const std::string& animationName);
+	void ApplyAnimation(const std::string& name, const uint32_t animationNumber);
+
+	void PlayAnimation();
+
+	void PauseAnimation();
+
+	void StopAnimation();
+
+	void SetAnimationTime(const float animationTime) { animationTime_ = animationTime; };
+
+	void SetSpeed(const float speed) { speed_ = speed; }
+
+	void SetLoop(const bool isLoop) { isLoop_ = isLoop; };
+
+	const float GetAnimationTime() const { return animationTime_; };
+
+	const float GetAnimationDuration(const uint32_t animationNumber) const { return animationData_[animationNumber].duration; };
+
+	const bool IsPlaying() const { return isPlay_; };
+
+	const bool IsPaused() const { return isPause_; };
+
+	const bool IsLooping() const { return isLoop_; };
+
+	const Matrix4x4& GetLocalMatrix() const { return localMatrix_; };
 
 	const Skeleton& GetSkeleton() const { return skeletonData_; };
 
@@ -93,6 +117,20 @@ private:
 
 	Skeleton skeletonData_{};
 
+	Matrix4x4 localMatrix_{};
+
 	float animationTime_ = 0.0f;
+
+	//再生速度
+	float speed_ = 60.0f;
+
+	//ループ再生中か
+	bool isLoop_ = false;
+
+	//再生中か
+	bool isPlay_ = false;
+
+	//一時停止中か
+	bool isPause_ = false;
 };
 

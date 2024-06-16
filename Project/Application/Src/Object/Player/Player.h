@@ -294,5 +294,7 @@ private:
 
 	//アニメーションの番号
 	uint32_t animationNumber_ = 0;
+
+	bool isBoneVisible_ = false;
 };
 

@@ -46,10 +46,13 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 	drawPass_ = drawPass;
 }
 
-void Model::Update(WorldTransform& worldTransform, const std::string& animationName)
+void Model::Update(WorldTransform& worldTransform, const uint32_t animationNumber)
 {
 	//アニメーションの更新を行って、骨ごとのLocal情報を更新する
-	animation_->ApplyAnimation(worldTransform, modelData_.rootNode.name, animationName);
+	animation_->ApplyAnimation(modelData_.rootNode.name, animationNumber);
+
+	//アニメーションを適用
+	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
 
 	//アニメーションの更新
 	animation_->Update();
@@ -58,23 +61,23 @@ void Model::Update(WorldTransform& worldTransform, const std::string& animationN
 	{
 		meshes_[i]->Update(animation_->GetSkeleton().joints);
 	}
+}
 
-	//RootのMatrixを適用
-	if (modelData_.skinClusterData.empty())
-	{
-		worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
-		worldTransform.TransferMatrix();
-	}
-
+void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
+{
 	//マテリアルの更新
 	for (std::unique_ptr<Material>& material : materials_)
 	{
 		material->Update();
 	}
-}
 
-void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
-{
+	//RootのMatrixを適用
+	if (!hasSkinCluster_)
+	{
+		worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
+		worldTransform.TransferMatrix();
+	}
+
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
 	//SortObjectの追加
@@ -97,7 +100,7 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 		}
 	}
 
-	if (isDebug_ && hasSkinCluster_)
+	if (isBoneVisible_ && hasSkinCluster_)
 	{
 		UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, boneVertices_);
 		renderer_->AddBone(boneVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(boneVertices_.size()));

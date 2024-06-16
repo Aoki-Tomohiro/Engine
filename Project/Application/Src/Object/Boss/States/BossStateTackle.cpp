@@ -31,8 +31,8 @@ void BossStateTackle::Initialize(Boss* pBoss)
 
 	//警告モデルの作成
 	waringModel_ = ModelManager::CreateFromModelFile("Warning", Opaque);
-	waringModel_->GetMaterial()->SetEnableLighting(false);
-	waringModel_->GetMaterial()->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+	waringModel_->GetMaterial(1)->SetEnableLighting(false);
+	waringModel_->GetMaterial(1)->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 
 	//警告用のワールドトランスフォームの初期化
 	warningWorldTransform_.Initialize();

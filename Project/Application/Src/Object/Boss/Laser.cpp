@@ -4,7 +4,7 @@ void Laser::Initialize()
 {
 	//モデルの生成
 	model_ = ModelManager::CreateFromModelFile("Laser", Opaque);
-	model_->GetMaterial()->SetEnableLighting(false);
+	model_->GetMaterial(1)->SetEnableLighting(false);
 
 	//ワールドトランスフォームの初期化
 	worldTransform_.Initialize();

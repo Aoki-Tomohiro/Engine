@@ -7,7 +7,36 @@ void ParticleSystem::Initialize()
 {
 	if (!model_)
 	{
-		defaultModel_ = ModelManager::CreateFromModelFile("Plane", Transparent);
+		//モデルデータ
+		Model::ModelData modelData{};
+
+		//メッシュデータ
+		Mesh::MeshData meshData{};
+		meshData.vertices.resize(4);
+		meshData.vertices[0] = { {-1.0f,1.0f,0.0f,1.0f},{0.0f,1.0f},{-1.0f,-1.0f,-1.0f} };
+		meshData.vertices[1] = { {-1.0f,-1.0f,0.0f,1.0f},{0.0f,0.0f},{-1.0f,-1.0f,-1.0f} };
+		meshData.vertices[2] = { {1.0f,1.0f,0.0f,1.0f},{1.0f,1.0f},{-1.0f,-1.0f,-1.0f} };
+		meshData.vertices[3] = { {1.0f,-1.0f,0.0f,1.0f},{1.0f,0.0f},{-1.0f,-1.0f,-1.0f} };
+		meshData.indices.resize(6);
+		meshData.indices[0] = 0;
+		meshData.indices[1] = 1;
+		meshData.indices[2] = 2;
+		meshData.indices[3] = 1;
+		meshData.indices[4] = 3;
+		meshData.indices[5] = 2;
+		meshData.materialIndex = 0;
+		modelData.skinClusterData.push_back(std::map<std::string, Mesh::JointWeightData>());
+		modelData.meshData.push_back(meshData);
+
+		//マテリアルデータ
+		modelData.materialData.push_back(Material::MaterialData());
+
+		//アニメーションデータ
+		std::vector<Animation::AnimationData> animationData(1);
+
+		//モデルの作成
+		defaultModel_ = std::make_unique<Model>();
+		defaultModel_->Initialize(modelData, animationData, Transparent);
 	}
 
 	CreateInstancingResource();
@@ -38,14 +67,15 @@ void ParticleSystem::Draw(const Camera& camera)
 {
 	UpdateInstancingResource(camera);
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	Model* model = model_ ? model_ : defaultModel_;
+	Model* model = model_ ? model_ : defaultModel_.get();
+	commandContext->SetIndexBuffer(model->GetMesh(0)->GetIndexBufferView());
 	commandContext->SetVertexBuffer(model->GetMesh(0)->GetVertexBufferView());
 	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext->SetConstantBuffer(0, model->GetMaterial(0)->GetConstantBuffer()->GetGpuVirtualAddress());
 	commandContext->SetDescriptorTable(1, instancingResource_->GetSRVHandle());
 	commandContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
 	commandContext->SetDescriptorTable(3, model->GetMaterial(0)->GetTexture()->GetSRVHandle());
-	commandContext->DrawInstanced(UINT(model->modelData_.meshData[0].vertices.size()), numInstance_);
+	commandContext->DrawIndexedInstanced(UINT(model->modelData_.meshData[0].indices.size()), numInstance_);
 }
 
 ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
@@ -100,16 +130,16 @@ void ParticleSystem::UpdateInstancingResource(const Camera& camera)
 	Matrix4x4 billboardMatrix{};
 	if (isBillboard_)
 	{
-		//Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
-		//Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
-		//billboardMatrix = backToFrontMatrix * cameraMatrix;
-		//billboardMatrix.m[3][0] = 0.0f;
-		//billboardMatrix.m[3][1] = 0.0f;
-		//billboardMatrix.m[3][2] = 0.0f;
-		billboardMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);;
+		Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
+		Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);
+		billboardMatrix = backToFrontMatrix * cameraMatrix;
 		billboardMatrix.m[3][0] = 0.0f;
 		billboardMatrix.m[3][1] = 0.0f;
 		billboardMatrix.m[3][2] = 0.0f;
+		//billboardMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera.rotation_, camera.translation_);;
+		//billboardMatrix.m[3][0] = 0.0f;
+		//billboardMatrix.m[3][1] = 0.0f;
+		//billboardMatrix.m[3][2] = 0.0f;
 	}
 	ParticleForGPU* instancingData = static_cast<ParticleForGPU*>(instancingResource_->Map());
 	for (std::list<std::unique_ptr<ParticleEmitter>>::iterator emitterIterator = particleEmitters_.begin(); emitterIterator != particleEmitters_.end();)

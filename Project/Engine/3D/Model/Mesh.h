@@ -97,6 +97,8 @@ private:
 
 	std::unique_ptr<RWStructuredBuffer> outputVerticesBuffer_ = nullptr;
 
+	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
+
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	std::unique_ptr<UploadBuffer> indexBuffer_ = nullptr;

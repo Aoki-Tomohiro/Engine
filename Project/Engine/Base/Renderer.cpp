@@ -111,259 +111,116 @@ void Renderer::AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRT
 
 void Renderer::Render()
 {
-	//並び替える
+	// 並び替える
 	Sort();
 
-	//描画パスを設定
-	DrawPass currentRenderingType = Opaque;
-
-	//コマンドリストを取得
+	// コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
-	//RootSignatureを設定
-	commandContext->SetRootSignature(modelRootSignature_);
+	// 描画パスを設定
+	DrawPass currentRenderingType = Opaque;
 
-	//PipelineStateを設定
-	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
+	// RootSignatureとPipelineState、ライト、環境テクスチャを設定
+	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[currentRenderingType]);
 
-	//DirectionalLightを設定
-	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+	// 不透明モデルの描画
+	RenderObjects(commandContext, currentRenderingType, sortObjects_);
 
-	//EnvironmentTextureを設定
-	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+	// 不透明スキニングモデルの描画
+	RenderSkinningObjects(commandContext, currentRenderingType, skinningSortObjects_);
 
-#pragma region 不透明モデルの描画
-
-	for (const SortObject& sortObject : sortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//VertexBufferViewを設定
-			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
-			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			//IndexBufferViewを設定
-			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			//マテリアルを設定
-			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			//WorldTransformを設定
-			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			//Cameraを設定
-			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			//Textureを設定
-			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
-		}
-	}
-
-#pragma endregion
-
-#pragma region 不透明スキニングモデルの描画
-
-	//RootSignatureを設定
-	commandContext->SetComputeRootSignature(skinningModelRootSignature_);
-
-	//PipelineStateを設定
-	commandContext->SetPipelineState(skinningModelPipelineStates_[0]);
-
-	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//状態遷移
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			//MatrixPaletteを設定
-			commandContext->SetComputeDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
-			//InputVerticesを設定
-			commandContext->SetComputeDescriptorTable(kInputVertices, sortObject.inputVerticesSRV);
-			//Influencesを設定
-			commandContext->SetComputeDescriptorTable(kInfluences, sortObject.influencesSRV);
-			//OutputVerticesを設定
-			commandContext->SetComputeDescriptorTable(kOutputVertices, sortObject.outpuVerticesBuffer->GetUAVHandle());
-			//SkinningInformationを設定
-			commandContext->SetComputeConstantBuffer(kSkinningInformation, sortObject.skinningInformationCBV);
-			//Dispatch
-			commandContext->Dispatch(sortObject.vertexCount + 1023 / 1024, 1, 1);
-			//状態遷移
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-		}
-	}
-
-	//RootSignatureを設定
-	commandContext->SetRootSignature(modelRootSignature_);
-
-	//PipelineStateを設定
-	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
-
-	//DirectionalLightを設定
-	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
-
-	//EnvironmentTextureを設定
-	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
-
-	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//VertexBufferを設定
-			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
-			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			//IndexBufferViewを設定
-			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			//マテリアルを設定
-			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			//WorldTransformを設定
-			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			//Cameraを設定
-			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			//Textureを設定
-			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
-			//状態遷移
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		}
-	}
-
-#pragma endregion
-
-#pragma region 透明モデルの描画
-
-	//描画パスを変更
+	// 描画パスを変更
 	currentRenderingType = Transparent;
 
-	//RootSignatureを設定
-	commandContext->SetRootSignature(modelRootSignature_);
+	// RootSignatureとPipelineState、ライト、環境テクスチャを再設定
+	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[currentRenderingType]);
 
-	//PipelineStateを設定
-	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
+	// 透明モデルの描画
+	RenderObjects(commandContext, currentRenderingType, sortObjects_);
 
-	//DirectionalLightを設定
+	// 透明スキニングモデルの描画
+	RenderSkinningObjects(commandContext, currentRenderingType, skinningSortObjects_);
+
+	// Boneの描画
+	RenderBones(commandContext);
+
+	// 描画済みオブジェクトのリセット
+	sortObjects_.clear();
+	skinningSortObjects_.clear();
+	bones_.clear();
+}
+
+void Renderer::SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState)
+{
+	commandContext->SetRootSignature(rootSignature);
+	commandContext->SetPipelineState(pipelineState);
 	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
-
-	//EnvironmentTextureを設定
 	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+}
 
-	for (const SortObject& sortObject : sortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//VertexBufferViewを設定
+void Renderer::RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects)
+{
+	for (const SortObject& sortObject : objects) {
+		if (renderingType == sortObject.type) {
 			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
 			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			//IndexBufferViewを設定
 			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			//マテリアルを設定
 			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			//WorldTransformを設定
 			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			//Cameraを設定
 			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			//Textureを設定
 			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
 		}
 	}
+}
 
-	//オブジェクトをリセット
-	sortObjects_.clear();
-
-#pragma endregion
-
-#pragma region 透明スキニングモデルの描画
-
-	//RootSignatureを設定
+void Renderer::RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects)
+{
 	commandContext->SetComputeRootSignature(skinningModelRootSignature_);
-
-	//PipelineStateを設定
 	commandContext->SetPipelineState(skinningModelPipelineStates_[0]);
 
-	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//MatrixPaletteを設定
+	for (const SkinningSortObject& sortObject : objects) {
+		if (renderingType == sortObject.type) {
+			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			commandContext->SetComputeDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
-			//InputVerticesを設定
 			commandContext->SetComputeDescriptorTable(kInputVertices, sortObject.inputVerticesSRV);
-			//Influencesを設定
 			commandContext->SetComputeDescriptorTable(kInfluences, sortObject.influencesSRV);
-			//OutputVerticesを設定
 			commandContext->SetComputeDescriptorTable(kOutputVertices, sortObject.outpuVerticesBuffer->GetUAVHandle());
-			//SkinningInformationを設定
 			commandContext->SetComputeConstantBuffer(kSkinningInformation, sortObject.skinningInformationCBV);
-			//Dispatch
 			commandContext->Dispatch(sortObject.vertexCount + 1023 / 1024, 1, 1);
-			//状態遷移
 			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 		}
 	}
 
-	//RootSignatureを設定
-	commandContext->SetRootSignature(modelRootSignature_);
+	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[renderingType]);
 
-	//PipelineStateを設定
-	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
-
-	//DirectionalLightを設定
-	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
-
-	//EnvironmentTextureを設定
-	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
-
-	for (const SkinningSortObject& sortObject : skinningSortObjects_) {
-		//不透明オブジェクトに切り替わったらPSOも変える
-		if (currentRenderingType == sortObject.type) {
-			//VertexBufferを設定
+	for (const SkinningSortObject& sortObject : objects) {
+		if (renderingType == sortObject.type) {
+			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
 			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			//IndexBufferViewを設定
 			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			//マテリアルを設定
 			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			//WorldTransformを設定
 			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			//Cameraを設定
 			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			//Textureを設定
 			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
-			//状態遷移
 			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		}
 	}
+}
 
-	//オブジェクトをリセット
-	skinningSortObjects_.clear();
-
-#pragma endregion
-
-#pragma region Boneの描画
-
-	//RootSignatureを設定
+void Renderer::RenderBones(CommandContext* commandContext)
+{
 	commandContext->SetRootSignature(boneRootSignature_);
-
-	//PipelineStateを設定
 	commandContext->SetPipelineState(bonePipelineStates_[0]);
-
-	//DebugObjectの描画
-	for (const Bone& bone : bones_) 
-	{
-		//VertexBufferViewを設定
+	for (const Bone& bone : bones_) {
 		commandContext->SetVertexBuffer(bone.vertexBufferView);
-		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
 		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-		//WorldTransformを設定
 		commandContext->SetConstantBuffer(0, bone.worldTransformCBV);
-		//Cameraを設定
 		commandContext->SetConstantBuffer(1, bone.cameraCBV);
-		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 		commandContext->DrawInstanced(bone.vertexCount, 1);
 	}
-	bones_.clear();
-
-#pragma endregion;
 }
 
 void Renderer::PreDraw()

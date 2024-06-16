@@ -127,21 +127,6 @@ private:
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
-	void CreateModelPipelineState();
-
-	void CreateSkinningModelPipelineState();
-
-	void CreateDebugPipelineState();
-
-	void CreateSpritePipelineState();
-
-	void CreateParticlePipelineState();
-
-	void CreateSkyboxPipelineState();
-
-	void Sort();
-
-private:
 	struct SortObject
 	{
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
@@ -179,6 +164,29 @@ private:
 		UINT vertexCount;
 	};
 
+	void CreateModelPipelineState();
+
+	void CreateSkinningModelPipelineState();
+
+	void CreateDebugPipelineState();
+
+	void CreateSpritePipelineState();
+
+	void CreateParticlePipelineState();
+
+	void CreateSkyboxPipelineState();
+
+	void Sort();
+
+	void SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState);
+
+	void RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects);
+
+	void RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects);
+
+	void RenderBones(CommandContext* commandContext);
+
+private:
 	static Renderer* instance_;
 
 	std::vector<SortObject> sortObjects_{};

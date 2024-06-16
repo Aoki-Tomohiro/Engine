@@ -19,9 +19,11 @@ public:
 
 	void Initialize(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, const DrawPass drawPass);
 
-	void Update(WorldTransform& worldTransform, const std::string& animationName);
+	void Update(WorldTransform& worldTransform, const uint32_t animationNumber);
 
-	void Draw(const WorldTransform& worldTransform, const Camera& camera);
+	void Draw(WorldTransform& worldTransform, const Camera& camera);
+
+	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
 
 	Mesh* GetMesh(size_t index) { return meshes_[index].get(); };
 
@@ -53,7 +55,7 @@ private:
 
 	std::vector<Vector4> boneVertices_{};
 
-	bool isDebug_ = false;
+	bool isBoneVisible_ = false;
 
 	bool hasSkinCluster_ = false;
 

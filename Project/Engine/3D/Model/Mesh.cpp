@@ -7,18 +7,18 @@ void Mesh::Initialize(const MeshData& meshData, const Animation::Skeleton& skele
 	//頂点データの初期化
 	meshData_ = meshData;
 
-	//頂点バッファの作成
-	CreateVertexBuffer();
-
-	//インデックスバッファの作成
-	CreateIndexBuffer();
-
 	//SkinClusterの作成
 	if (!skinClusterData.empty())
 	{
 		hasSkinCluster_ = true;
 		CreateSkinCluster(skeleton, skinClusterData);
 	}
+
+	//頂点バッファの作成
+	CreateVertexBuffer();
+
+	//インデックスバッファの作成
+	CreateIndexBuffer();
 }
 
 void Mesh::Update(const std::vector<Animation::Joint>& joints)
@@ -96,10 +96,29 @@ void Mesh::CreateVertexBuffer()
 	outputVerticesBuffer_ = std::make_unique<RWStructuredBuffer>();
 	outputVerticesBuffer_->Create((uint32_t)meshData_.vertices.size(), sizeof(VertexDataPosUVNormal));
 
-	//頂点バッファビューを作成
-	vertexBufferView_.BufferLocation = outputVerticesBuffer_->GetGpuVirtualAddress();
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
-	vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUVNormal);
+	if (hasSkinCluster_)
+	{
+		//頂点バッファビューを作成
+		vertexBufferView_.BufferLocation = outputVerticesBuffer_->GetGpuVirtualAddress();
+		vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+		vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUVNormal);
+	}
+	else
+	{
+		//頂点バッファを作成
+		vertexBuffer_ = std::make_unique<UploadBuffer>();
+		vertexBuffer_->Create(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+
+		//頂点バッファビューを作成
+		vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
+		vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+		vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUVNormal);
+
+		//頂点バッファにデータを書き込む
+		VertexDataPosUVNormal* vertexData = static_cast<VertexDataPosUVNormal*>(vertexBuffer_->Map());
+		std::memcpy(vertexData, meshData_.vertices.data(), sizeof(VertexDataPosUVNormal) * meshData_.vertices.size());
+		vertexBuffer_->Unmap();
+	}
 
 	//SkinningInformationBufferの作成
 	skinningInformationBuffer_ = std::make_unique<UploadBuffer>();
