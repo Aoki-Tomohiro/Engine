@@ -36,206 +36,133 @@ void CollisionManager::CheckAllCollisions()
 	}
 }
 
-void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* colliderB)
+void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collider2)
 {
-	//衝突フィルタリング
-	if ((colliderA->GetCollisionAttribute() & colliderB->GetCollisionMask()) == 0 ||
-		(colliderB->GetCollisionAttribute() & colliderA->GetCollisionMask()) == 0)
+	//nullチェック
+	if (!collider1 || !collider2) 
 	{
 		return;
 	}
 
-	//球と球の判定
-	if ((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveSphere) && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveSphere))
+	//衝突フィルタリング
+	if ((collider1->GetCollisionAttribute() & collider2->GetCollisionMask()) == 0 ||
+		(collider2->GetCollisionAttribute() & collider1->GetCollisionMask()) == 0)
 	{
-		//コライダーAのワールド座標を取得
-		Vector3 posA = colliderA->GetWorldPosition();
-		//コライダーBのワールド座標を取得
-		Vector3 posB = colliderB->GetWorldPosition();
-		//コライダーAのSphereを作成
-		Sphere sphereA = { .center{posA},.radius{colliderA->GetRadius()} };
-		//コライダーBのSphereを作成
-		Sphere sphereB = { .center{posB},.radius{colliderB->GetRadius()} };
-		//衝突判定
-		if (CheckCollisionSphere(sphereA, sphereB))
-		{
-			//コライダーAの衝突時コールバックを呼び出す
-			colliderA->OnCollision(colliderB);
-			//コライダーBの衝突時コールバックを呼び出す
-			colliderB->OnCollision(colliderA);
-		}
+		return;
 	}
 
-	//AABBとAABBの判定
-	if ((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB))
+	bool isColliding = false;
+
+	if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<SphereCollider*>(collider2)) 
 	{
-		//コライダーAのワールド座標を取得
-		Vector3 posA = colliderA->GetWorldPosition();
-		//コライダーBのワールド座標を取得
-		Vector3 posB = colliderB->GetWorldPosition();
-		//コライダーAのAABBを取得
-		AABB aabbA = { .min{posA + colliderA->GetAABB().min},.max{posA + colliderA->GetAABB().max} };
-		//コライダーBのAABBを取得
-		AABB aabbB = { .min{posB + colliderB->GetAABB().min},.max{posB + colliderB->GetAABB().max} };
-		//衝突判定
-		if (CheckCollisionAABB(aabbA, aabbB))
-		{
-			//コライダーAの衝突時コールバックを呼び出す
-			colliderA->OnCollision(colliderB);
-			//コライダーBの衝突時コールバックを呼び出す
-			colliderB->OnCollision(colliderA);
-		}
+		isColliding = CheckSphereSphereCollision(static_cast<SphereCollider*>(collider1), static_cast<SphereCollider*>(collider2));
+	}
+	else if (dynamic_cast<AABBCollider*>(collider1) && dynamic_cast<AABBCollider*>(collider2))
+	{
+		isColliding = CheckAABBAABBCollision(static_cast<AABBCollider*>(collider1), static_cast<AABBCollider*>(collider2));
+	}
+	else if (dynamic_cast<OBBCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2))
+	{
+		isColliding = CheckOBBOBBCollision(static_cast<OBBCollider*>(collider1), static_cast<OBBCollider*>(collider2));
+	}
+	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<AABBCollider*>(collider2)) 
+	{
+		isColliding = CheckSphereAABBCollision(static_cast<SphereCollider*>(collider1), static_cast<AABBCollider*>(collider2));
+	}
+	else if (dynamic_cast<AABBCollider*>(collider1) && dynamic_cast<SphereCollider*>(collider2))
+	{
+		isColliding = CheckSphereAABBCollision(static_cast<SphereCollider*>(collider2), static_cast<AABBCollider*>(collider1));
+	}
+	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2)) 
+	{
+		isColliding = CheckSphereOBBCollision(static_cast<SphereCollider*>(collider1), static_cast<OBBCollider*>(collider2));
+	}
+	else if (dynamic_cast<OBBCollider*>(collider1) && dynamic_cast<SphereCollider*>(collider2))
+	{
+		isColliding = CheckSphereOBBCollision(static_cast<SphereCollider*>(collider2), static_cast<OBBCollider*>(collider1));
+	}
+	else if (dynamic_cast<AABBCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2)) 
+	{
+		isColliding = CheckAABBOBBCollision(static_cast<AABBCollider*>(collider1), static_cast<OBBCollider*>(collider2));
+	}
+	else if (dynamic_cast<OBBCollider*>(collider1) && dynamic_cast<AABBCollider*>(collider2))
+	{
+		isColliding = CheckAABBOBBCollision(static_cast<AABBCollider*>(collider2), static_cast<OBBCollider*>(collider1));
 	}
 
-	//球とAABBの判定
-	if (((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveSphere) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0) ||
-		((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveSphere) != 0))
+	if (isColliding)
 	{
-		//コライダーAのワールド座標を取得
-		Vector3 posA = colliderA->GetWorldPosition();
-		//コライダーBのワールド座標を取得
-		Vector3 posB = colliderB->GetWorldPosition();
-
-		//コライダーAがSphereの場合
-		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveSphere)
+		if (!collider1->IsCollidingWith(collider2))
 		{
-			//コライダーAのSphereを作成
-			Sphere sphere = { .center{posA},.radius{colliderA->GetRadius()} };
-			//コライダーBのAABBを取得
-			AABB aabb = { .min{posB + colliderB->GetAABB().min},.max{posB + colliderB->GetAABB().max} };
-			//衝突判定
-			if (CheckCollisionSphereAABB(sphere, aabb))
-			{
-				//コライダーAの衝突時コールバックを呼び出す
-				colliderA->OnCollision(colliderB);
-				//コライダーBの衝突時コールバックを呼び出す
-				colliderB->OnCollision(colliderA);
-			}
+			collider1->AddCollision(collider2);
+			collider2->AddCollision(collider1);
+			collider1->OnCollisionEnter(collider2->owner_);
+			collider2->OnCollisionEnter(collider1->owner_);
 		}
-		else if (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveSphere)
-		{
-			//コライダーAのSphereを作成
-			Sphere sphere = { .center{posB},.radius{colliderB->GetRadius()} };
-			//コライダーBのAABBを取得
-			AABB aabb = { .min{posA + colliderA->GetAABB().min},.max{posA + colliderA->GetAABB().max} };
-			//衝突判定
-			if (CheckCollisionSphereAABB(sphere, aabb))
-			{
-				//コライダーAの衝突時コールバックを呼び出す
-				colliderA->OnCollision(colliderB);
-				//コライダーBの衝突時コールバックを呼び出す
-				colliderB->OnCollision(colliderA);
-			}
-		}
+		collider1->OnCollision(collider2->owner_);
+		collider2->OnCollision(collider1->owner_);
 	}
-
-	//OBBとAABBの判定
-	if (((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveOBB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0) ||
-		((colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB) != 0 && (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveOBB) != 0))
+	else
 	{
-		//コライダーAがAABBの場合
-		if (colliderA->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
+		if (collider1->IsCollidingWith(collider2)) 
 		{
-			//コライダーAのAABBを取得
-			AABB aabb = { .min{colliderA->GetWorldPosition() + colliderA->GetAABB().min},.max{colliderA->GetWorldPosition() + colliderA->GetAABB().max}, };
-			//コライダーBのOBBを取得
-			OBB obb = colliderB->GetOBB();
-
-			//衝突判定
-			if (CheckCollisionAABBOBB(aabb, obb))
-			{
-				//コライダーAの衝突時コールバックを呼び出す
-				colliderA->OnCollision(colliderB);
-				//コライダーBの衝突時コールバックを呼び出す
-				colliderB->OnCollision(colliderA);
-			}
-		}
-		//ColliderBがAABBの場合
-		else if (colliderB->GetCollisionPrimitive() & kCollisionPrimitiveAABB)
-		{
-			//コライダーBのAABBを取得
-			AABB aabb = { .min{colliderB->GetWorldPosition() + colliderB->GetAABB().min},.max{colliderB->GetWorldPosition() + colliderB->GetAABB().max}, };
-			//コライダーBのOBBを取得
-			OBB obb = colliderA->GetOBB();
-
-			//衝突判定
-			if (CheckCollisionAABBOBB(aabb, obb))
-			{
-				//コライダーAの衝突時コールバックを呼び出す
-				colliderA->OnCollision(colliderB);
-				//コライダーBの衝突時コールバックを呼び出す
-				colliderB->OnCollision(colliderA);
-			}
+			collider1->RemoveCollision(collider2);
+			collider2->RemoveCollision(collider1);
+			collider1->OnCollisionExit(collider2->owner_);
+			collider2->OnCollisionExit(collider1->owner_);
 		}
 	}
 }
 
-bool CollisionManager::CheckCollisionSphere(const Sphere& sphereA, const Sphere& sphereB)
+bool CollisionManager::CheckSphereSphereCollision(const SphereCollider* sphere1, const SphereCollider* sphere2)
 {
-	//コライダーAとコライダーBの距離を計算
-	float distance = Mathf::Length(sphereA.center - sphereB.center);
-	//球と球の交差判定
-	if (distance <= sphereA.radius + sphereB.radius)
-	{
-		return true;
-	}
-	return false;
+	float distance = Mathf::Length(sphere1->GetCenter() - sphere2->GetCenter());
+
+	float radiusSum = sphere1->GetRadius() + sphere2->GetRadius();
+
+	return distance <= radiusSum;
 }
 
-bool CollisionManager::CheckCollisionSphereAABB(const Sphere& sphere, const AABB& aabb)
+bool CollisionManager::CheckAABBAABBCollision(const AABBCollider* aabb1, const AABBCollider* aabb2)
 {
-	//最近接点を求める
-	Vector3 closestPoint{
-		std::clamp(sphere.center.x,aabb.min.x,aabb.max.x),
-		std::clamp(sphere.center.y,aabb.min.y,aabb.max.y),
-		std::clamp(sphere.center.z,aabb.min.z,aabb.max.z)
-	};
-	//最近接点と球の中心との距離を求める
-	float distance = Mathf::Length(closestPoint - sphere.center);
-	//距離が半径よりも小さければ衝突
-	if (distance <= sphere.radius)
-	{
-		return true;
-	}
-	return false;
+	Vector3 min1 = aabb1->GetCenter() + aabb1->GetMin();
+	Vector3 max1 = aabb1->GetCenter() + aabb1->GetMax();
+	Vector3 min2 = aabb2->GetCenter() + aabb2->GetMin();
+	Vector3 max2 = aabb2->GetCenter() + aabb2->GetMax();
+
+	if (max1.x < min2.x || min1.x > max2.x) return false;
+
+	if (max1.y < min2.y || min1.y > max2.y) return false;
+
+	if (max1.z < min2.z || min1.z > max2.z) return false;
+
+	return true;
 }
 
-bool CollisionManager::CheckCollisionAABB(const AABB& aabbA, const AABB& aabbB)
+bool CollisionManager::CheckOBBOBBCollision(const OBBCollider* obb1, const OBBCollider* obb2)
 {
-	if (aabbA.min.x <= aabbB.max.x && aabbA.max.x >= aabbB.min.x &&
-		aabbA.min.y <= aabbB.max.y && aabbA.max.y >= aabbB.min.y &&
-		aabbA.min.z <= aabbB.max.z && aabbA.max.z >= aabbB.min.z)
-	{
-		return true;
-	}
-	return false;
-}
+	Vector3 NAe1 = obb1->GetOrientation(0);
+	Vector3 Ae1 = NAe1 * obb1->GetSize().x;
+	Vector3 NAe2 = obb1->GetOrientation(1);
+	Vector3 Ae2 = NAe2 * obb1->GetSize().y;
+	Vector3 NAe3 = obb1->GetOrientation(2);
+	Vector3 Ae3 = NAe3 * obb1->GetSize().z;
 
-bool CollisionManager::CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb)
-{
-	Vector3 aabbCenter = (aabb.min + aabb.max) * 0.5f;
+	Vector3 NBe1 = obb2->GetOrientation(0);
+	Vector3 Be1 = NBe1 * obb2->GetSize().x;
+	Vector3 NBe2 = obb2->GetOrientation(1);
+	Vector3 Be2 = NBe2 * obb2->GetSize().y;
+	Vector3 NBe3 = obb2->GetOrientation(2);
+	Vector3 Be3 = NBe3 * obb2->GetSize().z;
 
-	float aabbHalfSize[3] = {
-	0.5f * (aabb.max.x - aabb.min.x),
-	0.5f * (aabb.max.y - aabb.min.y),
-	0.5f * (aabb.max.z - aabb.min.z),
-	};
+	Vector3 Interval = obb1->GetCenter() - obb2->GetCenter();
 
-	Vector3 NAe1 = { 1.0f,0.0f,0.0f };
-	Vector3 Ae1 = NAe1 * aabbHalfSize[0];
-	Vector3 NAe2 = { 0.0f,1.0f,0.0f };
-	Vector3 Ae2 = NAe2 * aabbHalfSize[1];
-	Vector3 NAe3 = { 0.0f,0.0f,1.0f };
-	Vector3 Ae3 = NAe3 * aabbHalfSize[2];
-
-	Vector3 NBe1 = obb.orientations[0];
-	Vector3 Be1 = NBe1 * obb.size.x;
-	Vector3 NBe2 = obb.orientations[1];
-	Vector3 Be2 = NBe2 * obb.size.y;
-	Vector3 NBe3 = obb.orientations[2];
-	Vector3 Be3 = NBe3 * obb.size.z;
-
-	Vector3 Interval = aabbCenter - obb.center;
+	auto LenSegOnSeparateAxis = [](const Vector3* Sep, const Vector3* e1, const Vector3* e2, const Vector3* e3) -> float {
+		float r1 = fabs(Mathf::Dot(*Sep, *e1));
+		float r2 = fabs(Mathf::Dot(*Sep, *e2));
+		float r3 = e3 ? (fabs(Mathf::Dot(*Sep, *e3))) : 0;
+		return r1 + r2 + r3;
+		};
 
 	//文理軸 Ae1
 	float rA = Mathf::Length(Ae1);
@@ -384,10 +311,237 @@ bool CollisionManager::CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb)
 	return true;
 }
 
-float CollisionManager::LenSegOnSeparateAxis(Vector3* Sep, Vector3* e1, Vector3* e2, Vector3* e3)
+bool CollisionManager::CheckSphereAABBCollision(const SphereCollider* sphere1, const AABBCollider* aabb1)
 {
-	float r1 = fabs(Mathf::Dot(*Sep, *e1));
-	float r2 = fabs(Mathf::Dot(*Sep, *e2));
-	float r3 = e3 ? (fabs(Mathf::Dot(*Sep, *e3))) : 0;
-	return r1 + r2 + r3;
+	//最近接点を求める
+	Vector3 closestPoint{
+		std::clamp(sphere1->GetCenter().x,aabb1->GetMin().x,aabb1->GetMax().x),
+		std::clamp(sphere1->GetCenter().y,aabb1->GetMin().y,aabb1->GetMax().y),
+		std::clamp(sphere1->GetCenter().z,aabb1->GetMin().z,aabb1->GetMax().z)
+	};
+
+	//最近接点と球の中心との距離を求める
+	float distance = Mathf::Length(closestPoint - sphere1->GetCenter());
+
+	//距離が半径よりも小さければ衝突
+	if (distance <= sphere1->GetRadius())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool CollisionManager::CheckSphereOBBCollision(const SphereCollider* sphere1, const OBBCollider* obb1)
+{
+	Vector3 sphereCenter = sphere1->GetCenter();
+	Vector3 obbCenter = obb1->GetCenter();
+	Vector3 obbSize = obb1->GetSize();
+
+	//球体の中心からOBB中心へのベクトル
+	Vector3 d = sphereCenter - obbCenter;
+
+	//OBBの各軸方向ベクトルと最大サイズ
+	Vector3 axes[3];
+	float axisSizes[3] = { obbSize.x, obbSize.y, obbSize.z };
+	for (int i = 0; i < 3; ++i)
+	{
+		axes[i] = obb1->GetOrientation(i);
+	}
+
+	//最近接点を計算
+	Vector3 closestPoint = obbCenter;
+	for (int i = 0; i < 3; ++i)
+	{
+		float distance = Mathf::Dot(d, axes[i]);
+		float clampedDistance = std::max<float>(-axisSizes[i], std::min<float>(distance, axisSizes[i]));
+		closestPoint = closestPoint + (axes[i] * clampedDistance);
+	}
+
+	//最近接点と球体の中心との距離を計算
+	Vector3 v = closestPoint - sphereCenter;
+	float distanceSquared = Mathf::Dot(v, v);
+	float radiusSquared = sphere1->GetRadius() * sphere1->GetRadius();
+
+	return distanceSquared <= radiusSquared;
+}
+
+bool CollisionManager::CheckAABBOBBCollision(const AABBCollider* aabb1, const OBBCollider* obb1)
+{
+	Vector3 aabbCenter = (aabb1->GetCenter() + aabb1->GetMin() + aabb1->GetCenter() + aabb1->GetMax()) * 0.5f;
+
+	float aabbHalfSize[3] = {
+	0.5f * (aabb1->GetMax().x - aabb1->GetMin().x),
+	0.5f * (aabb1->GetMax().y - aabb1->GetMin().y),
+	0.5f * (aabb1->GetMax().z - aabb1->GetMin().z),
+	};
+
+	Vector3 NAe1 = { 1.0f,0.0f,0.0f };
+	Vector3 Ae1 = NAe1 * aabbHalfSize[0];
+	Vector3 NAe2 = { 0.0f,1.0f,0.0f };
+	Vector3 Ae2 = NAe2 * aabbHalfSize[1];
+	Vector3 NAe3 = { 0.0f,0.0f,1.0f };
+	Vector3 Ae3 = NAe3 * aabbHalfSize[2];
+
+	Vector3 NBe1 = obb1->GetOrientation(0);
+	Vector3 Be1 = NBe1 * obb1->GetSize().x;
+	Vector3 NBe2 = obb1->GetOrientation(1);
+	Vector3 Be2 = NBe2 * obb1->GetSize().y;
+	Vector3 NBe3 = obb1->GetOrientation(2);
+	Vector3 Be3 = NBe3 * obb1->GetSize().z;
+
+	Vector3 Interval = aabbCenter - obb1->GetCenter();
+
+	auto LenSegOnSeparateAxis = [](const Vector3* Sep, const Vector3* e1, const Vector3* e2, const Vector3* e3) -> float {
+		float r1 = fabs(Mathf::Dot(*Sep, *e1));
+		float r2 = fabs(Mathf::Dot(*Sep, *e2));
+		float r3 = e3 ? (fabs(Mathf::Dot(*Sep, *e3))) : 0;
+		return r1 + r2 + r3;
+	};
+
+	//文理軸 Ae1
+	float rA = Mathf::Length(Ae1);
+	float rB = LenSegOnSeparateAxis(&NAe1, &Be1, &Be2, &Be3);
+	float L = fabs(Mathf::Dot(Interval, NAe1));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : Ae2
+	rA = Mathf::Length(Ae2);
+	rB = LenSegOnSeparateAxis(&NAe2, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe2));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : Ae3
+	rA = Mathf::Length(Ae3);
+	rB = LenSegOnSeparateAxis(&NAe3, &Be1, &Be2, &Be3);
+	L = fabs(Mathf::Dot(Interval, NAe3));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : Be1
+	rA = LenSegOnSeparateAxis(&NBe1, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be1);
+	L = fabs(Mathf::Dot(Interval, NBe1));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : Be2
+	rA = LenSegOnSeparateAxis(&NBe2, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be2);
+	L = fabs(Mathf::Dot(Interval, NBe2));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : Be3
+	rA = LenSegOnSeparateAxis(&NBe3, &Ae1, &Ae2, &Ae3);
+	rB = Mathf::Length(Be3);
+	L = fabs(Mathf::Dot(Interval, NBe3));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C11
+	Vector3 Cross = Mathf::Cross(NAe1, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C12
+	Cross = Mathf::Cross(NAe1, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C13
+	Cross = Mathf::Cross(NAe1, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae2, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C21
+	Cross = Mathf::Cross(NAe2, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C22
+	Cross = Mathf::Cross(NAe2, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C23
+	Cross = Mathf::Cross(NAe2, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae3, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C31
+	Cross = Mathf::Cross(NAe3, NBe1);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be2, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C32
+	Cross = Mathf::Cross(NAe3, NBe2);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be3, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	// 分離軸 : C33
+	Cross = Mathf::Cross(NAe3, NBe3);
+	rA = LenSegOnSeparateAxis(&Cross, &Ae1, &Ae2, 0);
+	rB = LenSegOnSeparateAxis(&Cross, &Be1, &Be2, 0);
+	L = fabs(Mathf::Dot(Interval, Cross));
+	if (L > rA + rB)
+	{
+		return false;
+	}
+
+	return true;
 }

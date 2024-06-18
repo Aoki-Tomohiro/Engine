@@ -19,9 +19,9 @@ public:
 
 	void Initialize(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, const DrawPass drawPass);
 
-	void Update(WorldTransform& worldTransform, const uint32_t animationNumber);
+	void Update(WorldTransform& worldTransform, const std::string& animationName);
 
-	void Draw(WorldTransform& worldTransform, const Camera& camera);
+	void Draw(const WorldTransform& worldTransform, const Camera& camera);
 
 	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
 

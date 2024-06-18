@@ -1,39 +1,21 @@
 #pragma once
-#include "Engine/3D/Transform/WorldTransform.h"
-#include "Engine/Math/Sphere.h"
-#include "Engine/Math/AABB.h"
-#include "Engine/Math/OBB.h"
+#include "Engine/Components/Component/Component.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include <cstdint>
+#include <set>
 
-class IGameObject;
-
-class Collider
+class Collider : public Component
 {
 public:
-	//virtual void OnCollision(Collider* collider) = 0;
+	void Initialize() override;
 
-	//virtual const Vector3 GetWorldPosition() const = 0;
+	void Update() override;
 
-	//virtual const WorldTransform& GetWorldTransform() const = 0;
+	void OnCollision(GameObject* other);
 
-	void OnCollision(Collider* collider);
+	void OnCollisionEnter(GameObject* other);
 
-	const Vector3 GetWorldPosition() const;
-
-	const WorldTransform& GetWorldTransform() const;
-
-	void SetGameObject(IGameObject* gameObject) { gameObject_ = gameObject; };
-
-	const float GetRadius() const { return radius_; };
-
-	void SetRadius(float radius) { radius_ = radius; };
-
-	const AABB& GetAABB() const { return aabb_; };
-
-	void SetAABB(AABB& aabb) { aabb_ = aabb; };
-
-	const OBB& GetOBB() const { return obb_; };
-
-	void SetOBB(OBB& obb) { obb_ = obb; };
+	void OnCollisionExit(GameObject* other);
 
 	const uint32_t GetCollisionAttribute() const { return collisionAttribute_; };
 
@@ -43,23 +25,21 @@ public:
 
 	void SetCollisionMask(uint32_t collisionMask) { collisionMask_ = collisionMask; };
 
-	const uint32_t GetCollisionPrimitive() const { return collisionPrimitive_; };
+	void AddCollision(Collider* collider) { currentCollisions_.insert(collider); };
 
-	void SetCollisionPrimitive(uint32_t collisionPrimitive) { collisionPrimitive_ = collisionPrimitive; };
+	void RemoveCollision(Collider* collider) { currentCollisions_.erase(collider); };
 
-private:
-	IGameObject* gameObject_ = nullptr;
+	bool IsCollidingWith(Collider* collider) const { return currentCollisions_.find(collider) != currentCollisions_.end(); };
 
-	float radius_ = 1.0f;
+	void SetTransformComponent(TransformComponent* tranformComponent) { transformComponent_ = tranformComponent; };
 
-	AABB aabb_{ {-1.0f,-1.0f,-1.0f},{1.0f,1.0f,1.0f} };
+protected:
+	TransformComponent* transformComponent_ = nullptr;
 
-	OBB obb_{ {0.0f,0.0f,0.0f},{{1.0f,0.0f,0.0f},{0.0f,1.0f,0.0f},{0.0f,0.0f,1.0f}},{1.0f,1.0f,1.0f} };
+	std::set<Collider*> currentCollisions_;
 
 	uint32_t collisionAttribute_ = 0xffffffff;
 
 	uint32_t collisionMask_ = 0xffffffff;
-
-	uint32_t collisionPrimitive_ = 0b1;
 };
 

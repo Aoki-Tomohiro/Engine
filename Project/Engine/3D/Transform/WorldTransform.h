@@ -4,6 +4,12 @@
 #include "Engine/Math/Quaternion.h"
 #include <memory>
 
+enum class RotationType
+{
+	Euler,
+	Quaternion
+};
+
 class WorldTransform
 {
 public:
@@ -11,9 +17,7 @@ public:
 
 	void TransferMatrix();
 
-	void UpdateMatrixFromEuler();
-
-	void UpdateMatrixFromQuaternion();
+	void UpdateMatrix();
 
 	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
@@ -44,6 +48,8 @@ public:
 	Quaternion quaternion_ = { 0.0f,0.0f,0.0f,1.0f };
 
 	Matrix4x4 matWorld_{};
+
+	RotationType rotationType_ = RotationType::Euler;
 
 	const WorldTransform* parent_ = nullptr;
 };

@@ -5,7 +5,7 @@ void WorldTransform::Initialize()
 {
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(sizeof(ConstBuffDataWorldTransform));
-	UpdateMatrixFromEuler();
+	UpdateMatrix();
 }
 
 void WorldTransform::TransferMatrix()
@@ -16,21 +16,17 @@ void WorldTransform::TransferMatrix()
 	constBuff_->Unmap();
 }
 
-void WorldTransform::UpdateMatrixFromEuler()
+void WorldTransform::UpdateMatrix()
 {
-	matWorld_ = Mathf::MakeAffineMatrix(scale_, rotation_, translation_);
-
-	if (parent_) 
+	switch (rotationType_)
 	{
-		matWorld_ = matWorld_ * parent_->matWorld_;
+	case RotationType::Euler:
+		matWorld_ = Mathf::MakeAffineMatrix(scale_, rotation_, translation_);
+		break;
+	case RotationType::Quaternion:
+		matWorld_ = Mathf::MakeAffineMatrix(scale_, quaternion_, translation_);
+		break;
 	}
-
-	TransferMatrix();
-}
-
-void WorldTransform::UpdateMatrixFromQuaternion()
-{
-	matWorld_ = Mathf::MakeAffineMatrix(scale_, quaternion_, translation_);
 
 	if (parent_)
 	{

@@ -1,5 +1,5 @@
 #pragma once
-#include "IGameObject.h"
+#include "GameObject.h"
 #include <string>
 
 class AbstractGameObjectFactory
@@ -7,5 +7,5 @@ class AbstractGameObjectFactory
 public:
 	virtual ~AbstractGameObjectFactory() = default;
 
-	virtual IGameObject* CreateGameObject(const std::string& objectName) = 0;
+	virtual GameObject* CreateGameObject(const std::string& objectName) = 0;
 };

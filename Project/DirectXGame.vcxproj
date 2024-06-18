@@ -20,7 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
+    <ClCompile Include="Application\Src\Object\Enemy.cpp" />
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
+    <ClCompile Include="Application\Src\Object\Player.cpp" />
     <ClCompile Include="Engine\3D\Model\Animation.cpp" />
     <ClCompile Include="Engine\3D\Model\Material.cpp" />
     <ClCompile Include="Engine\3D\Model\Mesh.cpp" />
@@ -31,8 +33,17 @@
     <ClCompile Include="Engine\Base\GraphicsPSO.cpp" />
     <ClCompile Include="Engine\Base\PSO.cpp" />
     <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp" />
+    <ClCompile Include="Engine\Components\Collision\AABBCollider.cpp" />
     <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp" />
+    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp" />
+    <ClCompile Include="Engine\Components\Component\Component.cpp" />
+    <ClCompile Include="Engine\Components\Component\ModelComponent.cpp" />
+    <ClCompile Include="Engine\Components\Component\RenderComponent.cpp" />
+    <ClCompile Include="Engine\Components\Component\TransformComponent.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp" />
+    <ClCompile Include="Engine\Framework\Object\GameObject.cpp" />
+    <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp" />
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp" />
     <ClCompile Include="Application\Src\Scene\GameClearScene.cpp" />
     <ClCompile Include="Application\Src\Scene\GameOverScene.cpp" />
@@ -101,8 +112,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MinSpace</Optimization>
     </ClCompile>
     <ClCompile Include="Engine\Framework\Game\GameCore.cpp" />
-    <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp" />
-    <ClCompile Include="Engine\Framework\Object\IGameObject.cpp" />
     <ClCompile Include="Engine\Framework\Scene\SceneManager.cpp" />
     <ClCompile Include="Engine\Math\MathFunction.cpp" />
     <ClCompile Include="Engine\Utilities\GlobalVariables.cpp" />
@@ -113,7 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
+    <ClInclude Include="Application\Src\Object\Enemy.h" />
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
+    <ClInclude Include="Application\Src\Object\Player.h" />
     <ClInclude Include="Engine\3D\Model\Animation.h" />
     <ClInclude Include="Engine\3D\Model\Material.h" />
     <ClInclude Include="Engine\3D\Model\Mesh.h" />
@@ -124,8 +135,17 @@
     <ClInclude Include="Engine\Base\GraphicsPSO.h" />
     <ClInclude Include="Engine\Base\PSO.h" />
     <ClInclude Include="Engine\Base\RWStructuredBuffer.h" />
+    <ClInclude Include="Engine\Components\Collision\AABBCollider.h" />
+    <ClInclude Include="Engine\Components\Collision\OBBCollider.h" />
+    <ClInclude Include="Engine\Components\Collision\SphereCollider.h" />
+    <ClInclude Include="Engine\Components\Component\Component.h" />
+    <ClInclude Include="Engine\Components\Component\ModelComponent.h" />
+    <ClInclude Include="Engine\Components\Component\RenderComponent.h" />
+    <ClInclude Include="Engine\Components\Component\TransformComponent.h" />
     <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h" />
     <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h" />
+    <ClInclude Include="Engine\Framework\Object\GameObject.h" />
+    <ClInclude Include="Engine\Framework\Object\GameObjectManager.h" />
     <ClInclude Include="Engine\LevelLoader\LevelLoader.h" />
     <ClInclude Include="Application\Src\Scene\GameClearScene.h" />
     <ClInclude Include="Application\Src\Scene\GameOverScene.h" />
@@ -189,8 +209,6 @@
     <ClInclude Include="Engine\Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Engine\Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="Engine\Framework\Game\GameCore.h" />
-    <ClInclude Include="Engine\Framework\Object\GameObjectManager.h" />
-    <ClInclude Include="Engine\Framework\Object\IGameObject.h" />
     <ClInclude Include="Engine\Framework\Scene\AbstractSceneFactory.h" />
     <ClInclude Include="Engine\Framework\Scene\IScene.h" />
     <ClInclude Include="Engine\Framework\Scene\SceneManager.h" />

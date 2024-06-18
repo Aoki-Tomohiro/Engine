@@ -9,9 +9,6 @@ void Animation::Initialize(const std::vector<AnimationData>& animationData, cons
 
 	//スケルトンを作成
 	skeletonData_ = CreateSkeleton(rootNode);
-
-	//ワールド行列の初期化
-	localMatrix_ = Mathf::MakeIdentity4x4();
 }
 
 void Animation::Update()
@@ -31,55 +28,35 @@ void Animation::Update()
 	}
 }
 
-void Animation::ApplyAnimation(const std::string& name, const uint32_t animationNumber)
+void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string& rootNodeName, const std::string& animationName)
 {
-	if (animationData_.size() != 0)
+	for (AnimationData& animationData : animationData_)
 	{
-		assert(animationNumber < animationData_.size());
-		//アニメーションがある場合かつ再生中の場合
-		if (isPlay_)
+		if (animationData.name != animationName)
 		{
-			//一時停止中なら処理を飛ばす
-			if (isPause_)
-			{
-				return;
-			}
-
-			//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-			animationTime_ += 1.0f / speed_;
-
-			//最後までいったら最初からリピート再生。リピートしなくても別にいい
-			if (animationTime_ > animationData_[animationNumber].duration)
-			{
-				//ループフラグがtrueならば
-				if (isLoop_)
-				{
-					animationTime_ = 0.0f;
-					localMatrix_ = Mathf::MakeIdentity4x4();
-				}
-				else
-				{
-					animationTime_ = animationData_[animationNumber].duration;
-					isPlay_ = false;
-				}
-			}
+			continue;
 		}
 
+		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
+		animationTime_ += 1.0f / 60.0f;
+		animationTime_ = std::fmod(animationTime_, animationData.duration);
+
 		//RigidAnimation
-		if (auto it = animationData_[animationNumber].nodeAnimations.find(name); it != animationData_[animationNumber].nodeAnimations.end())
+		if (auto it = animationData.nodeAnimations.find(rootNodeName); it != animationData.nodeAnimations.end())
 		{
 			NodeAnimation& rootNodeAnimation = (*it).second;
 			Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
 			Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
 			Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-			localMatrix_ = Mathf::MakeAffineMatrix(scale, rotate, translate);
+			Matrix4x4 localMatrix = Mathf::MakeAffineMatrix(scale, rotate, translate);
+			worldTransform.matWorld_ = localMatrix * worldTransform.matWorld_;
 		}
 
 		//SkeletonAnimation
 		for (Joint& joint : skeletonData_.joints)
 		{
 			//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
-			if (auto it = animationData_[animationNumber].nodeAnimations.find(joint.name); it != animationData_[animationNumber].nodeAnimations.end())
+			if (auto it = animationData.nodeAnimations.find(joint.name); it != animationData.nodeAnimations.end())
 			{
 				const NodeAnimation& rootNodeAnimation = (*it).second;
 				joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
@@ -88,28 +65,6 @@ void Animation::ApplyAnimation(const std::string& name, const uint32_t animation
 			}
 		}
 	}
-}
-
-void Animation::PlayAnimation()
-{
-	if (!isPause_)
-	{
-		animationTime_ = 0.0f;
-	}
-	isPlay_ = true;
-	isPause_ = false;
-}
-
-void Animation::PauseAnimation()
-{
-	isPause_ = true;
-}
-
-void Animation::StopAnimation()
-{
-	animationTime_ = 0.0f;
-	isPlay_ = false;
-	isPause_ = false;
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)

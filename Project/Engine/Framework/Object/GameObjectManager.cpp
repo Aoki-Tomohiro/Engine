@@ -1,9 +1,10 @@
 #include "GameObjectManager.h"
+#include <cassert>
 
 //実体定義
 GameObjectManager* GameObjectManager::instance_ = nullptr;
 
-GameObjectManager* GameObjectManager::GetInstance() 
+GameObjectManager* GameObjectManager::GetInstance()
 {
 	if (instance_ == nullptr)
 	{
@@ -12,7 +13,7 @@ GameObjectManager* GameObjectManager::GetInstance()
 	return instance_;
 }
 
-void GameObjectManager::Destroy() 
+void GameObjectManager::Destroy()
 {
 	if (instance_)
 	{
@@ -24,15 +25,15 @@ void GameObjectManager::Destroy()
 void GameObjectManager::Update()
 {
 	//破壊フラグが立ったゲームオブジェクトを削除
-	std::vector<std::unique_ptr<IGameObject>>::iterator it = std::remove_if(gameObjects_.begin(), gameObjects_.end(),
-		[](std::unique_ptr<IGameObject>& gameObject)
+	std::vector<std::unique_ptr<GameObject>>::iterator it = std::remove_if(gameObjects_.begin(), gameObjects_.end(),
+		[](std::unique_ptr<GameObject>& gameObject)
 		{
 			return gameObject->GetIsDestroy();
 		});
 	gameObjects_.erase(it, gameObjects_.end());
 
 	//ゲームオブジェクトの更新
-	for (std::unique_ptr<IGameObject>& gameObject : gameObjects_)
+	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
 	{
 		if (gameObject->GetIsActive())
 		{
@@ -41,30 +42,24 @@ void GameObjectManager::Update()
 	}
 
 	//カメラの更新
-	for (std::unique_ptr<Camera>& camera : cameras_)
-	{
-		camera->UpdateMatrix();
-	}
+	camera_->UpdateMatrix();
 }
 
-void GameObjectManager::Draw(const Camera& camera)
+void GameObjectManager::Draw()
 {
+	//カメラがない場合は早期リターン
+	if (!camera_)
+	{
+		return;
+	}
+
 	//ゲームオブジェクトの描画
-	for (std::unique_ptr<IGameObject>& gameObject : gameObjects_)
+	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
 	{
 		if (gameObject->GetIsVisible())
 		{
-			gameObject->Draw(camera);
+			gameObject->Draw(*camera_);
 		}
-	}
-}
-
-void GameObjectManager::DrawUI()
-{
-	//ゲームオブジェクトのUI描画
-	for (std::unique_ptr<IGameObject>& gameObject : gameObjects_)
-	{
-		gameObject->DrawUI();
 	}
 }
 
@@ -74,9 +69,9 @@ void GameObjectManager::Clear()
 	gameObjects_.clear();
 }
 
-IGameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
+GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
 {
-	IGameObject* newObject = GameObjectManager::GetInstance()->CreateGameObjectInternal(objectName);
+	GameObject* newObject = GameObjectManager::GetInstance()->CreateGameObjectInternal(objectName);
 	return newObject;
 }
 
@@ -86,13 +81,13 @@ Camera* GameObjectManager::CreateCamera(const std::string& cameraName)
 	return newCamera;
 }
 
-IGameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
+GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
 {
 	assert(gameObjectFactory_);
-	IGameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
+	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
 	newGameObject->Initialize();
 	newGameObject->SetGameObjectManager(this);
-	gameObjects_.push_back(std::unique_ptr<IGameObject>(newGameObject));
+	gameObjects_.push_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;
 }
 
@@ -100,6 +95,6 @@ Camera* GameObjectManager::CreateCameraInternal(const std::string& cameraName)
 {
 	Camera* newCamera = new Camera();
 	newCamera->Initialize();
-	cameras_.push_back(std::unique_ptr<Camera>(newCamera));
+	camera_.reset(newCamera);
 	return newCamera;
 }

@@ -1,5 +1,7 @@
 #pragma once
-#include "Collider.h"
+#include "SphereCollider.h"
+#include "AABBCollider.h"
+#include "OBBCollider.h"
 #include <list>
 
 class CollisionManager
@@ -14,15 +16,17 @@ public:
 private:
 	void CheckCollisionPair(Collider* colliderA, Collider* colliderB);
 
-	bool CheckCollisionSphere(const Sphere& sphereA, const Sphere& sphereB);
+	bool CheckSphereSphereCollision(const SphereCollider* sphere1, const SphereCollider* sphere2);
 
-	bool CheckCollisionSphereAABB(const Sphere& sphere, const AABB& aabb);
+	bool CheckAABBAABBCollision(const AABBCollider* aabb1, const AABBCollider* aabb2);
 
-	bool CheckCollisionAABB(const AABB& aabbA, const AABB& aabbB);
+	bool CheckOBBOBBCollision(const OBBCollider* obb1, const OBBCollider* obb2);
 
-	bool CheckCollisionAABBOBB(const AABB& aabb, const OBB& obb);
+	bool CheckSphereAABBCollision(const SphereCollider* sphere1, const AABBCollider* aabb1);
+	
+	bool CheckSphereOBBCollision(const SphereCollider* sphere1, const OBBCollider* obb1);
 
-	float LenSegOnSeparateAxis(Vector3* Sep, Vector3* e1, Vector3* e2, Vector3* e3);
+	bool CheckAABBOBBCollision(const AABBCollider* aabb1, const OBBCollider* obb1);
 
 private:
 	std::list<Collider*> colliders_{};

@@ -54,8 +54,6 @@ protected:
 
 	SceneManager* sceneManager_ = nullptr;
 
-	ModelManager* modelManager_ = nullptr;
-
 	LightManager* lightManager_ = nullptr;
 
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;

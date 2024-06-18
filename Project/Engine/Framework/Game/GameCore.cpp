@@ -39,10 +39,6 @@ void GameCore::Initialize()
 	//SceneManagerのインスタンスを取得
 	sceneManager_ = SceneManager::GetInstance();
 
-	//ModelManagerの初期化
-	modelManager_ = ModelManager::GetInstance();
-	//modelManager_->Initialize();
-
 	//LightManagerの初期化
 	lightManager_ = LightManager::GetInstance();
 	lightManager_->Initialize();

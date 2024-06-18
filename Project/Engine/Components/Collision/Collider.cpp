@@ -1,21 +1,27 @@
 #include "Collider.h"
-#include "Engine/Framework/Object/IGameObject.h"
+#include "Engine/Framework/Object/GameObject.h"
 
-void Collider::OnCollision(Collider* collider)
+void Collider::Initialize()
 {
-	gameObject_->OnCollision(collider);
+
 }
 
-const Vector3 Collider::GetWorldPosition() const
+void Collider::Update()
 {
-	Vector3 worldPosition{};
-	worldPosition.x = gameObject_->GetWorldTransform().matWorld_.m[3][0];
-	worldPosition.y = gameObject_->GetWorldTransform().matWorld_.m[3][1];
-	worldPosition.z = gameObject_->GetWorldTransform().matWorld_.m[3][2];
-	return worldPosition;
+
 }
 
-const WorldTransform& Collider::GetWorldTransform() const
+void Collider::OnCollision(GameObject* other)
 {
-	return gameObject_->GetWorldTransform();
+	owner_->OnCollision(other);
+}
+
+void Collider::OnCollisionEnter(GameObject* other)
+{
+	owner_->OnCollisionEnter(other);
+}
+
+void Collider::OnCollisionExit(GameObject* other)
+{
+	owner_->OnCollisionExit(other);
 }

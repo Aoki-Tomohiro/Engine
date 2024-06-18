@@ -1,6 +1,9 @@
 #include "LevelLoader.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Collision/AABBCollider.h"
 
 const std::string LevelLoader::kBaseDirectory = "Application/Resources/LevelData/";
 
@@ -154,29 +157,32 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	{
 		//ファイル名から登録済みのモデルを検索
 		Model* model = ModelManager::CreateFromModelFile(objectData.modelName, Opaque);
+
 		//3Dオブジェクトを生成
-		IGameObject* newObject = GameObjectManager::CreateGameObject(objectData.objectName);
-		//モデルを設定
-		newObject->SetModel(model);
-		//座標
-		newObject->SetPosition(objectData.translation);
-		//回転角
-		newObject->SetRotation(objectData.rotation);
-		//スケール
-		newObject->SetScale(objectData.scaling);
+		GameObject* newObject = GameObjectManager::CreateGameObject(objectData.objectName);
+
+		//トランスフォームの追加
+		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
+		transformComponent->translation_ = objectData.translation;
+		transformComponent->rotation_ = objectData.rotation;
+		transformComponent->scale_ = objectData.scaling;
+
+		//モデルの追加
+		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
+		modelComponent->SetModel(model);
+		modelComponent->SetTransformComponent(transformComponent);
+
 		//Typeが無かったらColliderがないとみなす
 		if (objectData.colliderData.type != "")
 		{
-			Collider* collider = new Collider();
-			newObject->SetCollider(collider);
 			if (objectData.colliderData.type == "BOX")
 			{
-				AABB aabb = { .min{objectData.colliderData.center - objectData.colliderData.size / 2.0f},.max{objectData.colliderData.center + objectData.colliderData.size / 2.0f} };
-				collider->SetAABB(aabb);
-				collider->SetCollisionPrimitive(kCollisionPrimitiveAABB);
+				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
+				collider->SetTransformComponent(transformComponent);
 			}
 		}
 	}
+
 	//レベルデータからすべてのカメラを生成
 	for (auto& cameraData : levelData->cameras)
 	{

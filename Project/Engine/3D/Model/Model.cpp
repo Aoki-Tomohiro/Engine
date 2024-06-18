@@ -46,25 +46,20 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 	drawPass_ = drawPass;
 }
 
-void Model::Update(WorldTransform& worldTransform, const uint32_t animationNumber)
+void Model::Update(WorldTransform& worldTransform, const std::string& animationName)
 {
 	//アニメーションの更新を行って、骨ごとのLocal情報を更新する
-	animation_->ApplyAnimation(modelData_.rootNode.name, animationNumber);
-
-	//アニメーションを適用
-	worldTransform.matWorld_ = animation_->GetLocalMatrix() * worldTransform.matWorld_;
+	animation_->ApplyAnimation(worldTransform, modelData_.rootNode.name, animationName);
 
 	//アニメーションの更新
 	animation_->Update();
 
+	//メッシュの更新
 	for (uint32_t i = 0; i < modelData_.meshData.size(); ++i)
 	{
 		meshes_[i]->Update(animation_->GetSkeleton().joints);
 	}
-}
 
-void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
-{
 	//マテリアルの更新
 	for (std::unique_ptr<Material>& material : materials_)
 	{
@@ -77,7 +72,10 @@ void Model::Draw(WorldTransform& worldTransform, const Camera& camera)
 		worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
 		worldTransform.TransferMatrix();
 	}
+}
 
+void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
+{
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
 	//SortObjectの追加

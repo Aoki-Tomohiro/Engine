@@ -309,12 +309,6 @@
     <ClCompile Include="Engine\Framework\Game\GameCore.cpp">
       <Filter>ソース ファイル\Engine\Framework\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
-      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Framework\Object\IGameObject.cpp">
-      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Framework\Scene\SceneManager.cpp">
       <Filter>ソース ファイル\Engine\Framework\Scene</Filter>
     </ClCompile>
@@ -436,6 +430,39 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\Component.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\RenderComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Framework\Object\GameObject.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\TransformComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\ModelComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\AABBCollider.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Enemy.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -571,12 +598,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Framework\Scene\AbstractSceneFactory.h">
       <Filter>ヘッダー ファイル\Engine\Framework\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Framework\Object\IGameObject.h">
-      <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Framework\Object\GameObjectManager.h">
-      <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Framework\Game\GameCore.h">
       <Filter>ヘッダー ファイル\Engine\Framework\Game</Filter>
@@ -726,6 +747,39 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\RWStructuredBuffer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\Component.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\RenderComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Framework\Object\GameObject.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\TransformComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\ModelComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\SphereCollider.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\AABBCollider.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\OBBCollider.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Enemy.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Framework\Object\GameObjectManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
