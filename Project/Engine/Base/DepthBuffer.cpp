@@ -80,7 +80,7 @@ void DepthBuffer::CreateDerivedViews(ID3D12Device* device, DXGI_FORMAT format)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Format = (format == DXGI_FORMAT_D32_FLOAT) ? DXGI_FORMAT_R32_FLOAT : format;
+		srvDesc.Format = (format == DXGI_FORMAT_D24_UNORM_S8_UINT) ? DXGI_FORMAT_R24_UNORM_X8_TYPELESS : format;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvHandle_ = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);

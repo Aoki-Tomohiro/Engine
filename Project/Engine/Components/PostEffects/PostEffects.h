@@ -6,6 +6,7 @@
 #include "Vignette.h"
 #include "GrayScale.h"
 #include "BoxFilter.h"
+#include "Outline.h"
 
 class PostEffects
 {
@@ -39,6 +40,8 @@ public:
 	GrayScale* GetGrayScale() const { return grayScale_.get(); };
 
 	BoxFilter* GetBoxFilter() const { return boxFilter_.get(); };
+
+	Outline* GetOutline() const { return outline_.get(); };
 
 private:
 	PostEffects() = default;
@@ -76,6 +79,8 @@ private:
 	std::unique_ptr<GrayScale> grayScale_ = nullptr;
 
 	std::unique_ptr<BoxFilter> boxFilter_ = nullptr;
+
+	std::unique_ptr<Outline> outline_ = nullptr;
 
 	bool isEnable_ = false;
 };

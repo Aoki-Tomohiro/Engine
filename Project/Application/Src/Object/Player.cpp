@@ -7,9 +7,11 @@ void Player::Initialize()
 
 	//トランスフォームの追加
 	transformComponent_ = AddComponent<TransformComponent>();
+	transformComponent_->translation_ = { 0.0f,3.0f,0.0f };
+	transformComponent_->scale_ = { 3.0f,3.0f,3.0f };
 
 	//モデルの追加
-	model_ = ModelManager::CreateFromModelFile("Sphere", Opaque);
+	model_ = ModelManager::CreateFromModelFile("MonsterBall", Opaque);
 	modelComponent_ = AddComponent<ModelComponent>();
 	modelComponent_->SetModel(model_);
 	modelComponent_->SetTransformComponent(transformComponent_);

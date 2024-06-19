@@ -219,9 +219,9 @@ PixelShaderOutput main(VertexShaderOutput input)
         }
         
         //環境マップのLighting
-        float32_t3 reflectedVector = reflect(input.cameraToPosition, normalize(input.normal));
-        float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
-        finalColor.rgb *= environmentColor.rgb * gMaterial.environmentCoefficient;
+        //float32_t3 reflectedVector = reflect(input.cameraToPosition, normalize(input.normal));
+        //float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
+        //finalColor.rgb *= environmentColor.rgb * gMaterial.environmentCoefficient;
     }
     else
     {

@@ -39,5 +39,7 @@ private:
 
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
+
+	ConstBuffDataOutline outlineData{};
 };
 

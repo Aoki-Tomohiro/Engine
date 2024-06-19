@@ -38,7 +38,7 @@ void Renderer::Initialize()
 
 	//深度バッファの作成
 	sceneDepthBuffer_ = std::make_unique<DepthBuffer>();
-	sceneDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	sceneDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, true);
 
 	//LightManagerを作成
 	lightManager_ = LightManager::GetInstance();
@@ -230,6 +230,7 @@ void Renderer::PreDraw()
 
 	//リソースの状態遷移
 	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*sceneDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	//レンダーターゲットとデプスバッファを設定
@@ -270,6 +271,7 @@ void Renderer::PostDraw()
 {
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext->TransitionResource(*sceneDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
