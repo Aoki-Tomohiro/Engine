@@ -104,6 +104,8 @@ struct ConstBuffDataBloom
 struct ConstBuffDataFog
 {
 	int32_t isEnable;
+	int32_t padding[3];
+	Matrix4x4 projectionInverse;
 	float scale;
 	float attenuationRate;
 };
@@ -111,6 +113,8 @@ struct ConstBuffDataFog
 struct ConstBuffDataDoF
 {
 	int32_t isEnable;
+	int32_t padding[3];
+	Matrix4x4 projectionInverse;
 	float focusDepth;
 	float nFocusWidth;
 	float fFocusWidth;

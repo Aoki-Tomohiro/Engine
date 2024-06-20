@@ -1,6 +1,7 @@
 #include "DepthOfField.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/Renderer.h"
+#include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/ShaderCompiler.h"
 
 void DepthOfField::Initialize()
@@ -16,12 +17,16 @@ void DepthOfField::Initialize()
 
 	//PipelineStateの生成
 	CreatePipelineState();
+
+	//逆プロジェクション行列の初期化
+	projectionInverse_ = Mathf::Inverse(Mathf::MakePerspectiveFovMatrix(45.0f * 3.141592654f / 180.0f, 1280.0f / 720.0f, 0.1f, 1000.0f));
 }
 
 void DepthOfField::Update()
 {
 	ConstBuffDataDoF* dofData = static_cast<ConstBuffDataDoF*>(constBuff_->Map());
 	dofData->isEnable = isEnable_;
+	dofData->projectionInverse = projectionInverse_;
 	dofData->focusDepth = focusDepth_;
 	dofData->nFocusWidth = nFocusWidth_;
 	dofData->fFocusWidth = fFocusWidth_;
@@ -49,7 +54,7 @@ void DepthOfField::Apply(const DescriptorHandle& srvHandle)
 	commandContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetLinearDepthDescriptorHandle());
+	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneDepthDescriptorHandle());
 	commandContext->SetDescriptorTable(1, srvHandle);
 
 	//CBVを設定
@@ -73,7 +78,7 @@ void DepthOfField::Apply(const DescriptorHandle& srvHandle)
 void DepthOfField::CreatePipelineState()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(3, 1);
+	rootSignature_.Create(3, 2);
 
 	//RootParameterの設定
 	rootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -81,14 +86,21 @@ void DepthOfField::CreatePipelineState()
 	rootSignature_[2].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[2]{};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
 	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
+	staticSamplers[1].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;//ポイントフィルタ
+	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
+	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[1].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
+	staticSamplers[1].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
 	rootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_.InitStaticSampler(1, staticSamplers[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	rootSignature_.Finalize();
 
 	//InputLayout

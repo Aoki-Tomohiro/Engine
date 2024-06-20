@@ -72,7 +72,7 @@ void GameTitleScene::Update()
 
 	//PostEffects
 	PostEffects* postEffects = PostEffects::GetInstance();
-	postEffects->SetIsEnable(true);
+	postEffects->SetIsEnable(false);
 	postEffects->GetOutline()->SetIsEnable(outlineData.isEnable);
 	postEffects->GetOutline()->SetProjectionInverse(outlineData.projectionInverse);
 	postEffects->GetOutline()->SetCoefficient(outlineData.coefficient);

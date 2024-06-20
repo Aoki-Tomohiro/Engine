@@ -50,6 +50,8 @@ private:
 	//調整項目
 	int32_t isEnable_ = false;
 
+	Matrix4x4 projectionInverse_{};
+
 	float focusDepth_ = 0.02f;
 
 	float nFocusWidth_ = 0.005f;

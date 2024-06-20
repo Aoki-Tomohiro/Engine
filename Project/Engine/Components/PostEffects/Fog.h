@@ -19,6 +19,10 @@ public:
 
 	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };
 
+	const Matrix4x4& GetProjectionInverse() const { return projectionInverse_; };
+
+	void SetProjectionInverse(const Matrix4x4& projectionInverse) { projectionInverse_ = projectionInverse; };
+
 	const float GetScale() const { return scale_; };
 
 	void SetScale(const float scale) { scale_ = scale; };
@@ -47,6 +51,8 @@ private:
 
 	//調整項目
 	int32_t isEnable_ = false;
+
+	Matrix4x4 projectionInverse_{};
 
 	float scale_ = 0.5f;
 

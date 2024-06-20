@@ -15,13 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "\u7403",
-            "rotation" : [
-                0,
-                0.7071068286895752,
-                0,
-                0.7071068286895752
-            ]
+            "name" : "\u7403"
         }
     ],
     "materials" : [
@@ -70,29 +64,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 1984,
+            "count" : 559,
             "max" : [
-                0.9999997019767761,
+                0.9999993443489075,
                 1,
-                0.9999993443489075
+                0.9999990463256836
             ],
             "min" : [
-                -0.9999990463256836,
                 -1,
-                -1
+                -1,
+                -0.9999997019767761
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 1984,
+            "count" : 559,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 1984,
+            "count" : 559,
             "type" : "VEC2"
         },
         {
@@ -105,26 +99,26 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 23808,
+            "byteLength" : 6708,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 23808,
-            "byteOffset" : 23808,
+            "byteLength" : 6708,
+            "byteOffset" : 6708,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 15872,
-            "byteOffset" : 47616,
+            "byteLength" : 4472,
+            "byteOffset" : 13416,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 5760,
-            "byteOffset" : 63488,
+            "byteOffset" : 17888,
             "target" : 34963
         }
     ],
@@ -136,7 +130,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 69248,
+            "byteLength" : 23648,
             "uri" : "MonsterBall.bin"
         }
     ]

@@ -37,6 +37,7 @@ void ParticleSystem::Initialize()
 		//モデルの作成
 		defaultModel_ = std::make_unique<Model>();
 		defaultModel_->Initialize(modelData, animationData, Transparent);
+		defaultModel_->GetMaterial(0)->SetTexture("DefaultParticle.png");
 	}
 
 	CreateInstancingResource();

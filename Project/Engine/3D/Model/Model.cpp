@@ -82,19 +82,14 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 	for (uint32_t i = 0; i < meshes_.size(); ++i)
 	{
 		uint32_t materialIndex = meshes_[i]->GetMaterialIndex();
+		renderer_->AddObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(), materials_[materialIndex]->GetConstantBuffer()->GetGpuVirtualAddress(),
+			worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
+			materials_[materialIndex]->GetTexture()->GetSRVHandle(), UINT(meshes_[i]->GetIndicesSize()), drawPass_);
 		if (meshes_[i]->GetHasSkinCluster())
 		{
-			renderer_->AddSkinningObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(), materials_[materialIndex]->GetConstantBuffer()->GetGpuVirtualAddress(),
-				worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-				materials_[materialIndex]->GetTexture()->GetSRVHandle(), meshes_[i]->GetPaletteResource()->GetSRVHandle(), meshes_[i]->GetInputVerticesBuffer()->GetSRVHandle(),
+			renderer_->AddSkinningObject(meshes_[i]->GetPaletteResource()->GetSRVHandle(), meshes_[i]->GetInputVerticesBuffer()->GetSRVHandle(),
 				meshes_[i]->GetInfluenceResource()->GetSRVHandle(), meshes_[i]->GetSkinningInformationBuffer()->GetGpuVirtualAddress(), meshes_[i]->GetOutputVerticesBuffer(),
-				UINT(meshes_[i]->GetIndicesSize()), UINT(meshes_[i]->GetVerticesSize()), drawPass_);
-		}
-		else
-		{
-			renderer_->AddObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(), materials_[materialIndex]->GetConstantBuffer()->GetGpuVirtualAddress(),
-				worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-				materials_[materialIndex]->GetTexture()->GetSRVHandle(), UINT(meshes_[i]->GetIndicesSize()), drawPass_);
+				UINT(meshes_[i]->GetVerticesSize()));
 		}
 	}
 

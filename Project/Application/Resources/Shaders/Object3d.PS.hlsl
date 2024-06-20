@@ -62,7 +62,6 @@ ConstantBuffer<LightGroup> gLightGroup : register(b1);
 struct PixelShaderOutput
 {
     float32_t4 color : SV_TARGET0;
-    float32_t depth : SV_TARGET1;
 };
 
 PixelShaderOutput main(VertexShaderOutput input)
@@ -219,9 +218,12 @@ PixelShaderOutput main(VertexShaderOutput input)
         }
         
         //環境マップのLighting
-        //float32_t3 reflectedVector = reflect(input.cameraToPosition, normalize(input.normal));
-        //float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
-        //finalColor.rgb *= environmentColor.rgb * gMaterial.environmentCoefficient;
+        if (gMaterial.specularReflectionType < 2)
+        {
+            float32_t3 reflectedVector = reflect(input.cameraToPosition, normalize(input.normal));
+            float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
+            finalColor.rgb += environmentColor.rgb * gMaterial.environmentCoefficient;
+        }
     }
     else
     {
@@ -232,8 +234,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     output.color.rgb = finalColor.rgb;
     //アルファは今まで道り
     output.color.a = gMaterial.color.a * textureColor.a;
-    //深度
-    output.depth = input.depth;
     
     //output.colorのa値が0のときにPixelを棄却
     if (output.color.a == 0.0f)

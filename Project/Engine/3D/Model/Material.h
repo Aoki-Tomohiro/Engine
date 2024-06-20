@@ -98,7 +98,7 @@ private:
 
 	Vector3 specularColor_ = { 1.0f,1.0f,1.0f };
 
-	float environmentCoefficient_ = 0.6f;
+	float environmentCoefficient_ = 0.1f;
 
 	const Texture* texture_ = nullptr;
 };
