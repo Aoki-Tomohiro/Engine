@@ -4,7 +4,7 @@
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
 
-class Fog
+class Outline
 {
 public:
 	void Initialize();
@@ -12,8 +12,6 @@ public:
 	void Update();
 
 	void Apply(const DescriptorHandle& srvHandle);
-
-	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
 
 	const bool GetIsEnable() const { return isEnable_; };
 
@@ -23,13 +21,11 @@ public:
 
 	void SetProjectionInverse(const Matrix4x4& projectionInverse) { projectionInverse_ = projectionInverse; };
 
-	const float GetScale() const { return scale_; };
+	const float GetCoefficient() const { return coefficient_; };
 
-	void SetScale(const float scale) { scale_ = scale; };
+	void SetCoefficient(const float coefficient) { coefficient_ = coefficient; };
 
-	const float GetAttenuationRate() const { return attenuationRate_; };
-
-	void SetAttenuationRate(const float attenuationRate) { attenuationRate_ = attenuationRate; };
+	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
 
 	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
 
@@ -52,10 +48,10 @@ private:
 	//調整項目
 	int32_t isEnable_ = false;
 
+	//逆プロジェクション行列
 	Matrix4x4 projectionInverse_{};
 
-	float scale_ = 0.5f;
-
-	float attenuationRate_ = 2.0f;
+	//係数
+	float coefficient_ = 1.0f;
 };
 

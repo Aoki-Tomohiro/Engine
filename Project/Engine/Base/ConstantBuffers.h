@@ -103,7 +103,9 @@ struct ConstBuffDataBloom
 
 struct ConstBuffDataFog
 {
-	bool isEnable;
+	int32_t isEnable;
+	int32_t padding[3];
+	Matrix4x4 projectionInverse;
 	float scale;
 	float attenuationRate;
 };
@@ -111,6 +113,8 @@ struct ConstBuffDataFog
 struct ConstBuffDataDoF
 {
 	int32_t isEnable;
+	int32_t padding[3];
+	Matrix4x4 projectionInverse;
 	float focusDepth;
 	float nFocusWidth;
 	float fFocusWidth;
@@ -118,14 +122,14 @@ struct ConstBuffDataDoF
 
 struct ConstBuffDataLensDistortion
 {
-	bool isEnable;
+	int32_t isEnable;
 	float tightness;
 	float strength;
 };
 
 struct ConstBuffDataVignette
 {
-	bool isEnable;
+	int32_t isEnable;
 	float scale;
 	float intensity;
 };
@@ -146,4 +150,12 @@ enum KernelSize
 {
 	k3x3,
 	k5x5
+};
+
+struct ConstBuffDataOutline
+{
+	int32_t isEnable;
+	int32_t padding[3];
+	Matrix4x4 projectionInverse;
+	float coefficient;
 };

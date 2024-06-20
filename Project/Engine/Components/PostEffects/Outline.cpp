@@ -1,10 +1,10 @@
-#include "DepthOfField.h"
+#include "Outline.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/ShaderCompiler.h"
 
-void DepthOfField::Initialize()
+void Outline::Initialize()
 {
 	//ColorBufferの生成
 	colorBuffer_ = std::make_unique<ColorBuffer>();
@@ -12,7 +12,7 @@ void DepthOfField::Initialize()
 
 	//ConstBufferの生成
 	constBuff_ = std::make_unique<UploadBuffer>();
-	constBuff_->Create(sizeof(ConstBuffDataDoF));
+	constBuff_->Create(sizeof(ConstBuffDataOutline));
 	Update();
 
 	//PipelineStateの生成
@@ -22,18 +22,16 @@ void DepthOfField::Initialize()
 	projectionInverse_ = Mathf::Inverse(Mathf::MakePerspectiveFovMatrix(45.0f * 3.141592654f / 180.0f, 1280.0f / 720.0f, 0.1f, 1000.0f));
 }
 
-void DepthOfField::Update()
+void Outline::Update()
 {
-	ConstBuffDataDoF* dofData = static_cast<ConstBuffDataDoF*>(constBuff_->Map());
-	dofData->isEnable = isEnable_;
-	dofData->projectionInverse = projectionInverse_;
-	dofData->focusDepth = focusDepth_;
-	dofData->nFocusWidth = nFocusWidth_;
-	dofData->fFocusWidth = fFocusWidth_;
+	ConstBuffDataOutline* outlineData = static_cast<ConstBuffDataOutline*>(constBuff_->Map());
+	outlineData->isEnable = isEnable_;
+	outlineData->projectionInverse = projectionInverse_;
+	outlineData->coefficient = coefficient_;
 	constBuff_->Unmap();
 }
 
-void DepthOfField::Apply(const DescriptorHandle& srvHandle)
+void Outline::Apply(const DescriptorHandle& srvHandle)
 {
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
@@ -75,7 +73,7 @@ void DepthOfField::Apply(const DescriptorHandle& srvHandle)
 	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void DepthOfField::CreatePipelineState()
+void Outline::CreatePipelineState()
 {
 	//RootSignatureの作成
 	rootSignature_.Create(3, 2);
@@ -131,11 +129,11 @@ void DepthOfField::CreatePipelineState()
 
 	//シェーダーをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
-	vertexShaderBlob = ShaderCompiler::CompileShader(L"DepthOfField.VS.hlsl", L"vs_6_0");
+	vertexShaderBlob = ShaderCompiler::CompileShader(L"Outline.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
-	pixelShaderBlob = ShaderCompiler::CompileShader(L"DepthOfField.PS.hlsl", L"ps_6_0");
+	pixelShaderBlob = ShaderCompiler::CompileShader(L"Outline.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	//書き込むRTVの情報

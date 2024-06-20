@@ -10,7 +10,9 @@
 enum DrawPass
 {
 	Opaque,
+	SkinningOpaque,
 	Transparent,
+	SkinningTransparent,
 	NumTypes,
 };
 
@@ -66,6 +68,15 @@ public:
 
 	void Initialize();
 
+	//void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	//	D3D12_INDEX_BUFFER_VIEW indexBufferView,
+	//	D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
+	//	D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+	//	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
+	//	D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
+	//	UINT indexCount,
+	//	DrawPass drawPass);
+
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
@@ -75,20 +86,12 @@ public:
 		UINT indexCount,
 		DrawPass drawPass);
 
-	void AddSkinningObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
-		D3D12_INDEX_BUFFER_VIEW indexBufferView,
-		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
-		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
-		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
-		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
-		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV,
+	void AddSkinningObject(D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV,
 		D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV,
 		D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV,
 		D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV,
 		RWStructuredBuffer* outpuVerticesBuffer,
-		UINT indexCount,
-		UINT vertexCount,
-		DrawPass drawPass);
+		UINT vertexCount);
 
 	void AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
@@ -119,7 +122,7 @@ public:
 
 	const DescriptorHandle& GetSceneColorDescriptorHandle() const { return sceneColorBuffer_->GetSRVHandle(); };
 
-	const DescriptorHandle& GetLinearDepthDescriptorHandle() const { return linearDepthColorBuffer_->GetSRVHandle(); };
+	const DescriptorHandle& GetSceneDepthDescriptorHandle() const { return sceneDepthBuffer_->GetSRVHandle(); };
 
 private:
 	Renderer() = default;
@@ -127,8 +130,7 @@ private:
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;
 
-	struct SortObject
-	{
+	struct SortObject {
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 		D3D12_INDEX_BUFFER_VIEW indexBufferView;
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
@@ -137,23 +139,17 @@ private:
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
 		UINT indexCount;
 		DrawPass type;
+		bool hasSkinCluster;
 	};
 
-	struct SkinningSortObject {
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-		D3D12_INDEX_BUFFER_VIEW indexBufferView;
-		D3D12_GPU_VIRTUAL_ADDRESS materialCBV;
-		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
-		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
-		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+	struct SkinningObject
+	{
 		D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV;
 		D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV;
 		D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV;
 		D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV;
 		RWStructuredBuffer* outpuVerticesBuffer;
-		UINT indexCount;
 		UINT vertexCount;
-		DrawPass type;
 	};
 
 	struct Bone
@@ -178,26 +174,24 @@ private:
 
 	void Sort();
 
-	void SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState);
+	//void SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState);
 
-	void RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects);
+	//void RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects);
 
-	void RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects);
+	//void RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects);
 
-	void RenderBones(CommandContext* commandContext);
+	//void RenderBones(CommandContext* commandContext);
 
 private:
 	static Renderer* instance_;
 
 	std::vector<SortObject> sortObjects_{};
 
-	std::vector<SkinningSortObject> skinningSortObjects_{};
+	std::vector<SkinningObject> skinningObjects_{};
 
 	std::vector<Bone> bones_{};
 
 	std::unique_ptr<ColorBuffer> sceneColorBuffer_ = nullptr;
-
-	std::unique_ptr<ColorBuffer> linearDepthColorBuffer_ = nullptr;
 
 	std::unique_ptr<DepthBuffer> sceneDepthBuffer_ = nullptr;
 

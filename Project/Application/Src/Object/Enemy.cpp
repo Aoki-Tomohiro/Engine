@@ -7,9 +7,11 @@ void Enemy::Initialize()
 
 	//トランスフォームの追加
 	transformComponent_ = AddComponent<TransformComponent>();
+	transformComponent_->rotation_ = { 0.0f,-1.57f,0.0f };
+	transformComponent_->scale_ = { 3.0f,3.0f,3.0f };
 
 	//モデルの追加
-	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
+	model_ = ModelManager::CreateFromModelFile("terrain", Opaque);
 	modelComponent_ = AddComponent<ModelComponent>();
 	modelComponent_->SetModel(model_);
 	modelComponent_->SetTransformComponent(transformComponent_);

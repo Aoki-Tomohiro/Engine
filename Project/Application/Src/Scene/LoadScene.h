@@ -19,11 +19,5 @@ public:
 
 private:
 	Renderer* renderer_ = nullptr;
-
-	std::unique_ptr<Sprite> loadSprite_ = nullptr;
-
-	int timer_ = 0;
-
-	int animationCount_ = 0;
 };
 

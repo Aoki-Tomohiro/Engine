@@ -63,6 +63,10 @@ void PostEffects::Initialize()
 	//BoxFilterの初期化
 	boxFilter_ = std::make_unique<BoxFilter>();
 	boxFilter_->Initialize();
+
+	//Outlineの初期化
+	outline_ = std::make_unique<Outline>();
+	outline_->Initialize();
 }
 
 void PostEffects::Update()
@@ -87,6 +91,9 @@ void PostEffects::Update()
 
 	//BoxFilterの更新
 	boxFilter_->Update();
+
+	//Outlineの更新
+	outline_->Update();
 }
 
 void PostEffects::Apply()
@@ -106,8 +113,11 @@ void PostEffects::Apply()
 		return;
 	}
 
+	//Outlineの適用
+	outline_->Apply(Renderer::GetInstance()->GetSceneColorDescriptorHandle());
+
 	//DepthOfFieldを適用
-	depthOfField_->Apply(Renderer::GetInstance()->GetSceneColorDescriptorHandle());
+	depthOfField_->Apply(outline_->GetDescriptorHandle());
 
 	//Bloomを適用
 	bloom_->Apply(depthOfField_->GetDescriptorHandle());

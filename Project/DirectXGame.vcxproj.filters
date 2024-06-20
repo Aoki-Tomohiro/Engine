@@ -465,6 +465,9 @@
     <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\PostEffects\Outline.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -782,6 +785,9 @@
     <ClInclude Include="Engine\Framework\Object\GameObjectManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\PostEffects\Outline.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
@@ -825,6 +831,7 @@
     <None Include="Application\Resources\Shaders\Skybox.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\Outline.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
@@ -903,5 +910,7 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Outline.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Outline.PS.hlsl" />
   </ItemGroup>
 </Project>

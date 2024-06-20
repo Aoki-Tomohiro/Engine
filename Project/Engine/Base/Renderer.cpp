@@ -31,14 +31,9 @@ void Renderer::Initialize()
 	sceneColorBuffer_ = std::make_unique<ColorBuffer>();
 	sceneColorBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 
-	//線形深度を描画するリソースの作成
-	float depthClearColor[] = { 1.0f,1.0f,1.0f,1.0f };
-	linearDepthColorBuffer_ = std::make_unique<ColorBuffer>();
-	linearDepthColorBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_R32_FLOAT, depthClearColor);
-
 	//深度バッファの作成
 	sceneDepthBuffer_ = std::make_unique<DepthBuffer>();
-	sceneDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	sceneDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, true);
 
 	//LightManagerを作成
 	lightManager_ = LightManager::GetInstance();
@@ -77,26 +72,16 @@ void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_
 	sortObjects_.push_back(sortObject);
 }
 
-void Renderer::AddSkinningObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, 
-	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV, D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV, D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV, 
-	D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV, RWStructuredBuffer* outpuVerticesBuffer, UINT indexCount, UINT vertexCount, DrawPass drawPass)
+void Renderer::AddSkinningObject(D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV, D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV, D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV, D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV, RWStructuredBuffer* outpuVerticesBuffer, UINT vertexCount)
 {
-	SkinningSortObject skinningSortObject{};
-	skinningSortObject.vertexBufferView = vertexBufferView;
-	skinningSortObject.indexBufferView = indexBufferView;
-	skinningSortObject.materialCBV = materialCBV;
-	skinningSortObject.worldTransformCBV = worldTransformCBV;
-	skinningSortObject.cameraCBV = cameraCBV;
-	skinningSortObject.textureSRV = textureSRV;
-	skinningSortObject.matrixPaletteSRV = matrixPaletteSRV;
-	skinningSortObject.inputVerticesSRV = inputVerticesSRV;
-	skinningSortObject.influencesSRV = influencesSRV;
-	skinningSortObject.outpuVerticesBuffer = outpuVerticesBuffer;
-	skinningSortObject.skinningInformationCBV = skinningInformationCBV;
-	skinningSortObject.indexCount = indexCount;
-	skinningSortObject.vertexCount = vertexCount;
-	skinningSortObject.type = drawPass;
-	skinningSortObjects_.push_back(skinningSortObject);
+	SkinningObject skinningObject{};
+	skinningObject.matrixPaletteSRV = matrixPaletteSRV;
+	skinningObject.inputVerticesSRV = inputVerticesSRV;
+	skinningObject.influencesSRV = influencesSRV;
+	skinningObject.outpuVerticesBuffer = outpuVerticesBuffer;
+	skinningObject.skinningInformationCBV = skinningInformationCBV;
+	skinningObject.vertexCount = vertexCount;
+	skinningObjects_.push_back(skinningObject);
 }
 
 void Renderer::AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, UINT vertexCount)
@@ -120,107 +105,96 @@ void Renderer::Render()
 	// 描画パスを設定
 	DrawPass currentRenderingType = Opaque;
 
-	// RootSignatureとPipelineState、ライト、環境テクスチャを設定
-	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[currentRenderingType]);
-
-	// 不透明モデルの描画
-	RenderObjects(commandContext, currentRenderingType, sortObjects_);
-
-	// 不透明スキニングモデルの描画
-	RenderSkinningObjects(commandContext, currentRenderingType, skinningSortObjects_);
-
-	// 描画パスを変更
-	currentRenderingType = Transparent;
-
-	// RootSignatureとPipelineState、ライト、環境テクスチャを再設定
-	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[currentRenderingType]);
-
-	// 透明モデルの描画
-	RenderObjects(commandContext, currentRenderingType, sortObjects_);
-
-	// 透明スキニングモデルの描画
-	RenderSkinningObjects(commandContext, currentRenderingType, skinningSortObjects_);
-
-	// Boneの描画
-	RenderBones(commandContext);
-
-	// 描画済みオブジェクトのリセット
-	sortObjects_.clear();
-	skinningSortObjects_.clear();
-	bones_.clear();
-}
-
-void Renderer::SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState)
-{
-	commandContext->SetRootSignature(rootSignature);
-	commandContext->SetPipelineState(pipelineState);
-	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
-	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
-}
-
-void Renderer::RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects)
-{
-	for (const SortObject& sortObject : objects) {
-		if (renderingType == sortObject.type) {
-			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
-		}
-	}
-}
-
-void Renderer::RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects)
-{
+	//RootSignatureを設定
 	commandContext->SetComputeRootSignature(skinningModelRootSignature_);
-	commandContext->SetPipelineState(skinningModelPipelineStates_[0]);
 
-	for (const SkinningSortObject& sortObject : objects) {
-		if (renderingType == sortObject.type) {
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext->SetComputeDescriptorTable(kMatrixPalette, sortObject.matrixPaletteSRV);
-			commandContext->SetComputeDescriptorTable(kInputVertices, sortObject.inputVerticesSRV);
-			commandContext->SetComputeDescriptorTable(kInfluences, sortObject.influencesSRV);
-			commandContext->SetComputeDescriptorTable(kOutputVertices, sortObject.outpuVerticesBuffer->GetUAVHandle());
-			commandContext->SetComputeConstantBuffer(kSkinningInformation, sortObject.skinningInformationCBV);
-			commandContext->Dispatch(sortObject.vertexCount + 1023 / 1024, 1, 1);
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-		}
+	//PipelineStateを設定
+	commandContext->SetPipelineState(skinningModelPipelineStates_[currentRenderingType]);
+
+	//SkinningObjectの描画
+	for (const SkinningObject& skinningObject : skinningObjects_)
+	{
+		commandContext->TransitionResource(*skinningObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext->SetComputeDescriptorTable(kMatrixPalette, skinningObject.matrixPaletteSRV);
+		commandContext->SetComputeDescriptorTable(kInputVertices, skinningObject.inputVerticesSRV);
+		commandContext->SetComputeDescriptorTable(kInfluences, skinningObject.influencesSRV);
+		commandContext->SetComputeDescriptorTable(kOutputVertices, skinningObject.outpuVerticesBuffer->GetUAVHandle());
+		commandContext->SetComputeConstantBuffer(kSkinningInformation, skinningObject.skinningInformationCBV);
+		commandContext->Dispatch(skinningObject.vertexCount + 1023 / 1024, 1, 1);
+		commandContext->TransitionResource(*skinningObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	}
 
-	SetCommonStates(commandContext, modelRootSignature_, modelPipelineStates_[renderingType]);
+	//SkinningObjectをクリア
+	skinningObjects_.clear();
 
-	for (const SkinningSortObject& sortObject : objects) {
-		if (renderingType == sortObject.type) {
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-			commandContext->SetVertexBuffer(sortObject.vertexBufferView);
-			commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			commandContext->SetIndexBuffer(sortObject.indexBufferView);
-			commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
-			commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
-			commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
-			commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
-			commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
-			commandContext->TransitionResource(*sortObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//RootSignatureを設定
+	commandContext->SetRootSignature(modelRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
+
+	//Lightを設定
+	commandContext->SetConstantBuffer(kLight, lightManager_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//環境テクスチャを設定
+	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+
+	//オブジェクトの描画
+	for (const SortObject& sortObject : sortObjects_) {
+		//不透明オブジェクトに切り替わったらPSOも変える
+		if (currentRenderingType != sortObject.type) {
+			currentRenderingType = sortObject.type;
+			commandContext->SetPipelineState(modelPipelineStates_[currentRenderingType]);
 		}
-	}
-}
 
-void Renderer::RenderBones(CommandContext* commandContext)
-{
+		//VertexBufferViewを設定
+		commandContext->SetVertexBuffer(sortObject.vertexBufferView);
+		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//IndexBufferViewを設定
+		commandContext->SetIndexBuffer(sortObject.indexBufferView);
+		//マテリアルを設定
+		commandContext->SetConstantBuffer(kMaterial, sortObject.materialCBV);
+		//WorldTransformを設定
+		commandContext->SetConstantBuffer(kWorldTransform, sortObject.worldTransformCBV);
+		//Cameraを設定
+		commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
+		//Textureを設定
+		commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+		commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
+	}
+
+	//SortObjectをクリア
+	sortObjects_.clear();
+
+	//RootSignatureを設定
 	commandContext->SetRootSignature(boneRootSignature_);
+
+	//PipelineStateを設定
 	commandContext->SetPipelineState(bonePipelineStates_[0]);
-	for (const Bone& bone : bones_) {
+
+	//Boneの描画
+	for (const Bone& bone : bones_)
+	{
+		//VertexBufferを設定
 		commandContext->SetVertexBuffer(bone.vertexBufferView);
+
+		//形状を設定
 		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+		//WorldTransformを設定
 		commandContext->SetConstantBuffer(0, bone.worldTransformCBV);
+
+		//Cameraを設定
 		commandContext->SetConstantBuffer(1, bone.cameraCBV);
+
+		//描画
 		commandContext->DrawInstanced(bone.vertexCount, 1);
 	}
+
+	//Boneをクリア
+	bones_.clear();
 }
 
 void Renderer::PreDraw()
@@ -230,13 +204,11 @@ void Renderer::PreDraw()
 
 	//リソースの状態遷移
 	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext->TransitionResource(*sceneDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
 	//レンダーターゲットとデプスバッファを設定
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
-	rtvHandles[0] = sceneColorBuffer_->GetRTVHandle();
-	rtvHandles[1] = linearDepthColorBuffer_->GetRTVHandle();
-	commandContext->SetRenderTargets(2, rtvHandles, sceneDepthBuffer_->GetDSVHandle());
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = sceneColorBuffer_->GetRTVHandle();
+	commandContext->SetRenderTargets(1, &rtvHandle, sceneDepthBuffer_->GetDSVHandle());
 
 	//レンダーターゲットをクリア
 	ClearRenderTarget();
@@ -270,14 +242,13 @@ void Renderer::PostDraw()
 {
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	commandContext->TransitionResource(*sceneColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext->TransitionResource(*linearDepthColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext->TransitionResource(*sceneDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void Renderer::ClearRenderTarget()
 {
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	commandContext->ClearColor(*sceneColorBuffer_);
-	commandContext->ClearColor(*linearDepthColorBuffer_);
 }
 
 void Renderer::ClearDepthBuffer()
@@ -409,9 +380,7 @@ void Renderer::CreateModelPipelineState()
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	//書き込むRTVの情報
-	DXGI_FORMAT rtvFormats[2];
-	rtvFormats[0]  = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rtvFormats[1] = DXGI_FORMAT_R32_FLOAT;
+	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	//PSOを作成する
 	for (uint32_t i = 0; i < 2; i++) {
@@ -422,7 +391,7 @@ void Renderer::CreateModelPipelineState()
 		newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
 		newPipelineState.SetBlendState(blendDesc[i]);
 		newPipelineState.SetRasterizerState(rasterizerDesc);
-		newPipelineState.SetRenderTargetFormats(2, rtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		newPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
 		newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 		newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
 		newPipelineState.SetDepthStencilState(depthStencilDesc);
@@ -451,121 +420,6 @@ void Renderer::CreateSkinningModelPipelineState()
 	computePSO.Finalize();
 	skinningModelPipelineStates_.push_back(computePSO);
 }
-
-//void Renderer::CreateSkinningModelPipelineState()
-//{
-//	//RootSignatureの作成
-//	skinningModelRootSignature_.Create(7, 1);
-//
-//	//RootParameterを設定
-//	skinningModelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-//	skinningModelRootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-//	skinningModelRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-//	skinningModelRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-//	skinningModelRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
-//	skinningModelRootSignature_[5].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
-//	skinningModelRootSignature_[6].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-//
-//	//StaticSamplerを設定
-//	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
-//	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
-//	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
-//	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-//	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-//	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
-//	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-//	skinningModelRootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-//	skinningModelRootSignature_.Finalize();
-//
-//	//InputLayout
-//	D3D12_INPUT_ELEMENT_DESC inputElementDescs[5]{};
-//	inputElementDescs[0].SemanticName = "POSITION";
-//	inputElementDescs[0].SemanticIndex = 0;
-//	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-//	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//
-//	inputElementDescs[1].SemanticName = "TEXCOORD";
-//	inputElementDescs[1].SemanticIndex = 0;
-//	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-//	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//
-//	inputElementDescs[2].SemanticName = "NORMAL";
-//	inputElementDescs[2].SemanticIndex = 0;
-//	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-//	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//
-//	inputElementDescs[3].SemanticName = "WEIGHT";
-//	inputElementDescs[3].SemanticIndex = 0;
-//	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//float32_t4
-//	inputElementDescs[3].InputSlot = 1;//1番目のslotのVBVのことだと伝える
-//	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//
-//	inputElementDescs[4].SemanticName = "INDEX";
-//	inputElementDescs[4].SemanticIndex = 0;
-//	inputElementDescs[4].Format = DXGI_FORMAT_R32G32B32A32_SINT;//int32_t4
-//	inputElementDescs[4].InputSlot = 1;//1番目のslotのVBVのことだと伝える
-//	inputElementDescs[4].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//
-//	//Shaderをコンパイルする
-//	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"SkinningObject3d.VS.hlsl", L"vs_6_0");
-//	assert(vertexShaderBlob != nullptr);
-//	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"Object3d.PS.hlsl", L"ps_6_0");
-//	assert(pixelShaderBlob != nullptr);
-//
-//	//BlendStateの設定
-//	D3D12_BLEND_DESC blendDesc[2]{};
-//	//すべての色要素を書き込む
-//	blendDesc[0].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-//	//透明オブジェクトのBlendStateの設定
-//	blendDesc[1].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-//	//共通設定
-//	blendDesc[1].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
-//	blendDesc[1].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
-//	blendDesc[1].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
-//	blendDesc[1].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
-//	//半透明合成
-//	blendDesc[1].RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
-//	blendDesc[1].RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースのアルファ値
-//	blendDesc[1].RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;//1.0f-ソースのアルファ値
-//
-//	//RasterizerStateの設定
-//	D3D12_RASTERIZER_DESC rasterizerDesc{};
-//	//裏面(時計回り)を表示しない
-//	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-//	//三角形の中を塗りつぶす
-//	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-//
-//	//DepthStencilStateの設定
-//	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-//	//Depthの機能を有効化する
-//	depthStencilDesc.DepthEnable = true;
-//	//書き込みします
-//	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-//	//比較関数はLessEqual。つまり、近ければ描画される
-//	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-//
-//	//書き込むRTVの情報
-//	DXGI_FORMAT rtvFormats[2];
-//	rtvFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-//	rtvFormats[1] = DXGI_FORMAT_R32_FLOAT;
-//
-//	//PSOを作成する
-//	for (uint32_t i = 0; i < 2; i++) {
-//		GraphicsPSO newPipelineState;
-//		newPipelineState.SetRootSignature(&skinningModelRootSignature_);
-//		newPipelineState.SetInputLayout(5, inputElementDescs);
-//		newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-//		newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-//		newPipelineState.SetBlendState(blendDesc[i]);
-//		newPipelineState.SetRasterizerState(rasterizerDesc);
-//		newPipelineState.SetRenderTargetFormats(2, rtvFormats, DXGI_FORMAT_D24_UNORM_S8_UINT);
-//		newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-//		newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-//		newPipelineState.SetDepthStencilState(depthStencilDesc);
-//		newPipelineState.Finalize();
-//		skinningModelPipelineStates_.push_back(newPipelineState);
-//	}
-//}
 
 void Renderer::CreateSpritePipelineState()
 {
@@ -926,8 +780,6 @@ void Renderer::CreateDebugPipelineState()
 
 void Renderer::Sort()
 {
-	struct { bool operator()(const SkinningSortObject& a, const SkinningSortObject& b)const { return a.type < b.type; } } Cmp1;
-	std::sort(skinningSortObjects_.begin(), skinningSortObjects_.end(), Cmp1);
 	struct { bool operator()(const SortObject& a, const SortObject& b)const { return a.type < b.type; } } Cmp2;
 	std::sort(sortObjects_.begin(), sortObjects_.end(), Cmp2);
 }

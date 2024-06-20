@@ -1,5 +1,8 @@
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/ImGuiManager.h"
+#include "Engine/Math/MathFunction.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 
 void GameTitleScene::Initialize()
 {
@@ -11,6 +14,8 @@ void GameTitleScene::Initialize()
 
 	//カメラの初期化
 	camera_.Initialize();
+	camera_.translation_ = { 0.0f,12.3f,-50.0f };
+	camera_.rotation_ = { 0.157f,0.0f,0.0f };
 
 	//プレイヤーの生成
 	player_ = std::make_unique<Player>();
@@ -22,6 +27,10 @@ void GameTitleScene::Initialize()
 
 	//CollisionManagerの作成
 	collisionManager_ = std::make_unique<CollisionManager>();
+
+	outlineData.isEnable = false;
+	outlineData.projectionInverse = Mathf::Inverse(camera_.matProjection_);
+	outlineData.coefficient = 1.0f;
 }
 
 void GameTitleScene::Finalize()
@@ -39,6 +48,7 @@ void GameTitleScene::Update()
 
 	//カメラの更新
 	camera_.UpdateMatrix();
+	outlineData.projectionInverse = Mathf::Inverse(camera_.matProjection_);
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
@@ -51,6 +61,21 @@ void GameTitleScene::Update()
 		collisionManager_->SetColliderList(collider);
 	}
 	collisionManager_->CheckAllCollisions();
+
+	//ImGui
+	ImGui::Begin("GameTitleScene");
+	ImGui::DragFloat3("CameraTranslation", &camera_.translation_.x, 0.1f);
+	ImGui::DragFloat3("CameraRotation", &camera_.rotation_.x, 0.01f);
+	ImGui::DragInt("IsOutlineEnable", &outlineData.isEnable, 1, 0, 1);
+	ImGui::DragFloat("Coefficient", &outlineData.coefficient, 0.1f);
+	ImGui::End();
+
+	//PostEffects
+	PostEffects* postEffects = PostEffects::GetInstance();
+	postEffects->SetIsEnable(false);
+	postEffects->GetOutline()->SetIsEnable(outlineData.isEnable);
+	postEffects->GetOutline()->SetProjectionInverse(outlineData.projectionInverse);
+	postEffects->GetOutline()->SetCoefficient(outlineData.coefficient);
 }
 
 void GameTitleScene::Draw()
