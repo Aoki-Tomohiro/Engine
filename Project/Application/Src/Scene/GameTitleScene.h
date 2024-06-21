@@ -5,8 +5,9 @@
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Collision/CollisionManager.h"
 
-#include "Application/Src/Object/Player.h"
-#include "Application/Src/Object/Enemy.h"
+#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Transition/Transition.h"
 
 class GameTitleScene : public IScene
 {
@@ -37,9 +38,10 @@ private:
 	//敵
 	std::unique_ptr<Enemy> enemy_ = nullptr;
 
+	//トランジション
+	std::unique_ptr<Transition> transition_ = nullptr;
+
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
-
-	ConstBuffDataOutline outlineData{};
 };
 

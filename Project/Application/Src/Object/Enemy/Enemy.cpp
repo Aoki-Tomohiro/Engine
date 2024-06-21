@@ -11,7 +11,7 @@ void Enemy::Initialize()
 	transformComponent_->scale_ = { 3.0f,3.0f,3.0f };
 
 	//モデルの追加
-	model_ = ModelManager::CreateFromModelFile("terrain", Opaque);
+	model_ = ModelManager::CreateFromModelFile("MonsterBall", Opaque);
 	modelComponent_ = AddComponent<ModelComponent>();
 	modelComponent_->SetModel(model_);
 	modelComponent_->SetTransformComponent(transformComponent_);

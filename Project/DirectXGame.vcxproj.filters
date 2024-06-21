@@ -157,53 +157,41 @@
     <Filter Include="ヘッダー ファイル\Application\Object">
       <UniqueIdentifier>{f4a52438-51f2-43f3-a85d-2f363fc43a1d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Boss">
-      <UniqueIdentifier>{dddb1387-b8ad-4f1a-bd0d-671040449fbc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Player">
-      <UniqueIdentifier>{e1803123-b7a2-4796-9e11-71020241e29a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Ground">
-      <UniqueIdentifier>{d4a0bcb3-7439-4f86-bc24-3bb52eb8352f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Lockon">
-      <UniqueIdentifier>{3a66f208-59e2-405c-a938-a0db7f3edbe4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\FollowCamera">
-      <UniqueIdentifier>{37510561-fd55-42a4-9099-1d569a1e3353}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Boss\States">
-      <UniqueIdentifier>{596bab66-9dd0-41c2-8bcf-8bafc20f3a07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Boss">
-      <UniqueIdentifier>{b0e7f188-df7d-4b2b-bba6-06efcd78e988}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Boss\States">
-      <UniqueIdentifier>{f3ee9e55-7f3e-4984-89b3-1f456fde1e5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Ground">
-      <UniqueIdentifier>{ab8784c3-9f74-494e-a9cc-918824eae3c5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Lockon">
-      <UniqueIdentifier>{7e638385-5c1a-4009-b5a2-11f68159e909}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\FollowCamera">
-      <UniqueIdentifier>{2ed9d222-0674-413a-8531-eaeb1e88f065}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Player">
-      <UniqueIdentifier>{0751cded-eda2-4ffa-9525-07d63475323f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\3D\Skybox">
       <UniqueIdentifier>{f82dbdf5-7a57-4889-ba80-4a886547eb96}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Engine\3D\Skybox">
       <UniqueIdentifier>{2577eb0d-f1a1-4a0b-a400-0d42b862b8b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\BackGround">
-      <UniqueIdentifier>{82c05750-a420-45e1-a8dc-76ef4acfaed3}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\Components\Component">
+      <UniqueIdentifier>{1a5a3ad6-1cb8-4cd6-9737-90e47250098b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\BackGround">
-      <UniqueIdentifier>{6db21dbb-4269-4eb7-835b-4260126776ec}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Engine\LevelLoader">
+      <UniqueIdentifier>{030bbf98-5c28-4523-9112-b8da8d5270e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\3D\Transform">
+      <UniqueIdentifier>{bd462a55-1d9e-41aa-8b58-00903022bda9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\Component">
+      <UniqueIdentifier>{e188ebe7-077b-4db2-9446-b14be7f62680}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\LevelLoader">
+      <UniqueIdentifier>{e2cc4325-188b-4145-955f-fb773e07a1d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\3D\Transform">
+      <UniqueIdentifier>{e1fac954-aebd-4e44-9755-8293a1ec41fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Enemy">
+      <UniqueIdentifier>{5b976440-2fef-4e80-8b29-d4ab8d155a52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Player">
+      <UniqueIdentifier>{a99df4b4-295f-4778-93de-7aa42630c89c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Player">
+      <UniqueIdentifier>{1a6e4817-8176-4c51-a049-089293af8ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Enemy">
+      <UniqueIdentifier>{f6c62f99-0426-4a2b-829d-dce0c7f970f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -390,82 +378,85 @@
     <ClCompile Include="Engine\3D\Skybox\Skybox.cpp">
       <Filter>ソース ファイル\Engine\3D\Skybox</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\Collider.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Model.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Material.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Engine\Components\Collision\AABBCollider.cpp">
+      <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\Model\Animation.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\PSO.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp">
+      <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\GraphicsPSO.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Base\ComputePSO.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Engine\Components\Collision\Collider.cpp">
+      <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\Component\Component.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\Components\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\Component\RenderComponent.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Engine\Base\ComputePSO.cpp">
+      <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Framework\Object\GameObject.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\Component\TransformComponent.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Component\ModelComponent.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\AABBCollider.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Enemy.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp">
+      <Filter>ソース ファイル\Application\Object</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Framework\Object\GameObjectManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\Framework\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\GraphicsPSO.cpp">
+      <Filter>ソース ファイル\Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp">
+      <Filter>ソース ファイル\Engine\LevelLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Material.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Model.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\ModelComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp">
+      <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\PostEffects\Outline.cpp">
+      <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\PSO.cpp">
+      <Filter>ソース ファイル\Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\RenderComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp">
+      <Filter>ソース ファイル\Engine\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp">
+      <Filter>ソース ファイル\Engine\Components\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Component\TransformComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp">
+      <Filter>ソース ファイル\Engine\3D\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Enemy\Enemy.cpp">
+      <Filter>ソース ファイル\Application\Object\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\Player.cpp">
+      <Filter>ソース ファイル\Application\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -710,82 +701,85 @@
     <ClInclude Include="Engine\3D\Skybox\Skybox.h">
       <Filter>ヘッダー ファイル\Engine\3D\Skybox</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\LevelLoader\LevelLoader.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Engine\Components\Collision\AABBCollider.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\GameObjectFactory.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Transform\WorldTransform.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Model.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Mesh.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Material.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\ModelManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\Model\Animation.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Base\PSO.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\GraphicsPSO.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\ComputePSO.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\RWStructuredBuffer.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h">
+      <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Component\Component.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\Component\RenderComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Engine\Base\ComputePSO.h">
+      <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Framework\Object\GameObject.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\Component\TransformComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Component\ModelComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Collision\SphereCollider.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Collision\AABBCollider.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Collision\OBBCollider.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Enemy.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\GameObjectFactory.h">
+      <Filter>ヘッダー ファイル\Application\Object</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Framework\Object\GameObjectManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\GraphicsPSO.h">
+      <Filter>ヘッダー ファイル\Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\LevelLoader\LevelLoader.h">
+      <Filter>ヘッダー ファイル\Engine\LevelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Material.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Mesh.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Model.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\ModelComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\ModelManager.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\OBBCollider.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\PostEffects\Outline.h">
+      <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\PSO.h">
+      <Filter>ヘッダー ファイル\Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\RenderComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Base\RWStructuredBuffer.h">
+      <Filter>ヘッダー ファイル\Engine\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\SphereCollider.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Component\TransformComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Transform\WorldTransform.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Enemy\Enemy.h">
+      <Filter>ヘッダー ファイル\Application\Object\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Transition\Transition.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -831,7 +825,9 @@
     <None Include="Application\Resources\Shaders\Skybox.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Application\Resources\Shaders\Outline.hlsli" />
+    <None Include="Application\Resources\Shaders\Outline.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
@@ -888,9 +884,6 @@
     <FxCompile Include="Application\Resources\Shaders\PostEffects.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\SkinningObject3d.VS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Sprite.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -909,8 +902,14 @@
     <FxCompile Include="Application\Resources\Shaders\Skybox.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\Outline.VS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\Outline.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Skinning.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Outline.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Outline.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
