@@ -45,16 +45,10 @@ void Renderer::Initialize()
 	CreateSkinningModelPipelineState();
 
 	//DebugObject用のPSOの作成
-	CreateDebugPipelineState();
+	CreateBonePipelineState();
 
 	//スプライト用のPSOの作成
 	CreateSpritePipelineState();
-
-	//パーティクル用のPSOの作成
-	CreateParticlePipelineState();
-
-	//Skybox用のPSOの作成
-	CreateSkyboxPipelineState();
 }
 
 void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
@@ -268,36 +262,6 @@ void Renderer::PreDrawSprites(BlendMode blendMode)
 }
 
 void Renderer::PostDrawSprites() 
-{
-
-}
-
-void Renderer::PreDrawParticles()
-{
-	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	//RootSignatureを設定
-	commandContext->SetRootSignature(particleRootSignature_);
-	//PipelineStateを設定
-	commandContext->SetPipelineState(particlePipelineStates_[0]);
-}
-
-void Renderer::PostDrawParticles()
-{
-
-}
-
-void Renderer::PreDrawSkybox()
-{
-	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	//RootSignatureを設定
-	commandContext->SetRootSignature(skyboxRootSignature_);
-	//PipelineStateを設定
-	commandContext->SetPipelineState(skyboxPipelineStates_[0]);
-}
-
-void Renderer::PostDrawSkybox()
 {
 
 }
@@ -550,166 +514,7 @@ void Renderer::CreateSpritePipelineState()
 	}
 }
 
-void Renderer::CreateParticlePipelineState()
-{
-	particleRootSignature_.Create(4, 1);
-	particleRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-	particleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
-	particleRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-	particleRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-	particleRootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-	particleRootSignature_.Finalize();
-
-	//InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].SemanticName = "TEXCOORD";
-	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[2].SemanticName = "NORMAL";
-	inputElementDescs[2].SemanticIndex = 0;
-	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-	//BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-	//すべての色要素を書き込む
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	//共通設定
-	blendDesc.RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
-	//加算合成
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースの値を100%使う
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;//デストの値を100%使う
-
-	//RasterizerStateの設定
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-	//三角形の中を塗りつぶす
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"Particle.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"Particle.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
-
-	//DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	//Depthの機能を無効化する
-	depthStencilDesc.DepthEnable = false;
-	//書き込みしない
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	//比較関数はLessEqual。つまり、近ければ描画される
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-	//書き込むRTVの情報
-	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-	GraphicsPSO newPipelineState;
-	newPipelineState.SetRootSignature(&particleRootSignature_);
-	newPipelineState.SetInputLayout(3, inputElementDescs);
-	newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-	newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-	newPipelineState.SetBlendState(blendDesc);
-	newPipelineState.SetRasterizerState(rasterizerDesc);
-	newPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-	newPipelineState.SetDepthStencilState(depthStencilDesc);
-	newPipelineState.Finalize();
-	particlePipelineStates_.push_back(newPipelineState);
-}
-
-void Renderer::CreateSkyboxPipelineState()
-{
-	skyboxRootSignature_.Create(4, 1);
-	skyboxRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-	skyboxRootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	skyboxRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-	skyboxRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-	skyboxRootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-	skyboxRootSignature_.Finalize();
-
-	//InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1]{};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-	//BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-	//ブレンドなし
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-	//RasterizerStateの設定
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-	//三角形の中を塗りつぶす
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-
-	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"Skybox.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"Skybox.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
-
-	//DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	//比較はするのでDepth自体は有効
-	depthStencilDesc.DepthEnable = true;
-	//全ピクセルがz = 1に出力されるので、わざわざ書き込む必要がない
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	//今までと同様に比較
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-	//書き込むRTVの情報
-	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-	GraphicsPSO newPipelineState;
-	newPipelineState.SetRootSignature(&skyboxRootSignature_);
-	newPipelineState.SetInputLayout(1, inputElementDescs);
-	newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-	newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-	newPipelineState.SetBlendState(blendDesc);
-	newPipelineState.SetRasterizerState(rasterizerDesc);
-	newPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-	newPipelineState.SetDepthStencilState(depthStencilDesc);
-	newPipelineState.Finalize();
-	skyboxPipelineStates_.push_back(newPipelineState);
-}
-
-void Renderer::CreateDebugPipelineState()
+void Renderer::CreateBonePipelineState()
 {
 	boneRootSignature_.Create(2, 0);
 	boneRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);

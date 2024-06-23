@@ -1,15 +1,17 @@
 #pragma once
-#include "Engine/Components/Component/Component.h"
+#include "Engine/Components/Component/RenderComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include <cstdint>
 #include <set>
 
-class Collider : public Component
+class Collider : public RenderComponent
 {
 public:
 	void Initialize() override;
 
 	void Update() override;
+
+	void Draw(const Camera& camera) override;
 
 	void OnCollision(GameObject* other);
 
@@ -31,6 +33,8 @@ public:
 
 	bool IsCollidingWith(Collider* collider) const { return currentCollisions_.find(collider) != currentCollisions_.end(); };
 
+	bool SetDebugDrawEnabled(const bool debugDrawEnabled) { debugDrawEnabled_ = debugDrawEnabled; };
+
 	void SetTransformComponent(TransformComponent* tranformComponent) { transformComponent_ = tranformComponent; };
 
 protected:
@@ -41,5 +45,7 @@ protected:
 	uint32_t collisionAttribute_ = 0xffffffff;
 
 	uint32_t collisionMask_ = 0xffffffff;
+
+	bool debugDrawEnabled_ = false;
 };
 

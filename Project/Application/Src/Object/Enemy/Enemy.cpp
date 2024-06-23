@@ -7,13 +7,12 @@ void Enemy::Initialize()
 
 	//トランスフォームの追加
 	transformComponent_ = AddComponent<TransformComponent>();
-	transformComponent_->rotation_ = { 0.0f,-1.57f,0.0f };
-	transformComponent_->scale_ = { 3.0f,3.0f,3.0f };
+	transformComponent_->Initialize();
+	transformComponent_->worldTransform_.scale_ = { 3.0f,3.0f,3.0f };
 
 	//モデルの追加
-	model_ = ModelManager::CreateFromModelFile("MonsterBall", Opaque);
 	modelComponent_ = AddComponent<ModelComponent>();
-	modelComponent_->SetModel(model_);
+	modelComponent_->Initialize("MonsterBall", Opaque);
 	modelComponent_->SetTransformComponent(transformComponent_);
 
 	//コライダーの追加
@@ -26,9 +25,9 @@ void Enemy::Update()
 	GameObject::Update();
 
 	ImGui::Begin("Enemy");
-	ImGui::DragFloat3("Translation", &transformComponent_->translation_.x, 0.1f);
-	ImGui::DragFloat3("Rotation", &transformComponent_->rotation_.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transformComponent_->scale_.x, 0.01f);
+	ImGui::DragFloat3("Translation", &transformComponent_->worldTransform_.translation_.x, 0.1f);
+	ImGui::DragFloat3("Rotation", &transformComponent_->worldTransform_.rotation_.x, 0.01f);
+	ImGui::DragFloat3("Scale", &transformComponent_->worldTransform_.scale_.x, 0.01f);
 	ImGui::End();
 }
 

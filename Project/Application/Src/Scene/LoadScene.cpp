@@ -32,14 +32,6 @@ void LoadScene::Draw()
 	//3Dオブジェクト描画
 	renderer_->Render();
 #pragma endregion
-
-#pragma region パーティクル描画
-	//パーティクル描画前処理
-	renderer_->PreDrawParticles();
-
-	//パーティクル描画後処理
-	renderer_->PostDrawParticles();
-#pragma endregion
 }
 
 void LoadScene::DrawUI()

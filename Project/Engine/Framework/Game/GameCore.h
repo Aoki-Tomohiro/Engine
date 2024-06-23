@@ -11,6 +11,8 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/3D/Primitive/LineRenderer.h"
+#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/3D/Lights/LightManager.h"
 #include "Engine/Utilities/D3DResourceLeakChecker.h"
 #include <condition_variable>
@@ -50,9 +52,15 @@ protected:
 
 	Audio* audio_ = nullptr;
 
+	ParticleManager* particleManager_ = nullptr;
+
 	PostEffects* postEffects_ = nullptr;
 
 	SceneManager* sceneManager_ = nullptr;
+
+	LineRenderer* lineRenderer_ = nullptr;
+
+	Skybox* skybox_ = nullptr;
 
 	LightManager* lightManager_ = nullptr;
 

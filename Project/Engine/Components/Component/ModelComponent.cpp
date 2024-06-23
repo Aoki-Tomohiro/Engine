@@ -1,4 +1,12 @@
 #include "ModelComponent.h"
+#include "Engine/3D/Model/ModelManager.h"
+
+void ModelComponent::Initialize(const std::string& modelName, const DrawPass drawPass)
+{
+	model_ = ModelManager::CreateFromModelFile(modelName, drawPass);
+
+	Initialize();
+}
 
 void ModelComponent::Initialize()
 {
@@ -9,25 +17,15 @@ void ModelComponent::Update()
 {
 	if (transformComponent_ != nullptr)
 	{
-		worldTransform_.translation_ = transformComponent_->translation_;
-		worldTransform_.rotation_ = transformComponent_->rotation_;
-		worldTransform_.quaternion_ = transformComponent_->quaternion_;
-		worldTransform_.scale_ = transformComponent_->scale_;
-		worldTransform_.rotationType_ = transformComponent_->rotationType_;
+		worldTransform_ = transformComponent_->worldTransform_;
 	}
 
 	worldTransform_.UpdateMatrix();
 
-	if (model_ != nullptr)
-	{
-		model_->Update(worldTransform_, animationName_);
-	}
+	model_->Update(worldTransform_, animationName_);
 }
 
 void ModelComponent::Draw(const Camera& camera)
 {
-	if (model_ != nullptr)
-	{
-		model_->Draw(worldTransform_, camera);
-	}
+	model_->Draw(worldTransform_, camera);
 }

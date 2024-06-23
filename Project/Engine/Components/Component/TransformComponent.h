@@ -9,14 +9,6 @@ public:
 
 	void Update() override;
 
-	RotationType rotationType_;
-
-	Vector3 translation_{};
-
-	Vector3 rotation_{};
-
-	Vector3 scale_{};
-
-	Quaternion quaternion_{};
+	WorldTransform worldTransform_{};
 };
 

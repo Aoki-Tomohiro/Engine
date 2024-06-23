@@ -68,15 +68,6 @@ public:
 
 	void Initialize();
 
-	//void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
-	//	D3D12_INDEX_BUFFER_VIEW indexBufferView,
-	//	D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
-	//	D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
-	//	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
-	//	D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
-	//	UINT indexCount,
-	//	DrawPass drawPass);
-
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
@@ -111,14 +102,6 @@ public:
 	void PreDrawSprites(BlendMode blendMode);
 
 	void PostDrawSprites();
-
-	void PreDrawParticles();
-
-	void PostDrawParticles();
-
-	void PreDrawSkybox();
-
-	void PostDrawSkybox();
 
 	const DescriptorHandle& GetSceneColorDescriptorHandle() const { return sceneColorBuffer_->GetSRVHandle(); };
 
@@ -164,23 +147,11 @@ private:
 
 	void CreateSkinningModelPipelineState();
 
-	void CreateDebugPipelineState();
+	void CreateBonePipelineState();
 
 	void CreateSpritePipelineState();
 
-	void CreateParticlePipelineState();
-
-	void CreateSkyboxPipelineState();
-
 	void Sort();
-
-	//void SetCommonStates(CommandContext* commandContext, const RootSignature& rootSignature, const PSO& pipelineState);
-
-	//void RenderObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SortObject>& objects);
-
-	//void RenderSkinningObjects(CommandContext* commandContext, DrawPass renderingType, const std::vector<SkinningSortObject>& objects);
-
-	//void RenderBones(CommandContext* commandContext);
 
 private:
 	static Renderer* instance_;
@@ -205,10 +176,6 @@ private:
 
 	RootSignature spriteRootSignature_{};
 
-	RootSignature particleRootSignature_{};
-
-	RootSignature skyboxRootSignature_{};
-
 	std::vector<GraphicsPSO> modelPipelineStates_{};
 
 	std::vector<ComputePSO> skinningModelPipelineStates_{};
@@ -216,9 +183,5 @@ private:
 	std::vector<GraphicsPSO> bonePipelineStates_{};
 
 	std::vector<GraphicsPSO> spritePipelineStates_{};
-
-	std::vector<GraphicsPSO> particlePipelineStates_{};
-
-	std::vector<GraphicsPSO> skyboxPipelineStates_{};
 };
 

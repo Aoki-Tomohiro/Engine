@@ -32,12 +32,24 @@ void GameCore::Initialize()
 	audio_ = Audio::GetInstance();
 	audio_->Initialize();
 
+	//ParticleManagerの初期化
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Initialize();
+
 	//PostEffectsの初期化
 	postEffects_ = PostEffects::GetInstance();
 	postEffects_->Initialize();
 
 	//SceneManagerのインスタンスを取得
 	sceneManager_ = SceneManager::GetInstance();
+
+	//LineRendererの初期化
+	lineRenderer_ = LineRenderer::GetInstance();
+	lineRenderer_->Initialize();
+
+	//Skyboxの初期化
+	skybox_ = Skybox::GetInstance();
+	skybox_->Initialize();
 
 	//LightManagerの初期化
 	lightManager_ = LightManager::GetInstance();
@@ -51,6 +63,12 @@ void GameCore::Finalize()
 {
 	//LightManagerの開放
 	LightManager::Destroy();
+
+	//Skyboxの開放
+	Skybox::Destroy();
+
+	//LineRendererの開放
+	LineRenderer::Destroy();
 
 	//ModelManagerの解放
 	ModelManager::Destroy();
@@ -109,6 +127,9 @@ void GameCore::Update()
 	//GlovalVariablesの更新
 	GlobalVariables::GetInstance()->Update();
 
+	//Skyboxの更新
+	skybox_->Update();
+
 	//LightManagerの更新
 	lightManager_->Update();
 
@@ -124,6 +145,9 @@ void GameCore::Draw()
 	//描画前処理
 	renderer_->PreDraw();
 
+	//Skyboxの描画
+	skybox_->Draw();
+
 	//SceneManagerの描画
 	sceneManager_->Draw();
 
@@ -138,6 +162,12 @@ void GameCore::Draw()
 
 	//PostEffectsの描画
 	postEffects_->Draw();
+
+	//ラインの描画
+	lineRenderer_->Draw();
+
+	//パーティクルの描画
+	particleManager_->Draw();
 
 	//SceneManagerのスプライト描画
 	sceneManager_->DrawUI();

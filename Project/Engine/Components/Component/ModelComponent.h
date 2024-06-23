@@ -7,7 +7,7 @@
 class ModelComponent : public RenderComponent
 {
 public:
-	void Initialize() override;
+	void Initialize(const std::string& modelName, const DrawPass drawPass);
 
 	void Update() override;
 
@@ -20,6 +20,9 @@ public:
 	void SetAnimationName(const std::string& animationName) { animationName_ = animationName; };
 
 	void SetTransformComponent(TransformComponent* tranformComponent) { transformComponent_ = tranformComponent; };
+
+private:
+	void Initialize() override;
 
 private:
 	Model* model_ = nullptr;

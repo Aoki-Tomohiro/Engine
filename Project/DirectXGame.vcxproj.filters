@@ -193,6 +193,18 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Enemy">
       <UniqueIdentifier>{f6c62f99-0426-4a2b-829d-dce0c7f970f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\3D\Primitive">
+      <UniqueIdentifier>{3a34086a-bd5c-48fc-9169-48ce91d646cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\3D\Primitive">
+      <UniqueIdentifier>{12fc731f-c6c8-49bf-9c9f-9d98d52f7740}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Transition">
+      <UniqueIdentifier>{98968228-a453-440e-9d3f-61436690e15e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Transition">
+      <UniqueIdentifier>{e25f71e2-aba6-4776-99b0-3489fedfc816}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -456,8 +468,14 @@
     <ClCompile Include="Application\Src\Object\Player\Player.cpp">
       <Filter>ソース ファイル\Application\Object\Player</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3D\Camera\FollowCamera.cpp">
+      <Filter>ソース ファイル\Engine\3D\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Primitive\LineRenderer.cpp">
+      <Filter>ソース ファイル\Engine\3D\Primitive</Filter>
+    </ClCompile>
     <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Transition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -779,8 +797,14 @@
     <ClInclude Include="Application\Src\Object\Enemy\Enemy.h">
       <Filter>ヘッダー ファイル\Application\Object\Enemy</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\Camera\FollowCamera.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Primitive\LineRenderer.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Primitive</Filter>
+    </ClInclude>
     <ClInclude Include="Application\Src\Object\Transition\Transition.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Transition</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -790,9 +814,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Application\Resources\Shaders\Bloom.hlsli">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="Application\Resources\Shaders\Bone.hlsli">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Application\Resources\Shaders\DepthOfField.hlsli">
@@ -828,18 +849,18 @@
     <None Include="Application\Resources\Shaders\Outline.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\Bone.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Application\Resources\Shaders\Line.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Bloom.VS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\Bone.PS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\Bone.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\DepthOfField.PS.hlsl">
@@ -909,6 +930,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\Outline.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Bone.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Bone.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Line.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Line.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

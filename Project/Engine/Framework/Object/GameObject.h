@@ -103,7 +103,6 @@ template<class Type>
 inline Type* GameObject::AddComponent()
 {
 	Type* component = new Type();
-	component->Initialize();
 	component->owner_ = this;
 	components_.push_back(std::unique_ptr<Type>(component));
 	return component;

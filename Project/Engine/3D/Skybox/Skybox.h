@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/Texture.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -13,14 +14,35 @@ public:
 
 	static const uint32_t kMaxIndices = 36;
 
-	static Skybox* Create(const std::string& textureName);
+	static Skybox* GetInstance();
 
-	void Draw(const WorldTransform& worldTransform, const Camera& camera);
+	static void Destroy();
+
+	void Initialize();
+
+	void Update();
+
+	void Draw();
+
+	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; };
+
+	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
+
+	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
+
+	void SetColor(const Vector4& color) { color_ = color; };
+
+	void SetCamera(const Camera* camera) { camera_ = camera; };
 
 	void SetTexture(const std::string& textureName);
 
 private:
-	void Initialize(const std::string& textureName);
+	Skybox() = default;
+	~Skybox() = default;
+	Skybox(const Skybox&) = delete;
+	Skybox& operator=(const Skybox&) = delete;
+
+	void CreatePipelineState();
 
 	void CreateVertexBuffer();
 
@@ -28,7 +50,15 @@ private:
 
 	void CreateMaterialResource();
 
+	void UpdateMaterialResource();
+
 private:
+	static Skybox* instance_;
+
+	RootSignature rootSignature_{};
+
+	GraphicsPSO pipelineState_{};
+
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
 	std::unique_ptr<UploadBuffer> indexBuffer_ = nullptr;
@@ -42,6 +72,12 @@ private:
 	std::array<uint32_t, kMaxIndices> indices_{};
 
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+
+	WorldTransform worldTransform_{};
+
+	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
+
+	const Camera* camera_ = nullptr;
 
 	const Texture* texture_ = nullptr;
 };

@@ -9,6 +9,8 @@ public:
 
 	void Update() override;
 
+	void Draw(const Camera& camera) override;
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };

@@ -21,8 +21,6 @@ public:
 	void OnCollisionExit(GameObject* collider) override;
 
 private:
-	Model* model_ = nullptr;
-
 	ModelComponent* modelComponent_ = nullptr;
 
 	TransformComponent* transformComponent_ = nullptr;

@@ -1,6 +1,6 @@
 #include "Model.h"
 #include "Engine/Math/MathFunction.h"
-#include "Engine/Base/ImGuiManager.h"
+#include "Engine/3D/Primitive/LineRenderer.h"
 
 void Model::Initialize(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, const DrawPass drawPass)
 {
@@ -17,6 +17,10 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 		Mesh* mesh = new Mesh();
 		mesh->Initialize(modelData_.meshData[i], animation_->GetSkeleton(), modelData_.skinClusterData[i]);
 		meshes_.push_back(std::unique_ptr<Mesh>(mesh));
+		if (mesh->GetHasSkinCluster())
+		{
+			hasSkinCluster_ = true;
+		}
 	}
 
 	//マテリアルの作成
@@ -27,14 +31,7 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 		materials_.push_back(std::unique_ptr<Material>(material));
 	}
 
-	//SkinClusterを持っていたらBoneのVertexBufferを作成
-	for (uint32_t i = 0; i < modelData_.skinClusterData.size(); ++i)
-	{
-		if (!modelData_.skinClusterData[i].empty())
-		{
-			hasSkinCluster_ = true;
-		}
-	}
+	//Boneの作成
 	if (hasSkinCluster_)
 	{
 		Animation::Skeleton skeleton = animation_->GetSkeleton();
@@ -78,25 +75,40 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 {
 	//レンダラーのインスタンスを取得
 	Renderer* renderer_ = Renderer::GetInstance();
+
 	//SortObjectの追加
 	for (uint32_t i = 0; i < meshes_.size(); ++i)
 	{
+		//マテリアルのインデックスを取得
 		uint32_t materialIndex = meshes_[i]->GetMaterialIndex();
+
+		//Objectの追加
 		renderer_->AddObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(), materials_[materialIndex]->GetConstantBuffer()->GetGpuVirtualAddress(),
 			worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
 			materials_[materialIndex]->GetTexture()->GetSRVHandle(), UINT(meshes_[i]->GetIndicesSize()), drawPass_);
+
+		//SkinClusterを持っている場合
 		if (meshes_[i]->GetHasSkinCluster())
 		{
+			//SkinningObjectの追加
 			renderer_->AddSkinningObject(meshes_[i]->GetPaletteResource()->GetSRVHandle(), meshes_[i]->GetInputVerticesBuffer()->GetSRVHandle(),
-				meshes_[i]->GetInfluenceResource()->GetSRVHandle(), meshes_[i]->GetSkinningInformationBuffer()->GetGpuVirtualAddress(), meshes_[i]->GetOutputVerticesBuffer(),
-				UINT(meshes_[i]->GetVerticesSize()));
+				meshes_[i]->GetInfluenceResource()->GetSRVHandle(), meshes_[i]->GetSkinningInformationBuffer()->GetGpuVirtualAddress(),
+				meshes_[i]->GetOutputVerticesBuffer(), UINT(meshes_[i]->GetVerticesSize()));
 		}
 	}
 
-	if (isBoneVisible_ && hasSkinCluster_)
+	//SkinClusterを持っている場合
+	if (hasSkinCluster_)
 	{
-		UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, boneVertices_);
-		renderer_->AddBone(boneVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(boneVertices_.size()));
+		//Boneの描画
+		if (isBoneVisible_)
+		{
+			//頂点データの更新
+			UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, boneVertices_);
+			
+			//Boneの追加
+			renderer_->AddBone(boneVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(boneVertices_.size()));
+		}
 	}
 }
 
@@ -131,15 +143,13 @@ void Model::CreateBoneVertices(const Animation::Skeleton& skeleton, int32_t pare
 
 void Model::UpdateVertexData(const Animation::Skeleton& skeleton, int32_t parentIndex, std::vector<Vector4>& vertices)
 {
+	//頂点データをクリア
 	vertices.clear();
-	const Animation::Joint& parentJoint = skeleton.joints[parentIndex];
-	for (int32_t childIndex : parentJoint.children)
-	{
-		const Animation::Joint& childJoint = skeleton.joints[childIndex];
-		vertices.push_back({ parentJoint.skeletonSpaceMatrix.m[3][0],parentJoint.skeletonSpaceMatrix.m[3][1],parentJoint.skeletonSpaceMatrix.m[3][2],1.0f });
-		vertices.push_back({ childJoint.skeletonSpaceMatrix.m[3][0],childJoint.skeletonSpaceMatrix.m[3][1],childJoint.skeletonSpaceMatrix.m[3][2],1.0f });
-		CreateBoneVertices(skeleton, childIndex, vertices);
-	}
+
+	//頂点データの作成
+	CreateBoneVertices(skeleton, skeleton.root, boneVertices_);
+
+	//頂点データの書き込み
 	Vector4* vertexData = static_cast<Vector4*>(boneVertexBuffer_->Map());
 	std::memcpy(vertexData, vertices.data(), sizeof(Vector4) * vertices.size());
 	boneVertexBuffer_->Unmap();

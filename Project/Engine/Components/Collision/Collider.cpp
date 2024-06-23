@@ -11,6 +11,11 @@ void Collider::Update()
 
 }
 
+void Collider::Draw(const Camera& camera)
+{
+
+}
+
 void Collider::OnCollision(GameObject* other)
 {
 	owner_->OnCollision(other);

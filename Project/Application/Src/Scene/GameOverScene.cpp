@@ -33,26 +33,10 @@ void GameOverScene::Draw()
 	//深度バッファをクリア
 	renderer_->ClearDepthBuffer();
 
-#pragma region Skyboxの描画
-	//Skybox描画前処理
-	renderer_->PreDrawSkybox();
-
-	//Skybox描画処理
-	renderer_->PostDrawSkybox();
-#pragma endregion
-
 #pragma region 3Dオブジェクト描画
 
 	//3Dオブジェクト描画
 	renderer_->Render();
-#pragma endregion
-
-#pragma region パーティクル描画
-	//パーティクル描画前処理
-	renderer_->PreDrawParticles();
-
-	//パーティクル描画後処理
-	renderer_->PostDrawParticles();
 #pragma endregion
 }
 

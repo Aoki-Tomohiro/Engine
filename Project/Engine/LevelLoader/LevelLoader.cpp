@@ -163,9 +163,9 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 
 		//トランスフォームの追加
 		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
-		transformComponent->translation_ = objectData.translation;
-		transformComponent->rotation_ = objectData.rotation;
-		transformComponent->scale_ = objectData.scaling;
+		transformComponent->worldTransform_.translation_ = objectData.translation;
+		transformComponent->worldTransform_.rotation_ = objectData.rotation;
+		transformComponent->worldTransform_.scale_ = objectData.scaling;
 
 		//モデルの追加
 		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
