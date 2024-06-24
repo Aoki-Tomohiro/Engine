@@ -13,6 +13,17 @@ void GameManager::Initialize()
 	//ゲームオブジェクトファクトリーを生成
 	gameObjectFactory_ = std::make_unique<GameObjectFactory>();
 	GameObjectManager::GetInstance()->SetGameObjectFactory(gameObjectFactory_.get());
+
+	//PostEffectsの有効化
+	postEffects_->SetIsEnable(true);
+	postEffects_->GetBloom()->SetIsEnable(true);
+	postEffects_->GetBloom()->SetBlurCount(4);
+	postEffects_->GetBloom()->SetTextureWeight(1.0f);
+	postEffects_->GetBloom()->SetHighLumTextureWeight(0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(0, 0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(1, 0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(2, 0.2f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(3, 0.4f);
 }
 
 void GameManager::Finalize()

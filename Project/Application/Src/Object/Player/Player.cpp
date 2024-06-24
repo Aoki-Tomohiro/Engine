@@ -1,59 +1,55 @@
 #include "Player.h"
-#include "Engine/Base/ImGuiManager.h"
+#include "Engine/Math/MathFunction.h"
 
 void Player::Initialize()
 {
+	//GameObjectの初期化
 	GameObject::Initialize();
 
-	//トランスフォームの追加
-	transformComponent_ = AddComponent<TransformComponent>();
-	transformComponent_->worldTransform_.translation_ = { 0.0f,3.0f,0.0f };
-	transformComponent_->worldTransform_.scale_ = { 3.0f,3.0f,3.0f };
-
-	//モデルの追加
-	modelComponent_ = AddComponent<ModelComponent>();
-	modelComponent_->Initialize("Player", Opaque);
-	modelComponent_->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
-	modelComponent_->SetTransformComponent(transformComponent_);
-
-	//コライダーの追加
-	SphereCollider* collider = AddComponent<SphereCollider>();
-	collider->SetTransformComponent(transformComponent_);
+	//Stateの初期化
+	ChangeState(new PlayerStateRoot());
 }
 
 void Player::Update()
 {
-	GameObject::Update();
+	//Stateの更新
+	state_->Update();
 
-	ImGui::Begin("Player");
-	ImGui::DragFloat3("Translation", &transformComponent_->worldTransform_.translation_.x, 0.1f);
-	ImGui::DragFloat3("Rotation", &transformComponent_->worldTransform_.rotation_.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transformComponent_->worldTransform_.scale_.x, 0.01f);
-	ImGui::End();
+	//回転処理
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
+
+	//Gameobjectの更新
+	GameObject::Update();
 }
 
 void Player::Draw(const Camera& camera)
 {
+	//Stateの描画
+	state_->Draw(camera);
+
+	//GameObjectの描画
 	GameObject::Draw(camera);
 }
 
 void Player::OnCollision(GameObject* collider)
 {
-	ImGui::Begin("Player");
-	ImGui::Text("OnCollision");
-	ImGui::End();
+
 }
 
 void Player::OnCollisionEnter(GameObject* collider)
 {
-	ImGui::Begin("Player");
-	ImGui::Text("OnCollisionEnter");
-	ImGui::End();
+
 }
 
 void Player::OnCollisionExit(GameObject* collider)
 {
-	ImGui::Begin("Player");
-	ImGui::Text("OnCollisionExit");
-	ImGui::End();
+
+}
+
+void Player::ChangeState(IPlayerState* state)
+{
+	state->SetPlayer(this);
+	state->Initialize();
+	state_.reset(state);
 }

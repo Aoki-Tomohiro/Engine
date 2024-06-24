@@ -40,18 +40,12 @@ void GameObjectManager::Update()
 			gameObject->Update();
 		}
 	}
-
-	//カメラの更新
-	camera_->UpdateMatrix();
 }
 
 void GameObjectManager::Draw()
 {
-	//カメラがない場合は早期リターン
-	if (!camera_)
-	{
-		return;
-	}
+	//カメラがない場合は止める
+	assert(camera_);
 
 	//ゲームオブジェクトの描画
 	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
@@ -75,9 +69,9 @@ GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
 	return newObject;
 }
 
-Camera* GameObjectManager::CreateCamera(const std::string& cameraName)
+Camera* GameObjectManager::CreateCamera()
 {
-	Camera* newCamera = GameObjectManager::GetInstance()->CreateCameraInternal(cameraName);
+	Camera* newCamera = GameObjectManager::GetInstance()->CreateCameraInternal();
 	return newCamera;
 }
 
@@ -91,7 +85,7 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 	return newGameObject;
 }
 
-Camera* GameObjectManager::CreateCameraInternal(const std::string& cameraName)
+Camera* GameObjectManager::CreateCameraInternal()
 {
 	Camera* newCamera = new Camera();
 	newCamera->Initialize();

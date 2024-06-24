@@ -10,9 +10,12 @@ public:
 
 	static void Destroy();
 
+	template <typename Type>
+	static Type* CreateGameObject();
+
 	static GameObject* CreateGameObject(const std::string& objectName);
 
-	static Camera* CreateCamera(const std::string& cameraName);
+	static Camera* CreateCamera();
 
 	void Update();
 
@@ -23,10 +26,12 @@ public:
 	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
 	template <typename Type>
-	Type* GetGameObject(const std::string& tag) const;
+	Type* GetGameObject() const;
 
 	template <typename Type>
-	std::vector<Type*> GetGameObjects(const std::string& tag) const;
+	std::vector<Type*> GetGameObjects() const;
+
+	Camera* GetCamera() const { return camera_.get(); };
 
 private:
 	GameObjectManager() = default;
@@ -34,9 +39,12 @@ private:
 	GameObjectManager(const GameObjectManager&) = delete;
 	const GameObjectManager& operator=(const GameObjectManager&) = delete;
 
+	template <typename Type>
+	Type* CreateGameObjectInternal();
+
 	GameObject* CreateGameObjectInternal(const std::string& objectName);
 
-	Camera* CreateCameraInternal(const std::string& cameraName);
+	Camera* CreateCameraInternal();
 
 private:
 	static GameObjectManager* instance_;
@@ -48,31 +56,47 @@ private:
 	AbstractGameObjectFactory* gameObjectFactory_ = nullptr;
 };
 
-template <typename Type>
-Type* GameObjectManager::GetGameObject(const std::string& tag) const
+template<typename Type>
+Type* GameObjectManager::CreateGameObject()
 {
-	//ゲームオブジェクトを探す
-	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
+	//ゲームオブジェクトを作成
+	Type* newObject = GameObjectManager::GetInstance()->CreateGameObjectInternal<Type>();
+	return newObject;
+}
+
+template<typename Type>
+Type* GameObjectManager::CreateGameObjectInternal()
+{
+	Type* newObject = new Type();
+	newObject->Initialize();
+	newObject->SetGameObjectManager(this);
+	gameObjects_.push_back(std::unique_ptr<GameObject>(newObject));
+	return newObject;
+}
+
+template <typename Type>
+Type* GameObjectManager::GetGameObject() const
+{
+	for (const auto& gameObject : gameObjects_)
 	{
-		if (gameObject->GetTag() == tag)
+		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
 		{
-			return dynamic_cast<Type*>(gameObject.get());
+			return castedObject;
 		}
 	}
 	return nullptr;
 }
 
 template <typename Type>
-std::vector<Type*> GameObjectManager::GetGameObjects(const std::string& tag) const
+std::vector<Type*> GameObjectManager::GetGameObjects() const
 {
-	//ゲームオブジェクトを探す
-	std::vector<Type*> gameObjects{};
-	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
+	std::vector<Type*> gameObjects;
+	for (const auto& gameObject : gameObjects_)
 	{
-		if (gameObject->GetTag() == tag) {
-			gameObjects.push_back(dynamic_cast<const Type*>(gameObject.get()));
+		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		{
+			gameObjects.push_back(castedObject);
 		}
 	}
 	return gameObjects;
 }
-

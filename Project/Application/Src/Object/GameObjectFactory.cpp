@@ -12,6 +12,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Enemy* enemy = new Enemy();
 		return enemy;
 	}
+	else if (objectName == "Ground")
+	{
+		Ground* ground = new Ground;
+		return ground;
+	}
 
 	return nullptr;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 
-class Enemy : public GameObject
+class Ground : public GameObject
 {
 public:
 	void Initialize() override;

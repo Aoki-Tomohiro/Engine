@@ -2,7 +2,8 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
-#include "Engine/Components/PostEffects/PostEffects.h"
+#include "Engine/LevelLoader/LevelLoader.h"
+#include <numbers>
 
 void GameTitleScene::Initialize()
 {
@@ -12,37 +13,22 @@ void GameTitleScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//カメラの初期化
-	camera_.Initialize();
-	camera_.translation_ = { 0.0f,12.3f,-50.0f };
-	camera_.rotation_ = { 0.157f,0.0f,0.0f };
+	//GameObjectManagerのインスタンスを取得
+	gameObjectManager_ = GameObjectManager::GetInstance();
 
-	//プレイヤーの生成
-	player_ = std::make_unique<Player>();
-	player_->Initialize();
+	//GameObjectのクリア
+	gameObjectManager_->Clear();
 
-	//敵の生成
-	enemy_ = std::make_unique<Enemy>();
-	enemy_->Initialize();
+	//LevelDataの読み込み
+	LevelLoader::Load("TitleScene");
+
+	//カメラを初期化
+    camera_ = gameObjectManager_->GetCamera();
+	camera_->rotation_.x = 0.3f;
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
-
-	//CollisionManagerの作成
-	collisionManager_ = std::make_unique<CollisionManager>();
-
-	//ポストエフェクトの有効化
-	PostEffects* postEffects = PostEffects::GetInstance();
-	postEffects->GetOutline()->SetIsEnable(true);
-
-	//LineRendererのインスタンスを取得
-	lineRenderer_ = LineRenderer::GetInstance();
-	lineRenderer_->SetCamera(&camera_);
-
-	//Skyboxのインスタンスを取得
-	skybox_ = Skybox::GetInstance();
-	skybox_->SetCamera(&camera_);
 }
 
 void GameTitleScene::Finalize()
@@ -52,32 +38,22 @@ void GameTitleScene::Finalize()
 
 void GameTitleScene::Update()
 {
-	//プレイヤーの更新
-	player_->Update();
-
-	//敵の更新
-	enemy_->Update();
-
-	//カメラの更新
-	camera_.UpdateMatrix();
-
-	//衝突判定
-	collisionManager_->ClearColliderList();
-	if (Collider* collider = player_->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-	if (Collider* collider = enemy_->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-	collisionManager_->CheckAllCollisions();
+	//GameObjectManagerの更新
+	gameObjectManager_->Update();
 
 	//トランジションの更新
 	transition_->Update();
 
+	//カメラの更新
+	CameraUpdate();
+
+	//フェードイン処理
+	HandleTransition();
+
 	//ImGui
 	ImGui::Begin("GameTitleScene");
+	ImGui::Text("Space or AButton: GamePlayScene");
+	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x);
 	ImGui::End();
 }
 
@@ -95,11 +71,8 @@ void GameTitleScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
-	//プレイヤーの描画
-	player_->Draw(camera_);
-
-	//敵の描画
-	enemy_->Draw(camera_);
+	//GameObjectManagerの描画
+	gameObjectManager_->Draw();
 
 	//3Dオブジェクト描画
 	renderer_->Render();
@@ -118,4 +91,46 @@ void GameTitleScene::DrawUI()
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();
 #pragma endregion
+}
+
+void GameTitleScene::CameraUpdate()
+{
+	//回転速度
+	const float kRotSpeed = 0.006f;
+
+	//回転処理
+	camera_->rotation_.y += kRotSpeed;
+	camera_->rotation_.y = std::fmod(camera_->rotation_.y, std::numbers::pi_v<float> * 2.0f);
+
+	//回転行列の作成
+	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
+
+	//Offsetに回転行列を適用
+	Vector3 offset = { 0.0f,30.0f ,-80.0f };
+	offset = Mathf::TransformNormal(offset, rotateYMatrix);
+
+	//カメラの座標を設定
+	camera_->translation_ = offset;
+
+	//カメラの更新
+	camera_->UpdateMatrix();
+}
+
+void GameTitleScene::HandleTransition()
+{
+	//SpaceキーかAボタンを押したらフェードインさせる
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	{
+		transition_->SetFadeState(Transition::FadeState::In);
+	}
+	else if (input_->IsPushKeyEnter(DIK_SPACE))
+	{
+		transition_->SetFadeState(Transition::FadeState::In);
+	}
+
+	//シーン遷移
+	if (transition_->GetFadeInComplete())
+	{
+		sceneManager_->ChangeScene("GamePlayScene");
+	}
 }

@@ -24,6 +24,8 @@ public:
 
 	const bool GetFadeOutComplete() const { return fadeOutComplete_; };
 
+	const FadeState GetFadeState() const { return fadeState_; };
+
 private:
 	//トランジション関連
 	std::unique_ptr<Sprite> sprite_ = nullptr;

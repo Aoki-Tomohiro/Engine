@@ -4,6 +4,7 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include <numbers>
 
 const std::string LevelLoader::kBaseDirectory = "Application/Resources/LevelData/";
 
@@ -155,21 +156,19 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	//レベルデータからすべてのオブジェクトを生成
 	for (auto& objectData : levelData->objects)
 	{
-		//ファイル名から登録済みのモデルを検索
-		Model* model = ModelManager::CreateFromModelFile(objectData.modelName, Opaque);
-
 		//3Dオブジェクトを生成
 		GameObject* newObject = GameObjectManager::CreateGameObject(objectData.objectName);
 
 		//トランスフォームの追加
 		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
+		transformComponent->Initialize();
 		transformComponent->worldTransform_.translation_ = objectData.translation;
 		transformComponent->worldTransform_.rotation_ = objectData.rotation;
 		transformComponent->worldTransform_.scale_ = objectData.scaling;
 
 		//モデルの追加
 		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
-		modelComponent->SetModel(model);
+		modelComponent->Initialize(objectData.modelName, Opaque);
 		modelComponent->SetTransformComponent(transformComponent);
 
 		//Typeが無かったらColliderがないとみなす
@@ -179,6 +178,8 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			{
 				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
 				collider->SetTransformComponent(transformComponent);
+				collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
+				collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
 			}
 		}
 	}
@@ -187,7 +188,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	for (auto& cameraData : levelData->cameras)
 	{
 		//カメラを生成
-		Camera* camera = GameObjectManager::CreateCamera(cameraData.name);
+		Camera* camera = GameObjectManager::CreateCamera();
 		//座標
 		camera->translation_ = cameraData.translation;
 		//回転角

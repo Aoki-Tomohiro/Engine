@@ -1,14 +1,9 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
-#include "Engine/Components/Collision/CollisionManager.h"
-#include "Engine/3D/Primitive/LineRenderer.h"
-#include "Engine/3D/Skybox/Skybox.h"
-
-#include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
 class GameTitleScene : public IScene
@@ -25,31 +20,24 @@ public:
 	void DrawUI() override;
 
 private:
+	void CameraUpdate();
+
+	void HandleTransition();
+
+private:
 	Renderer* renderer_ = nullptr;
 
 	Input* input_ = nullptr;
 
 	Audio* audio_ = nullptr;
 
+	//GameObjectManager
+	GameObjectManager* gameObjectManager_ = nullptr;
+
 	//カメラ
-	Camera camera_{};
-
-	//プレイヤー
-	std::unique_ptr<Player> player_ = nullptr;
-
-	//敵
-	std::unique_ptr<Enemy> enemy_ = nullptr;
+	Camera* camera_ = nullptr;
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
-
-	//衝突マネージャー
-	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
-
-	//LineRenderer
-	LineRenderer* lineRenderer_ = nullptr;
-
-	//Skybox
-	Skybox* skybox_ = nullptr;
 };
 

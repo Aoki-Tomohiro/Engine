@@ -1,9 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "Engine/3D/Model/ModelManager.h"
-#include "Engine/Components/Component/TransformComponent.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Components/Collision/SphereCollider.h"
+#include "States/PlayerStateRoot.h"
 
 class Player : public GameObject
 {
@@ -20,9 +17,26 @@ public:
 
 	void OnCollisionExit(GameObject* collider) override;
 
-private:
-	ModelComponent* modelComponent_ = nullptr;
+	void SetCamera(const Camera* camera) { camera_ = camera; };
 
-	TransformComponent* transformComponent_ = nullptr;
+private:
+	void ChangeState(IPlayerState* state);
+
+private:
+	//プレイヤーの状態
+	std::unique_ptr<IPlayerState> state_ = nullptr;
+
+	//速度
+	Vector3 velocity{};
+
+	//Quaternion
+	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
+
+	//Camera
+	const Camera* camera_ = nullptr;
+
+	//フレンドクラスに登録
+	friend class PlayerStateRoot;
+	friend class PlayerStateJump;
 };
 

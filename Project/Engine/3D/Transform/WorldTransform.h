@@ -31,6 +31,7 @@ public:
 			translation_ = rhs.translation_;
 			matWorld_ = rhs.matWorld_;
 			parent_ = rhs.parent_;
+			rotationType_ = rhs.rotationType_;
 		}
 		return *this;
 	}
