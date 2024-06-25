@@ -1,0 +1,9 @@
+{
+    "Player": {
+        "DodgeSpeed": 1.0,
+        "DodgeTime": 10,
+        "GravityAcceleration": 0.05000000074505806,
+        "JumpFirstSpeed": 0.75,
+        "MoveSpeed": 0.4000000059604645
+    }
+}

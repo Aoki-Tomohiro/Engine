@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "States/PlayerStateRoot.h"
+#include "States/PlayerStateIdle.h"
 
 class Player : public GameObject
 {
@@ -19,6 +19,8 @@ public:
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
 
+	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
+
 private:
 	void ChangeState(IPlayerState* state);
 
@@ -35,8 +37,12 @@ private:
 	//Camera
 	const Camera* camera_ = nullptr;
 
+	//タイトルシーンなのか
+	bool isInTitleScene_ = false;
+
 	//フレンドクラスに登録
 	friend class PlayerStateRoot;
 	friend class PlayerStateJump;
+	friend class PlayerStateDodge;
 };
 

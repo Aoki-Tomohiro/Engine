@@ -4,6 +4,7 @@
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
 class GameTitleScene : public IScene

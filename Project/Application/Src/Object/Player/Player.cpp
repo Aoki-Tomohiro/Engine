@@ -12,12 +12,16 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	//Stateの更新
-	state_->Update();
+	//タイトルシーンにいる場合は移動処理をスキップ
+	if (!isInTitleScene_)
+	{
+		//Stateの更新
+		state_->Update();
 
-	//回転処理
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
+		//回転処理
+		TransformComponent* transformComponent = GetComponent<TransformComponent>();
+		transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
+	}
 
 	//Gameobjectの更新
 	GameObject::Update();

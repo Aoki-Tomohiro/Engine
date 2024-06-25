@@ -20,7 +20,7 @@ void ModelComponent::Update()
 		worldTransform_ = transformComponent_->worldTransform_;
 	}
 
-	worldTransform_.UpdateMatrix();
+	worldTransform_.TransferMatrix();
 
 	model_->Update(worldTransform_, animationName_);
 }

@@ -3,7 +3,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Component/TransformComponent.h"
 
-class PlayerStateJump : public IPlayerState
+class PlayerStateRoot : public IPlayerState
 {
 public:
 	void Initialize() override;
@@ -18,8 +18,8 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float jumpFirstSpeed_ = 0.75f;
+	float moveSpeed_ = 0.4f;
 
-	float gravityAcceleration_ = 0.05f;
+
 };
 

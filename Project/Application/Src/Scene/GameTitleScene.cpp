@@ -22,6 +22,10 @@ void GameTitleScene::Initialize()
 	//LevelDataの読み込み
 	LevelLoader::Load("TitleScene");
 
+	//プレイヤーの初期化
+	Player* player = gameObjectManager_->GetGameObject<Player>();
+	player->SetIsInTitleScene(true);
+
 	//カメラを初期化
     camera_ = gameObjectManager_->GetCamera();
 	camera_->rotation_.x = 0.3f;

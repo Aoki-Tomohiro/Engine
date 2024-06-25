@@ -13,7 +13,7 @@ void FollowCamera::Update()
 	if (target_)
 	{
 		//追従座標の補間
-		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.1f);
+		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.2f);
 	}
 
 	//追従対象からのオフセット
@@ -51,6 +51,13 @@ void FollowCamera::Update()
 		destinationAngleY_ += rotation.y * kRotSpeedY;
 	}
 
+	//回転限界角度
+	const float kRotateMin = -0.14f;
+	const float kRotateMax = 0.4f;
+	destinationAngleX_ = std::min<float>(destinationAngleX_, kRotateMax);
+	destinationAngleX_ = std::max<float>(destinationAngleX_, kRotateMin);
+
+	//カメラのに回転を適用
 	camera_.rotation_.x = Mathf::LerpShortAngle(camera_.rotation_.x, destinationAngleX_, 0.1f);
 	camera_.rotation_.y = Mathf::LerpShortAngle(camera_.rotation_.y, destinationAngleY_, 0.1f);
 
