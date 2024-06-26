@@ -1,9 +1,8 @@
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Component/TransformComponent.h"
 
-class PlayerStateDodge : public IPlayerState
+class PlayerStateDash : public IPlayerState
 {
 public:
 	void Initialize() override;
@@ -18,12 +17,12 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float dodgeSpeed_ = 1.0f;
+	float speed_ = 2.0f;
 
-	uint32_t dodgeTime_ = 10;
+	float proximityThreshold_ = 10.0f;
 
-	uint32_t dodgeTimer_ = 0;
+	uint32_t maxDashDuration_ = 30;
 
-	float rotationAngle_ = 0.2f;
+	uint32_t currentDashDuration_ = 0;
 };
 

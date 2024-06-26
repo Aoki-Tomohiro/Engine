@@ -3,7 +3,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Component/TransformComponent.h"
 
-class PlayerStateRoot : public IPlayerState
+class PlayerStateIdle : public IPlayerState
 {
 public:
 	void Initialize() override;
@@ -13,7 +13,7 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
-	void AppliGlobalVariables();
+	void ApplyGlobalVariables();
 
 private:
 	Input* input_ = nullptr;

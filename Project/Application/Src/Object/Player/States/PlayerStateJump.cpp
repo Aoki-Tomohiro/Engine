@@ -38,14 +38,14 @@ void PlayerStateJump::Update()
 	if (transformComponent->worldTransform_.translation_.y <= 1.0f)
 	{
 		//Root状態に変更
-		player_->ChangeState(new PlayerStateRoot);
+		player_->ChangeState(new PlayerStateIdle);
 
 		//y座標を地面に固定
 		transformComponent->worldTransform_.translation_.y = 1.0f;
 	}
 
 	//環境変数の適用
-	AppliGlobalVariables();
+	ApplyGlobalVariables();
 
 	//ImGui
 	ImGui::Begin("PlayerStateJump");
@@ -57,7 +57,7 @@ void PlayerStateJump::Draw(const Camera& camera)
 }
 
 
-void PlayerStateJump::AppliGlobalVariables()
+void PlayerStateJump::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";

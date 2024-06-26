@@ -59,18 +59,18 @@ void PlayerStateDodge::Update()
 		player_->destinationQuaternion_ = rotationQuaternion * player_->destinationQuaternion_;
 
 		//通常状態に戻す
-		player_->ChangeState(new PlayerStateRoot());
+		player_->ChangeState(new PlayerStateIdle());
 	}
 
 	//環境変数の適用
-	AppliGlobalVariables();
+	ApplyGlobalVariables();
 }
 
 void PlayerStateDodge::Draw(const Camera& camera)
 {
 }
 
-void PlayerStateDodge::AppliGlobalVariables()
+void PlayerStateDodge::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";

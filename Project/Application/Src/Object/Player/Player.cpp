@@ -7,7 +7,7 @@ void Player::Initialize()
 	GameObject::Initialize();
 
 	//Stateの初期化
-	ChangeState(new PlayerStateRoot());
+	ChangeState(new PlayerStateIdle());
 }
 
 void Player::Update()

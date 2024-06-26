@@ -41,8 +41,9 @@ private:
 	bool isInTitleScene_ = false;
 
 	//フレンドクラスに登録
-	friend class PlayerStateRoot;
+	friend class PlayerStateIdle;
 	friend class PlayerStateJump;
 	friend class PlayerStateDodge;
+	friend class PlayerStateDash;
 };
 

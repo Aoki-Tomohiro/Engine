@@ -2,11 +2,12 @@
 #include "../Player.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
+#include "PlayerStateDash.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GlobalVariables.h"
 
-void PlayerStateRoot::Initialize()
+void PlayerStateIdle::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
@@ -18,7 +19,7 @@ void PlayerStateRoot::Initialize()
 	globalVariables->AddItem(groupName, "MoveSpeed", moveSpeed_);
 }
 
-void PlayerStateRoot::Update()
+void PlayerStateIdle::Update()
 {
 	//移動フラグ
 	bool isMove = false;
@@ -75,19 +76,24 @@ void PlayerStateRoot::Update()
 	{
 		player_->ChangeState(new PlayerStateDodge());
 	}
+	//ダッシュ状態に変更
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		player_->ChangeState(new PlayerStateDash());
+	}
 
 	//環境変数の適用
-	AppliGlobalVariables();
+	ApplyGlobalVariables();
 
 	ImGui::Begin("PlayerStateRoot");
 	ImGui::End();
 }
 
-void PlayerStateRoot::Draw(const Camera& camera)
+void PlayerStateIdle::Draw(const Camera& camera)
 {
 }
 
-void PlayerStateRoot::AppliGlobalVariables()
+void PlayerStateIdle::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
