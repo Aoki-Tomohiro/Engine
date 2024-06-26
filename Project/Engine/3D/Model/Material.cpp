@@ -19,6 +19,10 @@ void Material::Initialize(const std::string& textureName)
 		SetTexture("white.png");
 	}
 
+	//マスクテクスチャを設定
+	TextureManager::Load("noise.png");
+	SetMaskTexture("noise.png");
+
 	//更新
 	Update();
 }
@@ -40,6 +44,9 @@ void Material::Update()
 	materialData->shininess = shininess_;
 	materialData->specularColor = specularColor_;
 	materialData->environmentCoefficient = environmentCoefficient_;
+	materialData->dissolveThreshold = dissolveThreshold_;
+	materialData->edgeWidth = edgeWidth_;
+	materialData->edgeColor = edgeColor_;
 	materialConstBuffer_->Unmap();
 }
 
@@ -47,6 +54,14 @@ void Material::SetTexture(const std::string& textureName)
 {
 	//テクスチャを設定
 	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
+	//テクスチャがなかったら止める
+	assert(texture_);
+}
+
+void Material::SetMaskTexture(const std::string& textureName)
+{
+	//テクスチャを設定
+	maskTexture_ = TextureManager::GetInstance()->FindTexture(textureName);
 	//テクスチャがなかったら止める
 	assert(texture_);
 }

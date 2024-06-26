@@ -52,7 +52,7 @@ void Renderer::Initialize()
 }
 
 void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
-	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, UINT indexCount, DrawPass drawPass)
+	D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, D3D12_GPU_DESCRIPTOR_HANDLE textureSRV, D3D12_GPU_DESCRIPTOR_HANDLE maskTextureSRV, UINT indexCount, DrawPass drawPass)
 {
 	SortObject sortObject{};
 	sortObject.vertexBufferView = vertexBufferView;
@@ -61,6 +61,7 @@ void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_
 	sortObject.worldTransformCBV = worldTransformCBV;
 	sortObject.cameraCBV = cameraCBV;
 	sortObject.textureSRV = textureSRV;
+	sortObject.maskTextureSRV = maskTextureSRV;
 	sortObject.indexCount = indexCount;
 	sortObject.type = drawPass;
 	sortObjects_.push_back(sortObject);
@@ -155,6 +156,8 @@ void Renderer::Render()
 		commandContext->SetConstantBuffer(kCamera, sortObject.cameraCBV);
 		//Textureを設定
 		commandContext->SetDescriptorTable(kTexture, sortObject.textureSRV);
+		//MaskTextureを設定
+		commandContext->SetDescriptorTable(kMaskTexture, sortObject.maskTextureSRV);
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 		commandContext->DrawIndexedInstanced(sortObject.indexCount, 1);
 	}
@@ -269,7 +272,7 @@ void Renderer::PostDrawSprites()
 void Renderer::CreateModelPipelineState()
 {
 	//RootSignatureの作成
-	modelRootSignature_.Create(6, 1);
+	modelRootSignature_.Create(7, 1);
 
 	//RootParameterを設定
 	modelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -278,6 +281,7 @@ void Renderer::CreateModelPipelineState()
 	modelRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_[5].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	modelRootSignature_[6].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};

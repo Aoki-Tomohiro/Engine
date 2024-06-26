@@ -71,9 +71,25 @@ public:
 
 	void SetEnvironmentCoefficient(const float environmentCoefficient) { environmentCoefficient_ = environmentCoefficient; };
 
+	const float GetDissolveThreshold() const { return dissolveThreshold_; };
+
+	void SetDissolveThreshold(const float dissolveThreshold) { dissolveThreshold_ = dissolveThreshold; };
+
+	const float GetEdgeWidth() const { return edgeWidth_; };
+
+	void SetEdgeWidth(const float edgeWidth) { edgeWidth_ = edgeWidth; };
+
+	const Vector3& GetEdgeColor() const { return edgeColor_; };
+
+	void SetEdgeColor(const Vector3& edgeColor) { edgeColor_ = edgeColor; };
+
 	const Texture* GetTexture() const { return texture_; };
 
 	void SetTexture(const std::string& textureName);
+
+	const Texture* GetMaskTexture() const { return maskTexture_; };
+
+	void SetMaskTexture(const std::string& textureName);
 
 	const UploadBuffer* GetConstantBuffer() const { return materialConstBuffer_.get(); };
 
@@ -100,6 +116,14 @@ private:
 
 	float environmentCoefficient_ = 0.1f;
 
+	float dissolveThreshold_ = 0.0f;
+
+	float edgeWidth_ = 0.03f;
+
+	Vector3 edgeColor_ = { 1.0f,0.4f,0.3f };
+
 	const Texture* texture_ = nullptr;
+
+	const Texture* maskTexture_ = nullptr;
 };
 

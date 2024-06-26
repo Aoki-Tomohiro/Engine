@@ -49,6 +49,8 @@ public:
 		kTexture,
 		//ライト
 		kLight,
+		//マスクテクスチャ
+		kMaskTexture,
 		//環境テクスチャ
 		kEnvironmentTexture,
 	};
@@ -74,6 +76,7 @@ public:
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV,
+		D3D12_GPU_DESCRIPTOR_HANDLE maskTextureSRV,
 		UINT indexCount,
 		DrawPass drawPass);
 
@@ -120,6 +123,7 @@ private:
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSRV;
+		D3D12_GPU_DESCRIPTOR_HANDLE maskTextureSRV;
 		UINT indexCount;
 		DrawPass type;
 		bool hasSkinCluster;

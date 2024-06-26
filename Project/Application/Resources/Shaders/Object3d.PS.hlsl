@@ -10,6 +10,9 @@ struct Material
     float32_t shininess;
     float32_t3 specularColor;
     float32_t environmentCoefficient;
+    float32_t dissolveThreshold;
+    float32_t edgeWidth;
+    float32_t3 edgeColor;
 };
 
 struct DirectionLight
@@ -54,7 +57,8 @@ struct LightGroup
 };
 
 Texture2D<float32_t4> gTexture : register(t0);
-TextureCube<float32_t4> gEnvironmentTexture : register(t1);
+Texture2D<float32_t> gMaskTexture : register(t1);
+TextureCube<float32_t4> gEnvironmentTexture : register(t2);
 SamplerState gSampler : register(s0);
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<LightGroup> gLightGroup : register(b1);
@@ -69,10 +73,17 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     float32_t4 transformUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(gSampler, transformUV.xy);
+    float32_t mask = gMaskTexture.Sample(gSampler, input.texcoord);
     float32_t4 finalColor = { 0, 0, 0, 1 };
     
     //textureのa値が0のときにPixelを棄却
     if(textureColor.a == 0.0f)
+    {
+        discard;
+    }
+    
+    //maskの値が閾値以下の場合はdiscardして抜く
+    if(mask <= gMaterial.dissolveThreshold)
     {
         discard;
     }
@@ -234,6 +245,10 @@ PixelShaderOutput main(VertexShaderOutput input)
     output.color.rgb = finalColor.rgb;
     //アルファは今まで道り
     output.color.a = gMaterial.color.a * textureColor.a;
+    
+    //Edgeっぽさを算出
+    float32_t edge = 1.0f - smoothstep(gMaterial.dissolveThreshold, gMaterial.dissolveThreshold + gMaterial.edgeWidth, mask);
+    output.color.rgb += edge * gMaterial.edgeColor;
     
     //output.colorのa値が0のときにPixelを棄却
     if (output.color.a == 0.0f)

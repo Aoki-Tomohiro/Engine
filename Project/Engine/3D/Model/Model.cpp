@@ -85,7 +85,7 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 		//Objectの追加
 		renderer_->AddObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(), materials_[materialIndex]->GetConstantBuffer()->GetGpuVirtualAddress(),
 			worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(),
-			materials_[materialIndex]->GetTexture()->GetSRVHandle(), UINT(meshes_[i]->GetIndicesSize()), drawPass_);
+			materials_[materialIndex]->GetTexture()->GetSRVHandle(), materials_[materialIndex]->GetMaskTexture()->GetSRVHandle(), UINT(meshes_[i]->GetIndicesSize()), drawPass_);
 
 		//SkinClusterを持っている場合
 		if (meshes_[i]->GetHasSkinCluster())

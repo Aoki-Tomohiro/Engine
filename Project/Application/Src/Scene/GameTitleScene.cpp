@@ -3,7 +3,6 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/LevelLoader/LevelLoader.h"
-#include "Engine/Components/Component/ModelComponent.h"
 #include <numbers>
 
 void GameTitleScene::Initialize()

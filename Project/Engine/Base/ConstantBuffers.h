@@ -29,6 +29,10 @@ struct ConstBuffDataMaterial
 	float shininess;
 	Vector3 specularColor;
 	float environmentCoefficient;
+	float dissolveThreshold;
+	float edgeWidth;
+	float padding[2];
+	Vector3 edgeColor;
 };
 
 struct ConstBuffDataWorldTransform
