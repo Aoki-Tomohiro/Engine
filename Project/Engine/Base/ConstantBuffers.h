@@ -94,17 +94,15 @@ struct ConstBuffDataGaussianBlur
 
 struct ConstBuffDataBloom
 {
-	int32_t isEnable;
 	float intensity;
 	float textureWeight;
 	float highLumTextureWeight;
+	float padding;
 	float blurTextureWeight[4];
 };
 
 struct ConstBuffDataFog
 {
-	int32_t isEnable;
-	int32_t padding[3];
 	Matrix4x4 projectionInverse;
 	float scale;
 	float attenuationRate;
@@ -112,8 +110,6 @@ struct ConstBuffDataFog
 
 struct ConstBuffDataDoF
 {
-	int32_t isEnable;
-	int32_t padding[3];
 	Matrix4x4 projectionInverse;
 	float focusDepth;
 	float nFocusWidth;
@@ -122,40 +118,29 @@ struct ConstBuffDataDoF
 
 struct ConstBuffDataLensDistortion
 {
-	int32_t isEnable;
 	float tightness;
 	float strength;
 };
 
 struct ConstBuffDataVignette
 {
-	int32_t isEnable;
 	float scale;
 	float intensity;
 };
 
 struct ConstBuffDataGrayScale
 {
-	int32_t isEnable;
 	int32_t isSepiaEnabled;
-};
-
-struct ConstBuffDataBoxFilter
-{
-	int32_t isEnable;
-	int32_t kernelSize;
-};
-
-enum KernelSize
-{
-	k3x3,
-	k5x5
 };
 
 struct ConstBuffDataOutline
 {
-	int32_t isEnable;
-	int32_t padding[3];
 	Matrix4x4 projectionInverse;
 	float coefficient;
+};
+
+struct ConstBuffDataRadialBlur
+{
+	Vector2 center;
+	float blurWidth;
 };

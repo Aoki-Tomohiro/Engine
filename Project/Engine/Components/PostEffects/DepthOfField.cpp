@@ -25,7 +25,6 @@ void DepthOfField::Initialize()
 void DepthOfField::Update()
 {
 	ConstBuffDataDoF* dofData = static_cast<ConstBuffDataDoF*>(constBuff_->Map());
-	dofData->isEnable = isEnable_;
 	dofData->projectionInverse = projectionInverse_;
 	dofData->focusDepth = focusDepth_;
 	dofData->nFocusWidth = nFocusWidth_;
@@ -35,6 +34,11 @@ void DepthOfField::Update()
 
 void DepthOfField::Apply(const DescriptorHandle& srvHandle)
 {
+	if (!isEnable_)
+	{
+		return;
+	}
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 

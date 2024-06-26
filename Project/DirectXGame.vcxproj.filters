@@ -205,6 +205,18 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Transition">
       <UniqueIdentifier>{e25f71e2-aba6-4776-99b0-3489fedfc816}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Player\States">
+      <UniqueIdentifier>{e128d918-53a2-4605-9f67-b5825ef79415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Ground">
+      <UniqueIdentifier>{2a442466-4e44-4568-bfb1-80def157939c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Ground">
+      <UniqueIdentifier>{fd4d4687-ba0e-4025-aac6-a8203abbaff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Player\States">
+      <UniqueIdentifier>{263438c4-2b14-4867-a282-ddc5f312b00d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -396,9 +408,6 @@
     <ClCompile Include="Engine\3D\Model\Animation.cpp">
       <Filter>ソース ファイル\Engine\3D\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\PostEffects\BoxFilter.cpp">
-      <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Components\Collision\Collider.cpp">
       <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
@@ -477,16 +486,19 @@
     <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
       <Filter>ソース ファイル\Application\Object\Transition</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateIdle.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
+    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Application\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -740,9 +752,6 @@
     <ClInclude Include="Engine\3D\Model\Animation.h">
       <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\PostEffects\BoxFilter.h">
-      <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Components\Component\Component.h">
       <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
     </ClInclude>
@@ -819,18 +828,21 @@
       <Filter>ヘッダー ファイル\Application\Object\Transition</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Ground\Ground.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateIdle.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Ground</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateIdle.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -882,6 +894,10 @@
     <None Include="Application\Resources\Shaders\Line.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\GrayScale.hlsli" />
+    <None Include="Application\Resources\Shaders\RadialBlur.hlsli" />
+    <None Include="Application\Resources\Shaders\LensDistortion.hlsli" />
+    <None Include="Application\Resources\Shaders\Vignette.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
@@ -971,5 +987,13 @@
     <FxCompile Include="Application\Resources\Shaders\Line.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\GrayScale.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\GrayScale.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\RadialBlur.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\RadialBlur.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\LensDistortion.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\LensDistortion.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Vignette.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Vignette.PS.hlsl" />
   </ItemGroup>
 </Project>

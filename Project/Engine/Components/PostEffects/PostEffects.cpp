@@ -60,13 +60,13 @@ void PostEffects::Initialize()
 	grayScale_ = std::make_unique<GrayScale>();
 	grayScale_->Initialize();
 
-	//BoxFilterの初期化
-	boxFilter_ = std::make_unique<BoxFilter>();
-	boxFilter_->Initialize();
-
 	//Outlineの初期化
 	outline_ = std::make_unique<Outline>();
 	outline_->Initialize();
+
+	//RadialBlurの初期化
+	radialBlur_ = std::make_unique<RadialBlur>();
+	radialBlur_->Initialize();
 }
 
 void PostEffects::Update()
@@ -89,11 +89,11 @@ void PostEffects::Update()
 	//GrayScaleの更新
 	grayScale_->Update();
 
-	//BoxFilterの更新
-	boxFilter_->Update();
-
 	//Outlineの更新
 	outline_->Update();
+
+	//RadialBlurの更新
+	radialBlur_->Update();
 }
 
 void PostEffects::Apply()
@@ -113,17 +113,64 @@ void PostEffects::Apply()
 		return;
 	}
 
+	//現在のテクスチャ
+	currentDescriptorHandle_ = Renderer::GetInstance()->GetSceneColorDescriptorHandle();
+
 	//Outlineの適用
-	outline_->Apply(Renderer::GetInstance()->GetSceneColorDescriptorHandle());
+	if (outline_->GetIsEnable())
+	{
+		outline_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = outline_->GetDescriptorHandle();
+	}
+
+	//GrayScaleの適用
+	if (grayScale_->GetIsEnable())
+	{
+		grayScale_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = grayScale_->GetDescriptorHandle();
+	}
+
+	//LensDistortionの適用
+	if (lensDistortion_->GetIsEnable())
+	{
+		lensDistortion_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = lensDistortion_->GetDescriptorHandle();
+	}
 
 	//DepthOfFieldを適用
-	depthOfField_->Apply(outline_->GetDescriptorHandle());
+	if (depthOfField_->GetIsEnable())
+	{
+		depthOfField_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = depthOfField_->GetDescriptorHandle();
+	}
 
 	//Bloomを適用
-	bloom_->Apply(depthOfField_->GetDescriptorHandle());
+	if (bloom_->GetIsEnable())
+	{
+		bloom_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = bloom_->GetDescriptorHandle();
+	}
+
+	//RadialBlurの適用
+	if (radialBlur_->GetIsEnable())
+	{
+		radialBlur_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = radialBlur_->GetDescriptorHandle();
+	}
 
 	//Fogを適用
-	fog_->Apply(bloom_->GetDescriptorHandle());
+	if (fog_->GetIsEnable())
+	{
+		fog_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = fog_->GetDescriptorHandle();
+	}
+
+	//Vignetteを適用
+	if (vignette_->GetIsEnable())
+	{
+		vignette_->Apply(currentDescriptorHandle_);
+		currentDescriptorHandle_ = vignette_->GetDescriptorHandle();
+	}
 }
 
 void PostEffects::Draw()
@@ -138,14 +185,7 @@ void PostEffects::Draw()
 	commandContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneColorDescriptorHandle());
-	commandContext->SetDescriptorTable(1, fog_->GetDescriptorHandle());
-
-	//CBVを設定
-	commandContext->SetConstantBuffer(2, lensDistortion_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(3, vignette_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(4, grayScale_->GetConstBuffer()->GetGpuVirtualAddress());
-	commandContext->SetConstantBuffer(5, boxFilter_->GetConstBuffer()->GetGpuVirtualAddress());
+	commandContext->SetDescriptorTable(0, currentDescriptorHandle_);
 
 	//DrawCall
 	commandContext->DrawInstanced(6, 1);
@@ -180,15 +220,10 @@ void PostEffects::CreateVertexBuffer()
 void PostEffects::CreatePipelineState()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(6, 1);
+	rootSignature_.Create(1, 1);
 
 	//RootParameterの設定
 	rootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[2].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[3].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[4].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[5].InitAsConstantBuffer(3, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};

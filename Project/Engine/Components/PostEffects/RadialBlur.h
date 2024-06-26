@@ -4,7 +4,7 @@
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
 
-class GrayScale
+class RadialBlur
 {
 public:
 	void Initialize();
@@ -15,11 +15,15 @@ public:
 
 	const bool GetIsEnable() const { return isEnable_; };
 
-	void SetIsEnable(const int32_t isEnable) { isEnable_ = isEnable; };
+	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };
 
-	const bool GetIsSepiaEnabled() const { return isSepiaEnabled_; };
+	const Vector2& GetCenter() const { return center_; };
 
-	void SetIsSepiaEnabled(const int32_t isSepiaEnabled) { isSepiaEnabled_ = isSepiaEnabled; };
+	void SetCenter(const Vector2& center) { center_ = center; };
+
+	const float GetBlurWidth() const { return blurWidth_; };
+
+	void SetBlurWidth(const float blurWidth) { blurWidth_ = blurWidth; };
 
 	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
 
@@ -40,8 +44,10 @@ private:
 	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
 
 	//調整項目
-	int32_t isEnable_ = false;
+	bool isEnable_ = false;
 
-	int32_t isSepiaEnabled_ = false;
+	Vector2 center_ = { 0.5f,0.5f };
+
+	float blurWidth_ = 0.01f;
 };
 

@@ -13,8 +13,6 @@ public:
 
 	void Apply(const DescriptorHandle& srvHandle);
 
-	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
-
 	const bool GetIsEnable() const { return isEnable_; };
 
 	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };

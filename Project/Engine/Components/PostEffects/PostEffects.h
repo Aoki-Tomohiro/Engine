@@ -5,8 +5,8 @@
 #include "LensDistortion.h"
 #include "Vignette.h"
 #include "GrayScale.h"
-#include "BoxFilter.h"
 #include "Outline.h"
+#include "RadialBlur.h"
 
 class PostEffects
 {
@@ -39,9 +39,9 @@ public:
 
 	GrayScale* GetGrayScale() const { return grayScale_.get(); };
 
-	BoxFilter* GetBoxFilter() const { return boxFilter_.get(); };
-
 	Outline* GetOutline() const { return outline_.get(); };
+
+	RadialBlur* GetRadialBlur() const { return radialBlur_.get(); };
 
 private:
 	PostEffects() = default;
@@ -78,9 +78,11 @@ private:
 
 	std::unique_ptr<GrayScale> grayScale_ = nullptr;
 
-	std::unique_ptr<BoxFilter> boxFilter_ = nullptr;
-
 	std::unique_ptr<Outline> outline_ = nullptr;
+
+	std::unique_ptr<RadialBlur> radialBlur_ = nullptr;
+
+	DescriptorHandle currentDescriptorHandle_{};
 
 	bool isEnable_ = false;
 };

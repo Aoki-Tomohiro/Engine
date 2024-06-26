@@ -3,6 +3,7 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/LevelLoader/LevelLoader.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include <numbers>
 
 void GameTitleScene::Initialize()
@@ -28,7 +29,9 @@ void GameTitleScene::Initialize()
 
 	//カメラを初期化
     camera_ = gameObjectManager_->GetCamera();
-	camera_->rotation_.x = 0.3f;
+	camera_->rotation_ = { 0.3f,0.0f,0.0f };
+	//camera_->translation_ = { 0.0f,6.7f,-20.0f };
+	//camera_->rotation_ = { 0.2f,0.0f,0.0f };
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -51,13 +54,17 @@ void GameTitleScene::Update()
 	//カメラの更新
 	CameraUpdate();
 
+	//カメラの行列の更新
+	camera_->UpdateMatrix();
+
 	//フェードイン処理
 	HandleTransition();
 
 	//ImGui
 	ImGui::Begin("GameTitleScene");
 	ImGui::Text("Space or AButton: GamePlayScene");
-	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x);
+	ImGui::DragFloat3("CameraTranslation", &camera_->translation_.x, 0.1f);
+	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x, 0.01f);
 	ImGui::End();
 }
 
@@ -115,9 +122,6 @@ void GameTitleScene::CameraUpdate()
 
 	//カメラの座標を設定
 	camera_->translation_ = offset;
-
-	//カメラの更新
-	camera_->UpdateMatrix();
 }
 
 void GameTitleScene::HandleTransition()

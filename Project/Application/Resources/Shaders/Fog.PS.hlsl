@@ -7,7 +7,6 @@ struct PixelShaderOutput
 
 struct Fog
 {
-    int32_t isEnable;
     float32_t4x4 projectionInverse;
     float32_t scale;
     float32_t attenuationRate;
@@ -17,7 +16,6 @@ Texture2D<float32_t> gLinearDepthTexture : register(t0);
 Texture2D<float32_t4> gTexture : register(t1);
 SamplerState gSampler : register(s0);
 SamplerState gSamplerPoint : register(s1);
-
 ConstantBuffer<Fog> gFogParameter : register(b0);
 
 PixelShaderOutput main(VertexShaderOutput input)
@@ -29,19 +27,12 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t viewZ = viewSpace.z * rcp(viewSpace.w); //同時座標系からデカルト座標系へ変換
     
     float fogFactor = 1.0f;
-    if (gFogParameter.isEnable)
-    {
-        float fogWeight = 0.0f;
-        fogWeight += gFogParameter.scale * max(0.0f, 1.0f - exp(-gFogParameter.attenuationRate * viewZ));
-        const float3 gbColor = textureColor.rgb;
-        const float3 fogColor = 0.8f;
-        output.color.rgb = lerp(gbColor, fogColor, fogWeight);
-        output.color.a = textureColor.a;
-    }
-    else
-    {
-        output.color = textureColor;
-    }
+    float fogWeight = 0.0f;
+    fogWeight += gFogParameter.scale * max(0.0f, 1.0f - exp(-gFogParameter.attenuationRate * viewZ));
+    const float3 gbColor = textureColor.rgb;
+    const float3 fogColor = 0.8f;
+    output.color.rgb = lerp(gbColor, fogColor, fogWeight);
+    output.color.a = textureColor.a;
     
     return output;
 }

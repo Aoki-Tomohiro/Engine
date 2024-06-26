@@ -33,7 +33,6 @@ void Bloom::Initialize()
 void Bloom::Update()
 {
 	ConstBuffDataBloom* bloomData = static_cast<ConstBuffDataBloom*>(constBuff_->Map());
-	bloomData->isEnable = isEnable_;
 	bloomData->intensity = intensity_;
 	bloomData->textureWeight = textureWeight_;
 	bloomData->highLumTextureWeight = highLumTextureWeight_;
@@ -46,6 +45,11 @@ void Bloom::Update()
 
 void Bloom::Apply(const DescriptorHandle& srvHandle)
 {
+	if (!isEnable_)
+	{
+		return;
+	}
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 

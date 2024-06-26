@@ -25,7 +25,6 @@ void Fog::Initialize()
 void Fog::Update()
 {
 	ConstBuffDataFog* fogData = static_cast<ConstBuffDataFog*>(constBuff_->Map());
-	fogData->isEnable = isEnable_;
 	fogData->projectionInverse = projectionInverse_;
 	fogData->scale = scale_;
 	fogData->attenuationRate = attenuationRate_;
@@ -34,6 +33,11 @@ void Fog::Update()
 
 void Fog::Apply(const DescriptorHandle& srvHandle)
 {
+	if (!isEnable_)
+	{
+		return;
+	}
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 

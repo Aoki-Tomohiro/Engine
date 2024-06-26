@@ -1,7 +1,8 @@
 #pragma once
+#include "Engine/Base/GraphicsPSO.h"
+#include "Engine/Base/ColorBuffer.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
-#include <memory>
 
 class LensDistortion
 {
@@ -10,7 +11,7 @@ public:
 
 	void Update();
 
-	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
+	void Apply(const DescriptorHandle& srvHandle);
 
 	const bool GetIsEnable() const { return isEnable_; };
 
@@ -24,9 +25,25 @@ public:
 
 	void SetStrength(const float strength) { strength_ = strength; };
 
+	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
+
 private:
+	void CreatePipelineState();
+
+private:
+	//RootSignature
+	RootSignature rootSignature_{};
+
+	//PipelineState
+	GraphicsPSO pipelineState_{};
+
+	//ColorBuffer
+	std::unique_ptr<ColorBuffer> colorBuffer_ = nullptr;
+
+	//ConstBuffer
 	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
 
+	//調整項目
 	bool isEnable_ = false;
 
 	float tightness_ = 2.5f;

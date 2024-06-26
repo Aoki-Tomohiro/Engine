@@ -7,7 +7,6 @@ struct PixelShaderOutput
 
 struct DepthOfField
 {
-    int32_t isEnable;
     float32_t4x4 projectionInverse;
     float32_t focusDepth;
     float32_t nFocusWidth;
@@ -58,22 +57,15 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t viewZ = viewSpace.z * rcp(viewSpace.w); //同時座標系からデカルト座標系へ変換
     float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
     
-    if(gDepthOfFieldParameter.isEnable)
-    {
-        float inFocus = 1 - smoothstep(0, gDepthOfFieldParameter.nFocusWidth, abs(viewZ - gDepthOfFieldParameter.focusDepth));
-        float outFocus = smoothstep(gDepthOfFieldParameter.nFocusWidth, gDepthOfFieldParameter.fFocusWidth, abs(viewZ - gDepthOfFieldParameter.focusDepth));
-        float middleFocus = 1 - inFocus - outFocus;
+    float inFocus = 1 - smoothstep(0, gDepthOfFieldParameter.nFocusWidth, abs(viewZ - gDepthOfFieldParameter.focusDepth));
+    float outFocus = smoothstep(gDepthOfFieldParameter.nFocusWidth, gDepthOfFieldParameter.fFocusWidth, abs(viewZ - gDepthOfFieldParameter.focusDepth));
+    float middleFocus = 1 - inFocus - outFocus;
     
-        float32_t4 inFocusColor = textureColor;
-        float32_t4 middleFocusColor = GaussianBlur(input.texcoord, 0.001f, 0.0002f);
-        float32_t4 outFocusColor = GaussianBlur(input.texcoord, 0.0016f, 0.0004f);
+    float32_t4 inFocusColor = textureColor;
+    float32_t4 middleFocusColor = GaussianBlur(input.texcoord, 0.001f, 0.0002f);
+    float32_t4 outFocusColor = GaussianBlur(input.texcoord, 0.0016f, 0.0004f);
     
-        output.color = inFocus * inFocusColor + middleFocus * middleFocusColor + outFocus * outFocusColor;
-    }
-    else
-    {
-        output.color = textureColor;
-    }
+    output.color = inFocus * inFocusColor + middleFocus * middleFocusColor + outFocus * outFocusColor;
  
     return output;
 }

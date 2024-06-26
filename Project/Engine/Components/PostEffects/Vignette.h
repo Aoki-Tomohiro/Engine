@@ -1,7 +1,8 @@
 #pragma once
+#include "Engine/Base/GraphicsPSO.h"
+#include "Engine/Base/ColorBuffer.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
-#include <memory>
 
 class Vignette
 {
@@ -10,7 +11,7 @@ public:
 
 	void Update();
 
-	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
+	void Apply(const DescriptorHandle& srvHandle);
 
 	const bool GetIsEnable() const { return isEnable_; };
 
@@ -24,7 +25,22 @@ public:
 
 	void SetIntensity(const float intensity) { intensity_ = intensity; };
 
+	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
+
 private:
+	void CreatePipelineState();
+
+private:
+	//RootSignature
+	RootSignature rootSignature_{};
+
+	//PipelineState
+	GraphicsPSO pipelineState_{};
+
+	//ColorBuffer
+	std::unique_ptr<ColorBuffer> colorBuffer_ = nullptr;
+
+	//ConstBuffer
 	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
 
 	bool isEnable_ = false;

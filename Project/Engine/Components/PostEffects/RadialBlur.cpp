@@ -1,10 +1,8 @@
-#include "Outline.h"
+#include "RadialBlur.h"
 #include "Engine/Base/GraphicsCore.h"
-#include "Engine/Base/Renderer.h"
-#include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/ShaderCompiler.h"
 
-void Outline::Initialize()
+void RadialBlur::Initialize()
 {
 	//ColorBufferの生成
 	colorBuffer_ = std::make_unique<ColorBuffer>();
@@ -12,25 +10,22 @@ void Outline::Initialize()
 
 	//ConstBufferの生成
 	constBuff_ = std::make_unique<UploadBuffer>();
-	constBuff_->Create(sizeof(ConstBuffDataOutline));
+	constBuff_->Create(sizeof(ConstBuffDataRadialBlur));
 	Update();
 
 	//PipelineStateの生成
 	CreatePipelineState();
-
-	//逆プロジェクション行列の初期化
-	projectionInverse_ = Mathf::Inverse(Mathf::MakePerspectiveFovMatrix(45.0f * 3.141592654f / 180.0f, 1280.0f / 720.0f, 0.1f, 1000.0f));
 }
 
-void Outline::Update()
+void RadialBlur::Update()
 {
-	ConstBuffDataOutline* outlineData = static_cast<ConstBuffDataOutline*>(constBuff_->Map());
-	outlineData->projectionInverse = projectionInverse_;
-	outlineData->coefficient = coefficient_;
+	ConstBuffDataRadialBlur* radialBlurData = static_cast<ConstBuffDataRadialBlur*>(constBuff_->Map());
+	radialBlurData->center = center_;
+	radialBlurData->blurWidth = blurWidth_;
 	constBuff_->Unmap();
 }
 
-void Outline::Apply(const DescriptorHandle& srvHandle)
+void RadialBlur::Apply(const DescriptorHandle& srvHandle)
 {
 	if (!isEnable_)
 	{
@@ -56,11 +51,10 @@ void Outline::Apply(const DescriptorHandle& srvHandle)
 	commandContext->SetPipelineState(pipelineState_);
 
 	//DescriptorTableを設定
-	commandContext->SetDescriptorTable(0, Renderer::GetInstance()->GetSceneDepthDescriptorHandle());
-	commandContext->SetDescriptorTable(1, srvHandle);
+	commandContext->SetDescriptorTable(0, srvHandle);
 
 	//CBVを設定
-	commandContext->SetConstantBuffer(2, constBuff_->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(1, constBuff_->GetGpuVirtualAddress());
 
 	//ビューポート
 	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, Application::kClientWidth, Application::kClientHeight, 0.0f, 1.0f };
@@ -77,32 +71,24 @@ void Outline::Apply(const DescriptorHandle& srvHandle)
 	commandContext->TransitionResource(*colorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void Outline::CreatePipelineState()
+void RadialBlur::CreatePipelineState()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(3, 2);
+	rootSignature_.Create(2, 1);
 
 	//RootParameterの設定
 	rootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[2].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[2]{};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
 	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-	staticSamplers[1].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;//ポイントフィルタ
-	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
-	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[1].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
-	staticSamplers[1].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
 	rootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_.InitStaticSampler(1, staticSamplers[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	rootSignature_.Finalize();
 
 	//InputLayout
@@ -133,11 +119,11 @@ void Outline::CreatePipelineState()
 
 	//シェーダーをコンパイルする
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
-	vertexShaderBlob = ShaderCompiler::CompileShader(L"Outline.VS.hlsl", L"vs_6_0");
+	vertexShaderBlob = ShaderCompiler::CompileShader(L"RadialBlur.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
-	pixelShaderBlob = ShaderCompiler::CompileShader(L"Outline.PS.hlsl", L"ps_6_0");
+	pixelShaderBlob = ShaderCompiler::CompileShader(L"RadialBlur.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	//書き込むRTVの情報
