@@ -38,11 +38,23 @@ void RWStructuredBuffer::Create(uint32_t numElements, uint32_t elementSize)
 	//GpuVirtualAddressの初期化
 	gpuVirtualAddress_ = resource_->GetGPUVirtualAddress();
 
+	//Viewの作成
 	CreateDerivedViews(device, numElements, elementSize);
 }
 
 void RWStructuredBuffer::CreateDerivedViews(ID3D12Device* device, uint32_t numElements, uint32_t elementSize)
 {
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0;
+	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	srvDesc.Buffer.NumElements = numElements;
+	srvDesc.Buffer.StructureByteStride = UINT(elementSize);
+	srvHandle_ = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
+
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;

@@ -1,20 +1,14 @@
 #include "Particle.hlsli"
 
-struct ParticleForGPU
+struct PerView
 {
-    float32_t4x4 world;
-    float32_t4 color;
+    float32_t4x4 viewMatrix;
+    float32_t4x4 projectionMatrix;
+    float32_t4x4 billboardMatrix;
 };
 
-struct Camera
-{
-    float32_t3 worldPosition;
-    float32_t4x4 view;
-    float32_t4x4 projection;
-};
-
-StructuredBuffer<ParticleForGPU> gParticle : register(t0);
-ConstantBuffer<Camera> gCamera : register(b1);
+StructuredBuffer<Particle> gParticle : register(t0);
+ConstantBuffer<PerView> gPerView : register(b1);
 
 struct VertexShaderInput
 {
@@ -26,10 +20,15 @@ struct VertexShaderInput
 VertexShaderOutput main(VertexShaderInput input, uint32_t instanceId : SV_InstanceID)
 {
     VertexShaderOutput output;
-    output.position = mul(input.position, mul(gParticle[instanceId].world, mul(gCamera.view, gCamera.projection)));
+    Particle particle = gParticle[instanceId];
+    float32_t4x4 worldMatrix = gPerView.billboardMatrix;
+    worldMatrix[0] *= particle.scale.x;
+    worldMatrix[1] *= particle.scale.y;
+    worldMatrix[2] *= particle.scale.z;
+    worldMatrix[3].xyz = particle.translate;
+    output.position = mul(input.position, mul(worldMatrix, mul(gPerView.viewMatrix, gPerView.projectionMatrix)));
     output.texcoord = input.texcoord;
-    output.normal = normalize(mul(input.normal, (float32_t3x3) gParticle[instanceId].world));
-    output.color = gParticle[instanceId].color;
+    output.color = particle.color;
 
     return output;
 }

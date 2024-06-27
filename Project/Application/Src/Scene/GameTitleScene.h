@@ -4,6 +4,7 @@
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
@@ -40,5 +41,9 @@ private:
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
+
+	//パーティクル
+	ParticleManager* particleManager_ = nullptr;
+	ParticleSystem* particleSystem_ = nullptr;
 };
 

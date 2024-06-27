@@ -1,5 +1,6 @@
 #include "ParticleManager.h"
 #include "Engine/Base/GraphicsCore.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Utilities/ShaderCompiler.h"
 
 ParticleManager* ParticleManager::instance_ = nullptr;
@@ -30,11 +31,59 @@ ParticleSystem* ParticleManager::Create(const std::string& name)
 
 void ParticleManager::Initialize()
 {
-	rootSignature_.Create(4, 1);
-	rootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
-	rootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-	rootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	//GraphicsPipelineStateの作成
+	CreateGraphicsPipelineState();
+
+	//ComputePipelineStateの作成
+	CreateInitializeComputePipelineState();
+
+	//デフォルトのパーティクル画像を読み込む
+	TextureManager::Load("DefaultParticle.png");
+}
+
+void ParticleManager::Update()
+{
+	//パーティクルの更新
+	for (auto& particleSystem : particleSystems_)
+	{
+		particleSystem.second->Update();
+	}
+}
+
+void ParticleManager::Draw()
+{
+	//コマンドリストを取得
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+
+	//RootSignatureを設定
+	commandContext->SetRootSignature(graphicsRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(graphicsPipelineState);
+
+	//パーティクルの描画
+	for (auto& particleSystem : particleSystems_)
+	{
+		assert(camera_);
+		particleSystem.second->Draw(*camera_);
+	}
+}
+
+void ParticleManager::Clear()
+{
+	for (auto& particleSystem : particleSystems_)
+	{
+		particleSystem.second->Clear();
+	}
+}
+
+void ParticleManager::CreateGraphicsPipelineState()
+{
+	graphicsRootSignature_.Create(4, 1);
+	graphicsRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	graphicsRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
+	graphicsRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
+	graphicsRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
@@ -44,8 +93,8 @@ void ParticleManager::Initialize()
 	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-	rootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_.Finalize();
+	graphicsRootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	graphicsRootSignature_.Finalize();
 
 	//InputLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[3] = {};
@@ -102,53 +151,32 @@ void ParticleManager::Initialize()
 	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	//PipelineStateを作成
-	pipelineState_.SetRootSignature(&rootSignature_);
-	pipelineState_.SetInputLayout(3, inputElementDescs);
-	pipelineState_.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-	pipelineState_.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-	pipelineState_.SetBlendState(blendDesc);
-	pipelineState_.SetRasterizerState(rasterizerDesc);
-	pipelineState_.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	pipelineState_.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	pipelineState_.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-	pipelineState_.SetDepthStencilState(depthStencilDesc);
-	pipelineState_.Finalize();
+	graphicsPipelineState.SetRootSignature(&graphicsRootSignature_);
+	graphicsPipelineState.SetInputLayout(3, inputElementDescs);
+	graphicsPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
+	graphicsPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
+	graphicsPipelineState.SetBlendState(blendDesc);
+	graphicsPipelineState.SetRasterizerState(rasterizerDesc);
+	graphicsPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
+	graphicsPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	graphicsPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
+	graphicsPipelineState.SetDepthStencilState(depthStencilDesc);
+	graphicsPipelineState.Finalize();
 }
 
-void ParticleManager::Update()
+void ParticleManager::CreateInitializeComputePipelineState()
 {
-	//パーティクルの更新
-	for (auto& particleSystem : particleSystems_)
-	{
-		particleSystem.second->Update();
-	}
-}
+	//RootSignatureの作成
+	initializeComputeRootSignature.Create(1, 0);
+	initializeComputeRootSignature[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	initializeComputeRootSignature.Finalize();
 
-void ParticleManager::Draw()
-{
-	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-
-	//RootSignatureを設定
-	commandContext->SetRootSignature(rootSignature_);
-
-	//PipelineStateを設定
-	commandContext->SetPipelineState(pipelineState_);
-
-	//パーティクルの描画
-	for (auto& particleSystem : particleSystems_)
-	{
-		assert(camera_);
-		particleSystem.second->Draw(*camera_);
-	}
-}
-
-void ParticleManager::Clear()
-{
-	for (auto& particleSystem : particleSystems_)
-	{
-		particleSystem.second->Clear();
-	}
+	//PipelineStateの作成
+	Microsoft::WRL::ComPtr<IDxcBlob> computeShaderBlob = ShaderCompiler::CompileShader(L"InitializeParticle.CS.hlsl", L"cs_6_0");
+	assert(computeShaderBlob != nullptr);
+	initializeComputePipelineState_.SetRootSignature(&initializeComputeRootSignature);
+	initializeComputePipelineState_.SetComputeShader(computeShaderBlob->GetBufferPointer(), computeShaderBlob->GetBufferSize());
+	initializeComputePipelineState_.Finalize();
 }
 
 ParticleSystem* ParticleManager::CreateInternal(const std::string& name)
@@ -160,8 +188,52 @@ ParticleSystem* ParticleManager::CreateInternal(const std::string& name)
 		return it->second.get();
 	}
 
+	//パーティクルの生成
 	ParticleSystem* particleSystem = new ParticleSystem();
 	particleSystem->Initialize();
 	particleSystems_[name] = std::unique_ptr<ParticleSystem>(particleSystem);
+
+	//コマンドリストを作成
+	CommandContext commandContext{};
+	commandContext.Initialize();
+
+	//コマンドキューを作成
+	CommandQueue commandQueue{};
+	commandQueue.Initialize();
+
+	//DescriptorHeapを設定
+	commandContext.SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+
+	//リソースの状態を遷移
+	commandContext.TransitionResource(*particleSystem->GetInstancingResource(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	//RootSignatureを設定
+	commandContext.SetComputeRootSignature(initializeComputeRootSignature);
+
+	//PipelineStateを設定
+	commandContext.SetPipelineState(initializeComputePipelineState_);
+
+	//UAVを設定
+	commandContext.SetComputeDescriptorTable(0, particleSystem->GetInstancingResource()->GetUAVHandle());
+
+	//Dispatch
+	commandContext.Dispatch(ParticleSystem::kMaxInstance, 1, 1);
+
+	//リソースの状態を遷移
+	commandContext.TransitionResource(*particleSystem->GetInstancingResource(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+	//コマンドリストを閉じる
+	commandContext.Close();
+
+	//コマンドを実行
+	ID3D12CommandList* commandLists[] = { commandContext.GetCommandList() };
+	commandQueue.ExecuteCommandList(commandLists);
+
+	//Fenceを待つ
+	commandQueue.WaitForFence();
+
+	//コマンドリストをリセット
+	commandContext.Reset();
+
 	return particleSystem;
 }

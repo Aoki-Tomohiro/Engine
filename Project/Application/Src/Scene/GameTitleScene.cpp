@@ -35,6 +35,14 @@ void GameTitleScene::Initialize()
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
+
+	//パーティクルマネージャーのインスタンスを取得
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
+	particleManager_->SetCamera(camera_);
+
+	//パーティクルの作成
+	particleSystem_ = ParticleManager::Create("GameTitleScene");
 }
 
 void GameTitleScene::Finalize()

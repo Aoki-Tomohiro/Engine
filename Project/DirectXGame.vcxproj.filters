@@ -1001,5 +1001,6 @@
     <FxCompile Include="Application\Resources\Shaders\LensDistortion.PS.hlsl" />
     <FxCompile Include="Application\Resources\Shaders\Vignette.VS.hlsl" />
     <FxCompile Include="Application\Resources\Shaders\Vignette.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\InitializeParticle.CS.hlsl" />
   </ItemGroup>
 </Project>

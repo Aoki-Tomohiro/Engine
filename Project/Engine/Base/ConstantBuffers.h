@@ -88,6 +88,24 @@ struct ParticleForGPU
 	Vector4 color;
 };
 
+struct ParticleCS
+{
+	Vector3 translate;
+	float padding;
+	Vector3 scale;
+	//float lifeTime;
+	//Vector3 velocity;
+	//float currentTile;
+	//Vector4 color;
+};
+
+struct PerView
+{
+	Matrix4x4 viewMatrix;
+	Matrix4x4 projectionMatrix;
+	Matrix4x4 billboardMatrix;
+};
+
 struct ConstBuffDataGaussianBlur
 {
 	int32_t textureWidth;

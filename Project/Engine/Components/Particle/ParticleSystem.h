@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Base/StructuredBuffer.h"
+#include "Engine/Base/RWStructuredBuffer.h"
 #include "Engine/Base/DescriptorHandle.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "ParticleEmitterBuilder.h"
@@ -8,7 +8,7 @@ class ParticleSystem
 {
 public:
 	//パーティクルの最大数
-	const uint32_t kMaxInstance = 1000;
+	static const uint32_t kMaxInstance = 1024;
 
 	void Initialize();
 
@@ -32,15 +32,17 @@ public:
 
 	void SetTexture(const std::string& name) { model_ ? model_->GetMaterial(0)->SetTexture(name) : defaultModel_->GetMaterial(0)->SetTexture(name); };
 
-private:
-	void CreateInstancingResource();
-
-	void UpdateInstancingResource(const Camera& camera);
+	RWStructuredBuffer* GetInstancingResource() const { return instancingResource_.get(); };
 
 private:
-	std::unique_ptr<StructuredBuffer> instancingResource_ = nullptr;
+	void CreatePerViewResource();
 
-	uint32_t numInstance_ = 0;
+	void UpdatePerViewResource(const Camera& camera);
+
+private:
+	std::unique_ptr<RWStructuredBuffer> instancingResource_ = nullptr;
+
+	std::unique_ptr<UploadBuffer> perViewResource_ = nullptr;
 
 	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
