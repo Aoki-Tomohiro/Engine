@@ -5,8 +5,6 @@ struct EmitterSphere
     float32_t3 translate; //位置
     float32_t radius; //射出半径
     uint32_t count; //射出数
-    float32_t frequency; //射出間隔
-    float32_t frequencyTime; //射出間隔調整用時間
     uint32_t emit; //射出許可
 };
 
@@ -68,8 +66,8 @@ void main(uint32_t DTid : SV_DispatchThreadID)
             if(particleIndex < kMaxParticles)
             {
                 //Particleの初期化
-                gParticles[particleIndex].scale = generator.Generate3d();
                 gParticles[particleIndex].translate = generator.Generate3d();
+                gParticles[particleIndex].scale = generator.Generate3d();
                 gParticles[particleIndex].color.rgb = generator.Generate3d();
                 gParticles[particleIndex].color.a = 1.0f;
             }

@@ -1,5 +1,5 @@
 #include "GameTimer.h"
-#include <Windows.h>
+#include <chrono>
 
 float GameTimer::currentTime_ = 0.0f;
 float GameTimer::deltaTime_ = 0.0f;
@@ -7,19 +7,14 @@ float GameTimer::lastFrameTime_ = 0.0f;
 
 void GameTimer::Update()
 {
-    float currentTime = GetTime();
-    deltaTime_ = currentTime - lastFrameTime_;
-    lastFrameTime_ = currentTime;
-    currentTime_ += deltaTime_;
-}
+    //現在の時間を取得
+    static auto start = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::high_resolution_clock::now();
+    currentTime_ = std::chrono::duration<float>(now - start).count();
 
-float GameTimer::GetTime()
-{
-    LARGE_INTEGER frequency;
-    LARGE_INTEGER currentTime;
+    //DeltaTimeを計算
+    deltaTime_ = currentTime_ - lastFrameTime_;
 
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&currentTime);
-
-    return static_cast<float>(currentTime.QuadPart) / frequency.QuadPart;
+    //前のフレームの時間を更新
+    lastFrameTime_ = currentTime_;
 }

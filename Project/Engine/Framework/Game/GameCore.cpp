@@ -128,6 +128,9 @@ void GameCore::Update()
 	//SceneManagerの更新
 	sceneManager_->Update();
 
+	//Particleの更新
+	particleManager_->Update();
+
 	//GlovalVariablesの更新
 	GlobalVariables::GetInstance()->Update();
 

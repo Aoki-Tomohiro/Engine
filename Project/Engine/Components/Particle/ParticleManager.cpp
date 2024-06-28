@@ -61,36 +61,37 @@ void ParticleManager::Update()
 	perFrameData->deltaTime = GameTimer::GetDeltaTime();
 	perFrameResource_->Unmap();
 
-	//コマンドリストを取得
-	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
-	//EmitParticleRootSignatureを設定
-	commandContext->SetComputeRootSignature(emitParticleRootSignature_);
-
-	//EmitParticlePipelineStateを設定
-	commandContext->SetPipelineState(emitParticlePipelineState_);
-
-	//PerFrameを設定
-	commandContext->SetComputeConstantBuffer(3, perFrameResource_->GetGpuVirtualAddress());
-
-	//Emitterの更新
 	for (auto& particleSystem : particleSystems_)
 	{
+		//コマンドリストを取得
+		CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+
+		//DescriptorHeapを設定
+		commandContext->SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+
+		//EmitParticleRootSignatureを設定
+		commandContext->SetComputeRootSignature(emitParticleRootSignature_);
+
+		//EmitParticlePipelineStateを設定
+		commandContext->SetPipelineState(emitParticlePipelineState_);
+
+		//PerFrameを設定
+		commandContext->SetComputeConstantBuffer(3, perFrameResource_->GetGpuVirtualAddress());
+
+		//Emitterの更新
 		particleSystem.second->UpdateEmitter();
-	}
 
-	//UpdateParticleRootSignatureを設定
-	commandContext->SetComputeRootSignature(updateParticleRootSignature_);
+		//UpdateParticleRootSignatureを設定
+		commandContext->SetComputeRootSignature(updateParticleRootSignature_);
 
-	//UpdateParticlePipelineStateを設定
-	commandContext->SetPipelineState(updateParticlePipelineState_);
+		//UpdateParticlePipelineStateを設定
+		commandContext->SetPipelineState(updateParticlePipelineState_);
 
-	//PerFrameを設定
-	commandContext->SetComputeConstantBuffer(1, perFrameResource_->GetGpuVirtualAddress());
+		//PerFrameを設定
+		commandContext->SetComputeConstantBuffer(1, perFrameResource_->GetGpuVirtualAddress());
 
-	//Particleの更新
-	for (auto& particleSystem : particleSystems_)
-	{
+		//Particleの更新
 		particleSystem.second->Update();
 	}
 }

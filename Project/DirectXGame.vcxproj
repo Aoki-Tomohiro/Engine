@@ -49,6 +49,7 @@
     <ClCompile Include="Engine\Components\Component\ModelComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\RenderComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\TransformComponent.cpp" />
+    <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\Outline.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Engine\Components\Component\ModelComponent.h" />
     <ClInclude Include="Engine\Components\Component\RenderComponent.h" />
     <ClInclude Include="Engine\Components\Component\TransformComponent.h" />
+    <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleManager.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleSystem.h" />
     <ClInclude Include="Engine\Components\PostEffects\Outline.h" />

@@ -111,6 +111,14 @@ struct PerFrame
 	float deltaTime;
 };
 
+struct EmitterSphere
+{
+	Vector3 translate;//位置
+	float radius;//射出半径
+	uint32_t count;//射出数
+	uint32_t emit;//射出許可
+};
+
 struct ConstBuffDataGaussianBlur
 {
 	int32_t textureWidth;

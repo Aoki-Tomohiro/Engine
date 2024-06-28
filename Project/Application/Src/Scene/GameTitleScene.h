@@ -6,6 +6,7 @@
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
 class GameTitleScene : public IScene

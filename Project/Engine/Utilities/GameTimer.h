@@ -9,9 +9,6 @@ public:
 	static const float GetDeltaTime() { return deltaTime_; };
 
 private:
-	static float GetTime();
-
-private:
 	static float currentTime_;
 
 	static float deltaTime_;

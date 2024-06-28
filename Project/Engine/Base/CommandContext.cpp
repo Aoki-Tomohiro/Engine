@@ -36,6 +36,15 @@ void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_ST
 	}
 }
 
+void CommandContext::InsertUAVBarrier(GpuResource& resource)
+{
+	D3D12_RESOURCE_BARRIER barrier{};
+	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.UAV.pResource = resource.GetResource();
+	commandList_->ResourceBarrier(1, &barrier);
+}
+
 void CommandContext::SetRenderTargets(UINT num, const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[])
 {
 	commandList_->OMSetRenderTargets(num, rtvHandles, false, nullptr);

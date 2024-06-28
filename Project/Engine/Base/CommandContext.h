@@ -11,6 +11,8 @@ public:
 
 	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
 
+	void InsertUAVBarrier(GpuResource& resource);
+
 	void SetRenderTargets(UINT num, const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[]);
 
 	void SetRenderTargets(UINT num, const D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[], D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle);

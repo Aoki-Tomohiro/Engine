@@ -52,12 +52,41 @@ void ParticleSystem::Initialize()
 
 void ParticleSystem::Update()
 {
+	//コマンドリストを取得
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
+	//Particleを設定
+	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
+
+	//Dispatch
+	commandContext->Dispatch(1, 1, 1);
 }
 
 void ParticleSystem::UpdateEmitter()
 {
+	//コマンドリストを取得
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
+	for (const std::unique_ptr<ParticleEmitter>& emitter : particleEmitters_)
+	{
+		//エミッターの更新
+		emitter->Update();
+
+		//Particleを設定
+		commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
+
+		//FreeCounterを設定
+		commandContext->SetComputeDescriptorTable(1, freeCounterResource_->GetUAVHandle());
+
+		//Emitterを設定
+		commandContext->SetComputeConstantBuffer(2, emitter->GetEmitterResource()->GetGpuVirtualAddress());
+
+		//Dispatch
+		commandContext->Dispatch(1, 1, 1);
+	}
+
+	//UAVBarierを貼る
+	commandContext->InsertUAVBarrier(*particleResource_);
 }
 
 void ParticleSystem::Draw(const Camera* camera)
@@ -70,6 +99,9 @@ void ParticleSystem::Draw(const Camera* camera)
 
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+
+	//ParticleResourceの状態を遷移
+	commandContext->TransitionResource(*particleResource_, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	//モデルの描画
 	for (uint32_t i = 0; i < currentModel->meshes_.size(); ++i)
@@ -101,11 +133,44 @@ void ParticleSystem::Draw(const Camera* camera)
 		//描画
 		commandContext->DrawIndexedInstanced(UINT(currentModel->meshes_[i]->GetIndicesSize()), kMaxParticles);
 	}
+
+	//ParticleResourceの状態を遷移
+	commandContext->TransitionResource(*particleResource_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
 void ParticleSystem::Clear()
 {
+	//エミッターのリストをクリア
+	particleEmitters_.clear();
+}
 
+ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
+{
+	//エミッターのリストから探す
+	for (const std::unique_ptr<ParticleEmitter>& particleEmitter : particleEmitters_)
+	{
+		if (particleEmitter->GetName() == name)
+		{
+			return particleEmitter.get();
+		}
+	}
+	//見つからなかったらnullptrを返す
+	return nullptr;
+}
+
+std::list<ParticleEmitter*> ParticleSystem::GetParticleEmitters(const std::string& name)
+{
+	//返却するリスト
+	std::list<ParticleEmitter*> particleEmitters{};
+	//エミッターをリストから探す
+	for (const std::unique_ptr<ParticleEmitter>& particleEmitter : particleEmitters_)
+	{
+		if (particleEmitter->GetName() == name)
+		{
+			particleEmitters.push_back(particleEmitter.get());
+		}
+	}
+	return particleEmitters;
 }
 
 void ParticleSystem::UpdatePerViewResource(const Camera* camera)

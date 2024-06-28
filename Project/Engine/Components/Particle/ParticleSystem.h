@@ -1,6 +1,6 @@
 #pragma once
+#include "ParticleEmitter.h"
 #include "Engine/Base/RWStructuredBuffer.h"
-#include "Engine/Base/ConstantBuffers.h"
 #include "Engine/3D/Model/Model.h"
 #include "Engine/3D/Camera/Camera.h"
 
@@ -18,6 +18,12 @@ public:
 	void Draw(const Camera* camera);
 
 	void Clear();
+
+	void AddParticleEmitter(ParticleEmitter* particleEmitter) { particleEmitters_.push_back(std::unique_ptr<ParticleEmitter>(particleEmitter)); };
+
+	ParticleEmitter* GetParticleEmitter(const std::string& name);
+
+	std::list<ParticleEmitter*> GetParticleEmitters(const std::string& name);
 
 	void SetModel(Model* model) { model_ = model; };
 
@@ -40,6 +46,8 @@ private:
 	std::unique_ptr<Model> defaultModel_ = nullptr;
 
 	Model* model_ = nullptr;
+
+	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
 	bool isBillboard_ = true;
 };
