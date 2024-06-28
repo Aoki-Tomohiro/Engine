@@ -6,6 +6,8 @@ struct VertexShaderOutput
     float32_t4 color : COLOR0;
 };
 
+static const uint32_t kMaxParticles = 1024;
+
 struct Particle
 {
     float32_t3 translate;
@@ -14,4 +16,10 @@ struct Particle
     float32_t3 velocity;
     float32_t currentTime;
     float32_t4 color;
+};
+
+struct PerFrame
+{
+    float32_t time;
+    float32_t deltaTime;
 };

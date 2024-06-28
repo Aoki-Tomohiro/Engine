@@ -1,6 +1,7 @@
 #include "GameCore.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/Utilities/GameTimer.h"
 
 void GameCore::Initialize()
 {
@@ -109,6 +110,9 @@ void GameCore::Finalize()
 
 void GameCore::Update()
 {
+	//GameTimerの更新
+	GameTimer::Update();
+
 	//Inputの更新
 	input_->Update();
 

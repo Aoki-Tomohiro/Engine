@@ -1,50 +1,41 @@
 #pragma once
 #include "Engine/Base/RWStructuredBuffer.h"
-#include "Engine/Base/DescriptorHandle.h"
-#include "Engine/3D/Model/ModelManager.h"
-#include "ParticleEmitterBuilder.h"
+#include "Engine/Base/ConstantBuffers.h"
+#include "Engine/3D/Model/Model.h"
+#include "Engine/3D/Camera/Camera.h"
 
 class ParticleSystem
 {
 public:
-	//パーティクルの最大数
-	static const uint32_t kMaxInstance = 1024;
+	static const uint32_t kMaxParticles = 1024;
 
 	void Initialize();
 
 	void Update();
 
-	void Draw(const Camera& camera);
+	void UpdateEmitter();
+
+	void Draw(const Camera* camera);
 
 	void Clear();
 
-	void AddParticleEmitter(ParticleEmitter* particleEmitter) { particleEmitters_.push_back(std::unique_ptr<ParticleEmitter>(particleEmitter)); };
-
-	ParticleEmitter* GetParticleEmitter(const std::string& name);
-
-	std::list<ParticleEmitter*> GetParticleEmitters(const std::string& name);
-
-	const bool GetIsBillBoard() const { return isBillboard_; };
-
-	void SetIsBillBoard(const bool isBillboard) { isBillboard_ = isBillboard; };
-
 	void SetModel(Model* model) { model_ = model; };
 
-	void SetTexture(const std::string& name) { model_ ? model_->GetMaterial(0)->SetTexture(name) : defaultModel_->GetMaterial(0)->SetTexture(name); };
+	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
 
-	RWStructuredBuffer* GetInstancingResource() const { return instancingResource_.get(); };
+	RWStructuredBuffer* GetParticleResource() const { return particleResource_.get(); };
 
-private:
-	void CreatePerViewResource();
-
-	void UpdatePerViewResource(const Camera& camera);
+	RWStructuredBuffer* GetFreeCounterResource() const { return freeCounterResource_.get(); };
 
 private:
-	std::unique_ptr<RWStructuredBuffer> instancingResource_ = nullptr;
+	void UpdatePerViewResource(const Camera* camera);
+
+private:
+	std::unique_ptr<RWStructuredBuffer> particleResource_ = nullptr;
+
+	std::unique_ptr<RWStructuredBuffer> freeCounterResource_ = nullptr;
 
 	std::unique_ptr<UploadBuffer> perViewResource_ = nullptr;
-
-	std::list<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
 	std::unique_ptr<Model> defaultModel_ = nullptr;
 

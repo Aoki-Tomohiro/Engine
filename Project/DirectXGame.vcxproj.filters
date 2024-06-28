@@ -303,21 +303,6 @@
     <ClCompile Include="Engine\Components\PostEffects\Vignette.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\Particle.cpp">
-      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp">
-      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleEmitterBuilder.cpp">
-      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp">
-      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp">
-      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Framework\Game\GameCore.cpp">
       <Filter>ソース ファイル\Engine\Framework\Game</Filter>
     </ClCompile>
@@ -504,6 +489,15 @@
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Utilities\GameTimer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -613,21 +607,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Components\PostEffects\Vignette.h">
       <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleSystem.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleManager.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleEmitterBuilder.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\Particle.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Framework\Scene\SceneManager.h">
       <Filter>ヘッダー ファイル\Engine\Framework\Scene</Filter>
@@ -851,6 +830,15 @@
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Components\Particle\ParticleSystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Particle\ParticleManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Utilities\GameTimer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
@@ -900,10 +888,18 @@
     <None Include="Application\Resources\Shaders\Line.hlsli">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Application\Resources\Shaders\GrayScale.hlsli" />
-    <None Include="Application\Resources\Shaders\RadialBlur.hlsli" />
-    <None Include="Application\Resources\Shaders\LensDistortion.hlsli" />
-    <None Include="Application\Resources\Shaders\Vignette.hlsli" />
+    <None Include="Application\Resources\Shaders\GrayScale.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Application\Resources\Shaders\LensDistortion.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Application\Resources\Shaders\RadialBlur.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Application\Resources\Shaders\Vignette.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
@@ -993,14 +989,34 @@
     <FxCompile Include="Application\Resources\Shaders\Line.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\GrayScale.VS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\GrayScale.PS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\RadialBlur.VS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\RadialBlur.PS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\LensDistortion.VS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\LensDistortion.PS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\Vignette.VS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\Vignette.PS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\InitializeParticle.CS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\GrayScale.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\GrayScale.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\InitializeParticle.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\LensDistortion.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\LensDistortion.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\RadialBlur.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\RadialBlur.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Vignette.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Vignette.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\EmitParticle.CS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\UpdateParticle.CS.hlsl" />
   </ItemGroup>
 </Project>

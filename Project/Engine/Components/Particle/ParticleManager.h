@@ -1,6 +1,9 @@
 #pragma once
 #include "ParticleSystem.h"
-#include <unordered_map>
+#include "Engine/Base/GraphicsPSO.h"
+#include "Engine/Base/ComputePSO.h"
+#include <map>
+#include <string>
 
 class ParticleManager
 {
@@ -27,26 +30,39 @@ private:
 	ParticleManager(const ParticleManager&) = delete;
 	ParticleManager& operator=(const ParticleManager&) = delete;
 
-	void CreateGraphicsPipelineState();
+	void CreateParticlePipelineState();
 
-	void CreateInitializeComputePipelineState();
+	void CreateInitializeParticlePipelineState();
 
-private:
+	void CreateEmitParticlePipelineState();
+
+	void CreateUpdateParticlePipelineState();
+
 	ParticleSystem* CreateInternal(const std::string& name);
 
 private:
 	static ParticleManager* instance_;
 
-	RootSignature graphicsRootSignature_{};
+	std::map<std::string, std::unique_ptr<ParticleSystem>> particleSystems_{};
 
-	GraphicsPSO graphicsPipelineState{};
-
-	RootSignature initializeComputeRootSignature{};
-
-	ComputePSO initializeComputePipelineState_{};
-
-	std::unordered_map<std::string, std::unique_ptr<ParticleSystem>> particleSystems_;
+	std::unique_ptr<UploadBuffer> perFrameResource_ = nullptr;
 
 	const Camera* camera_ = nullptr;
+
+	RootSignature particleRootSignature_{};
+
+	RootSignature initializeParticleRootSignature_{};
+
+	RootSignature emitParticleRootSignature_{};
+
+	RootSignature updateParticleRootSignature_{};
+
+	GraphicsPSO particlePipelineState_{};
+
+	ComputePSO initializeParticlePipelineState_{};
+
+	ComputePSO emitParticlePipelineState_{};
+
+	ComputePSO updateParticlePipelineState_{};
 };
 
