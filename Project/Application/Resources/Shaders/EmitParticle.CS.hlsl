@@ -6,6 +6,14 @@ struct EmitterSphere
     float32_t radius; //射出半径
     uint32_t count; //射出数
     uint32_t emit; //射出許可
+    float32_t3 scaleMin; //スケールの最小値
+    float32_t3 scaleMax;//スケールの最大値
+    float32_t3 velocityMin;//速度の最小値
+    float32_t3 velocityMax; //速度の最大値
+    float32_t lifeTimeMin;//寿命の最小値
+    float32_t lifeTimeMax;//寿命の最大値
+    float32_t4 colorMin;//色の最小値
+    float32_t4 colorMax; //色の最大値
 };
 
 float32_t rand3dTo1d(float32_t3 value, float32_t3 dotDir = float32_t3(12.9898, 78.233, 37.719))
@@ -46,7 +54,6 @@ RWStructuredBuffer<int32_t> gFreeCounter : register(u1);
 ConstantBuffer<EmitterSphere> gEmitter : register(b0);
 ConstantBuffer<PerFrame> gPerFrame : register(b1);
 
-//今回スレッド数は1。複数のEmitterを扱い、同時に処理したいような場合は敵宜スレッド数を増やすと良い
 [numthreads(1, 1, 1)]
 void main(uint32_t DTid : SV_DispatchThreadID)
 {
@@ -54,7 +61,7 @@ void main(uint32_t DTid : SV_DispatchThreadID)
     RandomGenerator generator;
     generator.seed = (DTid + gPerFrame.time) * gPerFrame.time;
     //射出許可が出ていたら
-    if(gEmitter.emit)
+    if (gEmitter.emit)
     {
         //Generate3d呼ぶたびにseedが変わるので結果すべての乱数が変わる
         for (uint32_t countIndex = 0; countIndex < gEmitter.count; ++countIndex)
@@ -62,14 +69,31 @@ void main(uint32_t DTid : SV_DispatchThreadID)
             int32_t particleIndex;
             //gFreeCounter[0]に1を足し、足す前の値をparticleIndexに格納する
             InterlockedAdd(gFreeCounter[0], 1, particleIndex);
+            //パーティクルの上限まで行ったらFreeCounterをリセット
+            InterlockedCompareStore(gFreeCounter[0], kMaxParticles - 1, 0);
+            
             //最大数よりもparticleの数が少なければ射出可能
-            if(particleIndex < kMaxParticles)
+            if (particleIndex < kMaxParticles)
             {
-                //Particleの初期化
-                gParticles[particleIndex].translate = generator.Generate3d();
-                gParticles[particleIndex].scale = generator.Generate3d();
-                gParticles[particleIndex].color.rgb = generator.Generate3d();
-                gParticles[particleIndex].color.a = 1.0f;
+                //位置の初期化
+                float32_t3 direction = normalize(generator.Generate3d() * 2.0f - 1.0f);
+                float32_t distance = generator.Generate1d() * gEmitter.radius;
+                gParticles[particleIndex].translate = gEmitter.translate + direction * distance;
+                
+                //スケールの初期化
+                gParticles[particleIndex].scale = lerp(gEmitter.scaleMin, gEmitter.scaleMax, generator.Generate3d());
+                
+                //寿命の初期化
+                gParticles[particleIndex].lifeTime = lerp(gEmitter.lifeTimeMin, gEmitter.lifeTimeMax, generator.Generate1d());
+                
+                //速度の初期化
+                gParticles[particleIndex].velocity = lerp(gEmitter.velocityMin, gEmitter.velocityMax, generator.Generate3d());
+                
+                //経過時間の初期化
+                gParticles[particleIndex].currentTime = 0.0f;
+                
+                //色の初期化
+                gParticles[particleIndex].color = lerp(gEmitter.colorMin, gEmitter.colorMax, float32_t4(generator.Generate3d(), generator.Generate1d()));
             }
         }
     }

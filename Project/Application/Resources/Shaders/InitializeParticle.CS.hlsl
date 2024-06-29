@@ -15,8 +15,9 @@ void main(uint32_t3 DTid : SV_DispatchThreadID)
         gParticles[particleIndex].translate = float32_t3(1.0f, 1.0f, 1.0f);
         gParticles[particleIndex].scale = float32_t3(0.5f, 0.5f, 0.5f);
         gParticles[particleIndex].lifeTime = 1.0f;
+        gParticles[particleIndex].velocity = float32_t3(0.0f, 0.0f, 0.0f);
         gParticles[particleIndex].currentTime = 0.0f;
-        gParticles[particleIndex].color = float32_t4(1.0f, 1.0f, 1.0f, 1.0f);
+        gParticles[particleIndex].color = float32_t4(1.0f, 1.0f, 1.0f, 0.0f);
 
     }
     //Counterの初期化

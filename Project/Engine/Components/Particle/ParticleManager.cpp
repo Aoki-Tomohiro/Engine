@@ -61,7 +61,6 @@ void ParticleManager::Update()
 	perFrameData->deltaTime = GameTimer::GetDeltaTime();
 	perFrameResource_->Unmap();
 
-
 	for (auto& particleSystem : particleSystems_)
 	{
 		//コマンドリストを取得

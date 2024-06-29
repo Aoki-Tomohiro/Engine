@@ -25,11 +25,6 @@ void GameTitleScene::Initialize()
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	player->SetIsInTitleScene(true);
-	player->SetIsVisible(false);
-
-	//敵の初期化
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	enemy->SetIsVisible(false);
 
 	//カメラを初期化
     camera_ = gameObjectManager_->GetCamera();

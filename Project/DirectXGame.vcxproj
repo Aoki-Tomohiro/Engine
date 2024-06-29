@@ -228,12 +228,9 @@
     <ClInclude Include="Engine\Framework\Scene\AbstractSceneFactory.h" />
     <ClInclude Include="Engine\Framework\Scene\IScene.h" />
     <ClInclude Include="Engine\Framework\Scene\SceneManager.h" />
-    <ClInclude Include="Engine\Math\AABB.h" />
     <ClInclude Include="Engine\Math\MathFunction.h" />
     <ClInclude Include="Engine\Math\Matrix4x4.h" />
-    <ClInclude Include="Engine\Math\OBB.h" />
     <ClInclude Include="Engine\Math\Quaternion.h" />
-    <ClInclude Include="Engine\Math\Sphere.h" />
     <ClInclude Include="Engine\Math\Vector2.h" />
     <ClInclude Include="Engine\Math\Vector3.h" />
     <ClInclude Include="Engine\Math\Vector4.h" />

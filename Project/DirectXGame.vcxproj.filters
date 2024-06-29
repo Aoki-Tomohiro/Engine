@@ -623,22 +623,13 @@
     <ClInclude Include="Engine\Framework\Game\GameCore.h">
       <Filter>ヘッダー ファイル\Engine\Framework\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Math\AABB.h">
-      <Filter>ヘッダー ファイル\Engine\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Math\MathFunction.h">
       <Filter>ヘッダー ファイル\Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Math\Matrix4x4.h">
       <Filter>ヘッダー ファイル\Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Math\OBB.h">
-      <Filter>ヘッダー ファイル\Engine\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Math\Quaternion.h">
-      <Filter>ヘッダー ファイル\Engine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Math\Sphere.h">
       <Filter>ヘッダー ファイル\Engine\Math</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Math\Vector2.h">

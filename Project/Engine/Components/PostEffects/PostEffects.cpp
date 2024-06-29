@@ -107,14 +107,14 @@ void PostEffects::Apply()
 	//形状を設定
 	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	//現在のテクスチャ
+	currentDescriptorHandle_ = Renderer::GetInstance()->GetSceneColorDescriptorHandle();
+
 	//ポストエフェクトが無効なら処理を飛ばす
 	if (!isEnable_)
 	{
 		return;
 	}
-
-	//現在のテクスチャ
-	currentDescriptorHandle_ = Renderer::GetInstance()->GetSceneColorDescriptorHandle();
 
 	//Outlineの適用
 	if (outline_->GetIsEnable())

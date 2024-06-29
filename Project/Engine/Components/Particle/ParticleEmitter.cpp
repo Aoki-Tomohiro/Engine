@@ -34,5 +34,13 @@ void ParticleEmitter::Update()
 	emitterSphereData->radius = radius_;
 	emitterSphereData->count = count_;
 	emitterSphereData->emit = emit_;
+	emitterSphereData->scaleMin = scaleMin_;
+	emitterSphereData->scaleMax = scaleMax_;
+	emitterSphereData->velocityMin = velocityMin_;
+	emitterSphereData->velocityMax = velocityMax_;
+	emitterSphereData->lifeTimeMin = lifeTimeMin_;
+	emitterSphereData->lifeTimeMax = lifeTimeMax_;
+	emitterSphereData->colorMin = colorMin_;
+	emitterSphereData->colorMax = colorMax_;
 	emitterResource_->Unmap();
 }

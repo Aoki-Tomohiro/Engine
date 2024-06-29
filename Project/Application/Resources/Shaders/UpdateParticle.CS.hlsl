@@ -4,7 +4,7 @@ RWStructuredBuffer<Particle> gParticles : register(u0);
 ConstantBuffer<PerFrame> gPerFrame : register(b0);
 
 [numthreads(1024, 1, 1)]
-void main( uint32_t DTid : SV_DispatchThreadID )
+void main(uint32_t DTid : SV_DispatchThreadID )
 {
     uint32_t particleIndex = DTid.x;
     if(particleIndex < kMaxParticles)

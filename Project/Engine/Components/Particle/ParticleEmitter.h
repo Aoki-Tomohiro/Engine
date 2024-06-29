@@ -39,13 +39,29 @@ private:
 	//射出数
 	uint32_t count_ = 10;
 
+	//射出許可
+	uint32_t emit_ = 0;
+
+	//スケール
+	Vector3 scaleMin_ = { 0.2f,0.2f,0.2f };
+	Vector3 scaleMax_ = { 0.4f,0.4f,0.4f };
+
+	//速度
+	Vector3 velocityMin_ = { -0.2f,-0.2f,-0.2f };
+	Vector3 velocityMax_ = { 0.2f,0.2f,0.2f };
+
+	//寿命
+	float lifeTimeMin_ = 0.6f;
+	float lifeTimeMax_ = 1.0f;
+
+	//色
+	Vector4 colorMin_ = { 0.0f,0.0f,0.0f,1.0f };
+	Vector4 colorMax_ = { 1.0f,1.0f,1.0f,1.0f };
+
 	//発射間隔
 	float frequency_ = 0.5f;
 
 	//射出間隔調整用時間
 	float frequencyTime_ = 0.0f;
-
-	//射出許可
-	uint32_t emit_ = 0;
 };
 
