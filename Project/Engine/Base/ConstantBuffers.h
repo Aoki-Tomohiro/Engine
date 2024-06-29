@@ -117,19 +117,31 @@ struct EmitterSphere
 	float radius;//射出半径
 	uint32_t count;//射出数
 	uint32_t emit;//射出許可
-	uint32_t padding1[2];
 	Vector3 scaleMin;//スケールの最小値
-	float padding2;
 	Vector3 scaleMax;//スケールの最大値
-	float padding3;
 	Vector3 velocityMin;//速度の最小値
-	float padding4;
 	Vector3 velocityMax;//速度の最大値
 	float lifeTimeMin;//寿命の最小値
 	float lifeTimeMax;//寿命の最大値
-	float padding5[3];
 	Vector4 colorMin;//色の最小値
 	Vector4 colorMax;//色の最大値
+};
+
+struct AccelerationFieldData
+{
+	Vector3 acceleration;//加速度
+	Vector3 translate;//位置
+	Vector3 min;//最小範囲
+	Vector3 max;//最大範囲
+};
+
+struct GravityFieldData
+{
+	Vector3 translate;//位置
+	Vector3 min;//最小範囲
+	Vector3 max;//最大範囲
+	float strength;//重力の強さ
+	float stopDistance;//動きを止める中心点からの距離
 };
 
 struct ConstBuffDataGaussianBlur

@@ -1,14 +1,13 @@
 #include "ParticleEmitter.h"
 #include "Engine/Utilities/GameTimer.h"
 
-void ParticleEmitter::Initialize(const std::string& name)
+void ParticleEmitter::Initialize(const std::string& name, const float lifeTime)
 {
 	//名前の初期化
 	name_ = name;
 
-	//EmitterResourceの作成
-	emitterResource_ = std::make_unique<UploadBuffer>();
-	emitterResource_->Create(sizeof(EmitterSphere));
+	//エミッターの寿命の初期化
+	deathTimer_ = lifeTime;
 }
 
 void ParticleEmitter::Update()
@@ -27,20 +26,13 @@ void ParticleEmitter::Update()
 	{
 		emit_ = 0;
 	}
-	
-	//EmitterResourceに書き込む
-	EmitterSphere* emitterSphereData = static_cast<EmitterSphere*>(emitterResource_->Map());
-	emitterSphereData->translate = translate_;
-	emitterSphereData->radius = radius_;
-	emitterSphereData->count = count_;
-	emitterSphereData->emit = emit_;
-	emitterSphereData->scaleMin = scaleMin_;
-	emitterSphereData->scaleMax = scaleMax_;
-	emitterSphereData->velocityMin = velocityMin_;
-	emitterSphereData->velocityMax = velocityMax_;
-	emitterSphereData->lifeTimeMin = lifeTimeMin_;
-	emitterSphereData->lifeTimeMax = lifeTimeMax_;
-	emitterSphereData->colorMin = colorMin_;
-	emitterSphereData->colorMax = colorMax_;
-	emitterResource_->Unmap();
+
+	//エミッターの寿命を減らす
+	deathTimer_ -= GameTimer::GetDeltaTime();
+
+	//寿命が尽きたら死亡フラグを立てる
+	if (deathTimer_ < 0)
+	{
+		isDead_ = true;
+	}
 }

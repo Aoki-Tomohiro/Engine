@@ -1,32 +1,74 @@
 #pragma once
-#include "Engine/Base/UploadBuffer.h"
-#include "Engine/Base/ConstantBuffers.h"
-#include <memory>
+#include "Engine/Math/Vector3.h"
+#include "Engine/Math/Vector4.h"
 #include <string>
 
 class ParticleEmitter
 {
 public:
-	void Initialize(const std::string& name);
+	void Initialize(const std::string& name, const float lifeTime);
 
 	void Update();
 
+	const std::string& GetName() const { return name_; }
+
+	void SetName(const std::string& name) { name_ = name; }
+
+	const Vector3& GetTranslate() const { return translate_; };
+
 	void SetTranslate(const Vector3& translate) { translate_ = translate; };
+
+	const float GetRadius() const { return radius_; };
 
 	void SetRadius(const float radius) { radius_ = radius; };
 
+	const uint32_t GetCount() const { return count_; };
+
 	void SetCount(const uint32_t count) { count_ = count; };
+
+	const Vector3& GetScaleMin() const { return scaleMin_; };
+
+	void SetScaleMin(const Vector3& scaleMin) { scaleMin_ = scaleMin; };
+
+	const Vector3& GetScaleMax() const { return scaleMax_; };
+
+	void SetScaleMax(const Vector3& scaleMax) { scaleMax_ = scaleMax; };
+
+	const Vector3& GetVelocityMin() const { return velocityMin_; };
+
+	void SetVelocityMin(const Vector3& velocityMin) { velocityMin_ = velocityMin; };
+
+	const Vector3& GetVelocityMax() const { return velocityMax_; };
+
+	void SetVelocityMax(const Vector3& velocityMax) { velocityMax_ = velocityMax; };
+
+	const float GetLifeTimeMin() const { return lifeTimeMin_; };
+
+	void SetLifeTimeMin(const float lifeTimeMin) { lifeTimeMin_ = lifeTimeMin; };
+
+	const float GetLifeTimeMax() const { return lifeTimeMax_; };
+
+	void SetLifeTimeMax(const float lifeTimeMax) { lifeTimeMax_ = lifeTimeMax; };
+
+	const Vector4& GetColorMin() const { return colorMin_; };
+
+	void SetColorMin(const Vector4& colorMin) { colorMin_ = colorMin; };
+
+	const Vector4& GetColorMax() const { return colorMax_; };
+
+	void SetColorMax(const Vector4& colorMax) { colorMax_ = colorMax; };
+
+	const float GetFrequency() const { return frequency_; };
 
 	void SetFrequency(const float frequency) { frequency_ = frequency; };
 
-	const std::string& GetName() const { return name_; };
+	const bool GetIsDead() const { return isDead_; };
 
-	const UploadBuffer* GetEmitterResource() const { return emitterResource_.get(); };
+	void SetIsDead(const bool isDead) { isDead_ = isDead; };
+
+	const uint32_t GetEmit() const { return emit_; };
 
 private:
-	//Emitterのリソース
-	std::unique_ptr<UploadBuffer> emitterResource_ = nullptr;
-
 	//名前
 	std::string name_{};
 
@@ -63,5 +105,11 @@ private:
 
 	//射出間隔調整用時間
 	float frequencyTime_ = 0.0f;
+
+	//死亡フラグ
+	bool isDead_ = false;
+
+	//死亡までのタイマー
+	float deathTimer_ = 0.0f;
 };
 

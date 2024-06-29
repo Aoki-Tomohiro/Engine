@@ -49,6 +49,7 @@
     <ClCompile Include="Engine\Components\Component\ModelComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\RenderComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\TransformComponent.cpp" />
+    <ClCompile Include="Engine\Components\Particle\GravityField.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp" />
@@ -121,6 +122,7 @@
     <ClCompile Include="Engine\Framework\Game\GameCore.cpp" />
     <ClCompile Include="Engine\Framework\Scene\SceneManager.cpp" />
     <ClCompile Include="Engine\Math\MathFunction.cpp" />
+    <ClCompile Include="Engine\Components\Particle\AccelerationField.cpp" />
     <ClCompile Include="Engine\Utilities\GameTimer.cpp" />
     <ClCompile Include="Engine\Utilities\GlobalVariables.cpp" />
     <ClCompile Include="Engine\Utilities\Log.cpp" />
@@ -159,6 +161,7 @@
     <ClInclude Include="Engine\Components\Component\ModelComponent.h" />
     <ClInclude Include="Engine\Components\Component\RenderComponent.h" />
     <ClInclude Include="Engine\Components\Component\TransformComponent.h" />
+    <ClInclude Include="Engine\Components\Particle\GravityField.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleManager.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleSystem.h" />
@@ -234,6 +237,7 @@
     <ClInclude Include="Engine\Math\Vector2.h" />
     <ClInclude Include="Engine\Math\Vector3.h" />
     <ClInclude Include="Engine\Math\Vector4.h" />
+    <ClInclude Include="Engine\Components\Particle\AccelerationField.h" />
     <ClInclude Include="Engine\Utilities\D3DResourceLeakChecker.h" />
     <ClInclude Include="Engine\Utilities\GameTimer.h" />
     <ClInclude Include="Engine\Utilities\GlobalVariables.h" />

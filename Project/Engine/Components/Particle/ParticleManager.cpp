@@ -76,7 +76,7 @@ void ParticleManager::Update()
 		commandContext->SetPipelineState(emitParticlePipelineState_);
 
 		//PerFrameを設定
-		commandContext->SetComputeConstantBuffer(3, perFrameResource_->GetGpuVirtualAddress());
+		commandContext->SetComputeConstantBuffer(4, perFrameResource_->GetGpuVirtualAddress());
 
 		//Emitterの更新
 		particleSystem.second->UpdateEmitter();
@@ -88,7 +88,7 @@ void ParticleManager::Update()
 		commandContext->SetPipelineState(updateParticlePipelineState_);
 
 		//PerFrameを設定
-		commandContext->SetComputeConstantBuffer(1, perFrameResource_->GetGpuVirtualAddress());
+		commandContext->SetComputeConstantBuffer(5, perFrameResource_->GetGpuVirtualAddress());
 
 		//Particleの更新
 		particleSystem.second->Update();
@@ -229,11 +229,12 @@ void ParticleManager::CreateInitializeParticlePipelineState()
 void ParticleManager::CreateEmitParticlePipelineState()
 {
 	//RootSignatureの作成
-	emitParticleRootSignature_.Create(4, 0);
+	emitParticleRootSignature_.Create(5, 0);
 	emitParticleRootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
 	emitParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
-	emitParticleRootSignature_[2].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
-	emitParticleRootSignature_[3].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
 	emitParticleRootSignature_.Finalize();
 
 	//PipelineStateの作成
@@ -247,9 +248,13 @@ void ParticleManager::CreateEmitParticlePipelineState()
 void ParticleManager::CreateUpdateParticlePipelineState()
 {
 	//RootSignatureの作成
-	updateParticleRootSignature_.Create(2, 0);
+	updateParticleRootSignature_.Create(6, 0);
 	updateParticleRootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[5].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_ALL);
 	updateParticleRootSignature_.Finalize();
 
 	//PipelineStateの作成

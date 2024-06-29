@@ -20,7 +20,7 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//LevelDataの読み込み
-	LevelLoader::Load("Sample");
+	LevelLoader::Load("TitleScene");
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
@@ -29,23 +29,10 @@ void GameTitleScene::Initialize()
 	//カメラを初期化
     camera_ = gameObjectManager_->GetCamera();
 	camera_->rotation_ = { 0.3f,0.0f,0.0f };
-	camera_->translation_ = { 0.0f,6.7f,-20.0f };
-	camera_->rotation_ = { 0.2f,0.0f,0.0f };
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
-
-	//パーティクルマネージャーのインスタンスを取得
-	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->Clear();
-	particleManager_->SetCamera(camera_);
-
-	//パーティクルの作成
-	particleSystem_ = ParticleManager::Create("GameTitleScene");
-	ParticleEmitter* newEmitter = new ParticleEmitter();
-	newEmitter->Initialize("GameTitleScene");
-	particleSystem_->AddParticleEmitter(newEmitter);
 }
 
 void GameTitleScene::Finalize()
@@ -62,7 +49,7 @@ void GameTitleScene::Update()
 	transition_->Update();
 
 	//カメラの更新
-	//CameraUpdate();
+	CameraUpdate();
 
 	//カメラの行列の更新
 	camera_->UpdateMatrix();

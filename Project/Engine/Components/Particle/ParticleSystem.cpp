@@ -45,6 +45,30 @@ void ParticleSystem::Initialize()
 	freeCounterResource_ = std::make_unique<RWStructuredBuffer>();
 	freeCounterResource_->Create(1, sizeof(int32_t));
 
+	//EmitterResourceの作成
+	emitterResource_ = std::make_unique<StructuredBuffer>();
+	emitterResource_->Create(kMaxEmitters, sizeof(EmitterSphere));
+
+	//EmitterInformationResourceの作成
+	emitterInformationResource_ = std::make_unique<UploadBuffer>();
+	emitterInformationResource_->Create(sizeof(int32_t));
+
+	//AccelerationFieldResourceの作成
+	accelerationFieldResource_ = std::make_unique<StructuredBuffer>();
+	accelerationFieldResource_->Create(kMaxAccelerationFields, sizeof(AccelerationFieldData));
+
+	//AccelerationFieldInformationResourceの作成
+	accelerationFieldInformationResource_ = std::make_unique<UploadBuffer>();
+	accelerationFieldInformationResource_->Create(sizeof(int32_t));
+
+	//GravityFieldResourceの作成
+	gravityFieldResource_ = std::make_unique<StructuredBuffer>();
+	gravityFieldResource_->Create(kMaxGravityFields, sizeof(GravityFieldData));
+
+	//GravityFieldInformationResourceの作成
+	gravityFieldInformationResource_ = std::make_unique<UploadBuffer>();
+	gravityFieldInformationResource_->Create(sizeof(int32_t));
+
 	//PerViewResourceの作成
 	perViewResource_ = std::make_unique<UploadBuffer>();
 	perViewResource_->Create(sizeof(PerView));
@@ -52,11 +76,29 @@ void ParticleSystem::Initialize()
 
 void ParticleSystem::Update()
 {
+	//AccelerationFieldの更新
+	UpdateAccelerationFieldResource();
+
+	//GravityFieldの更新
+	UpdateGravityFieldResource();
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
 	//Particleを設定
 	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
+
+	//AccelerationFieldを設定
+	commandContext->SetComputeDescriptorTable(1, accelerationFieldResource_->GetSRVHandle());
+
+	//GravityFieldを設定
+	commandContext->SetComputeDescriptorTable(2, gravityFieldResource_->GetSRVHandle());
+
+	//AccelerationFieldInformationを設定
+	commandContext->SetComputeConstantBuffer(3, accelerationFieldInformationResource_->GetGpuVirtualAddress());
+
+	//GravityFieldInformationを設定
+	commandContext->SetComputeConstantBuffer(4, gravityFieldInformationResource_->GetGpuVirtualAddress());
 
 	//Dispatch
 	commandContext->Dispatch(1, 1, 1);
@@ -64,26 +106,26 @@ void ParticleSystem::Update()
 
 void ParticleSystem::UpdateEmitter()
 {
+	//Emitterの更新
+	UpdateEmitterResource();
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
-	for (const std::unique_ptr<ParticleEmitter>& emitter : particleEmitters_)
-	{
-		//エミッターの更新
-		emitter->Update();
+	//Particleを設定
+	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
 
-		//Particleを設定
-		commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
+	//FreeCounterを設定
+	commandContext->SetComputeDescriptorTable(1, freeCounterResource_->GetUAVHandle());
 
-		//FreeCounterを設定
-		commandContext->SetComputeDescriptorTable(1, freeCounterResource_->GetUAVHandle());
+	//Emitterを設定
+	commandContext->SetComputeDescriptorTable(2, emitterResource_->GetSRVHandle());
 
-		//Emitterを設定
-		commandContext->SetComputeConstantBuffer(2, emitter->GetEmitterResource()->GetGpuVirtualAddress());
+	//EmitterInfomationを設定
+	commandContext->SetComputeConstantBuffer(3, emitterInformationResource_->GetGpuVirtualAddress());
 
-		//Dispatch
-		commandContext->Dispatch(1, 1, 1);
-	}
+	//Dispatch
+	commandContext->Dispatch(1, 1, 1);
 
 	//UAVBarierを貼る
 	commandContext->InsertUAVBarrier(*particleResource_);
@@ -142,6 +184,22 @@ void ParticleSystem::Clear()
 {
 	//エミッターのリストをクリア
 	particleEmitters_.clear();
+
+	//加速フィールドをクリア
+	accelerationFields_.clear();
+
+	//重力フィールドをクリア
+	gravityFields_.clear();
+}
+
+void ParticleSystem::AddParticleEmitter(ParticleEmitter* particleEmitter)
+{
+	if (particleEmitters_.size() >= kMaxEmitters)
+	{
+		delete particleEmitter;
+		return;
+	}
+	particleEmitters_.push_back(std::unique_ptr<ParticleEmitter>(particleEmitter));
 }
 
 ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
@@ -158,10 +216,10 @@ ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
 	return nullptr;
 }
 
-std::list<ParticleEmitter*> ParticleSystem::GetParticleEmitters(const std::string& name)
+std::vector<ParticleEmitter*> ParticleSystem::GetParticleEmitters(const std::string& name)
 {
-	//返却するリスト
-	std::list<ParticleEmitter*> particleEmitters{};
+	//返却する配列
+	std::vector<ParticleEmitter*> particleEmitters{};
 	//エミッターをリストから探す
 	for (const std::unique_ptr<ParticleEmitter>& particleEmitter : particleEmitters_)
 	{
@@ -171,6 +229,200 @@ std::list<ParticleEmitter*> ParticleSystem::GetParticleEmitters(const std::strin
 		}
 	}
 	return particleEmitters;
+}
+
+void ParticleSystem::AddAccelerationField(AccelerationField* accelerationField)
+{
+	if (accelerationFields_.size() >= kMaxAccelerationFields)
+	{
+		delete accelerationField;
+		return;
+	}
+	accelerationFields_.push_back(std::unique_ptr<AccelerationField>(accelerationField));
+}
+
+AccelerationField* ParticleSystem::GetAccelerationField(const std::string& name)
+{
+	//加速フィールドのリストから探す
+	for (const std::unique_ptr<AccelerationField>& accelerationField : accelerationFields_)
+	{
+		if (accelerationField->GetName() == name)
+		{
+			return accelerationField.get();
+		}
+	}
+	//見つからなかったらnullptrを返す
+	return nullptr;
+}
+
+std::vector<AccelerationField*> ParticleSystem::GetAccelerationFields(const std::string& name)
+{
+	//返却する配列
+	std::vector<AccelerationField*> accelerationFields{};
+	//加速フィールドをリストから探す
+	for (const std::unique_ptr<AccelerationField>& accelerationField : accelerationFields_)
+	{
+		if (accelerationField->GetName() == name)
+		{
+			accelerationFields.push_back(accelerationField.get());
+		}
+	}
+	return accelerationFields;
+}
+
+void ParticleSystem::AddGravityField(GravityField* gravityField)
+{
+	if (gravityFields_.size() >= kMaxGravityFields)
+	{
+		delete gravityField;
+		return;
+	}
+	gravityFields_.push_back(std::unique_ptr<GravityField>(gravityField));
+}
+
+GravityField* ParticleSystem::GetGravityField(const std::string& name)
+{
+	//重力フィールドのリストから探す
+	for (const std::unique_ptr<GravityField>& gravityField : gravityFields_)
+	{
+		if (gravityField->GetName() == name)
+		{
+			return gravityField.get();
+		}
+	}
+	//見つからなかったらnullptrを返す
+	return nullptr;
+}
+
+std::vector<GravityField*> ParticleSystem::GetGravityFields(const std::string& name)
+{
+	//返却する配列
+	std::vector<GravityField*> gravityFields{};
+	//重力フィールドをリストから探す
+	for (const std::unique_ptr<GravityField>& gravityField : gravityFields_)
+	{
+		if (gravityField->GetName() == name)
+		{
+			gravityFields.push_back(gravityField.get());
+		}
+	}
+	return gravityFields;
+}
+
+void ParticleSystem::UpdateEmitterResource()
+{
+	//エミッターの削除
+	particleEmitters_.erase(std::remove_if(particleEmitters_.begin(), particleEmitters_.end(),
+		[](std::unique_ptr<ParticleEmitter>& particleEmitter) {
+			if (particleEmitter->GetIsDead()) {
+				particleEmitter.reset();
+				return true;
+			}
+			return false;
+		}),
+		particleEmitters_.end());
+
+	//ポインタを取得
+	EmitterSphere* emitterSphereData = static_cast<EmitterSphere*>(emitterResource_->Map());
+
+	//すべてのEmitterの情報を書き込む
+	for (uint32_t i = 0; i < particleEmitters_.size(); ++i)
+	{
+		//Emitterの更新
+		particleEmitters_[i]->Update();
+
+		//Emitterの情報を書き込む
+		emitterSphereData[i].translate = particleEmitters_[i]->GetTranslate();
+		emitterSphereData[i].radius = particleEmitters_[i]->GetRadius();
+		emitterSphereData[i].count = particleEmitters_[i]->GetCount();
+		emitterSphereData[i].emit = particleEmitters_[i]->GetEmit();
+		emitterSphereData[i].scaleMin = particleEmitters_[i]->GetScaleMin();
+		emitterSphereData[i].scaleMax = particleEmitters_[i]->GetScaleMax();
+		emitterSphereData[i].velocityMin = particleEmitters_[i]->GetVelocityMin();
+		emitterSphereData[i].velocityMax = particleEmitters_[i]->GetVelocityMax();
+		emitterSphereData[i].lifeTimeMin = particleEmitters_[i]->GetLifeTimeMin();
+		emitterSphereData[i].lifeTimeMax = particleEmitters_[i]->GetLifeTimeMax();
+		emitterSphereData[i].colorMin = particleEmitters_[i]->GetColorMin();
+		emitterSphereData[i].colorMax = particleEmitters_[i]->GetColorMax();
+	}
+
+	//Emitterの数の更新
+	int32_t* emitterInformationData = static_cast<int32_t*>(emitterInformationResource_->Map());
+	*emitterInformationData = (int32_t)particleEmitters_.size();
+	emitterInformationResource_->Unmap();
+}
+
+void ParticleSystem::UpdateAccelerationFieldResource()
+{
+	//加速フィールドの削除
+	accelerationFields_.erase(std::remove_if(accelerationFields_.begin(), accelerationFields_.end(),
+		[](std::unique_ptr<AccelerationField>& accelerationField) {
+			if (accelerationField->GetIsDead()) {
+				accelerationField.reset();
+				return true;
+			}
+			return false;
+		}),
+		accelerationFields_.end());
+
+	//ポインタを取得
+	AccelerationFieldData* accelerationFieldData = static_cast<AccelerationFieldData*>(accelerationFieldResource_->Map());
+
+	//すべてのAccelerationFieldの情報を書き込む
+	for (uint32_t i = 0; i < accelerationFields_.size(); ++i)
+	{
+		//AccelerationFieldの更新
+		accelerationFields_[i]->Update();
+
+		//AccelerationFieldの情報を書き込む
+		accelerationFieldData[i].acceleration = accelerationFields_[i]->GetAcceleration();
+		accelerationFieldData[i].translate = accelerationFields_[i]->GetTranslate();
+		accelerationFieldData[i].min = accelerationFields_[i]->GetMin();
+		accelerationFieldData[i].max = accelerationFields_[i]->GetMax();
+	}
+	accelerationFieldResource_->Unmap();
+
+	//AccelerationFieldの数の更新
+	int32_t* accelerationFieldInformationData = static_cast<int32_t*>(accelerationFieldInformationResource_->Map());
+	*accelerationFieldInformationData = (int32_t)accelerationFields_.size();
+	accelerationFieldInformationResource_->Unmap();
+}
+
+void ParticleSystem::UpdateGravityFieldResource()
+{
+	//重力フィールドの削除
+	gravityFields_.erase(std::remove_if(gravityFields_.begin(), gravityFields_.end(),
+		[](std::unique_ptr<GravityField>& gravityField) {
+			if (gravityField->GetIsDead()) {
+				gravityField.reset();
+				return true;
+			}
+			return false;
+		}),
+		gravityFields_.end());
+
+	//ポインタを取得
+	GravityFieldData* gravityFieldData = static_cast<GravityFieldData*>(gravityFieldResource_->Map());
+
+	//すべてのGravityFieldの情報を書き込む
+	for (uint32_t i = 0; i < gravityFields_.size(); ++i)
+	{
+		//GravityFieldの更新
+		gravityFields_[i]->Update();
+
+		//GravityFieldの情報を書き込む
+		gravityFieldData[i].translate = gravityFields_[i]->GetTranslate();
+		gravityFieldData[i].min = gravityFields_[i]->GetMin();
+		gravityFieldData[i].max = gravityFields_[i]->GetMax();
+		gravityFieldData[i].strength = gravityFields_[i]->GetStrength();
+		gravityFieldData[i].stopDistance = gravityFields_[i]->GetStopDistance();
+	}
+	gravityFieldResource_->Unmap();
+
+	//GravityFieldの数の更新
+	int32_t* gravityFieldInformationData = static_cast<int32_t*>(gravityFieldInformationResource_->Map());
+	*gravityFieldInformationData = (int32_t)gravityFields_.size();
+	gravityFieldInformationResource_->Unmap();
 }
 
 void ParticleSystem::UpdatePerViewResource(const Camera* camera)
