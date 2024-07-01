@@ -11,7 +11,11 @@ void SphereCollider::Update()
 {
 	if (transformComponent_ != nullptr)
 	{
-		center_ = transformComponent_->worldTransform_.translation_;
+        center_ = {
+            transformComponent_->worldTransform_.matWorld_.m[3][0] ,
+            transformComponent_->worldTransform_.matWorld_.m[3][1] ,
+            transformComponent_->worldTransform_.matWorld_.m[3][2]
+        };
 	}
 }
 

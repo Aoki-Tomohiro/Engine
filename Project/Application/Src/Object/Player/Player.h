@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "States/PlayerStateIdle.h"
+#include "States/IPlayerState.h"
+#include "Engine/Math/MathFunction.h"
 
 class Player : public GameObject
 {
@@ -11,11 +12,11 @@ public:
 
 	void Draw(const Camera& camera) override;
 
-	void OnCollision(GameObject* collider) override;
+	void OnCollision(GameObject* gameObject) override;
 
-	void OnCollisionEnter(GameObject* collider) override;
+	void OnCollisionEnter(GameObject* gameObject) override;
 
-	void OnCollisionExit(GameObject* collider) override;
+	void OnCollisionExit(GameObject* gameObject) override;
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
 

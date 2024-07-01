@@ -1,8 +1,8 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Component/TransformComponent.h"
 
-class Ground : public GameObject
+class Weapon : public GameObject
 {
 public:
 	void Initialize() override;
@@ -17,7 +17,9 @@ public:
 
 	void OnCollisionExit(GameObject* gameObject) override;
 
+	void SetParent(const TransformComponent* transformComponent);
+
 private:
-	Vector3 specularColor_ = { 0.588f,0.588f,0.588f };
+
 };
 

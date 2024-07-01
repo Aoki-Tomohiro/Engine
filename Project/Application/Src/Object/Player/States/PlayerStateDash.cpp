@@ -1,11 +1,9 @@
 #include "PlayerStateDash.h"
-#include "../Player.h"
-#include "PlayerStateIdle.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Math/MathFunction.h"
+#include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Utilities/GlobalVariables.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
+#include "PlayerStateIdle.h"
 
 void PlayerStateDash::Initialize()
 {

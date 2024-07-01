@@ -4,9 +4,13 @@
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Collision/CollisionManager.h"
 #include "Engine/3D/Camera/FollowCamera.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
 class GamePlayScene : public IScene
@@ -44,6 +48,9 @@ private:
 	//Transition
 	std::unique_ptr<Transition> transition_ = nullptr;
 
+	//CollisionManager
+	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
+
 	//次のシーン
 	enum NextScene
 	{
@@ -51,5 +58,8 @@ private:
 		kGameOverScene
 	};
 	NextScene nextScene_ = kGameClearScene;
+
+	int32_t isEnable_ = false;
+	int32_t isOutlineEnable_ = false;
 };
 

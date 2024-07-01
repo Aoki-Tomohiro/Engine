@@ -10,10 +10,10 @@ public:
 
 	void Draw(const Camera& camera) override;
 
-	void OnCollision(GameObject* collider) override;
+	void OnCollision(GameObject* gameObject) override;
 
-	void OnCollisionEnter(GameObject* collider) override;
+	void OnCollisionEnter(GameObject* gameObject) override;
 
-	void OnCollisionExit(GameObject* collider) override;
+	void OnCollisionExit(GameObject* gameObject) override;
 };
 

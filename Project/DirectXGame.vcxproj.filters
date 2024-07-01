@@ -483,28 +483,31 @@
     <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
       <Filter>ソース ファイル\Application\Object\Ground</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Utilities\GameTimer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Components\Particle\AccelerationField.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\Particle\GravityField.cpp">
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp">
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp">
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp">
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Utilities\GameTimer.cpp">
+      <Filter>ソース ファイル\Engine\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp">
+      <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -824,28 +827,31 @@
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
       <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleSystem.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Utilities\GameTimer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Components\Particle\AccelerationField.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Particle\GravityField.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Particle\ParticleManager.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Particle\ParticleSystem.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Utilities\GameTimer.h">
+      <Filter>ヘッダー ファイル\Engine\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h">
+      <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1025,7 +1031,11 @@
     <FxCompile Include="Application\Resources\Shaders\Vignette.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\EmitParticle.CS.hlsl" />
-    <FxCompile Include="Application\Resources\Shaders\UpdateParticle.CS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\UpdateParticle.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\EmitParticle.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

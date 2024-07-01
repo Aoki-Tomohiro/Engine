@@ -2,6 +2,7 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
+#include "Engine/3D/Primitive/LineRenderer.h"
 
 void GamePlayScene::Initialize()
 {
@@ -23,6 +24,10 @@ void GamePlayScene::Initialize()
 	//カメラを取得
 	camera_ = gameObjectManager_->GetCamera();
 
+	//LineRendererにカメラを設定
+	LineRenderer* lineRenderer = LineRenderer::GetInstance();
+	lineRenderer->SetCamera(camera_);
+
 	//FollowCameraの作成
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
@@ -30,12 +35,35 @@ void GamePlayScene::Initialize()
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
-	player->GetComponent<TransformComponent>()->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//TransformComponentの初期化
+	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
+	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//カメラを設定
 	player->SetCamera(camera_);
+
+	//武器の生成
+	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
+	//TransformComponentの追加
+	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
+	weaponTransformComponent->Initialize();
+	weaponTransformComponent->worldTransform_.translation_ = { 0.0f,2.0f,0.0f };
+	//ModelComponentの追加
+	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
+	weaponModelComponent->Initialize("Cube", Opaque);
+	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
+	//ColliderComponentの追加
+	OBBCollider* weaponColliderComponent = weapon->AddComponent<OBBCollider>();
+	weaponColliderComponent->SetTransformComponent(weaponTransformComponent);
+	weaponColliderComponent->SetDebugDrawEnabled(true);
+	//親子付け
+	weapon->SetParent(playerTransformComponent);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
+
+	//CollisionManagerの生成
+	collisionManager_ = std::make_unique<CollisionManager>();
 }
 
 void GamePlayScene::Finalize()
@@ -61,10 +89,27 @@ void GamePlayScene::Update()
 	//フェードイン処理
 	HandleTransition();
 
+	//衝突判定
+	collisionManager_->ClearColliderList();
+	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
+	{
+		collisionManager_->SetColliderList(collider);
+	}
+	if (Collider* collider = gameObjectManager_->GetGameObject<Enemy>()->GetComponent<Collider>())
+	{
+		collisionManager_->SetColliderList(collider);
+	}
+	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>()->GetComponent<Collider>())
+	{
+		collisionManager_->SetColliderList(collider);
+	}
+	collisionManager_->CheckAllCollisions();
+
 	//ImGui
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
+	ImGui::DragInt("RadialBlur", &isEnable_, 1, 0, 1);
 	ImGui::End();
 }
 

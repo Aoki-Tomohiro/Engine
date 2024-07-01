@@ -1,11 +1,9 @@
 #include "PlayerStateIdle.h"
-#include "../Player.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
 #include "PlayerStateDash.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/GlobalVariables.h"
 
 void PlayerStateIdle::Initialize()
 {

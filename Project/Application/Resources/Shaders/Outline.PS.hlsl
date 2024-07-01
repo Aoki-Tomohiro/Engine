@@ -58,7 +58,7 @@ PixelShaderOutput main(VertexShaderOutput input)
             difference.y += viewZ * kPrewittVerticalKernel[x][y];
         }
     }
-        //変化の長さをウェイトとして合成。ウェイトの決定方法も色々と考えられる。例えばdifference.xだけ使えば横方向のエッジが検出される
+    //変化の長さをウェイトとして合成。ウェイトの決定方法も色々と考えられる。例えばdifference.xだけ使えば横方向のエッジが検出される
     float32_t weight = length(difference);
     weight = saturate(weight * gOutlineParameter.coefficient); //0~1にしておく
     output.color.rgb = (1.0f - weight) * gTexture.Sample(gSampler, input.texcoord).rgb;

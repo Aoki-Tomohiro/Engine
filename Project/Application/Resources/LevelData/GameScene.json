@@ -45,41 +45,6 @@
         },
         {
             "type": "MESH",
-            "name": "Enemy",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    3.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scaling": [
-                    3.0,
-                    3.0,
-                    3.0
-                ]
-            },
-            "file_name": "Cube",
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    6.0,
-                    6.0,
-                    6.0
-                ]
-            }
-        },
-        {
-            "type": "MESH",
             "name": "Ground",
             "transform": {
                 "translation": [
@@ -93,8 +58,8 @@
                     0.0
                 ],
                 "scaling": [
-                    50.0,
-                    50.0,
+                    100.0,
+                    100.0,
                     2.0
                 ]
             },
@@ -107,7 +72,7 @@
                 "translation": [
                     0.0,
                     -20.0,
-                    1.0
+                    2.0
                 ],
                 "rotation": [
                     0.0,
@@ -120,7 +85,7 @@
                     1.0
                 ]
             },
-            "file_name": "Cube",
+            "file_name": "Player",
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -131,7 +96,42 @@
                 "size": [
                     2.0,
                     2.0,
-                    2.0
+                    4.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "Enemy",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Enemy",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    8.0
                 ]
             }
         }

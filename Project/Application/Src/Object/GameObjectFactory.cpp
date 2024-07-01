@@ -7,6 +7,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Player* player = new Player();
 		return player;
 	}
+	else if (objectName == "Weapon")
+	{
+		Weapon* weapon = new Weapon();
+		return weapon;
+	}
 	else if (objectName == "Enemy")
 	{
 		Enemy* enemy = new Enemy();

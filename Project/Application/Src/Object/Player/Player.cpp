@@ -1,5 +1,6 @@
 #include "Player.h"
-#include "Engine/Math/MathFunction.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Application/Src/Object/Player/States/PlayerStateIdle.h"
 
 void Player::Initialize()
 {
@@ -36,17 +37,17 @@ void Player::Draw(const Camera& camera)
 	GameObject::Draw(camera);
 }
 
-void Player::OnCollision(GameObject* collider)
+void Player::OnCollision(GameObject* gameObject)
 {
 
 }
 
-void Player::OnCollisionEnter(GameObject* collider)
+void Player::OnCollisionEnter(GameObject* gameObject)
 {
 
 }
 
-void Player::OnCollisionExit(GameObject* collider)
+void Player::OnCollisionExit(GameObject* gameObject)
 {
 
 }

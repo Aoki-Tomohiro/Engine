@@ -33,7 +33,7 @@ public:
 
 	bool IsCollidingWith(Collider* collider) const { return currentCollisions_.find(collider) != currentCollisions_.end(); };
 
-	bool SetDebugDrawEnabled(const bool debugDrawEnabled) { debugDrawEnabled_ = debugDrawEnabled; };
+	void SetDebugDrawEnabled(const bool debugDrawEnabled) { debugDrawEnabled_ = debugDrawEnabled; };
 
 	void SetTransformComponent(TransformComponent* tranformComponent) { transformComponent_ = tranformComponent; };
 

@@ -11,24 +11,31 @@ void OBBCollider::Update()
 {
 	if (transformComponent_ != nullptr)
 	{
-		center_ = transformComponent_->worldTransform_.translation_;
-		Matrix4x4 rotateMatrix = Mathf::MakeIdentity4x4();
-		switch (transformComponent_->worldTransform_.rotationType_)
-		{
-		case RotationType::Euler:
-			Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(transformComponent_->worldTransform_.rotation_.x);
-			Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(transformComponent_->worldTransform_.rotation_.y);
-			Matrix4x4 rotateZMatrix = Mathf::MakeRotateZMatrix(transformComponent_->worldTransform_.rotation_.z);
-			rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
-			break;
-		case RotationType::Quaternion:
-			rotateMatrix = Mathf::MakeRotateMatrix(transformComponent_->worldTransform_.quaternion_);
-			break;
-		}
-		orientations_[0] = { rotateMatrix.m[0][0],rotateMatrix.m[0][1],rotateMatrix.m[0][2] };
-		orientations_[1] = { rotateMatrix.m[1][0],rotateMatrix.m[1][1],rotateMatrix.m[1][2] };
-		orientations_[2] = { rotateMatrix.m[2][0],rotateMatrix.m[2][1],rotateMatrix.m[2][2] };
-		size_ = transformComponent_->worldTransform_.scale_;
+		//中心点
+		center_ = {
+			transformComponent_->worldTransform_.matWorld_.m[3][0] ,
+			transformComponent_->worldTransform_.matWorld_.m[3][1] ,
+			transformComponent_->worldTransform_.matWorld_.m[3][2]
+		};
+
+		//軸
+		orientations_[0] = {
+			transformComponent_->worldTransform_.matWorld_.m[0][0],
+			transformComponent_->worldTransform_.matWorld_.m[0][1],
+			transformComponent_->worldTransform_.matWorld_.m[0][2]
+		};
+
+		orientations_[1] = { 
+			transformComponent_->worldTransform_.matWorld_.m[1][0],
+			transformComponent_->worldTransform_.matWorld_.m[1][1],
+			transformComponent_->worldTransform_.matWorld_.m[1][2] 
+		};
+
+		orientations_[2] = { 
+			transformComponent_->worldTransform_.matWorld_.m[2][0],
+			transformComponent_->worldTransform_.matWorld_.m[2][1],
+			transformComponent_->worldTransform_.matWorld_.m[2][2] 
+		};
 	}
 }
 
@@ -43,9 +50,9 @@ void OBBCollider::Draw(const Camera& camera)
 		for (int i = 0; i < 8; ++i) {
 			Vector3 vertex = center_;
 			for (int j = 0; j < 3; ++j) {
-				vertex.x += (i & (1 << j)) ? orientations_[j].x * size_.x : -orientations_[j].x * size_.x;
-				vertex.y += (i & (1 << j)) ? orientations_[j].y * size_.y : -orientations_[j].y * size_.y;
-				vertex.z += (i & (1 << j)) ? orientations_[j].z * size_.z : -orientations_[j].z * size_.z;
+				vertex.x += (i & (1 << j)) ? orientations_[j].x/* * size_.x*/ : -orientations_[j].x/* * size_.x*/;
+				vertex.y += (i & (1 << j)) ? orientations_[j].y/* * size_.y*/ : -orientations_[j].y/* * size_.y*/;
+				vertex.z += (i & (1 << j)) ? orientations_[j].z/* * size_.z*/ : -orientations_[j].z/* * size_.z*/;
 			}
 			corners[i] = vertex;
 		}

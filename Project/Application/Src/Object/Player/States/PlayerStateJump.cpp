@@ -1,8 +1,7 @@
 #include "PlayerStateJump.h"
-#include "../Player.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateIdle.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Utilities/GlobalVariables.h"
 
 void PlayerStateJump::Initialize()
 {

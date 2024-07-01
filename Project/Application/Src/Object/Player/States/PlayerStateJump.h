@@ -1,6 +1,8 @@
 #pragma once
 #include "IPlayerState.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Utilities/GlobalVariables.h"
 
 class PlayerStateJump : public IPlayerState
 {

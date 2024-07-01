@@ -29,22 +29,20 @@ PixelShaderOutput main(VertexShaderOutput input)
     float dy = 1.0f / h;
 
     output.color += gBlur.bkWeight[0] * color;
-    for (int i = 1; i <= 7; ++i)
-    {
-        float2 offset = float2(0, dy * i);
-        float2 texcoordPlus = input.texcoord + offset;
-        float2 texcoordMinus = input.texcoord - offset;
-
-        if (texcoordPlus.y >= 0.0f && texcoordPlus.y <= 1.0f)
-        {
-            output.color += gBlur.bkWeight[(i - 1) / 4][(i - 1) % 4] * gTexture.Sample(gSampler, texcoordPlus);
-        }
-
-        if (texcoordMinus.y >= 0.0f && texcoordMinus.y <= 1.0f)
-        {
-            output.color += gBlur.bkWeight[(i - 1) / 4][(i - 1) % 4] * gTexture.Sample(gSampler, texcoordMinus);
-        }
-    }
+    output.color += gBlur.bkWeight[0][1] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 1));
+    output.color += gBlur.bkWeight[0][1] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 1));
+    output.color += gBlur.bkWeight[0][2] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 2));
+    output.color += gBlur.bkWeight[0][2] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 2));
+    output.color += gBlur.bkWeight[0][3] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 3));
+    output.color += gBlur.bkWeight[0][3] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 3));
+    output.color += gBlur.bkWeight[1][0] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 4));
+    output.color += gBlur.bkWeight[1][0] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 4));
+    output.color += gBlur.bkWeight[1][1] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 5));
+    output.color += gBlur.bkWeight[1][1] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 5));
+    output.color += gBlur.bkWeight[1][2] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 6));
+    output.color += gBlur.bkWeight[1][2] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 6));
+    output.color += gBlur.bkWeight[1][3] * gTexture.Sample(gSampler, input.texcoord + float2(0, dy * 7));
+    output.color += gBlur.bkWeight[1][3] * gTexture.Sample(gSampler, input.texcoord + float2(0, -dy * 7));
     output.color.a = color.a;
     
     return output;

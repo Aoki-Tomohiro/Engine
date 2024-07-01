@@ -18,7 +18,7 @@ ConstantBuffer<RadialBlur> gRadialBlurParameter : register(b0);
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    const int32_t kNumSamplers = 10;//サンプリング数。多いほど滑らかだが重い
+    const int32_t kNumSamplers = 10; //サンプリング数。多いほど滑らかだが重い
     float32_t2 direction = input.texcoord - gRadialBlurParameter.center;
     float32_t3 outputColor = float32_t3(0.0f, 0.0f, 0.0f);
     for (int32_t sampleIndex = 0; sampleIndex < kNumSamplers; ++sampleIndex)

@@ -1,8 +1,7 @@
 #include "PlayerStateDodge.h"
-#include "../Player.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/GlobalVariables.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Application/Src/Object/Player/Player.h"
+#include "PlayerStateIdle.h"
 
 void PlayerStateDodge::Initialize()
 {

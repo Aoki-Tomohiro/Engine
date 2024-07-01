@@ -91,8 +91,13 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                 if (particleIndex < kMaxParticles)
                 {
                     //位置の初期化
-                    float32_t3 direction = normalize(generator.Generate3d() * 2.0f - 1.0f);
-                    float32_t distance = generator.Generate1d() * gEmitter[emitterIndex].radius;
+                    //float32_t3 direction = normalize(generator.Generate3d() * 2.0f - 1.0f);
+                    //float32_t distance = generator.Generate1d() * gEmitter[emitterIndex].radius;
+                    //gParticles[particleIndex].translate = gEmitter[emitterIndex].translate + direction * distance;
+                    float32_t theta = rand3dTo1d(generator.Generate3d()) * 2.0 * 3.141592653589793;
+                    float32_t phi = acos(2.0 * rand3dTo1d(generator.Generate3d() + float32_t3(1.0, 1.0, 1.0)) - 1.0);
+                    float32_t3 direction = { sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi) };
+                    float32_t distance = pow(generator.Generate1d(), 1.0 / 3.0) * gEmitter[emitterIndex].radius;
                     gParticles[particleIndex].translate = gEmitter[emitterIndex].translate + direction * distance;
                 
                     //スケールの初期化

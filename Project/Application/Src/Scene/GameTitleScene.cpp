@@ -20,7 +20,7 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//LevelDataの読み込み
-	LevelLoader::Load("TitleScene");
+	LevelLoader::Load("GameScene");
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
