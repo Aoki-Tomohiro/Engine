@@ -9,6 +9,8 @@ public:
 
 	void Update() override;
 
+	const Vector3 GetWorldPosition();
+
 	WorldTransform worldTransform_{};
 };
 

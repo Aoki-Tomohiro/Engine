@@ -4,6 +4,8 @@
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
 #include "PlayerStateDash.h"
+#include "PlayerStateGroundAttack.h"
+#include "PlayerStateRangedAttack.h"
 
 void PlayerStateIdle::Initialize()
 {
@@ -78,6 +80,16 @@ void PlayerStateIdle::Update()
 	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
 	{
 		player_->ChangeState(new PlayerStateDash());
+	}
+	//地上攻撃の状態に遷移
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		player_->ChangeState(new PlayerStateGroundAttack());
+	}
+	//遠距離攻撃の状態に遷移
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
+	{
+		player_->ChangeState(new PlayerStateRangedAttack());
 	}
 
 	//環境変数の適用

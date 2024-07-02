@@ -27,7 +27,7 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 	for (uint32_t i = 0; i < modelData_.materialData.size(); ++i)
 	{
 		Material* material = new Material();
-		material->Initialize(modelData_.materialData[i].textureFilePath);
+		material->Initialize(modelData_.materialData[i]);
 		materials_.push_back(std::unique_ptr<Material>(material));
 	}
 

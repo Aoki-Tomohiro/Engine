@@ -12,6 +12,7 @@ public:
 	struct MaterialData
 	{
 		std::string textureFilePath;
+		Vector4 color{};
 	};
 
 	enum DiffuseReflectionType
@@ -27,7 +28,7 @@ public:
 		NoSpecularReflection,
 	};
 
-	void Initialize(const std::string& textureName);
+	void Initialize(const MaterialData& materialData);
 
 	void Update();
 

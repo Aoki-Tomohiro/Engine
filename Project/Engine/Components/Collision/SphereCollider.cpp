@@ -9,20 +9,16 @@ void SphereCollider::Initialize()
 
 void SphereCollider::Update()
 {
-	if (transformComponent_ != nullptr)
-	{
-        center_ = {
-            transformComponent_->worldTransform_.matWorld_.m[3][0] ,
-            transformComponent_->worldTransform_.matWorld_.m[3][1] ,
-            transformComponent_->worldTransform_.matWorld_.m[3][2]
-        };
-	}
+
 }
 
 void SphereCollider::Draw(const Camera& camera)
 {
     if (debugDrawEnabled_)
     {
+        //Colliderの描画
+        Collider::Draw(camera);
+
         //球の作成
         const uint32_t kSubdivision = 8;
         uint32_t latIndex = 0;

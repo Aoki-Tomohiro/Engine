@@ -41,10 +41,16 @@ private:
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
 
+	//Collider関連
+	Vector3 colliderOffset_{};
+	Vector3 min_ = { -0.6f,-1.8f,-0.6f };
+	Vector3 max_ = { 0.6f,1.8f,0.8f };
+
 	//フレンドクラスに登録
 	friend class PlayerStateIdle;
 	friend class PlayerStateJump;
 	friend class PlayerStateDodge;
 	friend class PlayerStateDash;
+	friend class PlayerStateGroundAttack;
 };
 

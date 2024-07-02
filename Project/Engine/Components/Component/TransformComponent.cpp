@@ -23,3 +23,12 @@ void TransformComponent::Update()
 		worldTransform_.matWorld_ = worldTransform_.matWorld_ * worldTransform_.parent_->matWorld_;
 	}
 }
+
+const Vector3 TransformComponent::GetWorldPosition()
+{
+	Vector3 worldPosition{};
+	worldPosition.x = worldTransform_.matWorld_.m[3][0];
+	worldPosition.y = worldTransform_.matWorld_.m[3][1];
+	worldPosition.z = worldTransform_.matWorld_.m[3][2];
+	return worldPosition;
+}

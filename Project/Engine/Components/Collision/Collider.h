@@ -35,11 +35,7 @@ public:
 
 	void SetDebugDrawEnabled(const bool debugDrawEnabled) { debugDrawEnabled_ = debugDrawEnabled; };
 
-	void SetTransformComponent(TransformComponent* tranformComponent) { transformComponent_ = tranformComponent; };
-
 protected:
-	TransformComponent* transformComponent_ = nullptr;
-
 	std::set<Collider*> currentCollisions_;
 
 	uint32_t collisionAttribute_ = 0xffffffff;

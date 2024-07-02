@@ -2,6 +2,8 @@
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateIdle.h"
+#include "PlayerStateAirAttack.h"
+#include "PlayerStateRangedAttack.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -33,14 +35,21 @@ void PlayerStateJump::Update()
 	//速度を加算
 	transformComponent->worldTransform_.translation_ += player_->velocity;
 
-	//地面に接触した場合の処理
-	if (transformComponent->worldTransform_.translation_.y <= 1.0f)
+	//空中攻撃の状態に遷移
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 	{
-		//Root状態に変更
+		player_->ChangeState(new PlayerStateAirAttack());
+	}
+	//遠距離攻撃の状態に遷移
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
+	{
+		player_->ChangeState(new PlayerStateRangedAttack());
+	}
+	//通常状態に変更
+	else if (transformComponent->worldTransform_.translation_.y <= 0.0f)
+	{
 		player_->ChangeState(new PlayerStateIdle);
-
-		//y座標を地面に固定
-		transformComponent->worldTransform_.translation_.y = 1.0f;
+		transformComponent->worldTransform_.translation_.y = 0.0f;
 	}
 
 	//環境変数の適用

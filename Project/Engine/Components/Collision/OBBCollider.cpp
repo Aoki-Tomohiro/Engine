@@ -9,50 +9,57 @@ void OBBCollider::Initialize()
 
 void OBBCollider::Update()
 {
-	if (transformComponent_ != nullptr)
-	{
-		//中心点
-		center_ = {
-			transformComponent_->worldTransform_.matWorld_.m[3][0] ,
-			transformComponent_->worldTransform_.matWorld_.m[3][1] ,
-			transformComponent_->worldTransform_.matWorld_.m[3][2]
-		};
 
-		//軸
-		orientations_[0] = {
-			transformComponent_->worldTransform_.matWorld_.m[0][0],
-			transformComponent_->worldTransform_.matWorld_.m[0][1],
-			transformComponent_->worldTransform_.matWorld_.m[0][2]
-		};
-
-		orientations_[1] = { 
-			transformComponent_->worldTransform_.matWorld_.m[1][0],
-			transformComponent_->worldTransform_.matWorld_.m[1][1],
-			transformComponent_->worldTransform_.matWorld_.m[1][2] 
-		};
-
-		orientations_[2] = { 
-			transformComponent_->worldTransform_.matWorld_.m[2][0],
-			transformComponent_->worldTransform_.matWorld_.m[2][1],
-			transformComponent_->worldTransform_.matWorld_.m[2][2] 
-		};
-	}
 }
 
 void OBBCollider::Draw(const Camera& camera)
 {
 	if (debugDrawEnabled_)
 	{
+		//Colliderの描画
+		Collider::Draw(camera);
+
 		//頂点
 		std::vector<Vector3> corners(8);
+
+		//行列の計算
+		Matrix4x4 rotateMatrix = Mathf::MakeIdentity4x4();
+		rotateMatrix.m[0][0] = orientations_[0].x;
+		rotateMatrix.m[0][1] = orientations_[0].y;
+		rotateMatrix.m[0][2] = orientations_[0].z;
+		rotateMatrix.m[1][0] = orientations_[1].x;
+		rotateMatrix.m[1][1] = orientations_[1].y;
+		rotateMatrix.m[1][2] = orientations_[1].z;
+		rotateMatrix.m[2][0] = orientations_[2].x;
+		rotateMatrix.m[2][1] = orientations_[2].y;
+		rotateMatrix.m[2][2] = orientations_[2].z;
+		Matrix4x4 worldMatrix = Mathf::MakeScaleMatrix(size_) * rotateMatrix * Mathf::MakeTranslateMatrix(center_);
+
+		//軸
+		Vector3 orientations[3] = { {1.0f,0.0f,0.0f},{0.0f,1.0f,0.0f},{0.0f,0.0f,1.0f} };
+		orientations[0] = {
+			worldMatrix.m[0][0],
+			worldMatrix.m[0][1],
+			worldMatrix.m[0][2]
+		};
+		orientations[1] = {
+			worldMatrix.m[1][0],
+			worldMatrix.m[1][1],
+			worldMatrix.m[1][2]
+		};
+		orientations[2] = {
+			worldMatrix.m[2][0],
+			worldMatrix.m[2][1],
+			worldMatrix.m[2][2]
+		};
 
 		//頂点を計算
 		for (int i = 0; i < 8; ++i) {
 			Vector3 vertex = center_;
 			for (int j = 0; j < 3; ++j) {
-				vertex.x += (i & (1 << j)) ? orientations_[j].x/* * size_.x*/ : -orientations_[j].x/* * size_.x*/;
-				vertex.y += (i & (1 << j)) ? orientations_[j].y/* * size_.y*/ : -orientations_[j].y/* * size_.y*/;
-				vertex.z += (i & (1 << j)) ? orientations_[j].z/* * size_.z*/ : -orientations_[j].z/* * size_.z*/;
+				vertex.x += (i & (1 << j)) ? orientations[j].x : -orientations[j].x;
+				vertex.y += (i & (1 << j)) ? orientations[j].y : -orientations[j].y;
+				vertex.z += (i & (1 << j)) ? orientations[j].z : -orientations[j].z;
 			}
 			corners[i] = vertex;
 		}

@@ -138,6 +138,9 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex)
 	{
 		aiMaterial* material = scene->mMaterials[materialIndex];
+		aiColor4D color;
+		aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &color);
+		modelData.materialData[materialIndex].color = Vector4(color.r, color.g, color.b, color.a);
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0)
 		{
 			aiString textureFilePath;

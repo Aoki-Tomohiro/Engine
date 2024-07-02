@@ -19,6 +19,8 @@ public:
 
 	void Draw();
 
+	const Camera* GetCamera() const { return camera_; };
+
 	void SetCamera(const Camera* camera) { camera_ = camera; };
 
 private:

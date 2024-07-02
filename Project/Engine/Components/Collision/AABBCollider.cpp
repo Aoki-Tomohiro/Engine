@@ -8,20 +8,16 @@ void AABBCollider::Initialize()
 
 void AABBCollider::Update()
 {
-	if (transformComponent_ != nullptr)
-	{
-		center_ = {
-			transformComponent_->worldTransform_.matWorld_.m[3][0] ,
-			transformComponent_->worldTransform_.matWorld_.m[3][1] ,
-			transformComponent_->worldTransform_.matWorld_.m[3][2]
-		};
-	}
+
 }
 
 void AABBCollider::Draw(const Camera& camera)
 {
 	if (debugDrawEnabled_)
 	{
+		//Colliderの描画
+		Collider::Draw(camera);
+
 		//頂点データ
 		std::vector<Vector3> corners(8);
 

@@ -2,7 +2,6 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
-#include "Engine/3D/Primitive/LineRenderer.h"
 
 void GamePlayScene::Initialize()
 {
@@ -24,10 +23,6 @@ void GamePlayScene::Initialize()
 	//カメラを取得
 	camera_ = gameObjectManager_->GetCamera();
 
-	//LineRendererにカメラを設定
-	LineRenderer* lineRenderer = LineRenderer::GetInstance();
-	lineRenderer->SetCamera(camera_);
-
 	//FollowCameraの作成
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
@@ -38,23 +33,44 @@ void GamePlayScene::Initialize()
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//ModelComponent
+	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
+	playerModelComponent->SetAnimationName("Idle");
 	//カメラを設定
 	player->SetCamera(camera_);
+
+#pragma region AnimationName
+	//Death
+	//Defeat
+	//Idle
+	//Jump
+	//PickUp
+	//Punch
+	//RecieveHit
+	//Roll
+	//Run_Carry
+	//Run
+	//Shoot_OneHanded
+	//SitDown
+	//StandUp
+	//SwordSlash
+	//Victory
+	//Walk_Carry
+	//Walk
+#pragma endregion
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
 	//TransformComponentの追加
 	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
 	weaponTransformComponent->Initialize();
-	weaponTransformComponent->worldTransform_.translation_ = { 0.0f,2.0f,0.0f };
+	weaponTransformComponent->worldTransform_.translation_ = { 0.0f,4.0f,0.0f };
 	//ModelComponentの追加
 	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
-	weaponModelComponent->Initialize("Cube", Opaque);
+	weaponModelComponent->Initialize("Sword", Opaque);
 	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
 	//ColliderComponentの追加
-	OBBCollider* weaponColliderComponent = weapon->AddComponent<OBBCollider>();
-	weaponColliderComponent->SetTransformComponent(weaponTransformComponent);
-	weaponColliderComponent->SetDebugDrawEnabled(true);
+	weapon->AddComponent<OBBCollider>();
 	//親子付け
 	weapon->SetParent(playerTransformComponent);
 

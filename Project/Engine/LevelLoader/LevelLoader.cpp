@@ -177,7 +177,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			if (objectData.colliderData.type == "BOX")
 			{
 				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
-				collider->SetTransformComponent(transformComponent);
 				collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
 				collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
 			}
