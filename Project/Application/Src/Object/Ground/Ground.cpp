@@ -12,7 +12,7 @@ void Ground::Update()
 	//Modelを取得
 	ModelComponent* groundModelComponent = GetComponent<ModelComponent>();
 	//SpecularColorを設定
-	groundModelComponent->GetModel()->GetMaterial(1)->SetSpecularColor(specularColor_);
+	groundModelComponent->GetModel()->GetMaterial(0)->SetSpecularColor(specularColor_);
 
 	//GameObjectの更新
 	GameObject::Update();

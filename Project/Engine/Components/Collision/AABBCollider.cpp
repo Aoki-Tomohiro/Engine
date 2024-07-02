@@ -15,9 +15,6 @@ void AABBCollider::Draw(const Camera& camera)
 {
 	if (debugDrawEnabled_)
 	{
-		//Colliderの描画
-		Collider::Draw(camera);
-
 		//頂点データ
 		std::vector<Vector3> corners(8);
 
@@ -45,5 +42,8 @@ void AABBCollider::Draw(const Camera& camera)
 		lineRenderer->AddLine(corners[4], corners[6]);
 		lineRenderer->AddLine(corners[5], corners[7]);
 		lineRenderer->AddLine(corners[6], corners[7]);
+
+		//Colliderの描画
+		Collider::Draw(camera);
 	}
 }

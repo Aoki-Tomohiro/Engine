@@ -1,4 +1,5 @@
 #include "PlayerStateDash.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
@@ -27,6 +28,9 @@ void PlayerStateDash::Initialize()
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity));
 	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 
+	//RadialBlurをかける
+	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
+
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
@@ -49,11 +53,13 @@ void PlayerStateDash::Update()
 	//ダッシュの時間が終わったら通常状態に戻す
 	if (++currentDashDuration_ > maxDashDuration_)
 	{
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 		player_->ChangeState(new PlayerStateIdle());
 	}
 	//敵に近づいたら通常状態に戻す
 	else if (Mathf::Length(enemyPosition - playerTransformComponent->worldTransform_.translation_) < proximityThreshold_)
 	{
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 		player_->ChangeState(new PlayerStateIdle());
 	}
 

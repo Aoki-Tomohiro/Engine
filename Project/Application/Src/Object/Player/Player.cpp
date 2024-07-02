@@ -25,21 +25,16 @@ void Player::Update()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 
-	//Gameobjectの更新
-	GameObject::Update();
-
 	//Colliderの更新
 	AABBCollider* collider = GetComponent<AABBCollider>();
-	collider->SetDebugDrawEnabled(true);
 	collider->SetCenter(transformComponent->GetWorldPosition() + colliderOffset_);
-	collider->SetMin(min_);
-	collider->SetMax(max_);
+
+	//Gameobjectの更新
+	GameObject::Update();
 
 	//ImGui
 	ImGui::Begin("Player");
 	ImGui::DragFloat3("ColliderOffset", &colliderOffset_.x, 0.1f);
-	ImGui::DragFloat3("ColliderMin", &min_.x, 0.1f);
-	ImGui::DragFloat3("ColliderMax", &max_.x, 0.1f);
 	ImGui::End();
 }
 

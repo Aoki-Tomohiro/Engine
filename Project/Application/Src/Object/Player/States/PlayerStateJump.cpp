@@ -35,22 +35,22 @@ void PlayerStateJump::Update()
 	//速度を加算
 	transformComponent->worldTransform_.translation_ += player_->velocity;
 
-	//空中攻撃の状態に遷移
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-	{
-		player_->ChangeState(new PlayerStateAirAttack());
-	}
-	//遠距離攻撃の状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
-	{
-		player_->ChangeState(new PlayerStateRangedAttack());
-	}
 	//通常状態に変更
-	else if (transformComponent->worldTransform_.translation_.y <= 0.0f)
+	if (transformComponent->worldTransform_.translation_.y <= 0.0f)
 	{
 		player_->ChangeState(new PlayerStateIdle);
 		transformComponent->worldTransform_.translation_.y = 0.0f;
 	}
+	////空中攻撃の状態に遷移
+	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	//{
+	//	player_->ChangeState(new PlayerStateAirAttack());
+	//}
+	////遠距離攻撃の状態に遷移
+	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
+	//{
+	//	player_->ChangeState(new PlayerStateRangedAttack());
+	//}
 
 	//環境変数の適用
 	ApplyGlobalVariables();

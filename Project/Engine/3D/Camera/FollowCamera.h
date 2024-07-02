@@ -1,5 +1,6 @@
 #pragma once
-#include "Engine/3D/Camera/Camera.h"
+#include "Camera.h"
+#include "LockOn.h"
 #include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/Components/Input/Input.h"
 
@@ -14,6 +15,8 @@ public:
 
 	const Camera& GetCamera() const { return camera_; };
 
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; };
+
 private:
 	Vector3 Offset();
 
@@ -22,6 +25,9 @@ private:
 private:
 	//カメラ
 	Camera camera_{};
+
+	//ロックオン
+	const LockOn* lockOn_ = nullptr;
 
 	//追従対象
 	const WorldTransform* target_ = nullptr;

@@ -1,5 +1,6 @@
 #include "FollowCamera.h"
 #include "Engine/Math/MathFunction.h"
+#include <numbers>
 
 void FollowCamera::Initialize()
 {
@@ -21,34 +22,60 @@ void FollowCamera::Update()
 	//カメラ座標
 	camera_.translation_ = interTarget_ + offset;
 
-	//しきい値
-	const float threshold = 0.7f;
-
-	//回転フラグ
-	bool isRotation = false;
-
-	//回転量
-	Vector3 rotation = {
-		Input::GetInstance()->GetRightStickY(),
-		Input::GetInstance()->GetRightStickX(),
-		0.0f
-	};
-
-	//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
-	if (Mathf::Length(rotation) > threshold) 
+	//ロックオン中なら
+	if (lockOn_ && lockOn_->ExistTarget())
 	{
-		isRotation = true;
+		//ロックオン座標
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		//追従対象からロックオン座標へのベクトル
+		Vector3 sub = lockOnPosition - target_->translation_;
+		sub.y = 0.0f;
+
+		//Y軸周り角度
+		if (sub.z != 0.0) {
+			destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
+
+			if (sub.z < 0.0) {
+				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
+			}
+		}
+		else {
+			destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
+		}
+
+		destinationAngleX_ = 0.2f;
 	}
-
-	if (isRotation)
+	else
 	{
-		//回転速度
-		const float kRotSpeedX = 0.02f;
-		const float kRotSpeedY = 0.04f;
+		//しきい値
+		const float threshold = 0.7f;
 
-		//回転
-		destinationAngleX_ -= rotation.x * kRotSpeedX;
-		destinationAngleY_ += rotation.y * kRotSpeedY;
+		//回転フラグ
+		bool isRotation = false;
+
+		//回転量
+		Vector3 rotation = {
+			Input::GetInstance()->GetRightStickY(),
+			Input::GetInstance()->GetRightStickX(),
+			0.0f
+		};
+
+		//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
+		if (Mathf::Length(rotation) > threshold)
+		{
+			isRotation = true;
+		}
+
+		if (isRotation)
+		{
+			//回転速度
+			const float kRotSpeedX = 0.02f;
+			const float kRotSpeedY = 0.04f;
+
+			//回転
+			destinationAngleX_ -= rotation.x * kRotSpeedX;
+			destinationAngleY_ += rotation.y * kRotSpeedY;
+		}
 	}
 
 	//回転限界角度

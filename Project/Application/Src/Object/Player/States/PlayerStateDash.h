@@ -20,7 +20,7 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float speed_ = 2.0f;
+	float speed_ = 1.6f;
 
 	float proximityThreshold_ = 10.0f;
 

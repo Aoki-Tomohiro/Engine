@@ -9,7 +9,10 @@ void Material::Initialize(const MaterialData& materialData)
 	materialConstBuffer_->Create(sizeof(ConstBuffDataMaterial));
 
 	//色を設定
-	color_ = materialData.color;
+	if (materialData.color != Vector4{ 0.0f,0.0f,0.0f,0.0f })
+	{
+		color_ = materialData.color;
+	}
 
 	//テクスチャを設定
 	if (materialData.textureFilePath != "")

@@ -2,16 +2,17 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateIdle.h"
 
 //コンボ定数表
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{ 10, 10, 10, 10, { 0.0f,0.01f,0.0f }, { 0.0f,0.01f,0.0f }, { 0.0f,0.01f,0.0f } },
-        { 10, 10, 10, 10, { 0.01f,0.0f,0.0f }, { 0.01f,0.0f,0.0f }, { 0.01f,0.0f,0.0f } },
-		{ 10, 10, 10, 10, { 0.0f,0.01f,0.0f }, { 0.0f,0.01f,0.0f }, { 0.0f,0.01f,0.0f } },
-		{ 10, 10, 10, 10, { 0.01f,0.0f,0.0f }, { 0.01f,0.0f,0.0f }, { 0.01f,0.0f,0.0f } },
+		{ 10, 10, 10, 10, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f } },
+        { 10, 10, 10, 10, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f } },
+		{ 10, 10, 10, 10, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f } },
+		{ 10, 10, 10, 10, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f } },
 	}
 };
 
@@ -19,6 +20,10 @@ void PlayerStateGroundAttack::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
+
+	//武器を描画させる
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	weapon->SetIsVisible(true);
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -101,11 +106,42 @@ void PlayerStateGroundAttack::Update()
 				break;
 			}
 		}
-		//コンボ継続でなければ通常状態に戻す
 		else
 		{
+			//武器をリセット
+			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+			transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+			weapon->SetIsVisible(false);
+
+			//通常状態に戻す
 			player_->ChangeState(new PlayerStateIdle());
+			return;
 		}
+	}
+
+	//敵の座標を取得
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
+
+	//差分ベクトルを計算
+	TransformComponent* playerTransformConponent = player_->GetComponent<TransformComponent>();
+	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
+	sub.y = 0.0f;
+
+	//距離を計算
+	float distance = Mathf::Length(sub);
+
+	//閾値
+	float threshold = 10.0f;
+
+	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
+	if (distance < threshold || player_->lockOn_->ExistTarget())
+	{
+		//回転
+		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
+		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
+		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 	}
 
 	//アニメーション処理
@@ -130,8 +166,10 @@ void PlayerStateGroundAttack::Update()
 		{
 			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].swingSpeed;
 		}
-
 	}
+
+	//環境変数の適用
+	ApplyGlobalVariables();
 }
 
 void PlayerStateGroundAttack::Draw(const Camera& camera)

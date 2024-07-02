@@ -1,7 +1,8 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "States/IPlayerState.h"
+#include "Engine/3D/Camera/LockOn.h"
 #include "Engine/Math/MathFunction.h"
+#include "States/IPlayerState.h"
 
 class Player : public GameObject
 {
@@ -19,6 +20,8 @@ public:
 	void OnCollisionExit(GameObject* gameObject) override;
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
+
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
@@ -38,13 +41,14 @@ private:
 	//Camera
 	const Camera* camera_ = nullptr;
 
+	//LockOn
+	const LockOn* lockOn_ = nullptr;
+
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
 
-	//Collider関連
-	Vector3 colliderOffset_{};
-	Vector3 min_ = { -0.6f,-1.8f,-0.6f };
-	Vector3 max_ = { 0.6f,1.8f,0.8f };
+	//Collider
+	Vector3 colliderOffset_{ 0.0f,2.2f,0.0f };
 
 	//フレンドクラスに登録
 	friend class PlayerStateIdle;

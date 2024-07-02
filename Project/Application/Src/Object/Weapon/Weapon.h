@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
 
@@ -21,7 +22,11 @@ public:
 	void SetParent(const TransformComponent* transformComponent);
 
 private:
-	Vector3 colliderSize_ = { 0.2f,2.55f,0.32f };
-	Vector3 offset_ = { 0.0f,2.0f,0.0f };
+	//Particle
+	ParticleSystem* particleSystem_ = nullptr;
+
+	//Collider
+	Vector3 collisionOffset_{ 0.0f,1.2f,0.0f };
+	Vector3 size_{ 0.2f,3.36f,0.28f };
 };
 

@@ -12,13 +12,13 @@ void ParticleEmitter::Initialize(const std::string& name, const float lifeTime)
 
 void ParticleEmitter::Update()
 {
-	//タイムを加算
-	frequencyTime_ += GameTimer::GetDeltaTime();
+	//タイムを減算
+	frequencyTime_ -= GameTimer::GetDeltaTime();
 
 	//射出間隔を上回ったら射出許可を出して時間を調整
-	if (frequency_ <= frequencyTime_)
+	if (frequencyTime_ <= 0.0f)
 	{
-		frequencyTime_ -= frequency_;
+		frequencyTime_ = frequency_;
 		emit_ = 1;
 	}
 	//射出間隔を上回っていないので射出許可は出せない

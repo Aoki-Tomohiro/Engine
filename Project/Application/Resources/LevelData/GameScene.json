@@ -3,41 +3,6 @@
     "objects": [
         {
             "type": "MESH",
-            "name": "Player",
-            "transform": {
-                "translation": [
-                    0.0,
-                    -20.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Player",
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    2.0,
-                    2.0,
-                    3.5
-                ]
-            }
-        },
-        {
-            "type": "MESH",
             "name": "Ground",
             "transform": {
                 "translation": [
@@ -56,7 +21,29 @@
                     1.0
                 ]
             },
-            "file_name": "Ground",
+            "file_name": "Ground"
+        },
+        {
+            "type": "MESH",
+            "name": "Player",
+            "transform": {
+                "translation": [
+                    0.0,
+                    -20.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.399999976158142,
+                    1.399999976158142,
+                    1.399999976158142
+                ]
+            },
+            "file_name": "Player",
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -65,9 +52,9 @@
                     0.0
                 ],
                 "size": [
-                    160.0,
-                    160.0,
-                    4.0
+                    1.7000000476837158,
+                    1.7000000476837158,
+                    4.599999904632568
                 ]
             }
         },

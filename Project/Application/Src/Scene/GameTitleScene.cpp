@@ -25,6 +25,9 @@ void GameTitleScene::Initialize()
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	player->SetIsInTitleScene(true);
+	//ModelComponent
+	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
+	playerModelComponent->SetAnimationName("Idle");
 
 	//カメラを初期化
     camera_ = gameObjectManager_->GetCamera();

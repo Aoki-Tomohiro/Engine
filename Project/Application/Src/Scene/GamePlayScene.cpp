@@ -11,22 +11,31 @@ void GamePlayScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//GameObjectManagerのインスタンスを取得
-	gameObjectManager_ = GameObjectManager::GetInstance();
-
 	//GameObjectのクリア
+	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
+
+	//ParticleManagerをクリア
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
 
 	//LevelDataの読み込み
 	LevelLoader::Load("GameScene");
 
 	//カメラを取得
 	camera_ = gameObjectManager_->GetCamera();
+	//ParticleManagerにカメラを設定
+	particleManager_->SetCamera(camera_);
 
 	//FollowCameraの作成
 	followCamera_ = std::make_unique<FollowCamera>();
 	followCamera_->Initialize();
 	followCamera_->SetTarget(&gameObjectManager_->GetGameObject<Player>()->GetComponent<TransformComponent>()->worldTransform_);
+
+	//LockOnの生成
+	lockOn_ = std::make_unique<LockOn>();
+	lockOn_->Initialize();
+	followCamera_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
@@ -35,9 +44,11 @@ void GamePlayScene::Initialize()
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
 	//ModelComponent
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	playerModelComponent->SetAnimationName("Idle");
+	playerModelComponent->SetAnimationName("RecieveHit");
 	//カメラを設定
 	player->SetCamera(camera_);
+	//LockOnを設定
+	player->SetLockOn(lockOn_.get());
 
 #pragma region AnimationName
 	//Death
@@ -61,10 +72,12 @@ void GamePlayScene::Initialize()
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
+	weapon->SetIsVisible(false);
 	//TransformComponentの追加
 	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
 	weaponTransformComponent->Initialize();
 	weaponTransformComponent->worldTransform_.translation_ = { 0.0f,4.0f,0.0f };
+	weaponTransformComponent->worldTransform_.scale_ = { 1.2f,1.8f,1.2f };
 	//ModelComponentの追加
 	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
 	weaponModelComponent->Initialize("Sword", Opaque);
@@ -94,6 +107,10 @@ void GamePlayScene::Update()
 
 	//トランジションの更新
 	transition_->Update();
+
+	//ロックオンの処理
+	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	lockOn_->Update(enemy, *camera_);
 
 	//FollowCameraの更新
 	followCamera_->Update();
@@ -125,7 +142,6 @@ void GamePlayScene::Update()
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
-	ImGui::DragInt("RadialBlur", &isEnable_, 1, 0, 1);
 	ImGui::End();
 }
 
@@ -156,6 +172,9 @@ void GamePlayScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//ロックオンの描画
+	lockOn_->Draw();
 
 	//トランジションの描画
 	transition_->Draw();

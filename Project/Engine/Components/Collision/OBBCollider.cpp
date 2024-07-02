@@ -9,16 +9,15 @@ void OBBCollider::Initialize()
 
 void OBBCollider::Update()
 {
-
+	orientations_[0] = Mathf::Normalize(orientations_[0]);
+	orientations_[1] = Mathf::Normalize(orientations_[1]);
+	orientations_[2] = Mathf::Normalize(orientations_[2]);
 }
 
 void OBBCollider::Draw(const Camera& camera)
 {
 	if (debugDrawEnabled_)
 	{
-		//Colliderの描画
-		Collider::Draw(camera);
-
 		//頂点
 		std::vector<Vector3> corners(8);
 
@@ -40,17 +39,17 @@ void OBBCollider::Draw(const Camera& camera)
 		orientations[0] = {
 			worldMatrix.m[0][0],
 			worldMatrix.m[0][1],
-			worldMatrix.m[0][2]
+			worldMatrix.m[0][2],
 		};
 		orientations[1] = {
 			worldMatrix.m[1][0],
 			worldMatrix.m[1][1],
-			worldMatrix.m[1][2]
+			worldMatrix.m[1][2],
 		};
 		orientations[2] = {
 			worldMatrix.m[2][0],
 			worldMatrix.m[2][1],
-			worldMatrix.m[2][2]
+			worldMatrix.m[2][2],
 		};
 
 		//頂点を計算
@@ -78,5 +77,8 @@ void OBBCollider::Draw(const Camera& camera)
 		lineRenderer->AddLine(corners[4], corners[6]);
 		lineRenderer->AddLine(corners[5], corners[7]);
 		lineRenderer->AddLine(corners[6], corners[7]);
+
+		//Colliderの描画
+		Collider::Draw(camera);
 	}
 }
