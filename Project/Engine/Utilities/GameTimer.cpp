@@ -4,6 +4,7 @@
 float GameTimer::currentTime_ = 0.0f;
 float GameTimer::deltaTime_ = 0.0f;
 float GameTimer::lastFrameTime_ = 0.0f;
+float GameTimer::timeScale_ = 1.0f;
 
 void GameTimer::Update()
 {
@@ -14,6 +15,9 @@ void GameTimer::Update()
 
     //DeltaTimeを計算
     deltaTime_ = currentTime_ - lastFrameTime_;
+
+    //DeltaTimeにスケールを適用
+    deltaTime_ *= timeScale_;
 
     //前のフレームの時間を更新
     lastFrameTime_ = currentTime_;
