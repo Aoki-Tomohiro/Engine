@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateIdle.h"
+#include "PlayerStateGroundAttack.h"
 
 void PlayerStateDash::Initialize()
 {
@@ -53,30 +54,64 @@ void PlayerStateDash::Initialize()
 	globalVariables->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "DashSpeed", speed_);
 	globalVariables->AddItem(groupName, "MaxDashDuration", static_cast<int>(maxDashDuration_));
+	globalVariables->AddItem(groupName, "MaxChargeDuration", static_cast<int>(maxChargeDuration_));
+	globalVariables->AddItem(groupName, "MaxRecoveryDuration", static_cast<int>(maxRecoveryDuration_));
 	globalVariables->AddItem(groupName, "ProximityThreshold", proximityThreshold_);
 }
 
 void PlayerStateDash::Update()
 {
-	//速度を加算
-	TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-	playerTransformComponent->worldTransform_.translation_ += player_->velocity;
-
-	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
-	enemyPosition.y = playerTransformComponent->worldTransform_.translation_.y;
-
-	//ダッシュの時間が終わったら通常状態に戻す
-	if (++currentDashDuration_ > maxDashDuration_)
+	//チャージの処理
+	if (++currentChargeDuration_ > maxChargeDuration_)
 	{
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-		player_->ChangeState(new PlayerStateIdle());
+		//チャージ終了フラグを立てる
+		isChargingFinished_ = true;
+		//プレイヤーを描画しないようにする
+		player_->SetIsVisible(false);
 	}
-	//敵に近づいたら通常状態に戻す
-	else if (Mathf::Length(enemyPosition - playerTransformComponent->worldTransform_.translation_) < proximityThreshold_)
+
+	//チャージが終わっていたら
+	if (isChargingFinished_)
 	{
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-		player_->ChangeState(new PlayerStateIdle());
+		//速度を加算
+		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
+		playerTransformComponent->worldTransform_.translation_ += player_->velocity;
+
+		//敵の座標を取得
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		enemyPosition.y = playerTransformComponent->worldTransform_.translation_.y;
+
+		//敵に近づいたら速度を0にする
+		if (Mathf::Length(enemyPosition - playerTransformComponent->worldTransform_.translation_) < proximityThreshold_)
+		{
+			player_->velocity = { 0.0f,0.0f,0.0f };
+		}
+
+		//ダッシュの時間が終わったら
+		if (++currentDashDuration_ > maxDashDuration_)
+		{
+			//ダッシュ終了フラグを立てる
+			isDashFinished_ = true;
+			//RadialBlurを切る
+			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+			//プレイヤーを描画させる
+			player_->SetIsVisible(true);
+		}
+	}
+
+	//ダッシュが終わっていたら
+	if (isDashFinished_)
+	{
+		//硬直時間が終ったら通常状態に戻す
+		if (++currentRecoveryDuration_ > maxRecoveryDuration_)
+		{
+			player_->ChangeState(new PlayerStateIdle());
+		}
+		//攻撃状態に遷移
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			player_->ChangeState(new PlayerStateGroundAttack());
+		}
 	}
 
 	//環境変数の適用
@@ -97,5 +132,7 @@ void PlayerStateDash::ApplyGlobalVariables()
 	const char* groupName = "Player";
 	speed_ = globalVariables->GetFloatValue(groupName, "DashSpeed");
 	maxDashDuration_ = globalVariables->GetIntValue(groupName, "MaxDashDuration");
+	maxChargeDuration_ = globalVariables->GetIntValue(groupName, "MaxChargeDuration");
+	maxRecoveryDuration_ = globalVariables->GetIntValue(groupName, "MaxRecoveryDuration");
 	proximityThreshold_ = globalVariables->GetFloatValue(groupName, "ProximityThreshold");
 }
