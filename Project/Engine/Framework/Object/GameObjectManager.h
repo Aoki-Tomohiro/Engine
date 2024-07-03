@@ -15,13 +15,13 @@ public:
 
 	static GameObject* CreateGameObject(const std::string& objectName);
 
-	static Camera* CreateCamera();
-
 	void Update();
 
 	void Draw();
 
 	void Clear();
+
+	void SetCamera(const Camera* camera) { camera_ = camera; };
 
 	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
@@ -30,8 +30,6 @@ public:
 
 	template <typename Type>
 	std::vector<Type*> GetGameObjects() const;
-
-	Camera* GetCamera() const { return camera_.get(); };
 
 private:
 	GameObjectManager() = default;
@@ -44,14 +42,12 @@ private:
 
 	GameObject* CreateGameObjectInternal(const std::string& objectName);
 
-	Camera* CreateCameraInternal();
-
 private:
 	static GameObjectManager* instance_;
 
 	std::vector<std::unique_ptr<GameObject>> gameObjects_{};
 
-	std::unique_ptr<Camera> camera_{};
+	const Camera* camera_ = nullptr;
 
 	AbstractGameObjectFactory* gameObjectFactory_ = nullptr;
 };

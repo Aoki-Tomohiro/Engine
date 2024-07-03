@@ -22,6 +22,14 @@ void GameClearScene::Update()
 
 void GameClearScene::Draw()
 {
+#pragma region Skybox描画
+	//Skybox描画前処理
+	renderer_->PreDrawSkybox();
+
+	//Skybox描画後処理
+	renderer_->PostDrawSkybox();
+#pragma endregion
+
 #pragma region 背景スプライト描画
 	//背景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);

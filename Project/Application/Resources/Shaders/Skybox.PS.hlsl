@@ -8,7 +8,6 @@ struct PixelShaderOutput
 struct Material
 {
     float32_t4 color;
-    float32_t4x4 uvTransform;
 };
 
 TextureCube<float32_t4> gTexture : register(t0);

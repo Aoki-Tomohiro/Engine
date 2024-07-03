@@ -1,81 +1,24 @@
 #include "Skybox.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/TextureManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/ShaderCompiler.h"
 
-//実体定義
-Skybox* Skybox::instance_ = nullptr;
-
-Skybox* Skybox::GetInstance()
+Skybox* Skybox::Create()
 {
-	if (instance_ == nullptr)
-	{
-		instance_ = new Skybox();
-	}
-	return instance_;
+	Skybox* skybox = new Skybox();
+	skybox->CreateInternal();
+	return skybox;
 }
 
-void Skybox::Destroy()
-{
-	if (instance_ != nullptr)
-	{
-		delete instance_;
-		instance_ = nullptr;
-	}
-}
-
-void Skybox::Initialize()
-{
-	//ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
-	worldTransform_.scale_ = { 500.0f,500.0f,500.0f };
-
-	//テクスチャを設定
-	TextureManager::Load("Skybox.dds");
-	SetTexture("Skybox.dds");
-
-	//PipelineStateの作成
-	CreatePipelineState();
-
-	//頂点バッファの作成
-	CreateVertexBuffer();
-
-	//IndexBufferの作成
-	CreateIndexBuffer();
-
-	//マテリアル用のリソースの作成
-	CreateMaterialResource();
-}
-
-void Skybox::Update()
+void Skybox::Draw(const Camera& camera)
 {
 	//ワールドトランスフォームの更新
 	worldTransform_.UpdateMatrix();
 
 	//マテリアルの更新
 	UpdateMaterialResource();
-}
-
-void Skybox::Draw()
-{
-	//カメラがない場合は描画しない
-	if (!camera_)
-	{
-		return;
-	}
 
 	//CommandContextを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-
-	//TextureManagerを取得
-	TextureManager* textureManager = TextureManager::GetInstance();
-
-	//RootSignatureを設定
-	commandContext->SetRootSignature(rootSignature_);
-
-	//PipelineStateを設定
-	commandContext->SetPipelineState(pipelineState_);
 
 	//VertexBufferを設定
 	commandContext->SetVertexBuffer(vertexBufferView_);
@@ -93,7 +36,7 @@ void Skybox::Draw()
 	commandContext->SetConstantBuffer(1, worldTransform_.GetConstantBuffer()->GetGpuVirtualAddress());
 
 	//Cameraを設定
-	commandContext->SetConstantBuffer(2, camera_->GetConstantBuffer()->GetGpuVirtualAddress());
+	commandContext->SetConstantBuffer(2, camera.GetConstantBuffer()->GetGpuVirtualAddress());
 
 	//Textureを設定
 	commandContext->SetDescriptorTable(3, texture_->GetSRVHandle());
@@ -102,73 +45,32 @@ void Skybox::Draw()
 	commandContext->DrawIndexedInstanced(kMaxIndices, 1);
 }
 
-void Skybox::CreatePipelineState()
+void Skybox::SetTexture(const std::string& textureName)
 {
-	rootSignature_.Create(4, 1);
-	rootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	rootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-	rootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	//テクスチャを設定
+	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
+	//テクスチャがなかったら止める
+	assert(texture_);
+}
 
-	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
-	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
-	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
-	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
-	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
-	rootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
-	rootSignature_.Finalize();
+void Skybox::CreateInternal()
+{
+	//ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
+	worldTransform_.scale_ = { 500.0f,500.0f,500.0f };
 
-	//InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1]{};
-	inputElementDescs[0].SemanticName = "POSITION";
-	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	//テクスチャを設定
+	TextureManager::Load("Skybox.dds");
+	SetTexture("Skybox.dds");
 
-	//BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-	//ブレンドなし
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	//頂点バッファの作成
+	CreateVertexBuffer();
 
-	//RasterizerStateの設定
-	D3D12_RASTERIZER_DESC rasterizerDesc{};
-	//裏面(時計回り)を表示しない
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-	//三角形の中を塗りつぶす
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	//IndexBufferの作成
+	CreateIndexBuffer();
 
-	//Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"Skybox.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = ShaderCompiler::CompileShader(L"Skybox.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
-
-	//DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	//比較はするのでDepth自体は有効
-	depthStencilDesc.DepthEnable = true;
-	//全ピクセルがz = 1に出力されるので、わざわざ書き込む必要がない
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	//今までと同様に比較
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-	//書き込むRTVの情報
-	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-
-	pipelineState_.SetRootSignature(&rootSignature_);
-	pipelineState_.SetInputLayout(1, inputElementDescs);
-	pipelineState_.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-	pipelineState_.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-	pipelineState_.SetBlendState(blendDesc);
-	pipelineState_.SetRasterizerState(rasterizerDesc);
-	pipelineState_.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	pipelineState_.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	pipelineState_.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-	pipelineState_.SetDepthStencilState(depthStencilDesc);
-	pipelineState_.Finalize();
+	//マテリアル用のリソースの作成
+	CreateMaterialResource();
 }
 
 void Skybox::CreateVertexBuffer()
@@ -284,26 +186,15 @@ void Skybox::CreateMaterialResource()
 {
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
 	materialConstBuffer_ = std::make_unique<UploadBuffer>();
-	materialConstBuffer_->Create(sizeof(ConstBuffDataMaterial));
-
-	//マテリアル用のリソースの更新
+	materialConstBuffer_->Create(sizeof(Vector4));
 	UpdateMaterialResource();
 }
 
 void Skybox::UpdateMaterialResource()
 {
 	//書き込むためのアドレスを取得
-	ConstBuffDataMaterial* materialData = static_cast<ConstBuffDataMaterial*>(materialConstBuffer_->Map());
+	Vector4* materialData = static_cast<Vector4*>(materialConstBuffer_->Map());
 	//データを書き込む
-	materialData->color = color_;
-	materialData->uvTransform = Mathf::MakeIdentity4x4();
+	*materialData = color_;
 	materialConstBuffer_->Unmap();
-}
-
-void Skybox::SetTexture(const std::string& textureName)
-{
-	//テクスチャを設定
-	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
-	//テクスチャがなかったら止める
-	assert(texture_);
 }

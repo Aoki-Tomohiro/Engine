@@ -12,7 +12,6 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
-#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/3D/Lights/LightManager.h"
 #include "Engine/Utilities/D3DResourceLeakChecker.h"
 #include <condition_variable>
@@ -59,8 +58,6 @@ protected:
 	SceneManager* sceneManager_ = nullptr;
 
 	LineRenderer* lineRenderer_ = nullptr;
-
-	Skybox* skybox_ = nullptr;
 
 	LightManager* lightManager_ = nullptr;
 

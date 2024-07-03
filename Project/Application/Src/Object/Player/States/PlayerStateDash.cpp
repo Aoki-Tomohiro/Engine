@@ -11,22 +11,38 @@ void PlayerStateDash::Initialize()
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
+	//ロックオン中なら
+	if (player_->lockOn_->ExistTarget())
+	{
+		//敵の座標を取得
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
 
-	//プレイヤーの座標を取得
-	Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		//プレイヤーの座標を取得
+		Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
 
-	//目標の敵のY座標をプレイヤーと同じにする
-	enemyPosition.y = playerPosition.y;
+		//目標の敵のY座標をプレイヤーと同じにする
+		enemyPosition.y = playerPosition.y;
 
-	//速度を計算
-	player_->velocity = Mathf::Normalize(enemyPosition - playerPosition) * speed_;
+		//速度を計算
+		player_->velocity = Mathf::Normalize(enemyPosition - playerPosition) * speed_;
 
-	//回転処理
-	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity)));
-	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity));
-	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+		//回転処理
+		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity)));
+		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity));
+		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+	}
+	else
+	{
+		//速度ベクトル
+		Vector3 velocity = { 0.0f,0.0f,1.0f };
+
+		//速度ベクトルにプレイヤーの回転を適用
+		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+		velocity = Mathf::TransformNormal(velocity, transformComponent->worldTransform_.matWorld_);
+
+		//速度を計算
+		player_->velocity = Mathf::Normalize(velocity) * speed_;
+	}
 
 	//RadialBlurをかける
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);

@@ -182,15 +182,4 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			}
 		}
 	}
-
-	//レベルデータからすべてのカメラを生成
-	for (auto& cameraData : levelData->cameras)
-	{
-		//カメラを生成
-		Camera* camera = GameObjectManager::CreateCamera();
-		//座標
-		camera->translation_ = cameraData.translation;
-		//回転角
-		camera->rotation_ = cameraData.rotation;
-	}
 }

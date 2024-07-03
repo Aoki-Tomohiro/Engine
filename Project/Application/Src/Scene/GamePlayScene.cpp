@@ -11,21 +11,21 @@ void GamePlayScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//GameObjectのクリア
+	//カメラの初期化
+	camera_.Initialize();
+
+	//GameObjectManagerの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
+	gameObjectManager_->SetCamera(&camera_);
 
-	//ParticleManagerをクリア
+	//ParticleManagerを初期化
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
+	particleManager_->SetCamera(&camera_);
 
 	//LevelDataの読み込み
 	LevelLoader::Load("GameScene");
-
-	//カメラを取得
-	camera_ = gameObjectManager_->GetCamera();
-	//ParticleManagerにカメラを設定
-	particleManager_->SetCamera(camera_);
 
 	//FollowCameraの作成
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -44,9 +44,9 @@ void GamePlayScene::Initialize()
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
 	//ModelComponent
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	playerModelComponent->SetAnimationName("RecieveHit");
+	playerModelComponent->SetAnimationName("Idle");
 	//カメラを設定
-	player->SetCamera(camera_);
+	player->SetCamera(&camera_);
 	//LockOnを設定
 	player->SetLockOn(lockOn_.get());
 
@@ -72,7 +72,6 @@ void GamePlayScene::Initialize()
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
-	weapon->SetIsVisible(false);
 	//TransformComponentの追加
 	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
 	weaponTransformComponent->Initialize();
@@ -84,8 +83,10 @@ void GamePlayScene::Initialize()
 	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
 	//ColliderComponentの追加
 	weapon->AddComponent<OBBCollider>();
-	//親子付け
+	//プレイヤーを親に設定
 	weapon->SetParent(playerTransformComponent);
+	//描画しないようにする
+	weapon->SetIsVisible(false);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -93,6 +94,9 @@ void GamePlayScene::Initialize()
 
 	//CollisionManagerの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
+
+	//Skyboxの初期化
+	skybox_.reset(Skybox::Create());
 }
 
 void GamePlayScene::Finalize()
@@ -110,14 +114,14 @@ void GamePlayScene::Update()
 
 	//ロックオンの処理
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->Update(enemy, *camera_);
+	lockOn_->Update(enemy, camera_);
 
 	//FollowCameraの更新
 	followCamera_->Update();
 
 	//カメラの更新
-	*camera_ = followCamera_->GetCamera();
-	camera_->UpdateMatrix();
+	camera_ = followCamera_->GetCamera();
+	camera_.UpdateMatrix();
 
 	//フェードイン処理
 	HandleTransition();
@@ -147,6 +151,17 @@ void GamePlayScene::Update()
 
 void GamePlayScene::Draw()
 {
+#pragma region Skybox描画
+	//Skybox描画前処理
+	renderer_->PreDrawSkybox();
+
+	//Skyboxの描画
+	skybox_->Draw(camera_);
+
+	//Skybox描画後処理
+	renderer_->PostDrawSkybox();
+#pragma endregion
+
 #pragma region 背景スプライト描画
 	//背景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);

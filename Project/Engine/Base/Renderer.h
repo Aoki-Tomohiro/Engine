@@ -106,6 +106,10 @@ public:
 
 	void PostDrawSprites();
 
+	void PreDrawSkybox();
+
+	void PostDrawSkybox();
+
 	const DescriptorHandle& GetSceneColorDescriptorHandle() const { return sceneColorBuffer_->GetSRVHandle(); };
 
 	const DescriptorHandle& GetSceneDepthDescriptorHandle() const { return sceneDepthBuffer_->GetSRVHandle(); };
@@ -155,6 +159,8 @@ private:
 
 	void CreateSpritePipelineState();
 
+	void CreateSkyboxPipelineState();
+
 	void Sort();
 
 private:
@@ -180,6 +186,8 @@ private:
 
 	RootSignature spriteRootSignature_{};
 
+	RootSignature skyboxRootSignature_{};
+
 	std::vector<GraphicsPSO> modelPipelineStates_{};
 
 	std::vector<ComputePSO> skinningModelPipelineStates_{};
@@ -187,5 +195,7 @@ private:
 	std::vector<GraphicsPSO> bonePipelineStates_{};
 
 	std::vector<GraphicsPSO> spritePipelineStates_{};
+
+	std::vector<GraphicsPSO> skyboxPipelineStates_{};
 };
 

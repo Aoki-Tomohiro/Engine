@@ -69,12 +69,6 @@ GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
 	return newObject;
 }
 
-Camera* GameObjectManager::CreateCamera()
-{
-	Camera* newCamera = GameObjectManager::GetInstance()->CreateCameraInternal();
-	return newCamera;
-}
-
 GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
 {
 	assert(gameObjectFactory_);
@@ -83,12 +77,4 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 	newGameObject->SetGameObjectManager(this);
 	gameObjects_.push_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;
-}
-
-Camera* GameObjectManager::CreateCameraInternal()
-{
-	Camera* newCamera = new Camera();
-	newCamera->Initialize();
-	camera_.reset(newCamera);
-	return newCamera;
 }

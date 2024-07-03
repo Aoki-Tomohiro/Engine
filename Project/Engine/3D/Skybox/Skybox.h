@@ -1,5 +1,4 @@
 #pragma once
-#include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/Texture.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -14,35 +13,22 @@ public:
 
 	static const uint32_t kMaxIndices = 36;
 
-	static Skybox* GetInstance();
+	static Skybox* Create();
 
-	static void Destroy();
+	void Draw(const Camera& camera);
 
-	void Initialize();
-
-	void Update();
-
-	void Draw();
-
-	void SetPosition(const Vector3& position) { worldTransform_.translation_ = position; };
-
-	void SetRotation(const Vector3& rotation) { worldTransform_.rotation_ = rotation; };
+	const Vector3& GetScale() const { return worldTransform_.scale_; };
 
 	void SetScale(const Vector3& scale) { worldTransform_.scale_ = scale; };
 
-	void SetColor(const Vector4& color) { color_ = color; };
+	const Vector4& GetColor() const { return color_; };
 
-	void SetCamera(const Camera* camera) { camera_ = camera; };
+	void SetColor(const Vector4& color) { color_ = color; };
 
 	void SetTexture(const std::string& textureName);
 
 private:
-	Skybox() = default;
-	~Skybox() = default;
-	Skybox(const Skybox&) = delete;
-	Skybox& operator=(const Skybox&) = delete;
-
-	void CreatePipelineState();
+	void CreateInternal();
 
 	void CreateVertexBuffer();
 
@@ -53,12 +39,6 @@ private:
 	void UpdateMaterialResource();
 
 private:
-	static Skybox* instance_;
-
-	RootSignature rootSignature_{};
-
-	GraphicsPSO pipelineState_{};
-
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
 	std::unique_ptr<UploadBuffer> indexBuffer_ = nullptr;
@@ -75,9 +55,7 @@ private:
 
 	WorldTransform worldTransform_{};
 
-	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
-
-	const Camera* camera_ = nullptr;
+	Vector4 color_{ 1.0f,1.0f,1.0f,1.0f };
 
 	const Texture* texture_ = nullptr;
 };
