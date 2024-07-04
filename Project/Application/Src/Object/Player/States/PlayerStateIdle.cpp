@@ -1,5 +1,6 @@
 #include "PlayerStateIdle.h"
 #include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
@@ -59,11 +60,18 @@ void PlayerStateIdle::Update()
 		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
 		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
 		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+
+		//走りアニメーションにする
+		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0");
 	}
-	//入力がない場合は速度を0にする
 	else
 	{
+		//入力がない場合は速度を0にする
 		player_->velocity = { 0.0f,0.0f,0.0f };
+		//通常のアニメーションにする
+		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+		modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 	}
 
 	//ジャンプ状態に変更

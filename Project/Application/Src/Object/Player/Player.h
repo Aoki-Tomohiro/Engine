@@ -56,5 +56,17 @@ private:
 	friend class PlayerStateDodge;
 	friend class PlayerStateDash;
 	friend class PlayerStateGroundAttack;
+
+#pragma region アニメーションの名前一覧
+	//Armature.001|mixamo.com|Layer0
+	//Armature.001|mixamo.com|Layer0.001
+	//Armature.001|mixamo.com|Layer0.002
+	//Armature.001|mixamo.com|Layer0.003
+	//Armature.001|mixamo.com|Layer0.004
+	//Armature.001|mixamo.com|Layer0.005
+	//Armature.001|mixamo.com|Layer0.006
+	//Armature.001|mixamo.com|Layer0.007
+	//Armature|mixamo.com|Layer0
+#pragma endregion
 };
 

@@ -1,5 +1,7 @@
 #include "PlayerStateGroundAttack.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -24,6 +26,13 @@ void PlayerStateGroundAttack::Initialize()
 	//武器を描画させる
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 	weapon->SetIsVisible(true);
+
+	//アニメーションの初期化
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -50,8 +59,10 @@ void PlayerStateGroundAttack::Update()
 	uint32_t swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
 	uint32_t recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 
-	//基底の時間経過で通常状態にも戻る
-	if (++workAttack_.attackParameter > recoveryTime)
+	//プレイヤーのモデルを取得
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	//アニメーションが終わっていたら通常状態に戻る
+	if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
 	{
 		//コンボ継続なら次のコンボに進む
 		if (workAttack_.comboNext)
@@ -87,22 +98,30 @@ void PlayerStateGroundAttack::Update()
 				player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 			}
 
-			//次のコンボ用に回転角を初期化
+			//武器のトランスフォームを取得
 			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+			//アニメーションの時間をリセット
+			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+
+			//次のコンボ用に回転角とアニメーションの初期化
 			switch (workAttack_.comboIndex)
 			{
 			case 0:
 				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
 				break;												 
 			case 1:													 
 				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.005");
 				break;												   
 			case 2:													   
 				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.006");
 				break;												  
 			case 3:													  
 				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.007");
 				break;
 			}
 		}
@@ -114,8 +133,14 @@ void PlayerStateGroundAttack::Update()
 			transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
 			weapon->SetIsVisible(false);
 
+			//アニメーションをループ再生に戻す
+			modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+			modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
+
 			//通常状態に戻す
 			player_->ChangeState(new PlayerStateIdle());
+
+			//これ以降の処理を飛ばす
 			return;
 		}
 	}
@@ -150,6 +175,7 @@ void PlayerStateGroundAttack::Update()
 		//武器のTransformを取得
 		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 		TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+		workAttack_.attackParameter++;
 
 		//振りかぶりアニメーション
 		if (workAttack_.attackParameter >= 0.0f && workAttack_.attackParameter < anticipationTime)

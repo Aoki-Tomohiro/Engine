@@ -30,7 +30,7 @@ void GameTitleScene::Initialize()
 	player->SetIsInTitleScene(true);
 	//ModelComponent
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	playerModelComponent->SetAnimationName("Idle");
+	playerModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();

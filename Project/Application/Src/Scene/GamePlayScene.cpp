@@ -44,31 +44,10 @@ void GamePlayScene::Initialize()
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
 	//ModelComponent
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	playerModelComponent->SetAnimationName("Idle");
 	//カメラを設定
 	player->SetCamera(&camera_);
 	//LockOnを設定
 	player->SetLockOn(lockOn_.get());
-
-#pragma region AnimationName
-	//Death
-	//Defeat
-	//Idle
-	//Jump
-	//PickUp
-	//Punch
-	//RecieveHit
-	//Roll
-	//Run_Carry
-	//Run
-	//Shoot_OneHanded
-	//SitDown
-	//StandUp
-	//SwordSlash
-	//Victory
-	//Walk_Carry
-	//Walk
-#pragma endregion
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();

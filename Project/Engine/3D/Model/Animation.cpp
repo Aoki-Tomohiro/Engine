@@ -1,5 +1,6 @@
 #include "Animation.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Utilities/GameTimer.h"
 #include <cassert>
 
 void Animation::Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode)
@@ -38,8 +39,29 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 		}
 
 		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-		animationTime_ += 1.0f / 60.0f;
-		animationTime_ = std::fmod(animationTime_, animationData.duration);
+		animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
+		//アニメーションが終わったら
+		if (animationTime_ > animationData.duration)
+		{
+			//アニメーションの終了フラグを立てる
+			isAnimationEnd_ = true;
+
+			//ループフラグが立っていたらanimationTimeをリセット
+			if (isLoop_)
+			{
+				animationTime_ = 0.0f;
+			}
+			//ループフラグが立っていなかったらanimationTimeを固定
+			else
+			{
+				animationTime_ = animationData.duration;
+			}
+		}
+		else
+		{
+			//アニメーションが終わっていなかったらアニメーションの終了フラグを折る
+			isAnimationEnd_ = false;
+		}
 
 		//RigidAnimation
 		if (auto it = animationData.nodeAnimations.find(rootNodeName); it != animationData.nodeAnimations.end())
