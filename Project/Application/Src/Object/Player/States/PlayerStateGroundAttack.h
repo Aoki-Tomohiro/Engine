@@ -16,13 +16,13 @@ public:
 	struct ConstGroundAttack
 	{
 		//振りかぶりの時間
-		uint32_t anticipationTime;
+		float anticipationTime;
 		//溜めの時間
-		uint32_t chargeTime;
+		float chargeTime;
 		//攻撃振りの時間
-		uint32_t swingTime;
+		float swingTime;
 		//硬直時間
-		uint32_t recoveryTime;
+		float recoveryTime;
 		//振りかぶりの移動速さ
 		Vector3 anticipationSpeed;
 		//溜めの移動速さ
@@ -34,7 +34,7 @@ public:
 	//攻撃用ワーク
 	struct WorkGroundAttack
 	{
-		uint32_t attackParameter = 0;
+		float attackParameter = 0;
 		int32_t comboIndex = 0;
 		int32_t inComboPhase = 0;
 		bool comboNext = false;
@@ -48,6 +48,8 @@ public:
 	void Update() override;
 
 	void Draw(const Camera& camera) override;
+
+	const uint32_t GetComboIndex() const { return workAttack_.comboIndex; };
 
 private:
 	void ApplyGlobalVariables();

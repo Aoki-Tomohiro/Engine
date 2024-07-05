@@ -2,6 +2,7 @@
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Application/Src/Object/Player/States/PlayerStateIdle.h"
+#include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 
 void Player::Initialize()
 {
@@ -60,6 +61,20 @@ void Player::OnCollisionEnter(GameObject* gameObject)
 void Player::OnCollisionExit(GameObject* gameObject)
 {
 
+}
+
+const uint32_t Player::GetComboIndex() const
+{
+	if (auto state = dynamic_cast<PlayerStateGroundAttack*>(state_.get()))
+	{
+		return state->GetComboIndex();
+	}
+	return 0;
+}
+
+const uint32_t Player::GetComboNum()
+{
+	return PlayerStateGroundAttack::kComboNum;
 }
 
 void Player::ChangeState(IPlayerState* state)

@@ -2,6 +2,9 @@
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
+#include "Engine/Utilities/GameTimer.h"
+#include "Engine/Utilities/RandomGenerator.h"
+#include "Engine/Utilities/GlobalVariables.h"
 
 void GamePlayScene::Initialize()
 {
@@ -76,6 +79,12 @@ void GamePlayScene::Initialize()
 
 	//Skyboxの初期化
 	skybox_.reset(Skybox::Create());
+
+	//環境変数の設定
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "GameScene";
+	globalVariables->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "HitStopDuration", hitStopDuration_);
 }
 
 void GamePlayScene::Finalize()
@@ -85,21 +94,29 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
+	//ヒットストップの処理
+	UpdateHitStop();
+
 	//GameObjectManagerの更新
 	gameObjectManager_->Update();
 
 	//トランジションの更新
 	transition_->Update();
 
-	//ロックオンの処理
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->Update(enemy, camera_);
+	//ヒットストップが有効の時はカメラを更新しない
+	if (!isHitStopActive_)
+	{
+		//ロックオンの処理
+		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+		lockOn_->Update(enemy, camera_);
 
-	//FollowCameraの更新
-	followCamera_->Update();
+		//FollowCameraの更新
+		followCamera_->Update();
+	}
 
 	//カメラの更新
 	camera_ = followCamera_->GetCamera();
+	UpdateCameraShake();
 	camera_.UpdateMatrix();
 
 	//フェードイン処理
@@ -115,11 +132,18 @@ void GamePlayScene::Update()
 	{
 		collisionManager_->SetColliderList(collider);
 	}
-	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>()->GetComponent<Collider>())
+	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
+	if (weapon->GetIsVisible())
 	{
-		collisionManager_->SetColliderList(collider);
+		if (Collider* collider = weapon->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
 	}
 	collisionManager_->CheckAllCollisions();
+
+	//グローバル変数の適用
+	ApplyGlobalVariables();
 
 	//ImGui
 	ImGui::Begin("GamePlayScene");
@@ -210,4 +234,84 @@ void GamePlayScene::HandleTransition()
 			break;
 		}
 	}
+}
+
+void GamePlayScene::UpdateHitStop()
+{
+	//プレイヤーの攻撃がヒットしていたらヒットストップを有効化する
+	if (!isHitStopActive_)
+	{
+		if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
+		{
+			//ヒットストップを有効にする
+			isHitStopActive_ = true;
+			gameObjectManager_->GetGameObject<Player>()->SetIsActive(false);
+			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(false);
+			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(false);
+		}
+	}
+
+	//ヒットストップのタイマーが指定の時間を超えたら無効化する
+	if (isHitStopActive_)
+	{
+		hitStopTimer_ += GameTimer::GetDeltaTime();
+
+		if (hitStopTimer_ > hitStopDuration_)
+		{
+			hitStopTimer_ = 0.0f;
+			isHitStopActive_ = false;
+			gameObjectManager_->GetGameObject<Player>()->SetIsActive(true);
+			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(true);
+			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(true);
+		}
+	}
+}
+
+void GamePlayScene::UpdateCameraShake()
+{
+	//プレイヤーの攻撃が当たっていた時
+	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
+	{
+		//プレイヤーを取得
+		Player* player = gameObjectManager_->GetGameObject<Player>();
+		//プレイヤーの攻撃が最後のコンボの時
+		if (player->GetComboIndex() == player->GetComboNum() - 1)
+		{
+			//カメラシェイクを有効にする
+			isShaking_ = true;
+			shakeoffset_ = camera_.translation_;
+		}
+	}
+
+	//カメラシェイクが有効な場合
+	if (isShaking_)
+	{
+		//シェイクタイマーを進める
+		shakeTimer_ += GameTimer::GetDeltaTime();
+
+		//揺らし幅をランダムで決める
+		Vector3 randomValue = {
+			RandomGenerator::GetRandomFloat(-shakeIntensity_.x,shakeIntensity_.x),
+			RandomGenerator::GetRandomFloat(-shakeIntensity_.y,shakeIntensity_.y),
+			RandomGenerator::GetRandomFloat(-shakeIntensity_.z,shakeIntensity_.z),
+		};
+
+		//カメラの座標に揺らし幅を加算する
+		camera_.translation_ = shakeoffset_ + randomValue;
+
+		//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
+		if (shakeTimer_ > shakeDuration_)
+		{
+			isShaking_ = false;
+			shakeTimer_ = 0.0f;
+			camera_.translation_ = shakeoffset_;
+		}
+	}
+}
+
+void GamePlayScene::ApplyGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "GameScene";
+	hitStopDuration_ = globalVariables->GetFloatValue(groupName, "HitStopDuration");
 }

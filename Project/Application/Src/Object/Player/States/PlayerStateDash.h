@@ -2,6 +2,7 @@
 #include "IPlayerState.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GlobalVariables.h"
 
@@ -39,5 +40,7 @@ private:
 	uint32_t maxRecoveryDuration_ = 20;
 
 	uint32_t currentRecoveryDuration_ = 0;
+
+	ParticleSystem* particleSystem_ = nullptr;
 };
 

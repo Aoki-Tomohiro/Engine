@@ -13,6 +13,9 @@ void Weapon::Initialize()
 
 void Weapon::Update()
 {
+	//ヒットフラグをリセット
+	isHit_ = false;
+
 	//Colliderの更新
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	Vector3 offset = Mathf::TransformNormal(collisionOffset_, transformComponent->worldTransform_.matWorld_);
@@ -52,6 +55,9 @@ void Weapon::OnCollision(GameObject* gameObject)
 
 void Weapon::OnCollisionEnter(GameObject* gameObject)
 {
+	//ヒットフラグをtrueにする
+	isHit_ = true;
+
 	//パーティクルを出す
 	OBBCollider* collider = GetComponent<OBBCollider>();
 	ParticleEmitter* newEmitter = new ParticleEmitter();

@@ -32,6 +32,12 @@ public:
 private:
 	void HandleTransition();
 
+	void UpdateHitStop();
+
+	void UpdateCameraShake();
+
+	void ApplyGlobalVariables();
+
 private:
 	Renderer* renderer_ = nullptr;
 
@@ -62,6 +68,18 @@ private:
 
 	//Skybox
 	std::unique_ptr<Skybox> skybox_ = nullptr;
+
+	//ヒットストップの変数
+	bool isHitStopActive_ = false;
+	float hitStopDuration_ = 0.06f;
+	float hitStopTimer_ = 0.0f;
+
+	//カメラシェイクの変数
+	bool isShaking_ = false;
+	Vector3 shakeIntensity_{ 0.0f,2.0f,0.0f };
+	Vector3 shakeoffset_{ 0.0f,0.0f,0.0f };
+	float shakeDuration_ = 0.1f;
+	float shakeTimer_ = 0.0f;
 
 	//次のシーン
 	enum NextScene

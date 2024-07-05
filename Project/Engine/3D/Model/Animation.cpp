@@ -38,8 +38,6 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 			continue;
 		}
 
-		//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-		animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
 		//アニメーションが終わったら
 		if (animationTime_ > animationData.duration)
 		{
@@ -59,6 +57,8 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 		}
 		else
 		{
+			//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
+			animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
 			//アニメーションが終わっていなかったらアニメーションの終了フラグを折る
 			isAnimationEnd_ = false;
 		}

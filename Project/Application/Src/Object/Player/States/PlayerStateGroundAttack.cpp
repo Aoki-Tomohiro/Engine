@@ -2,6 +2,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -11,10 +12,14 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{ 10, 10, 10, 10, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f } },
-        { 10, 10, 10, 10, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f } },
-		{ 10, 10, 10, 10, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f }, { 0.0f,0.06f,0.0f } },
-		{ 10, 10, 10, 10, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f }, { 0.06f,0.0f,0.0f } },
+		//{ 10, 10, 10, 10, { 0.1f,0.0f,0.0f }, { 0.1f,0.0f,0.0f }, { 0.1f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
+        //{ 10, 10, 10, 10, { -0.1f,0.0f,0.0f }, { -0.1f,0.0f,0.0f }, { -0.1f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
+		//{ 10, 10, 10, 10, { 0.21f,0.0f,0.0f }, { 0.21f,0.0f,0.0f }, { 0.21f,0.0f,0.0f }, {0.0f,0.0f,0.2f} },
+		//{ 10, 10, 10, 10, { 0.14f,0.0f,0.0f }, { 0.14f,0.0f,0.0f }, { 0.24f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
+		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 8.0f,0.0f,0.0f }},
+        { 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { -8.0f,0.0f,0.0f }},
+		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 18.0f,0.0f,0.0f }},
+		{ 0.0f, 0.3f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 14.0f,0.0f,0.0f }},
 	}
 };
 
@@ -25,6 +30,10 @@ void PlayerStateGroundAttack::Initialize()
 
 	//武器を描画させる
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	//武器の初期化
+	TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.translation_ = { 1.0f,1.6f,1.2f };
+	transformComponent->worldTransform_.rotation_ = { -1.0f,0.0f,-0.7f };
 	weapon->SetIsVisible(true);
 
 	//アニメーションの初期化
@@ -54,10 +63,10 @@ void PlayerStateGroundAttack::Update()
 	}
 
 	//コンボの合計時間
-	uint32_t anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
-	uint32_t chargeTime = anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime;
-	uint32_t swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
-	uint32_t recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
+	float anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
+	float chargeTime = anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime;
+	float swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
+	float recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 
 	//プレイヤーのモデルを取得
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
@@ -70,7 +79,7 @@ void PlayerStateGroundAttack::Update()
 			//コンボ用パラメータをリセット
 			workAttack_.comboNext = false;
 			workAttack_.comboIndex++;
-			workAttack_.attackParameter = 0;
+			workAttack_.attackParameter = 0.0f;
 
 			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
 			const float threshold = 0.7f;
@@ -108,19 +117,23 @@ void PlayerStateGroundAttack::Update()
 			switch (workAttack_.comboIndex)
 			{
 			case 0:
-				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				transformComponent->worldTransform_.translation_ = { 0.6f,1.6f,1.2f };
+				transformComponent->worldTransform_.rotation_ = { -1.0f,0.0f,-0.7f };
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
 				break;												 
-			case 1:													 
-				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+			case 1:			
+				transformComponent->worldTransform_.translation_ = { -0.6f,1.6f,1.2f };
+				transformComponent->worldTransform_.rotation_ = { 4.0f,0.0f,-0.59f };
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.005");
 				break;												   
 			case 2:													   
-				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				transformComponent->worldTransform_.translation_ = { 0.0f,1.6f,1.2f };
+				transformComponent->worldTransform_.rotation_ = { 3.14f,0.0f,1.57f };
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.006");
 				break;												  
 			case 3:													  
-				transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
+				transformComponent->worldTransform_.translation_ = { 0.0f,3.4f,1.8f };
+				transformComponent->worldTransform_.rotation_ = { 3.14f,0.0f,0.6f };
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.007");
 				break;
 			}
@@ -130,6 +143,7 @@ void PlayerStateGroundAttack::Update()
 			//武器をリセット
 			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+			transformComponent->worldTransform_.translation_ = { 0.0f,50.0f,0.0f };
 			transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
 			weapon->SetIsVisible(false);
 
@@ -175,22 +189,12 @@ void PlayerStateGroundAttack::Update()
 		//武器のTransformを取得
 		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 		TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
-		workAttack_.attackParameter++;
+		workAttack_.attackParameter += GameTimer::GetDeltaTime();
 
-		//振りかぶりアニメーション
-		if (workAttack_.attackParameter >= 0.0f && workAttack_.attackParameter < anticipationTime)
-		{
-			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].anticipationSpeed;
-		}
-		//チャージアニメーション
-		else if (workAttack_.attackParameter >= anticipationTime && workAttack_.attackParameter < chargeTime)
-		{
-			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].chargeSpeed;
-		}
 		//攻撃振りアニメーション
-		else if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
+		if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
 		{
-			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].swingSpeed;
+			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].swingSpeed * GameTimer::GetDeltaTime();
 		}
 	}
 

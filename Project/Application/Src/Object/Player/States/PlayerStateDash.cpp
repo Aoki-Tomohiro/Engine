@@ -1,6 +1,7 @@
 #include "PlayerStateDash.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -48,6 +49,13 @@ void PlayerStateDash::Initialize()
 	//RadialBlurをかける
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
 
+	//通常のアニメーションにする
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+
+	//パーティクルの初期化
+	particleSystem_ = ParticleManager::Create("Dash");
+
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
@@ -62,16 +70,44 @@ void PlayerStateDash::Initialize()
 void PlayerStateDash::Update()
 {
 	//チャージの処理
-	if (++currentChargeDuration_ > maxChargeDuration_)
+	if (!isChargingFinished_)
 	{
-		//チャージ終了フラグを立てる
-		isChargingFinished_ = true;
-		//プレイヤーを描画しないようにする
-		player_->SetIsVisible(false);
+		if (++currentChargeDuration_ > maxChargeDuration_)
+		{
+			//チャージ終了フラグを立てる
+			isChargingFinished_ = true;
+			//プレイヤーを描画しないようにする
+			player_->SetIsVisible(false);
+		}
+
+		//パーティクルを出す
+		if (currentChargeDuration_ == maxChargeDuration_ - 1)
+		{
+			TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
+			Vector3 minVelocity = { 0.0f,0.0f,-0.4f };
+			minVelocity = Mathf::TransformNormal(minVelocity, playerTransformComponent->worldTransform_.matWorld_);
+			Vector3 maxVelocity = { 0.0f,0.0f,-0.6f };
+			maxVelocity = Mathf::TransformNormal(maxVelocity, playerTransformComponent->worldTransform_.matWorld_);
+			ParticleEmitter* newEmitter = new ParticleEmitter();
+			newEmitter->Initialize("Dash", 100.0f);
+			newEmitter->SetTranslate(playerTransformComponent->GetWorldPosition());
+			newEmitter->SetCount(40);
+			newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
+			newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
+			newEmitter->SetFrequency(0.001f);
+			newEmitter->SetLifeTimeMin(0.2f);
+			newEmitter->SetLifeTimeMax(0.4f);
+			newEmitter->SetRadius(1.0f);
+			newEmitter->SetScaleMin({ 0.2f,0.2f,0.2f });
+			newEmitter->SetScaleMax({ 0.3f,0.3f,0.3f });
+			newEmitter->SetVelocityMin(minVelocity);
+			newEmitter->SetVelocityMax(maxVelocity);
+			particleSystem_->AddParticleEmitter(newEmitter);
+		}
 	}
 
 	//チャージが終わっていたら
-	if (isChargingFinished_)
+	if (isChargingFinished_ && !isDashFinished_)
 	{
 		//速度を加算
 		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
@@ -97,11 +133,22 @@ void PlayerStateDash::Update()
 			//プレイヤーを描画させる
 			player_->SetIsVisible(true);
 		}
+
+		//エミッターの座標を移動させる
+		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
+		{
+			emitter->SetTranslate(playerTransformComponent->worldTransform_.translation_);
+		}
 	}
 
 	//ダッシュが終わっていたら
 	if (isDashFinished_)
 	{
+		//エミッターを削除
+		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
+		{
+			emitter->SetIsDead(true);
+		}
 		//硬直時間が終ったら通常状態に戻す
 		if (++currentRecoveryDuration_ > maxRecoveryDuration_)
 		{

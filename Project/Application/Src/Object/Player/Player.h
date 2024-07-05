@@ -25,6 +25,10 @@ public:
 
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
+	const uint32_t GetComboIndex() const;
+
+	const uint32_t GetComboNum();
+
 private:
 	void ChangeState(IPlayerState* state);
 

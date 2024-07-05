@@ -20,12 +20,23 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float dodgeSpeed_ = 1.0f;
+	float dodgeSpeed_ = 0.4f;
 
-	uint32_t dodgeTime_ = 10;
+	bool isBackFlip_ = false;
 
-	uint32_t dodgeTimer_ = 0;
+	int backFlipAnticipationTime = 10;
 
-	float rotationAngle_ = 0.2f;
+	int backFlipTime = 36;
+
+	int backFlipParameter_ = 0;
+
+	enum BackFlipState
+	{
+		kAnticipation,
+		kBackFlip,
+		kRecovery,
+	};
+
+	BackFlipState backFlipState_ = BackFlipState::kAnticipation;
 };
 

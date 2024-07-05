@@ -1,5 +1,6 @@
 #include "PlayerStateJump.h"
 #include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateAirAttack.h"
@@ -12,6 +13,11 @@ void PlayerStateJump::Initialize()
 
 	//速度にジャンプの初速度を設定
 	player_->velocity.y = jumpFirstSpeed_;
+
+	//アニメーションの初期化
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.003");
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -38,8 +44,8 @@ void PlayerStateJump::Update()
 	//通常状態に変更
 	if (transformComponent->worldTransform_.translation_.y <= 0.0f)
 	{
-		player_->ChangeState(new PlayerStateIdle);
 		transformComponent->worldTransform_.translation_.y = 0.0f;
+		player_->ChangeState(new PlayerStateIdle);
 	}
 	////空中攻撃の状態に遷移
 	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
