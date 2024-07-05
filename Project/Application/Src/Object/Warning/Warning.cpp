@@ -18,6 +18,11 @@ void Warning::Draw(const Camera& camera)
 	GameObject::Draw(camera);
 }
 
+void Warning::DrawUI()
+{
+
+}
+
 void Warning::OnCollision(GameObject* gameObject)
 {
 }

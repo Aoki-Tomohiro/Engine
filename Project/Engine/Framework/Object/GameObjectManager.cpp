@@ -57,6 +57,18 @@ void GameObjectManager::Draw()
 	}
 }
 
+void GameObjectManager::DrawUI()
+{
+	//ゲームオブジェクトの描画
+	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
+	{
+		if (gameObject->GetIsVisible())
+		{
+			gameObject->DrawUI();
+		}
+	}
+}
+
 void GameObjectManager::Clear()
 {
 	//ゲームオブジェクトをクリア

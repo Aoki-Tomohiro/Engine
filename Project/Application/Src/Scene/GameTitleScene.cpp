@@ -1,6 +1,7 @@
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Base/ImGuiManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/LevelLoader/LevelLoader.h"
 #include <numbers>
@@ -42,6 +43,12 @@ void GameTitleScene::Initialize()
 
 	//Skyboxの初期化
 	skybox_.reset(Skybox::Create());
+
+	//タイトルのスプライトの生成
+	TextureManager::Load("GameTitle.png");
+	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
+	TextureManager::Load("PressA.png");
+	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
 }
 
 void GameTitleScene::Finalize()
@@ -112,6 +119,12 @@ void GameTitleScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//タイトルのスプライトの描画
+	titleSprite_->Draw();
+
+	//PressAのスプライトの描画
+	pressASprite_->Draw();
 
 	//トランジションの描画
 	transition_->Draw();

@@ -9,6 +9,8 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/CollisionManager.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/3D/Camera/LockOn.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -34,7 +36,7 @@ private:
 
 	void UpdateHitStop();
 
-	void UpdateCameraShake();
+	void UpdateParry();
 
 	void ApplyGlobalVariables();
 
@@ -74,12 +76,15 @@ private:
 	float hitStopDuration_ = 0.06f;
 	float hitStopTimer_ = 0.0f;
 
-	//カメラシェイクの変数
-	bool isShaking_ = false;
-	Vector3 shakeIntensity_{ 0.0f,2.0f,0.0f };
-	Vector3 shakeoffset_{ 0.0f,0.0f,0.0f };
-	float shakeDuration_ = 0.1f;
-	float shakeTimer_ = 0.0f;
+	//パリィの変数
+	bool isParrySlowMotionActive_ = false;
+	float parryDuration_ = 10.0f;
+	float parryTimer_ = 0.0f;
+
+	//DoF
+	float focusDepth_ = 0.0f;
+	float nFocusWidth_ = 0.005f;
+	float fFocusWidth_ = 0.01f;
 
 	//次のシーン
 	enum NextScene
@@ -88,5 +93,13 @@ private:
 		kGameOverScene
 	};
 	NextScene nextScene_ = kGameClearScene;
+
+	//ゲームオーバーのスプライト
+	std::unique_ptr<Sprite> gameOverSprite_ = nullptr;
+	bool isGameOver_ = false;
+
+	//ゲームクリアのスプライト
+	std::unique_ptr<Sprite> gameClearSprite_ = nullptr;
+	bool isGameClear_ = false;
 };
 

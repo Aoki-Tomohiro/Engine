@@ -1,6 +1,7 @@
 #include "Weapon.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Collision/OBBCollider.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 
 void Weapon::Initialize()
 {
@@ -13,8 +14,9 @@ void Weapon::Initialize()
 
 void Weapon::Update()
 {
-	//ヒットフラグをリセット
+	//フラグのリセット
 	isHit_ = false;
+	isParrySuccessful_ = false;
 
 	//Colliderの更新
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
@@ -39,6 +41,7 @@ void Weapon::Update()
 	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("Offset", &collisionOffset_.x, 0.01f);
 	ImGui::DragFloat3("Size", &size_.x, 0.01f);
+	ImGui::Checkbox("IsParryable", &isParryable_);
 	ImGui::End();
 }
 
@@ -46,6 +49,11 @@ void Weapon::Draw(const Camera& camera)
 {
 	//GameObjectの描画
 	GameObject::Draw(camera);
+}
+
+void Weapon::DrawUI()
+{
+
 }
 
 void Weapon::OnCollision(GameObject* gameObject)
@@ -57,6 +65,18 @@ void Weapon::OnCollisionEnter(GameObject* gameObject)
 {
 	//ヒットフラグをtrueにする
 	isHit_ = true;
+
+	//パリィ成功
+	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
+	{
+		if (enemy->GetIsAttack())
+		{
+			if (isParryable_)
+			{
+				isParrySuccessful_ = true;
+			}
+		}
+	}
 
 	//パーティクルを出す
 	OBBCollider* collider = GetComponent<OBBCollider>();

@@ -70,20 +70,22 @@ void PlayerStateDash::Initialize()
 
 void PlayerStateDash::Update()
 {
-	//チャージの処理
+	//チャージが終っていないとき
 	if (!isChargingFinished_)
 	{
-		if (++currentChargeDuration_ > maxChargeDuration_)
+		//チャージタイマーを増やす
+		currentChargeDuration_ += GameTimer::GetDeltaTime();
+
+		//チャージタイマーが一定値を超えたら
+		if (currentChargeDuration_ > maxChargeDuration_)
 		{
 			//チャージ終了フラグを立てる
 			isChargingFinished_ = true;
-			//プレイヤーを描画しないようにする
-			player_->SetIsVisible(false);
-		}
 
-		//パーティクルを出す
-		if (currentChargeDuration_ == maxChargeDuration_ - 1)
-		{
+			//プレイヤーを消す
+			player_->SetIsVisible(false);
+
+			//パーティクルを出す
 			TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
 			Vector3 minVelocity = { 0.0f,0.0f,-0.4f };
 			minVelocity = Mathf::TransformNormal(minVelocity, playerTransformComponent->worldTransform_.matWorld_);
@@ -112,10 +114,10 @@ void PlayerStateDash::Update()
 	{
 		//速度を加算
 		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-		playerTransformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
+		playerTransformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
 
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->GetWorldPosition();
 		enemyPosition.y = playerTransformComponent->worldTransform_.translation_.y;
 
 		//敵に近づいたら速度を0にする
@@ -124,21 +126,26 @@ void PlayerStateDash::Update()
 			player_->velocity = { 0.0f,0.0f,0.0f };
 		}
 
-		//ダッシュの時間が終わったら
-		if (++currentDashDuration_ > maxDashDuration_)
-		{
-			//ダッシュ終了フラグを立てる
-			isDashFinished_ = true;
-			//RadialBlurを切る
-			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-			//プレイヤーを描画させる
-			player_->SetIsVisible(true);
-		}
-
 		//エミッターの座標を移動させる
 		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
 		{
 			emitter->SetTranslate(playerTransformComponent->worldTransform_.translation_);
+		}
+
+		//ダッシュタイマーを進める
+		currentDashDuration_ += GameTimer::GetDeltaTime();
+
+		//ダッシュタイマーが一定値を超えたら
+		if (currentDashDuration_ > maxDashDuration_)
+		{
+			//ダッシュ終了フラグを立てる
+			isDashFinished_ = true;
+
+			//RadialBlurを切る
+			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+
+			//プレイヤーを描画させる
+			player_->SetIsVisible(true);
 		}
 	}
 
@@ -150,8 +157,12 @@ void PlayerStateDash::Update()
 		{
 			emitter->SetIsDead(true);
 		}
+
+		//硬直タイマーを進める
+		currentRecoveryDuration_ += GameTimer::GetDeltaTime();
+
 		//硬直時間が終ったら通常状態に戻す
-		if (++currentRecoveryDuration_ > maxRecoveryDuration_)
+		if (currentRecoveryDuration_ > maxRecoveryDuration_)
 		{
 			player_->ChangeState(new PlayerStateIdle());
 		}
@@ -161,17 +172,11 @@ void PlayerStateDash::Update()
 			player_->ChangeState(new PlayerStateGroundAttack());
 		}
 	}
-
-	//環境変数の適用
-	ApplyGlobalVariables();
-
-	//ImGui
-	ImGui::Begin("PlayerStateDash");
-	ImGui::End();
 }
 
 void PlayerStateDash::Draw(const Camera& camera)
 {
+
 }
 
 void PlayerStateDash::ApplyGlobalVariables()
@@ -179,8 +184,8 @@ void PlayerStateDash::ApplyGlobalVariables()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	speed_ = globalVariables->GetFloatValue(groupName, "DashSpeed");
-	maxDashDuration_ = globalVariables->GetIntValue(groupName, "MaxDashDuration");
-	maxChargeDuration_ = globalVariables->GetIntValue(groupName, "MaxChargeDuration");
-	maxRecoveryDuration_ = globalVariables->GetIntValue(groupName, "MaxRecoveryDuration");
+	maxDashDuration_ = globalVariables->GetFloatValue(groupName, "MaxDashDuration");
+	maxChargeDuration_ = globalVariables->GetFloatValue(groupName, "MaxChargeDuration");
+	maxRecoveryDuration_ = globalVariables->GetFloatValue(groupName, "MaxRecoveryDuration");
 	proximityThreshold_ = globalVariables->GetFloatValue(groupName, "ProximityThreshold");
 }

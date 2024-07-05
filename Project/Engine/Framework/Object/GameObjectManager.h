@@ -19,6 +19,8 @@ public:
 
 	void Draw();
 
+	void DrawUI();
+
 	void Clear();
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };

@@ -17,6 +17,8 @@ public:
 
 	bool ExistTarget() const { return target_ ? true : false; };
 
+	void SetTargetOffset(const Vector3& targetOffset) { targetOffset_ = targetOffset; };
+
 	void SetLockOnMark(const std::string& name) { lockOnMark_->SetTexture(name); };
 
 private:
@@ -24,12 +26,18 @@ private:
 
 	void SearchLockOnTarget(GameObject* gameObject, const Camera& camera);
 
+	Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera& camera);
+
+	void SetLockOnMarkPosition(const Camera& camera);
+
 private:
 	Input* input_ = nullptr;
 
 	std::unique_ptr<Sprite> lockOnMark_ = nullptr;
 
 	GameObject* target_ = nullptr;
+
+	Vector3 targetOffset_ = { 0.0f,0.0f,0.0f };
 
 	float minDistance_ = 10.0f;
 

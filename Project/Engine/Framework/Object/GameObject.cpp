@@ -22,3 +22,8 @@ void GameObject::Draw(const Camera& camera)
 		}
 	}
 }
+
+void GameObject::DrawUI()
+{
+
+}

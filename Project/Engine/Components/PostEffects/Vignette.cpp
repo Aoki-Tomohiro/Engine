@@ -12,6 +12,9 @@ void Vignette::Initialize()
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(sizeof(ConstBuffDataVignette));
 	Update();
+
+	//PipelineStateの生成
+	CreatePipelineState();
 }
 
 void Vignette::Update()

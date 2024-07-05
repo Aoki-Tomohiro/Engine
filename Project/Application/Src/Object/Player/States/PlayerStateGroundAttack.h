@@ -58,5 +58,9 @@ private:
 	Input* input_ = nullptr;
 
 	WorkGroundAttack workAttack_{};
+
+	float parrySuccessTime_ = 0.2f;
+
+	float parryWindow_ = 0.0f;
 };
 

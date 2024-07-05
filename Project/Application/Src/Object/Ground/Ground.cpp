@@ -29,6 +29,11 @@ void Ground::Draw(const Camera& camera)
 	GameObject::Draw(camera);
 }
 
+void Ground::DrawUI()
+{
+
+}
+
 void Ground::OnCollision(GameObject* gameObject)
 {
 

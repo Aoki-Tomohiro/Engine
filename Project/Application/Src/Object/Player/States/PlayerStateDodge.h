@@ -20,15 +20,15 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float dodgeSpeed_ = 0.4f;
+	float dodgeSpeed_ = 24.0f;
 
 	bool isBackFlip_ = false;
 
-	int backFlipAnticipationTime = 10;
+	float backFlipAnticipationTime = 0.2f;
 
-	int backFlipTime = 36;
+	float backFlipTime = 0.6f;
 
-	int backFlipParameter_ = 0;
+	float backFlipParameter_ = 0;
 
 	enum BackFlipState
 	{

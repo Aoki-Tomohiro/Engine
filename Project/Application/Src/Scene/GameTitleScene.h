@@ -46,5 +46,9 @@ private:
 
 	//Skybox
 	std::unique_ptr<Skybox> skybox_ = nullptr;
+
+	//タイトルのスプライト
+	std::unique_ptr<Sprite> titleSprite_ = nullptr;
+	std::unique_ptr<Sprite> pressASprite_ = nullptr;
 };
 

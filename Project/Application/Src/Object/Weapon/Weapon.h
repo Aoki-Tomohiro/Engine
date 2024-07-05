@@ -13,6 +13,8 @@ public:
 
 	void Draw(const Camera& camera) override;
 
+	void DrawUI() override;
+
 	void OnCollision(GameObject* gameObject) override;
 
 	void OnCollisionEnter(GameObject* gameObject) override;
@@ -20,6 +22,10 @@ public:
 	void OnCollisionExit(GameObject* gameObject) override;
 
 	void SetParent(const TransformComponent* transformComponent);
+
+	void SetisParryable(const bool isParryable) { isParryable_ = isParryable; };
+
+	const bool GetIsParrySuccessful() const { return isParrySuccessful_; };
 
 	const bool GetIsHit() const { return isHit_; };
 
@@ -33,5 +39,11 @@ private:
 
 	//ヒットフラグ
 	bool isHit_ = false;
+
+	//パリィ出来る状態か
+	bool isParryable_ = false;
+
+	//パリィに成功したか
+	bool isParrySuccessful_ = false;
 };
 

@@ -11,6 +11,8 @@ public:
 
 	void Draw(const Camera& camera) override;
 
+	void DrawUI() override;
+
 	void OnCollision(GameObject* gameObject) override;
 
 	void OnCollisionEnter(GameObject* gameObject) override;

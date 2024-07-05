@@ -74,7 +74,8 @@ void PlayerStateDodge::Update()
 	}
 	else
 	{
-		backFlipParameter_++;
+		//タイマーを進める
+		backFlipParameter_ += GameTimer::GetDeltaTime();
 		switch (backFlipState_)
 		{
 		case kAnticipation:
@@ -104,8 +105,8 @@ void PlayerStateDodge::Update()
 	ApplyGlobalVariables();
 
 	ImGui::Begin("PlayerStateDodge");
-	ImGui::DragInt("BackFlipAnticipationTime", &backFlipAnticipationTime);
-	ImGui::DragInt("BackFlipTime", &backFlipTime);
+	ImGui::DragFloat("BackFlipAnticipationTime", &backFlipAnticipationTime);
+	ImGui::DragFloat("BackFlipTime", &backFlipTime);
 	ImGui::End();
 }
 

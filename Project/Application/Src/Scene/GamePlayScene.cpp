@@ -1,5 +1,6 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
 #include "Engine/Utilities/GameTimer.h"
@@ -44,7 +45,11 @@ void GamePlayScene::Initialize()
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
+	//Colliderの設定
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	AABBCollider* playerCollider = player->GetComponent<AABBCollider>();
+	playerCollider->SetCollisionAttribute(kCollisionAttributePlayer);
+	playerCollider->SetCollisionMask(kCollisionMaskPlayer);
 	//カメラを設定
 	player->SetCamera(&camera_);
 	//LockOnを設定
@@ -55,6 +60,10 @@ void GamePlayScene::Initialize()
 	//TransformComponentの初期化
 	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//Colliderの設定
+	AABBCollider* enemyCollider = enemy->GetComponent<AABBCollider>();
+	enemyCollider->SetCollisionAttribute(kCollisionAttributeEnemy);
+	enemyCollider->SetCollisionMask(kCollisionMaskEnemy);
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
@@ -68,7 +77,9 @@ void GamePlayScene::Initialize()
 	weaponModelComponent->Initialize("Sword", Opaque);
 	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
 	//ColliderComponentの追加
-	weapon->AddComponent<OBBCollider>();
+	OBBCollider* weaponCollider = weapon->AddComponent<OBBCollider>();
+	weaponCollider->SetCollisionAttribute(kCollisionAttributeWeapon);
+	weaponCollider->SetCollisionMask(kCollisionMaskWeapon);
 	//プレイヤーを親に設定
 	weapon->SetParent(playerTransformComponent);
 	//描画しないようにする
@@ -83,6 +94,14 @@ void GamePlayScene::Initialize()
 
 	//Skyboxの初期化
 	skybox_.reset(Skybox::Create());
+
+	//ゲームオーバーのスプライトの生成
+	TextureManager::Load("GameOver.png");
+	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
+
+	//ゲームクリアのスプライトの生成
+	TextureManager::Load("GameClear.png");
+	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -101,6 +120,9 @@ void GamePlayScene::Update()
 	//ヒットストップの処理
 	UpdateHitStop();
 
+	//パリィの処理
+	UpdateParry();
+
 	//GameObjectManagerの更新
 	gameObjectManager_->Update();
 
@@ -112,6 +134,7 @@ void GamePlayScene::Update()
 	{
 		//ロックオンの処理
 		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+		lockOn_->SetTargetOffset(enemy->GetColliderOffset());
 		lockOn_->Update(enemy, camera_);
 
 		//CameraControllerの更新
@@ -130,11 +153,13 @@ void GamePlayScene::Update()
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
+	Player* player = gameObjectManager_->GetGameObject<Player>();
+	if (Collider* collider = player->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
-	if (Collider* collider = gameObjectManager_->GetGameObject<Enemy>()->GetComponent<Collider>())
+	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	if (Collider* collider = enemy->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
@@ -148,6 +173,16 @@ void GamePlayScene::Update()
 	}
 	collisionManager_->CheckAllCollisions();
 
+	//クリアアニメーションをさせる
+	if (enemy->GetHP() <= 0.0f || input_->IsPushKeyEnter(DIK_C))
+	{
+		cameraController_->SetIsClearAnimation(true);
+		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
+		PostEffects::GetInstance()->GetDepthOfField()->SetNFocusWidth(nFocusWidth_);
+		PostEffects::GetInstance()->GetDepthOfField()->SetFocusDepth(focusDepth_);
+		PostEffects::GetInstance()->GetDepthOfField()->SetFFocusWidth(fFocusWidth_);
+	}
+
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
@@ -155,6 +190,9 @@ void GamePlayScene::Update()
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
+	ImGui::DragFloat("focusDepth_", &focusDepth_, 0.001f);
+	ImGui::DragFloat("nFocusWidth_", &nFocusWidth_, 0.001f);
+	ImGui::DragFloat("fFocusWidth_", &fFocusWidth_, 0.001f);
 	ImGui::End();
 }
 
@@ -197,8 +235,21 @@ void GamePlayScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
+	//GameObjectManagerのUIを描画
+	gameObjectManager_->DrawUI();
+
 	//ロックオンの描画
 	lockOn_->Draw();
+
+	//ゲームオーバーの表示
+	if (isGameClear_)
+	{
+		gameClearSprite_->Draw();
+	}
+	else if (isGameOver_)
+	{
+		gameOverSprite_->Draw();
+	}
 
 	//トランジションの描画
 	transition_->Draw();
@@ -213,32 +264,53 @@ void GamePlayScene::HandleTransition()
 	//FadeInしていないとき
 	if (transition_->GetFadeState() != transition_->FadeState::In)
 	{
+		Player* player = gameObjectManager_->GetGameObject<Player>();
+		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
 		//Kキーを押したらGameClearSceneに遷移
-		if (input_->IsPushKeyEnter(DIK_K))
+		if (input_->IsPushKeyEnter(DIK_K) || (enemy->GetHP() <= 0.0f && cameraController_->GetClearAnimationEnd()))
 		{
-			transition_->SetFadeState(Transition::FadeState::In);
-			nextScene_ = kGameClearScene;
+			//transition_->SetFadeState(Transition::FadeState::In);
+			//nextScene_ = kGameClearScene;
+			isGameClear_ = true;
+			player->SetIsInTitleScene(true);
+			enemy->SetIsInTitleScene(true);
+			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+			modelComponent->SetAnimationName("Idle");
 		}
 		//Lキーを押したらGameOverSceneに遷移
-		else if (input_->IsPushKeyEnter(DIK_L))
+		else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
+		{
+			//transition_->SetFadeState(Transition::FadeState::In);
+			//nextScene_ = kGameOverScene;
+			isGameOver_ = true;
+			player->SetIsInTitleScene(true);
+			enemy->SetIsInTitleScene(true);
+			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+			modelComponent->SetAnimationName("Idle");
+		}
+	}
+
+	if (isGameClear_ || isGameOver_)
+	{
+		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
 		{
 			transition_->SetFadeState(Transition::FadeState::In);
-			nextScene_ = kGameClearScene;
 		}
 	}
 
 	//シーン遷移
 	if (transition_->GetFadeInComplete())
 	{
-		switch (nextScene_)
-		{
-		case kGameClearScene:
-			sceneManager_->ChangeScene("GameClearScene");
-			break;
-		case kGameOverScene:
-			sceneManager_->ChangeScene("GameOverScene");
-			break;
-		}
+		sceneManager_->ChangeScene("GameTitleScene");
+		//switch (nextScene_)
+		//{
+		//case kGameClearScene:
+		//	sceneManager_->ChangeScene("GameClearScene");
+		//	break;
+		//case kGameOverScene:
+		//	sceneManager_->ChangeScene("GameOverScene");
+		//	break;
+		//}
 	}
 }
 
@@ -273,44 +345,34 @@ void GamePlayScene::UpdateHitStop()
 	}
 }
 
-void GamePlayScene::UpdateCameraShake()
+void GamePlayScene::UpdateParry()
 {
-	//プレイヤーの攻撃が当たっていた時
-	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
+	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsParrySuccessful())
 	{
-		//プレイヤーを取得
-		Player* player = gameObjectManager_->GetGameObject<Player>();
-		//プレイヤーの攻撃が最後のコンボの時
-		if (player->GetComboIndex() == player->GetComboNum() - 1)
-		{
-			//カメラシェイクを有効にする
-			isShaking_ = true;
-			shakeoffset_ = camera_.translation_;
-		}
+		isParrySlowMotionActive_ = true;
+		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
 	}
 
-	//カメラシェイクが有効な場合
-	if (isShaking_)
+	if (isParrySlowMotionActive_)
 	{
-		//シェイクタイマーを進める
-		shakeTimer_ += GameTimer::GetDeltaTime();
+		parryTimer_ += 1.0f / 60.0f;
 
-		//揺らし幅をランダムで決める
-		Vector3 randomValue = {
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.x,shakeIntensity_.x),
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.y,shakeIntensity_.y),
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.z,shakeIntensity_.z),
-		};
-
-		//カメラの座標に揺らし幅を加算する
-		camera_.translation_ = shakeoffset_ + randomValue;
-
-		//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
-		if (shakeTimer_ > shakeDuration_)
+		if (parryTimer_ < parryDuration_ / 10.0f)
 		{
-			isShaking_ = false;
-			shakeTimer_ = 0.0f;
-			camera_.translation_ = shakeoffset_;
+			GameTimer::SetTimeScale(0.1f);
+			cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
+		}
+		else
+		{
+			GameTimer::SetTimeScale(1.0f);
+			cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
+		}
+
+		if (parryTimer_ > parryDuration_)
+		{
+			parryTimer_ = 0.0f;
+			isParrySlowMotionActive_ = false;
+			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
 		}
 	}
 }

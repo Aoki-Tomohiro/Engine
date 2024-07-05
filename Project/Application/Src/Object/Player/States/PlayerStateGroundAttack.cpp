@@ -12,10 +12,6 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		//{ 10, 10, 10, 10, { 0.1f,0.0f,0.0f }, { 0.1f,0.0f,0.0f }, { 0.1f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
-        //{ 10, 10, 10, 10, { -0.1f,0.0f,0.0f }, { -0.1f,0.0f,0.0f }, { -0.1f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
-		//{ 10, 10, 10, 10, { 0.21f,0.0f,0.0f }, { 0.21f,0.0f,0.0f }, { 0.21f,0.0f,0.0f }, {0.0f,0.0f,0.2f} },
-		//{ 10, 10, 10, 10, { 0.14f,0.0f,0.0f }, { 0.14f,0.0f,0.0f }, { 0.24f,0.0f,0.0f }, {0.0f,0.0f,0.0f} },
 		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 8.0f,0.0f,0.0f }},
         { 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { -8.0f,0.0f,0.0f }},
 		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 18.0f,0.0f,0.0f }},
@@ -30,6 +26,7 @@ void PlayerStateGroundAttack::Initialize()
 
 	//武器を描画させる
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	weapon->SetisParryable(true);
 	//武器の初期化
 	TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_ = { 1.0f,1.6f,1.2f };
@@ -40,7 +37,7 @@ void PlayerStateGroundAttack::Initialize()
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(3.0f);
 	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
 
 	//環境変数の設定
@@ -80,6 +77,7 @@ void PlayerStateGroundAttack::Update()
 			workAttack_.comboNext = false;
 			workAttack_.comboIndex++;
 			workAttack_.attackParameter = 0.0f;
+			parryWindow_ = 0.0f;
 
 			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
 			const float threshold = 0.7f;
@@ -107,8 +105,10 @@ void PlayerStateGroundAttack::Update()
 				player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 			}
 
-			//武器のトランスフォームを取得
+			//武器の初期化
 			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+			weapon->SetisParryable(true);
+			//武器のトランスフォームを取得
 			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
 			//アニメーションの時間をリセット
 			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
@@ -181,6 +181,14 @@ void PlayerStateGroundAttack::Update()
 		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
 		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
 		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+	}
+
+	//パリィを受け付ける
+	parryWindow_ += GameTimer::GetDeltaTime();
+	if (parryWindow_ > parrySuccessTime_)
+	{
+		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+		weapon->SetisParryable(false);
 	}
 
 	//アニメーション処理

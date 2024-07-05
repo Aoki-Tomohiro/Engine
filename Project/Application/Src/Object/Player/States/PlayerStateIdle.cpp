@@ -75,6 +75,15 @@ void PlayerStateIdle::Update()
 		modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 	}
 
+	//移動限界座標
+	const float kMoveLimitX = 79;
+	const float kMoveLimitZ = 79;
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.translation_.x = std::max<float>(transformComponent->worldTransform_.translation_.x, -kMoveLimitX);
+	transformComponent->worldTransform_.translation_.x = std::min<float>(transformComponent->worldTransform_.translation_.x, +kMoveLimitX);
+	transformComponent->worldTransform_.translation_.z = std::max<float>(transformComponent->worldTransform_.translation_.z, -kMoveLimitZ);
+	transformComponent->worldTransform_.translation_.z = std::min<float>(transformComponent->worldTransform_.translation_.z, +kMoveLimitZ);
+
 	//ジャンプ状態に変更
 	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
 	{

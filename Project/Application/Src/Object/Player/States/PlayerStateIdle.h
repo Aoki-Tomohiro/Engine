@@ -20,6 +20,6 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	float moveSpeed_ = 0.4f;
+	float moveSpeed_ = 24.0f;
 };
 

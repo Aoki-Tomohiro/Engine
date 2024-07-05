@@ -19,6 +19,12 @@ public:
 
 	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; };
 
+	void SetDestinationOffset(const Vector3& offset) { destinationOffset_ = offset; };
+
+	void SetIsClearAnimation(const bool isClearAnimation) { isClearAnimation_ = isClearAnimation; };
+
+	const bool GetClearAnimationEnd() { return clearAnimationEnd_; };
+
 private:
 	void UpdateFollowCamera();
 
@@ -45,11 +51,18 @@ private:
 	float destinationAngleX_ = 0.0f;
 	float destinationAngleY_ = 0.0f;
 
+	Vector3 destinationOffset_{ 0.0f, 2.0f, -20.0f };
+	Vector3 offset_{ 0.0f, 2.0f, -20.0f };
+
 	//カメラシェイクの変数
 	bool isShaking_ = false;
-	Vector3 shakeIntensity_{ 0.0f,2.0f,0.0f };
+	Vector3 shakeIntensity_{ 0.0f,0.6f,0.0f };
 	Vector3 shakeoffset_{ 0.0f,0.0f,0.0f };
 	float shakeDuration_ = 0.1f;
 	float shakeTimer_ = 0.0f;
+
+	//クリアアニメーション
+	bool isClearAnimation_ = false;
+	bool clearAnimationEnd_ = false;
 };
 

@@ -47,7 +47,7 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 			//ループフラグが立っていたらanimationTimeをリセット
 			if (isLoop_)
 			{
-				animationTime_ = 0.0f;
+				animationTime_ = std::fmod(animationTime_, animationData.duration);
 			}
 			//ループフラグが立っていなかったらanimationTimeを固定
 			else

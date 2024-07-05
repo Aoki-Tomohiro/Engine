@@ -16,30 +16,32 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
+
+
 	void ApplyGlobalVariables();
 
 private:
 	Input* input_ = nullptr;
 
-	float speed_ = 1.6f;
+	float speed_ = 96.0f;
 
 	float proximityThreshold_ = 10.0f;
 
-	uint32_t maxDashDuration_ = 30;
+	float maxDashDuration_ = 0.5f;
 
-	uint32_t currentDashDuration_ = 0;
+	float currentDashDuration_ = 0;
 
 	bool isDashFinished_ = false;
 
-	uint32_t maxChargeDuration_ = 10;
+	float maxChargeDuration_ = 0.16f;
 
-	uint32_t currentChargeDuration_ = 0;
+	float currentChargeDuration_ = 0;
 
 	bool isChargingFinished_ = false;
 
-	uint32_t maxRecoveryDuration_ = 20;
+	float maxRecoveryDuration_ = 0.3f;
 
-	uint32_t currentRecoveryDuration_ = 0;
+	float currentRecoveryDuration_ = 0;
 
 	ParticleSystem* particleSystem_ = nullptr;
 };

@@ -13,6 +13,8 @@ public:
     const bool GetIsAttack() const { return isAttack_; };
 
 private:
-    bool isAttack_ = false;
+	float chargeDuration_ = 1.8f;
+
+	float chargeTimer_ = 0.0f;
 };
 

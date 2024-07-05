@@ -21,18 +21,7 @@ void LockOn::Update(GameObject* gameObject, const Camera& camera)
 	if (target_)
 	{
 		//ロックオンマークの座標計算
-		TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
-		Vector3 positionWorld = transformComponent->GetWorldPosition();
-		// ビューポート行列
-		Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);
-		// ビュー行列とプロジェクション行列、ビューポート行列を合成する
-		Matrix4x4 matViewProjectionViewport = camera.matView_ * camera.matProjection_ * matViewport;
-		//ワールド座標からスクリーン座標に変換
-		Vector3 positionScreen = Mathf::Transform(positionWorld, matViewProjectionViewport);
-		//Vector2に格納
-		Vector2 positionScreenV2 = { positionScreen.x,positionScreen.y };
-		//スプライトの座標を設定
-		lockOnMark_->SetPosition(positionScreenV2);
+		SetLockOnMarkPosition(camera);
 
 		//ロックオン解除処理
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_THUMB))
@@ -123,6 +112,27 @@ void LockOn::SearchLockOnTarget(GameObject* gameObject, const Camera& camera)
 		if (std::abs(angle) <= angleRange_) {
 			target_ = nullptr;
 			target_ = gameObject;
+			SetLockOnMarkPosition(camera);
 		}
 	}
+}
+
+Vector2 LockOn::WorldToScreenPosition(const Vector3& worldPosition, const Camera& camera)
+{
+	// ビューポート行列
+	Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);
+	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
+	Matrix4x4 matViewProjectionViewport = camera.matView_ * camera.matProjection_ * matViewport;
+	//ワールド座標からスクリーン座標に変換
+	Vector3 positionScreen = Mathf::Transform(worldPosition, matViewProjectionViewport);
+	//Vector2に変換して返す
+	return Vector2(positionScreen.x, positionScreen.y);
+}
+
+void LockOn::SetLockOnMarkPosition(const Camera& camera)
+{
+	TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
+	Vector3 positionWorld = transformComponent->GetWorldPosition() + targetOffset_;
+	Vector2 positionScreenV2 = WorldToScreenPosition(positionWorld, camera);
+	lockOnMark_->SetPosition(positionScreenV2);
 }

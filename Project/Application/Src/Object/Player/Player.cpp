@@ -1,6 +1,9 @@
 #include "Player.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/States/PlayerStateIdle.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -12,6 +15,19 @@ void Player::Initialize()
 
 	//Stateの初期化
 	ChangeState(new PlayerStateIdle());
+
+	//体力バーのスプライトの生成
+	TextureManager::Load("HpBar.png");
+	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 80.0f,32.0f }));
+	spriteHpBar_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+	TextureManager::Load("HpBarFrame.png");
+	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 79.0f,31.0f }));
+	spriteHpBarFrame_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+
+	//被ダメージのスプライトの生成
+	damageSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	damageSprite_->SetColor(damageSpriteColor_);
+	damageSprite_->SetSize({ 1280.0f,720.0f });
 }
 
 void Player::Update()
@@ -34,6 +50,38 @@ void Player::Update()
 	//Gameobjectの更新
 	GameObject::Update();
 
+	//HPバーの処理
+	hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
+	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
+	spriteHpBar_->SetSize(hpBarSize_);
+
+	//プレイヤーの体力が一定量以下になったらVignetteをかける
+	const float hpRatio = 4.0f;
+	if (hp_ <= kMaxHP / hpRatio)
+	{
+		PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
+	}
+	else
+	{
+		PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
+	}
+
+	//無敵時間の処理
+	if (isInvincible_)
+	{
+		invincibleTimer_ += GameTimer::GetDeltaTime();
+		if (invincibleTimer_ > invincibleDuration_)
+		{
+			isInvincible_ = false;
+		}
+
+		//ダメージスプライトを徐々に透明にする
+		damageSpriteColor_.w = 0.1f * (1.0f - (static_cast<float>(invincibleTimer_) / invincibleDuration_));
+
+		//ダメージスプライトの色を設定
+		damageSprite_->SetColor(damageSpriteColor_);
+	}
+
 	//ImGui
 	ImGui::Begin("Player");
 	ImGui::DragFloat3("ColliderOffset", &colliderOffset_.x, 0.1f);
@@ -48,6 +96,16 @@ void Player::Draw(const Camera& camera)
 
 	//GameObjectの描画
 	GameObject::Draw(camera);
+}
+
+void Player::DrawUI()
+{
+	if (isInvincible_)
+	{
+		damageSprite_->Draw();
+	}
+	spriteHpBar_->Draw();
+	spriteHpBarFrame_->Draw();
 }
 
 void Player::OnCollision(GameObject* gameObject)
@@ -88,7 +146,13 @@ void Player::OnCollision(GameObject* gameObject)
 		}
 		else
 		{
-			hp_--;
+			if (!isInvincible_)
+			{
+				hp_ -= 10.0f;
+				isInvincible_ = true;
+				invincibleTimer_ = 0.0f;
+				damageSpriteColor_.w = 0.5f;
+			}
 		}
 	}
 }
