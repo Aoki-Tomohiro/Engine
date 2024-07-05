@@ -1,31 +1,25 @@
 #include "ModelComponent.h"
 #include "Engine/3D/Model/ModelManager.h"
 
+void ModelComponent::Initialize()
+{
+	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
+}
+
 void ModelComponent::Initialize(const std::string& modelName, const DrawPass drawPass)
 {
 	model_ = ModelManager::CreateFromModelFile(modelName, drawPass);
-
-	Initialize();
-}
-
-void ModelComponent::Initialize()
-{
-	worldTransform_.Initialize();
 }
 
 void ModelComponent::Update()
 {
-	if (transformComponent_ != nullptr)
-	{
-		worldTransform_ = transformComponent_->worldTransform_;
-	}
-
-	worldTransform_.TransferMatrix();
-
-	model_->Update(worldTransform_, animationName_);
+	assert(transformComponent_);
+	transformComponent_->Update();
+	model_->Update(transformComponent_->worldTransform_, animationName_);
 }
 
 void ModelComponent::Draw(const Camera& camera)
 {
-	model_->Draw(worldTransform_, camera);
+	assert(transformComponent_);
+	model_->Draw(transformComponent_->worldTransform_, camera);
 }

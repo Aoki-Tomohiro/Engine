@@ -30,27 +30,31 @@ void GamePlayScene::Initialize()
 	//LevelDataの読み込み
 	LevelLoader::Load("GameScene");
 
-	//FollowCameraの作成
-	followCamera_ = std::make_unique<FollowCamera>();
-	followCamera_->Initialize();
-	followCamera_->SetTarget(&gameObjectManager_->GetGameObject<Player>()->GetComponent<TransformComponent>()->worldTransform_);
-
 	//LockOnの生成
 	lockOn_ = std::make_unique<LockOn>();
 	lockOn_->Initialize();
-	followCamera_->SetLockOn(lockOn_.get());
+
+	//FollowCameraの作成
+	cameraController_ = std::make_unique<CameraController>();
+	cameraController_->Initialize();
+	cameraController_->SetTarget(&gameObjectManager_->GetGameObject<Player>()->GetComponent<TransformComponent>()->worldTransform_);
+	cameraController_->SetLockOn(lockOn_.get());
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	//ModelComponent
-	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
 	//カメラを設定
 	player->SetCamera(&camera_);
 	//LockOnを設定
 	player->SetLockOn(lockOn_.get());
+
+	//敵の初期化
+	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	//TransformComponentの初期化
+	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
+	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
@@ -110,13 +114,15 @@ void GamePlayScene::Update()
 		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
 		lockOn_->Update(enemy, camera_);
 
-		//FollowCameraの更新
-		followCamera_->Update();
+		//CameraControllerの更新
+		cameraController_->Update();
 	}
 
+	//カメラシェイクの処理
+	cameraController_->UpdateCameraShake();
+
 	//カメラの更新
-	camera_ = followCamera_->GetCamera();
-	UpdateCameraShake();
+	camera_ = cameraController_->GetCamera();
 	camera_.UpdateMatrix();
 
 	//フェードイン処理

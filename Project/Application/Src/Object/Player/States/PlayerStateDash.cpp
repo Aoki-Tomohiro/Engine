@@ -2,6 +2,7 @@
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
@@ -111,7 +112,7 @@ void PlayerStateDash::Update()
 	{
 		//速度を加算
 		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-		playerTransformComponent->worldTransform_.translation_ += player_->velocity;
+		playerTransformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
 
 		//敵の座標を取得
 		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;

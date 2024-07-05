@@ -14,7 +14,7 @@ public:
 
 	virtual void Draw(const Camera& camera) = 0;
 
-	void SetPlayer(Enemy* enemy) { enemy_ = enemy; };
+	void SetEnemy(Enemy* enemy) { enemy_ = enemy; };
 
 protected:
 	Enemy* enemy_ = nullptr;

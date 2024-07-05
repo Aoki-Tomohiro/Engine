@@ -1,6 +1,7 @@
 #include "PlayerStateDodge.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateIdle.h"
 
@@ -60,7 +61,7 @@ void PlayerStateDodge::Update()
 	if (!isBackFlip_)
 	{
 		//速度を加算
-		transformComponent->worldTransform_.translation_ += player_->velocity;
+		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
 
 		//回避が終わったら
 		if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
@@ -85,7 +86,7 @@ void PlayerStateDodge::Update()
 			break;
 		case kBackFlip:
 			//速度を加算
-			transformComponent->worldTransform_.translation_ += player_->velocity;
+			transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
 			if (backFlipParameter_ > backFlipTime)
 			{
 				//通常状態に戻す

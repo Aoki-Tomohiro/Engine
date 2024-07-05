@@ -9,11 +9,11 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/CollisionManager.h"
-#include "Engine/3D/Camera/FollowCamera.h"
 #include "Engine/3D/Camera/LockOn.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/CameraController/CameraController.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
 class GamePlayScene : public IScene
@@ -54,8 +54,8 @@ private:
 	//ParticleManager
 	ParticleManager* particleManager_ = nullptr;
 
-	//FollowCamera
-	std::unique_ptr<FollowCamera> followCamera_ = nullptr;
+	//CameraController
+	std::unique_ptr<CameraController> cameraController_ = nullptr;
 
 	//LockOn
 	std::unique_ptr<LockOn> lockOn_ = nullptr;

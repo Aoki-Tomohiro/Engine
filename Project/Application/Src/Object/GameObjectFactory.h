@@ -4,6 +4,7 @@
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Ground/Ground.h"
+#include "Application/Src/Object/Warning/Warning.h"
 
 class GameObjectFactory : public AbstractGameObjectFactory
 {

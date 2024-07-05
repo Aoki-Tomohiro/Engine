@@ -1,6 +1,7 @@
 #include "PlayerStateJump.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateAirAttack.h"
@@ -39,7 +40,7 @@ void PlayerStateJump::Update()
 	player_->velocity += accelerationVector;
 
 	//速度を加算
-	transformComponent->worldTransform_.translation_ += player_->velocity;
+	transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
 
 	//通常状態に変更
 	if (transformComponent->worldTransform_.translation_.y <= 0.0f)

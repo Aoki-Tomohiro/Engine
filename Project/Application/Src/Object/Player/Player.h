@@ -54,6 +54,11 @@ private:
 	//Collider
 	Vector3 colliderOffset_{ 0.0f,2.2f,0.0f };
 
+	//HP
+	Vector2 hpBarSize_{ 480.0f,16.0f };
+	const float kMaxHP = 40.0f;
+	float hp_ = kMaxHP;
+
 	//フレンドクラスに登録
 	friend class PlayerStateIdle;
 	friend class PlayerStateJump;

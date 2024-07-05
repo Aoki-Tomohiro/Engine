@@ -22,6 +22,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Ground* ground = new Ground;
 		return ground;
 	}
+	else if (objectName == "Warning")
+	{
+		Warning* warning = new Warning;
+		return warning;
+	}
 
 	return nullptr;
 }

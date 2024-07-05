@@ -1,6 +1,7 @@
 #include "PlayerStateIdle.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
@@ -53,7 +54,7 @@ void PlayerStateIdle::Update()
 
 		//移動処理
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		transformComponent->worldTransform_.translation_ += player_->velocity;
+		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
 
 		//回転処理
 		Vector3 vector = Mathf::Normalize(player_->velocity);
@@ -94,11 +95,11 @@ void PlayerStateIdle::Update()
 	{
 		player_->ChangeState(new PlayerStateGroundAttack());
 	}
-	//遠距離攻撃の状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
-	{
-		player_->ChangeState(new PlayerStateRangedAttack());
-	}
+	////遠距離攻撃の状態に遷移
+	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
+	//{
+	//	player_->ChangeState(new PlayerStateRangedAttack());
+	//}
 
 	//環境変数の適用
 	ApplyGlobalVariables();
