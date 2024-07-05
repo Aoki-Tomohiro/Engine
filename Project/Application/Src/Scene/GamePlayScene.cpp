@@ -108,8 +108,6 @@ void GamePlayScene::Initialize()
 	const char* groupName = "GameScene";
 	globalVariables->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "HitStopDuration", hitStopDuration_);
-
-	PostEffects::GetInstance()->GetOutline()->SetIsEnable(true);
 }
 
 void GamePlayScene::Finalize()
