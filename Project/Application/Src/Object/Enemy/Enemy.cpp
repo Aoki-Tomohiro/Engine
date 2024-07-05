@@ -2,6 +2,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Math/MathFunction.h"
@@ -51,6 +52,14 @@ void Enemy::Update()
 	//HPバーの処理
 	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
 	spriteHpBar_->SetSize(hpBarSize_);
+
+	//hpがなくなったらDisolveをかける
+	if (hp_ <= 0.0f)
+	{
+		disolveParameter_ += 1.0f / 180.0f;
+		ModelComponent* modelComponent = GetComponent<ModelComponent>();
+		modelComponent->GetModel()->GetMaterial(0)->SetDissolveThreshold(disolveParameter_);
+	}
 
 	//ImGui
 	ImGui::Begin("Enemy");

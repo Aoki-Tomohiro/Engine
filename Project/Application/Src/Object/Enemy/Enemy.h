@@ -57,6 +57,8 @@ private:
 	const float kMaxHP = 800.0f;
 	float hp_ = kMaxHP;
 
+	float disolveParameter_ = 0.0f;
+
 	//フレンドクラスに登録
 	friend class EnemyStateIdle;
 	friend class EnemyStateTackle;
