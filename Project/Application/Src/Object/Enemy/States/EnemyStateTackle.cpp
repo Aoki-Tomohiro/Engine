@@ -15,16 +15,20 @@ void EnemyStateTackle::Initialize()
 
 void EnemyStateTackle::Update()
 {
-    //チャージタイマーを進める
-    chargeTimer_ += GameTimer::GetDeltaTime();
-
-    //チャージが終ったら当たり判定を付ける
+    //アニメーションの速度の更新
     ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
-    if (chargeTimer_ > chargeDuration_)
+    modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(enemy_->timeScale_);
+
+    //チャージタイマーを進める
+    attackTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
+
+    //チャージが終ったら攻撃判定を付ける
+    if (attackTimer_ >= timeToActivateHitbox_ && attackTimer_ < timeToDeactivateHitbox_)
     {
         isAttack_ = true;
     }
-    if (chargeTimer_ > chargeDuration_ + 1.35f)
+    //攻撃が終っていたら攻撃判定をなくす
+    else if (attackTimer_ >= timeToDeactivateHitbox_)
     {
         isAttack_ = false;
     }

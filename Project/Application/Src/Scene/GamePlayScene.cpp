@@ -107,7 +107,7 @@ void GamePlayScene::Initialize()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "GameScene";
 	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "HitStopDuration", hitStopDuration_);
+	globalVariables->AddItem(groupName, "HitStopDuration", hitStopSettings_.duration);
 }
 
 void GamePlayScene::Finalize()
@@ -129,20 +129,13 @@ void GamePlayScene::Update()
 	//トランジションの更新
 	transition_->Update();
 
-	//ヒットストップが有効の時はカメラを更新しない
-	if (!isHitStopActive_)
-	{
-		//ロックオンの処理
-		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-		lockOn_->SetTargetOffset(enemy->GetColliderOffset());
-		lockOn_->Update(enemy, camera_);
+	//ロックオンの処理
+	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	lockOn_->SetTargetOffset(enemy->GetColliderOffset());
+	lockOn_->Update(enemy, camera_);
 
-		//CameraControllerの更新
-		cameraController_->Update();
-	}
-
-	//カメラシェイクの処理
-	cameraController_->UpdateCameraShake();
+	//CameraControllerの更新
+	cameraController_->Update();
 
 	//カメラの更新
 	camera_ = cameraController_->GetCamera();
@@ -153,12 +146,10 @@ void GamePlayScene::Update()
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	Player* player = gameObjectManager_->GetGameObject<Player>();
-	if (Collider* collider = player->GetComponent<Collider>())
+	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
 	if (Collider* collider = enemy->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
@@ -173,16 +164,6 @@ void GamePlayScene::Update()
 	}
 	collisionManager_->CheckAllCollisions();
 
-	//クリアアニメーションをさせる
-	if (enemy->GetHP() <= 0.0f || input_->IsPushKeyEnter(DIK_C))
-	{
-		cameraController_->SetIsClearAnimation(true);
-		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
-		PostEffects::GetInstance()->GetDepthOfField()->SetNFocusWidth(nFocusWidth_);
-		PostEffects::GetInstance()->GetDepthOfField()->SetFocusDepth(focusDepth_);
-		PostEffects::GetInstance()->GetDepthOfField()->SetFFocusWidth(fFocusWidth_);
-	}
-
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
@@ -190,9 +171,6 @@ void GamePlayScene::Update()
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
-	ImGui::DragFloat("focusDepth_", &focusDepth_, 0.001f);
-	ImGui::DragFloat("nFocusWidth_", &nFocusWidth_, 0.001f);
-	ImGui::DragFloat("fFocusWidth_", &fFocusWidth_, 0.001f);
 	ImGui::End();
 }
 
@@ -267,7 +245,7 @@ void GamePlayScene::HandleTransition()
 		Player* player = gameObjectManager_->GetGameObject<Player>();
 		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
 		//Kキーを押したらGameClearSceneに遷移
-		if (input_->IsPushKeyEnter(DIK_K) || (enemy->GetHP() <= 0.0f && cameraController_->GetClearAnimationEnd()))
+		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
 		{
 			//transition_->SetFadeState(Transition::FadeState::In);
 			//nextScene_ = kGameClearScene;
@@ -290,6 +268,7 @@ void GamePlayScene::HandleTransition()
 		}
 	}
 
+	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
 	if (isGameClear_ || isGameOver_)
 	{
 		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
@@ -302,42 +281,36 @@ void GamePlayScene::HandleTransition()
 	if (transition_->GetFadeInComplete())
 	{
 		sceneManager_->ChangeScene("GameTitleScene");
-		//switch (nextScene_)
-		//{
-		//case kGameClearScene:
-		//	sceneManager_->ChangeScene("GameClearScene");
-		//	break;
-		//case kGameOverScene:
-		//	sceneManager_->ChangeScene("GameOverScene");
-		//	break;
-		//}
 	}
 }
 
 void GamePlayScene::UpdateHitStop()
 {
-	//プレイヤーの攻撃がヒットしていたらヒットストップを有効化する
-	if (!isHitStopActive_)
+	//ヒットストップが有効ではない場合
+	if (!hitStopSettings_.isActive)
 	{
+		//プレイヤーの攻撃がヒットしていたらヒットストップを有効化する
 		if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
 		{
 			//ヒットストップを有効にする
-			isHitStopActive_ = true;
+			hitStopSettings_.isActive = true;
 			gameObjectManager_->GetGameObject<Player>()->SetIsActive(false);
 			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(false);
 			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(false);
 		}
 	}
 
-	//ヒットストップのタイマーが指定の時間を超えたら無効化する
-	if (isHitStopActive_)
+	//ヒットストップが有効の場合
+	if (hitStopSettings_.isActive)
 	{
-		hitStopTimer_ += GameTimer::GetDeltaTime();
+		//タイマーを進める
+		hitStopSettings_.timer += GameTimer::GetDeltaTime();
 
-		if (hitStopTimer_ > hitStopDuration_)
+		//ヒットストップのタイマーが指定の時間を超えたら無効化する
+		if (hitStopSettings_.timer > hitStopSettings_.duration)
 		{
-			hitStopTimer_ = 0.0f;
-			isHitStopActive_ = false;
+			hitStopSettings_.timer = 0.0f;
+			hitStopSettings_.isActive = false;
 			gameObjectManager_->GetGameObject<Player>()->SetIsActive(true);
 			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(true);
 			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(true);
@@ -347,31 +320,54 @@ void GamePlayScene::UpdateHitStop()
 
 void GamePlayScene::UpdateParry()
 {
+	//プレイヤーがパリィに成功していた場合
 	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsParrySuccessful())
 	{
-		isParrySlowMotionActive_ = true;
+		//スロウモーションのフラグを立てる
+		parrySettings_.isActive = true;
+
+		//敵の行動を遅くする
+		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
+
+		//カメラを近づける
+		cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
+
+		//GrayScaleを有効化
 		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
+
+		//ゲーム全体の時間の流れを遅くする
+		GameTimer::SetTimeScale(0.2f);
 	}
 
-	if (isParrySlowMotionActive_)
+	//パリィ状態の時
+	if (parrySettings_.isActive)
 	{
-		parryTimer_ += 1.0f / 60.0f;
+		//タイマーを進める
+		const float kParryDeltaTime = 1.0f / 60.0f;
+		parrySettings_.timer += kParryDeltaTime;
 
-		if (parryTimer_ < parryDuration_ / 10.0f)
+		//停止時間を超えていたら
+		if (parrySettings_.timer > parrySettings_.stopDuration)
 		{
-			GameTimer::SetTimeScale(0.1f);
-			cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
-		}
-		else
-		{
-			GameTimer::SetTimeScale(1.0f);
+			//カメラの元に戻す
 			cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
+
+			//ゲーム全体の時間の流れをもとに戻す
+			GameTimer::SetTimeScale(1.0f);
 		}
 
-		if (parryTimer_ > parryDuration_)
+		if (parrySettings_.timer > parrySettings_.duration)
 		{
-			parryTimer_ = 0.0f;
-			isParrySlowMotionActive_ = false;
+			//タイマーのリセット
+			parrySettings_.timer = 0.0f;
+
+			//フラグのリセット
+			parrySettings_.isActive = false;
+
+			//敵の行動をもとに戻す
+			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
+
+			//GrayScaleを無効化
 			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
 		}
 	}
@@ -381,5 +377,5 @@ void GamePlayScene::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "GameScene";
-	hitStopDuration_ = globalVariables->GetFloatValue(groupName, "HitStopDuration");
+	hitStopSettings_.duration = globalVariables->GetFloatValue(groupName, "HitStopDuration");
 }

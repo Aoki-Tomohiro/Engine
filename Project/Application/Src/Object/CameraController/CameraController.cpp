@@ -10,6 +10,9 @@
 
 void CameraController::Initialize()
 {
+	//Inputのインスタンスを取得
+	input_ = Input::GetInstance();
+
 	//カメラの初期化
 	camera_.Initialize();
 
@@ -17,31 +20,77 @@ void CameraController::Initialize()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "CameraController";
 	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "ShakeDuration", shakeDuration_);
-	globalVariables->AddItem(groupName, "ShakeIntensity", shakeIntensity_);
+	globalVariables->AddItem(groupName, "ShakeDuration", cameraShakeSettings_.duration);
+	globalVariables->AddItem(groupName, "ShakeIntensity", cameraShakeSettings_.intensity);
 };
 
 void CameraController::Update()
 {
-	if (isClearAnimation_)
+	//追従対象が存在する場合、追従座標を補間する
+	if (target_)
 	{
-		if (destinationOffset_.z >= -10.0f)
-		{
-			destinationOffset_.z += 1.0f;
-		}
-		destinationAngleY_ += 0.006f;
-		const float epsilon = 0.8f;
-		if (Mathf::Length(offset_ - destinationOffset_) < epsilon)
-		{
-			clearAnimationEnd_ = true;
-		}
+		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.2f);
 	}
 
-	//オフセットを線形補完
+	//オフセット値を補間する
 	offset_ = Mathf::Lerp(offset_, destinationOffset_, 0.1f);
+	//追従対象からのオフセットを取得してカメラ座標を計算する
+	Vector3 offset = Offset();
+	camera_.translation_ = interTarget_ + offset;
 
-	//FollowCameraの更新
-	UpdateFollowCamera();
+	//ロックオン中の場合の処理
+	if (lockOn_ && lockOn_->ExistTarget()) 
+	{
+		Vector3 lockOnPosition = lockOn_->GetTargetPosition();
+		Vector3 sub = lockOnPosition - target_->translation_;
+		sub.y = 0.0f;
+
+		//Y軸周りの角度を計算
+		if (sub.z != 0.0)
+		{
+			destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
+
+			if (sub.z < 0.0)
+			{
+				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
+			}
+		}
+		else 
+		{
+			destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
+		}
+
+		destinationAngleX_ = 0.2f;//X軸角度の設定
+	}
+	//ロックオンしていない場合はカメラ操作の処理を行う
+	else 
+	{
+		const float threshold = 0.7f;//スティックの押し込みしきい値
+		bool isRotation = false;//回転フラグ
+
+		//右スティックの入力を取得
+		Vector3 rotation = {
+			input_->GetRightStickY(),
+			input_->GetRightStickX(),
+			0.0f
+		};
+
+		//スティックの押し込みが遊び範囲を超えていたら回転フラグをtrueにする
+		if (Mathf::Length(rotation) > threshold)
+		{
+			isRotation = true;
+		}
+
+		if (isRotation)
+		{
+			const float kRotSpeedX = 0.02f;//X軸回転速度
+			const float kRotSpeedY = 0.04f;//Y軸回転速度
+
+			//回転を適用
+			destinationAngleX_ -= rotation.x * kRotSpeedX;
+			destinationAngleY_ += rotation.y * kRotSpeedY;
+		}
+	}
 
 	//カメラシェイクの処理
 	UpdateCameraShake();
@@ -56,87 +105,18 @@ void CameraController::Update()
 	camera_.rotation_.x = Mathf::LerpShortAngle(camera_.rotation_.x, destinationAngleX_, 0.1f);
 	camera_.rotation_.y = Mathf::LerpShortAngle(camera_.rotation_.y, destinationAngleY_, 0.1f);
 
+	//カメラリセットの処理
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_THUMB))
+	{
+		Reset();
+	}
+
 	//カメラの更新
 	camera_.UpdateMatrix();
 
 	ImGui::Begin("CameraController");
-	ImGui::DragFloat3("destinationOffset_", &destinationOffset_.x);
 	ImGui::End();
 };
-
-void CameraController::UpdateFollowCamera()
-{
-	//追従対象がいれば
-	if (target_)
-	{
-		//追従座標の補間
-		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.2f);
-	}
-
-	//追従対象からのオフセット
-	Vector3 offset = Offset();
-	//カメラ座標
-	camera_.translation_ = interTarget_ + offset;
-
-	//ロックオン中なら
-	if (!isClearAnimation_)
-	{
-		if (lockOn_ && lockOn_->ExistTarget())
-		{
-			//ロックオン座標
-			Vector3 lockOnPosition = lockOn_->GetTargetPosition();
-			//追従対象からロックオン座標へのベクトル
-			Vector3 sub = lockOnPosition - target_->translation_;
-			sub.y = 0.0f;
-
-			//Y軸周り角度
-			if (sub.z != 0.0) {
-				destinationAngleY_ = std::asin(sub.x / std::sqrt(sub.x * sub.x + sub.z * sub.z));
-
-				if (sub.z < 0.0) {
-					destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> -destinationAngleY_ : -std::numbers::pi_v<float> -destinationAngleY_;
-				}
-			}
-			else {
-				destinationAngleY_ = (sub.x >= 0.0) ? std::numbers::pi_v<float> / 2.0f : -std::numbers::pi_v<float> / 2.0f;
-			}
-
-			destinationAngleX_ = 0.2f;
-		}
-		else
-		{
-			//しきい値
-			const float threshold = 0.7f;
-
-			//回転フラグ
-			bool isRotation = false;
-
-			//回転量
-			Vector3 rotation = {
-				Input::GetInstance()->GetRightStickY(),
-				Input::GetInstance()->GetRightStickX(),
-				0.0f
-			};
-
-			//スティックの押し込みが遊び範囲を超えていたら回転フラグをtureにする
-			if (Mathf::Length(rotation) > threshold)
-			{
-				isRotation = true;
-			}
-
-			if (isRotation)
-			{
-				//回転速度
-				const float kRotSpeedX = 0.02f;
-				const float kRotSpeedY = 0.04f;
-
-				//回転
-				destinationAngleX_ -= rotation.x * kRotSpeedX;
-				destinationAngleY_ += rotation.y * kRotSpeedY;
-			}
-		}
-	}
-}
 
 void CameraController::UpdateCameraShake()
 {
@@ -150,33 +130,33 @@ void CameraController::UpdateCameraShake()
 		if (player->GetComboIndex() == player->GetComboNum() - 1)
 		{
 			//カメラシェイクを有効にする
-			isShaking_ = true;
-			shakeoffset_ = camera_.translation_;
+			cameraShakeSettings_.isShaking = true;
+			cameraShakeSettings_.offset = camera_.translation_;
 		}
 	}
 
 	//カメラシェイクが有効な場合
-	if (isShaking_)
+	if (cameraShakeSettings_.isShaking)
 	{
 		//シェイクタイマーを進める
-		shakeTimer_ += GameTimer::GetDeltaTime();
+		cameraShakeSettings_.timer += GameTimer::GetDeltaTime();
 
 		//揺らし幅をランダムで決める
 		Vector3 randomValue = {
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.x,shakeIntensity_.x),
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.y,shakeIntensity_.y),
-			RandomGenerator::GetRandomFloat(-shakeIntensity_.z,shakeIntensity_.z),
+			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.x,cameraShakeSettings_.intensity.x),
+			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.y,cameraShakeSettings_.intensity.y),
+			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.z,cameraShakeSettings_.intensity.z),
 		};
 
 		//カメラの座標に揺らし幅を加算する
-		camera_.translation_ = shakeoffset_ + randomValue;
+		camera_.translation_ = cameraShakeSettings_.offset + randomValue;
 
 		//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
-		if (shakeTimer_ > shakeDuration_)
+		if (cameraShakeSettings_.timer > cameraShakeSettings_.duration)
 		{
-			isShaking_ = false;
-			shakeTimer_ = 0.0f;
-			camera_.translation_ = shakeoffset_;
+			cameraShakeSettings_.isShaking = false;
+			cameraShakeSettings_.timer = 0.0f;
+			camera_.translation_ = cameraShakeSettings_.offset;
 		}
 	}
 }
@@ -216,8 +196,8 @@ void CameraController::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "CameraController";
-	shakeDuration_ = globalVariables->GetFloatValue(groupName, "CameraDuration");
-	shakeIntensity_ = globalVariables->GetVector3Value(groupName, "ShakeIntensity");
+	cameraShakeSettings_.duration = globalVariables->GetFloatValue(groupName, "CameraDuration");
+	cameraShakeSettings_.intensity = globalVariables->GetVector3Value(groupName, "ShakeIntensity");
 }
 
 void CameraController::SetTarget(const WorldTransform* target)

@@ -7,29 +7,80 @@
 class Enemy : public GameObject
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="camera"></param>
 	void Draw(const Camera& camera) override;
 
+	/// <summary>
+	/// UIの描画
+	/// </summary>
 	void DrawUI() override;
 
+	/// <summary>
+	/// 当たっているの時の処理
+	/// </summary>
+	/// <param name="gameObject"></param>
 	void OnCollision(GameObject* gameObject) override;
 
+	/// <summary>
+	/// 当たった瞬間の処理
+	/// </summary>
+	/// <param name="gameObject"></param>
 	void OnCollisionEnter(GameObject* gameObject) override;
 
+	/// <summary>
+	/// 離れた瞬間の処理
+	/// </summary>
+	/// <param name="gameObject"></param>
 	void OnCollisionExit(GameObject* gameObject) override;
 
+	/// <summary>
+	/// 攻撃状態かを取得
+	/// </summary>
+	/// <returns></returns>
 	const bool GetIsAttack() const { return state_->GetIsAttack(); };
 
-	const Vector3& GetColliderOffset() const { return colliderOffset_; };
-
+	/// <summary>
+	/// HPを取得
+	/// </summary>
+	/// <returns></returns>
 	const float GetHP() const { return hp_; };
 
+	/// <summary>
+	/// ColliderのOffset値を取得
+	/// </summary>
+	/// <returns></returns>
+	const Vector3& GetColliderOffset() const { return colliderOffset_; };
+
+	/// <summary>
+	/// TimeScaleを設定
+	/// </summary>
+	/// <param name="timeScale"></param>
+	void SetTimeScale(const float timeScale) { timeScale_ = timeScale; };
+
+	/// <summary>
+	/// タイトルシーンのフラグを設定
+	/// </summary>
+	/// <param name="isInTitleScene"></param>
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
 private:
+	/// <summary>
+	/// 状態の遷移
+	/// </summary>
+	/// <param name="state"></param>
 	void ChangeState(IEnemyState* state);
 
 private:
@@ -39,7 +90,8 @@ private:
 	//速度
 	Vector3 velocity{};
 
-	float parryTimeSpeed_ = 1.0f;
+	//TimeScale
+	float timeScale_ = 1.0f;
 
 	//Quaternion
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };

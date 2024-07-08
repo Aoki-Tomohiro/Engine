@@ -13,8 +13,13 @@ public:
     const bool GetIsAttack() const { return isAttack_; };
 
 private:
-	float chargeDuration_ = 1.8f;
+	//溜め時間
+	float timeToActivateHitbox_ = 1.8f;
 
-	float chargeTimer_ = 0.0f;
+	//攻撃終了時間
+	float timeToDeactivateHitbox_ = timeToActivateHitbox_ + 1.35f;
+
+	//攻撃用タイマー
+	float attackTimer_ = 0.0f;
 };
 

@@ -32,6 +32,23 @@ public:
 	void DrawUI() override;
 
 private:
+	//HitStop用構造体
+	struct HitStopSettings 
+	{
+		bool isActive = false;// ヒットストップがアクティブかどうか
+		float duration = 0.06f;// ヒットストップの持続時間（秒）
+		float timer = 0.0f;// ヒットストップのタイマー（秒）
+	};
+
+	//Parry用の構造体
+	struct ParrySettings
+	{
+		bool isActive = false;// パリィのスローモーションがアクティブかどうか
+		float duration = 10.0f;// パリィの持続時間（秒）
+		float stopDuration = 1.0f;// パリィ後の時間停止の持続時間（秒）
+		float timer = 0.0f;// パリィのタイマー（秒）
+	};
+
 	void HandleTransition();
 
 	void UpdateHitStop();
@@ -72,27 +89,10 @@ private:
 	std::unique_ptr<Skybox> skybox_ = nullptr;
 
 	//ヒットストップの変数
-	bool isHitStopActive_ = false;
-	float hitStopDuration_ = 0.06f;
-	float hitStopTimer_ = 0.0f;
+	HitStopSettings hitStopSettings_{};
 
 	//パリィの変数
-	bool isParrySlowMotionActive_ = false;
-	float parryDuration_ = 10.0f;
-	float parryTimer_ = 0.0f;
-
-	//DoF
-	float focusDepth_ = 0.0f;
-	float nFocusWidth_ = 0.005f;
-	float fFocusWidth_ = 0.01f;
-
-	//次のシーン
-	enum NextScene
-	{
-		kGameClearScene,
-		kGameOverScene
-	};
-	NextScene nextScene_ = kGameClearScene;
+	ParrySettings parrySettings_{};
 
 	//ゲームオーバーのスプライト
 	std::unique_ptr<Sprite> gameOverSprite_ = nullptr;

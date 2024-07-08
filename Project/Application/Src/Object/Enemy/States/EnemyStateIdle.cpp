@@ -29,7 +29,7 @@ void EnemyStateIdle::Update()
 	if (distance >= 10.0f)
 	{
 		enemy_->velocity = Mathf::Normalize(sub) * moveSpeed_;
-		enemyTransformComponent->worldTransform_.translation_ += enemy_->velocity * GameTimer::GetDeltaTime();
+		enemyTransformComponent->worldTransform_.translation_ += enemy_->velocity * GameTimer::GetDeltaTime() * enemy_->timeScale_;
 	}
 
 	//回転処理
@@ -39,7 +39,7 @@ void EnemyStateIdle::Update()
 	enemy_->destinationQuaternion_ = Mathf::Normalize(Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot)));
 
 	//攻撃状態に遷移
-	attackTimer_ += GameTimer::GetDeltaTime();
+	attackTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
 	if (attackTimer_ > attackDuration_)
 	{
 		uint32_t attackNum = RandomGenerator::GetRandomInt(0, 0);
