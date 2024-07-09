@@ -6,6 +6,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
+#include <numbers>
 
 void GamePlayScene::Initialize()
 {
@@ -45,14 +46,13 @@ void GamePlayScene::Initialize()
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
-	//Colliderの設定
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//Colliderの設定
 	AABBCollider* playerCollider = player->GetComponent<AABBCollider>();
 	playerCollider->SetCollisionAttribute(kCollisionAttributePlayer);
 	playerCollider->SetCollisionMask(kCollisionMaskPlayer);
-	//カメラを設定
+	//カメラとロックオンを設定
 	player->SetCamera(&camera_);
-	//LockOnを設定
 	player->SetLockOn(lockOn_.get());
 
 	//敵の初期化
@@ -70,8 +70,8 @@ void GamePlayScene::Initialize()
 	//TransformComponentの追加
 	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
 	weaponTransformComponent->Initialize();
-	weaponTransformComponent->worldTransform_.translation_ = { 0.0f,4.0f,0.0f };
-	weaponTransformComponent->worldTransform_.scale_ = { 1.2f,1.8f,1.2f };
+	weaponTransformComponent->worldTransform_.rotation_ = { 0.0f,std::numbers::pi_v<float> / 2.0f,0.0f };
+	weaponTransformComponent->worldTransform_.scale_ = { 1.4f,1.4f,1.4f };
 	//ModelComponentの追加
 	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
 	weaponModelComponent->Initialize("Sword", Opaque);
@@ -81,9 +81,9 @@ void GamePlayScene::Initialize()
 	weaponCollider->SetCollisionAttribute(kCollisionAttributeWeapon);
 	weaponCollider->SetCollisionMask(kCollisionMaskWeapon);
 	//プレイヤーを親に設定
-	weapon->SetParent(playerTransformComponent);
-	//描画しないようにする
-	weapon->SetIsVisible(false);
+	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
+	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
+	//weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -117,11 +117,11 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
-	//ヒットストップの処理
-	UpdateHitStop();
-
 	//パリィの処理
 	UpdateParry();
+
+	//ヒットストップの処理
+	UpdateHitStop();
 
 	//GameObjectManagerの更新
 	gameObjectManager_->Update();
@@ -155,7 +155,7 @@ void GamePlayScene::Update()
 		collisionManager_->SetColliderList(collider);
 	}
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
-	if (weapon->GetIsVisible())
+	if (weapon->GetIsAttack())
 	{
 		if (Collider* collider = weapon->GetComponent<Collider>())
 		{
@@ -247,8 +247,6 @@ void GamePlayScene::HandleTransition()
 		//Kキーを押したらGameClearSceneに遷移
 		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
 		{
-			//transition_->SetFadeState(Transition::FadeState::In);
-			//nextScene_ = kGameClearScene;
 			isGameClear_ = true;
 			player->SetIsInTitleScene(true);
 			enemy->SetIsInTitleScene(true);
@@ -258,8 +256,6 @@ void GamePlayScene::HandleTransition()
 		//Lキーを押したらGameOverSceneに遷移
 		else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
 		{
-			//transition_->SetFadeState(Transition::FadeState::In);
-			//nextScene_ = kGameOverScene;
 			isGameOver_ = true;
 			player->SetIsInTitleScene(true);
 			enemy->SetIsInTitleScene(true);
@@ -286,17 +282,15 @@ void GamePlayScene::HandleTransition()
 
 void GamePlayScene::UpdateHitStop()
 {
-	//ヒットストップが有効ではない場合
-	if (!hitStopSettings_.isActive)
+	//ヒットストップとパリィのスロウモーションが無効の場合
+	if (!hitStopSettings_.isActive && !parrySettings_.isSlow)
 	{
 		//プレイヤーの攻撃がヒットしていたらヒットストップを有効化する
 		if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
 		{
 			//ヒットストップを有効にする
 			hitStopSettings_.isActive = true;
-			gameObjectManager_->GetGameObject<Player>()->SetIsActive(false);
-			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(false);
-			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(false);
+			GameTimer::SetTimeScale(0.0f);
 		}
 	}
 
@@ -304,16 +298,15 @@ void GamePlayScene::UpdateHitStop()
 	if (hitStopSettings_.isActive)
 	{
 		//タイマーを進める
-		hitStopSettings_.timer += GameTimer::GetDeltaTime();
+		const float kHitStopDeltaTime = 1.0f / 60.0f;
+		hitStopSettings_.timer += kHitStopDeltaTime;
 
 		//ヒットストップのタイマーが指定の時間を超えたら無効化する
 		if (hitStopSettings_.timer > hitStopSettings_.duration)
 		{
-			hitStopSettings_.timer = 0.0f;
 			hitStopSettings_.isActive = false;
-			gameObjectManager_->GetGameObject<Player>()->SetIsActive(true);
-			gameObjectManager_->GetGameObject<Enemy>()->SetIsActive(true);
-			gameObjectManager_->GetGameObject<Weapon>()->SetIsActive(true);
+			hitStopSettings_.timer = 0.0f;
+			GameTimer::SetTimeScale(1.0f);
 		}
 	}
 }
@@ -323,8 +316,11 @@ void GamePlayScene::UpdateParry()
 	//プレイヤーがパリィに成功していた場合
 	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsParrySuccessful())
 	{
-		//スロウモーションのフラグを立てる
+		//パリィのフラグを立てる
 		parrySettings_.isActive = true;
+
+		//スロウモーションのフラグを立てる
+		parrySettings_.isSlow = true;
 
 		//敵の行動を遅くする
 		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
@@ -346,16 +342,24 @@ void GamePlayScene::UpdateParry()
 		const float kParryDeltaTime = 1.0f / 60.0f;
 		parrySettings_.timer += kParryDeltaTime;
 
-		//停止時間を超えていたら
-		if (parrySettings_.timer > parrySettings_.stopDuration)
+		//スロウモーション状態の時
+		if (parrySettings_.isSlow)
 		{
-			//カメラの元に戻す
-			cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
+			//停止時間を超えていたら
+			if (parrySettings_.timer > parrySettings_.stopDuration)
+			{
+				//スロウモーションのフラグを折る
+				parrySettings_.isSlow = false;
 
-			//ゲーム全体の時間の流れをもとに戻す
-			GameTimer::SetTimeScale(1.0f);
+				//カメラの元に戻す
+				cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
+
+				//ゲーム全体の時間の流れをもとに戻す
+				GameTimer::SetTimeScale(1.0f);
+			}
 		}
 
+		//パリィのタイマーが一定間隔を超えたら
 		if (parrySettings_.timer > parrySettings_.duration)
 		{
 			//タイマーのリセット

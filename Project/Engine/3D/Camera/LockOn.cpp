@@ -24,7 +24,7 @@ void LockOn::Update(GameObject* gameObject, const Camera& camera)
 		SetLockOnMarkPosition(camera);
 
 		//ロックオン解除処理
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_THUMB))
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_LEFT_SHOULDER))
 		{
 			//ロックオンを外す
 			target_ = nullptr;
@@ -40,7 +40,7 @@ void LockOn::Update(GameObject* gameObject, const Camera& camera)
 		//ロックオン対象の検索
 		if (input_->IsControllerConnected())
 		{
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_THUMB))
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_LEFT_SHOULDER))
 			{
 				SearchLockOnTarget(gameObject, camera);
 			}

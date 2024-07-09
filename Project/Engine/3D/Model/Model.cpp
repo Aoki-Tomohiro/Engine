@@ -1,6 +1,6 @@
 #include "Model.h"
-#include "Engine/Math/MathFunction.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
+#include "Engine/Math/MathFunction.h"
 
 void Model::Initialize(const ModelData& modelData, const std::vector<Animation::AnimationData>& animationData, const DrawPass drawPass)
 {
@@ -31,11 +31,16 @@ void Model::Initialize(const ModelData& modelData, const std::vector<Animation::
 		materials_.push_back(std::unique_ptr<Material>(material));
 	}
 
-	//Boneの作成
+	//スキンクラスターを持っているとき
 	if (hasSkinCluster_)
 	{
+		//Boneを取得
 		Animation::Skeleton skeleton = animation_->GetSkeleton();
+
+		//Boneの頂点データを作成
 		CreateBoneVertices(skeleton, skeleton.root, boneVertices_);
+
+		//Boneの頂点バッファを作成
 		CreateBoneVertexBuffer();
 	}
 
@@ -49,7 +54,7 @@ void Model::Update(WorldTransform& worldTransform, const std::string& animationN
 	animation_->ApplyAnimation(worldTransform, modelData_.rootNode.name, animationName);
 
 	//アニメーションの更新
-	animation_->Update();
+	animation_->Update(worldTransform);
 
 	//メッシュの更新
 	for (uint32_t i = 0; i < modelData_.meshData.size(); ++i)
@@ -105,7 +110,7 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 		{
 			//頂点データの更新
 			UpdateVertexData(animation_->GetSkeleton(), animation_->GetSkeleton().root, boneVertices_);
-			
+
 			//Boneの追加
 			renderer_->AddBone(boneVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(boneVertices_.size()));
 		}

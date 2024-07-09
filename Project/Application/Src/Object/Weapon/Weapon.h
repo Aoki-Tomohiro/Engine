@@ -21,11 +21,15 @@ public:
 
 	void OnCollisionExit(GameObject* gameObject) override;
 
-	void SetParent(const TransformComponent* transformComponent);
+	void SetParent(const WorldTransform* worldTransform);
 
 	void SetisParryable(const bool isParryable) { isParryable_ = isParryable; };
 
 	const bool GetIsParrySuccessful() const { return isParrySuccessful_; };
+
+	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
+
+	const bool GetIsAttack() const { return isAttack_; };
 
 	const bool GetIsHit() const { return isHit_; };
 
@@ -35,7 +39,10 @@ private:
 
 	//Collider
 	Vector3 collisionOffset_{ 0.0f,1.2f,0.0f };
-	Vector3 size_{ 0.2f,3.36f,0.28f };
+	Vector3 size_{ 0.2f,2.7f,0.4f };
+
+	//攻撃フラグ
+	bool isAttack_ = false;
 
 	//ヒットフラグ
 	bool isHit_ = false;

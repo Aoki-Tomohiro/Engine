@@ -12,10 +12,10 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 8.0f,0.0f,0.0f }},
-        { 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { -8.0f,0.0f,0.0f }},
-		{ 0.0f, 0.0f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 18.0f,0.0f,0.0f }},
-		{ 0.0f, 0.3f, 0.4f, 0.0f, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }, { 14.0f,0.0f,0.0f }},
+		{ 0.25f, 0.25f, 0.4f, 0.0f, 0.1f,},
+		{ 0.3f, 0.3f, 0.4f, 0.0f, 0.1f,},
+		{ 0.1f, 0.1f, 0.6f, 0.0f, 0.1f,},
+		{ 0.5f, 0.5f, 0.6f, 0.0f, 0.1f,},
 	}
 };
 
@@ -24,14 +24,9 @@ void PlayerStateGroundAttack::Initialize()
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//武器を描画させる
+	//武器の初期化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 	weapon->SetisParryable(true);
-	//武器の初期化
-	TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_ = { 1.0f,1.6f,1.2f };
-	transformComponent->worldTransform_.rotation_ = { -1.0f,0.0f,-0.7f };
-	weapon->SetIsVisible(true);
 
 	//アニメーションの初期化
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
@@ -58,13 +53,9 @@ void PlayerStateGroundAttack::Update()
 			workAttack_.comboNext = true;
 		}
 	}
-
-	//コンボの合計時間
-	float anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
-	float chargeTime = anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime;
-	float swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
-	float recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
-
+	
+	//武器を取得
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 	//プレイヤーのモデルを取得
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	//アニメーションが終わっていたら通常状態に戻る
@@ -106,10 +97,9 @@ void PlayerStateGroundAttack::Update()
 			}
 
 			//武器の初期化
-			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-			weapon->SetisParryable(true);
-			//武器のトランスフォームを取得
-			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
+
 			//アニメーションの時間をリセット
 			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
 
@@ -117,23 +107,15 @@ void PlayerStateGroundAttack::Update()
 			switch (workAttack_.comboIndex)
 			{
 			case 0:
-				transformComponent->worldTransform_.translation_ = { 0.6f,1.6f,1.2f };
-				transformComponent->worldTransform_.rotation_ = { -1.0f,0.0f,-0.7f };
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
-				break;												 
-			case 1:			
-				transformComponent->worldTransform_.translation_ = { -0.6f,1.6f,1.2f };
-				transformComponent->worldTransform_.rotation_ = { 4.0f,0.0f,-0.59f };
+				break;
+			case 1:
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.005");
-				break;												   
-			case 2:													   
-				transformComponent->worldTransform_.translation_ = { 0.0f,1.6f,1.2f };
-				transformComponent->worldTransform_.rotation_ = { 3.14f,0.0f,1.57f };
+				break;
+			case 2:
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.006");
-				break;												  
-			case 3:													  
-				transformComponent->worldTransform_.translation_ = { 0.0f,3.4f,1.8f };
-				transformComponent->worldTransform_.rotation_ = { 3.14f,0.0f,0.6f };
+				break;
+			case 3:
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.007");
 				break;
 			}
@@ -141,11 +123,8 @@ void PlayerStateGroundAttack::Update()
 		else
 		{
 			//武器をリセット
-			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-			TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
-			transformComponent->worldTransform_.translation_ = { 0.0f,50.0f,0.0f };
-			transformComponent->worldTransform_.rotation_ = { 0.0f,0.0f,0.0f };
-			weapon->SetIsVisible(false);
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
 
 			//アニメーションをループ再生に戻す
 			modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
@@ -183,26 +162,45 @@ void PlayerStateGroundAttack::Update()
 		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 	}
 
-	//パリィを受け付ける
-	parryWindow_ += GameTimer::GetDeltaTime();
-	if (parryWindow_ > parrySuccessTime_)
-	{
-		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-		weapon->SetisParryable(false);
-	}
-
 	//アニメーション処理
 	if (workAttack_.comboIndex < kComboNum)
 	{
-		//武器のTransformを取得
-		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-		TransformComponent* transformComponent = weapon->GetComponent<TransformComponent>();
-		workAttack_.attackParameter += GameTimer::GetDeltaTime();
+		//コンボの合計時間
+		float anticipationTime = kConstAttacks_[workAttack_.comboIndex].anticipationTime;
+		float chargeTime = anticipationTime + kConstAttacks_[workAttack_.comboIndex].chargeTime;
+		float swingTime = chargeTime + kConstAttacks_[workAttack_.comboIndex].swingTime;
+		float recoveryTime = swingTime + kConstAttacks_[workAttack_.comboIndex].recoveryTime;
 
-		//攻撃振りアニメーション
-		if (workAttack_.attackParameter >= chargeTime && workAttack_.attackParameter < swingTime)
+		//攻撃判定の処理
+		float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+		if (currentAnimationTime <= anticipationTime)
 		{
-			transformComponent->worldTransform_.rotation_ += kConstAttacks_[workAttack_.comboIndex].swingSpeed * GameTimer::GetDeltaTime();
+		}
+		else if (currentAnimationTime > anticipationTime && currentAnimationTime <= chargeTime)
+		{
+		}
+		else if (currentAnimationTime > chargeTime && currentAnimationTime <= swingTime)
+		{
+			//ヒットタイマーを進める
+			workAttack_.attackParameter += GameTimer::GetDeltaTime();
+			weapon->SetIsAttack(true);
+
+			//パリィタイマーを進める
+			parryWindow_ += GameTimer::GetDeltaTime();
+			//タイマーがパリィ成功時間を超えていない場合パリィを有効にする
+			if (parryWindow_ < parrySuccessTime_)
+			{
+				weapon->SetisParryable(true);
+			}
+			else
+			{
+				weapon->SetisParryable(false);
+			}
+		}
+		else if (currentAnimationTime > swingTime)
+		{
+			//当たり判定をなくす
+			weapon->SetIsAttack(false);
 		}
 	}
 

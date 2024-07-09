@@ -73,29 +73,27 @@ public:
 
 	void Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode);
 
-	void Update();
+	void Update(const WorldTransform& worldTransform);
 
 	void ApplyAnimation(WorldTransform& worldTransform, const std::string& name, const std::string& animationName);
 
 	void SetAnimationTime(const float animationTime) { animationTime_ = animationTime; };
 
+	const float GetAnimationTime() const { return animationTime_; };
+
 	void SetAnimationSpeed(const float animationSpeed) { animationSpeed_ = animationSpeed; };
 
 	void SetIsLoop(const bool isLoop) { isLoop_ = isLoop; };
 
-	const float GetAnimationDuration(const std::string& name)
-	{
-		for (AnimationData& animationData : animationData_)
-		{
-			if (animationData.name == name)
-			{
-				return animationData.duration;
-			}
-		}
-		return 0.0f;
-	};
+	void SetIsStop(const bool isStop) { isStop_ = isStop; };
+
+	const float GetAnimationDuration(const std::string& name);
 
 	const bool GetIsAnimationEnd() const { return isAnimationEnd_; };
+
+	const WorldTransform& GetJointWorldTransform(const std::string& name) const;
+
+	const std::vector<WorldTransform>& GetJointWorldTransforms() const { return jointWorldTransforms_; };
 
 	const Skeleton& GetSkeleton() const { return skeletonData_; };
 
@@ -113,11 +111,15 @@ private:
 
 	Skeleton skeletonData_{};
 
+	std::vector<WorldTransform> jointWorldTransforms_{};
+
 	float animationTime_ = 0.0f;
 
 	float animationSpeed_ = 1.0f;
 
 	bool isLoop_ = true;
+
+	bool isStop_ = false;
 
 	bool isAnimationEnd_ = false;
 };

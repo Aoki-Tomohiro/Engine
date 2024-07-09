@@ -10,9 +10,16 @@ void Animation::Initialize(const std::vector<AnimationData>& animationData, cons
 
 	//スケルトンを作成
 	skeletonData_ = CreateSkeleton(rootNode);
+
+	//JointのWorldTransformを作成
+	jointWorldTransforms_.resize(skeletonData_.joints.size());
+	for (uint32_t i = 0; i < skeletonData_.joints.size(); ++i)
+	{
+		jointWorldTransforms_[i].rotationType_ = RotationType::Quaternion;
+	}
 }
 
-void Animation::Update()
+void Animation::Update(const WorldTransform& worldTransform)
 {
 	//全てのJointの更新。親が若いので通常ループで処理可能になっている
 	for (Joint& joint : skeletonData_.joints)
@@ -26,6 +33,20 @@ void Animation::Update()
 		{
 			joint.skeletonSpaceMatrix = joint.localMatrix;
 		}
+		//Scale成分を取り除く
+		Matrix4x4 jointWorldTransform = joint.skeletonSpaceMatrix;
+		for (int i = 0; i < 3; ++i)
+		{
+			float scale = std::sqrt(jointWorldTransform.m[i][0] * jointWorldTransform.m[i][0] +
+				jointWorldTransform.m[i][1] * jointWorldTransform.m[i][1] +
+				jointWorldTransform.m[i][2] * jointWorldTransform.m[i][2]);
+			for (int j = 0; j < 3; ++j)
+			{
+				jointWorldTransform.m[i][j] /= scale;
+			}
+		}
+		//ワールド行列を掛ける
+		jointWorldTransforms_[joint.index].matWorld_ = jointWorldTransform * worldTransform.matWorld_;
 	}
 }
 
@@ -57,10 +78,13 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 		}
 		else
 		{
-			//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-			animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
-			//アニメーションが終わっていなかったらアニメーションの終了フラグを折る
-			isAnimationEnd_ = false;
+			if (!isStop_)
+			{
+				//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
+				animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
+				//アニメーションが終わっていなかったらアニメーションの終了フラグを折る
+				isAnimationEnd_ = false;
+			}
 		}
 
 		//RigidAnimation
@@ -87,6 +111,31 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 			}
 		}
 	}
+}
+
+const float Animation::GetAnimationDuration(const std::string& name)
+{
+	for (AnimationData& animationData : animationData_)
+	{
+		if (animationData.name == name)
+		{
+			return animationData.duration;
+		}
+	}
+	return 0.0f;
+};
+
+const WorldTransform& Animation::GetJointWorldTransform(const std::string& name) const
+{
+	for (const Joint& joint : skeletonData_.joints)
+	{
+		if (joint.name == name)
+		{
+			return jointWorldTransforms_[joint.index];
+		}
+	}
+	static WorldTransform emptyWorldTransform{};
+	return emptyWorldTransform;
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)

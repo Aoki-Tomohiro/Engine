@@ -13,6 +13,8 @@ public:
 	static const int kComboNum = 4;
 
 	//攻撃用定数
+
+	//攻撃用定数
 	struct ConstGroundAttack
 	{
 		//振りかぶりの時間
@@ -23,18 +25,14 @@ public:
 		float swingTime;
 		//硬直時間
 		float recoveryTime;
-		//振りかぶりの移動速さ
-		Vector3 anticipationSpeed;
-		//溜めの移動速さ
-		Vector3 chargeSpeed;
-		//攻撃振りの移動速さ
-		Vector3 swingSpeed;
+		//当たり判定の間隔
+		float hitInterval;
 	};
 
 	//攻撃用ワーク
 	struct WorkGroundAttack
 	{
-		float attackParameter = 0;
+		float attackParameter = 0.0f;
 		int32_t comboIndex = 0;
 		int32_t inComboPhase = 0;
 		bool comboNext = false;
@@ -59,7 +57,7 @@ private:
 
 	WorkGroundAttack workAttack_{};
 
-	float parrySuccessTime_ = 0.2f;
+	float parrySuccessTime_ = 0.1f;
 
 	float parryWindow_ = 0.0f;
 };

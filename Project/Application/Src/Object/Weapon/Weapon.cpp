@@ -41,6 +41,7 @@ void Weapon::Update()
 	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("Offset", &collisionOffset_.x, 0.01f);
 	ImGui::DragFloat3("Size", &size_.x, 0.01f);
+	ImGui::Checkbox("IsAttack", &isAttack_);
 	ImGui::Checkbox("IsParryable", &isParryable_);
 	ImGui::End();
 }
@@ -102,8 +103,8 @@ void Weapon::OnCollisionExit(GameObject* gameObject)
 
 }
 
-void Weapon::SetParent(const TransformComponent* parentTransformComponent)
+void Weapon::SetParent(const WorldTransform* worldTransform)
 {
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.parent_ = &parentTransformComponent->worldTransform_;
+	transformComponent->worldTransform_.parent_ = worldTransform;
 }

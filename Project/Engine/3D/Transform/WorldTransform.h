@@ -21,6 +21,13 @@ public:
 
 	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
+	WorldTransform() = default;
+
+	WorldTransform(const WorldTransform& rhs)
+	{
+		*this = rhs;
+	}
+
 	WorldTransform& operator=(const WorldTransform& rhs)
 	{
 		if (this != &rhs)

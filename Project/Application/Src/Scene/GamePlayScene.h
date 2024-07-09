@@ -36,14 +36,15 @@ private:
 	struct HitStopSettings 
 	{
 		bool isActive = false;// ヒットストップがアクティブかどうか
-		float duration = 0.06f;// ヒットストップの持続時間（秒）
+		float duration = 0.08f;// ヒットストップの持続時間（秒）
 		float timer = 0.0f;// ヒットストップのタイマー（秒）
 	};
 
 	//Parry用の構造体
 	struct ParrySettings
 	{
-		bool isActive = false;// パリィのスローモーションがアクティブかどうか
+		bool isActive = false;// パリィがアクティブかどうか
+		bool isSlow = false;// パリィのスローモーションがアクティブかどうか
 		float duration = 10.0f;// パリィの持続時間（秒）
 		float stopDuration = 1.0f;// パリィ後の時間停止の持続時間（秒）
 		float timer = 0.0f;// パリィのタイマー（秒）
