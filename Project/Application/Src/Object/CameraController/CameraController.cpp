@@ -139,7 +139,8 @@ void CameraController::UpdateCameraShake()
 	if (cameraShakeSettings_.isShaking)
 	{
 		//シェイクタイマーを進める
-		cameraShakeSettings_.timer += GameTimer::GetDeltaTime();
+		const float kShakeDeltaTime = 1.0f / 60.0f;
+		cameraShakeSettings_.timer += kShakeDeltaTime;
 
 		//揺らし幅をランダムで決める
 		Vector3 randomValue = {

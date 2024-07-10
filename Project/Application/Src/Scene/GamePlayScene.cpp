@@ -134,16 +134,6 @@ void GamePlayScene::Update()
 	lockOn_->SetTargetOffset(enemy->GetColliderOffset());
 	lockOn_->Update(enemy, camera_);
 
-	//CameraControllerの更新
-	cameraController_->Update();
-
-	//カメラの更新
-	camera_ = cameraController_->GetCamera();
-	camera_.UpdateMatrix();
-
-	//フェードイン処理
-	HandleTransition();
-
 	//衝突判定
 	collisionManager_->ClearColliderList();
 	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
@@ -163,6 +153,16 @@ void GamePlayScene::Update()
 		}
 	}
 	collisionManager_->CheckAllCollisions();
+
+	//CameraControllerの更新
+	cameraController_->Update();
+
+	//カメラの更新
+	camera_ = cameraController_->GetCamera();
+	camera_.UpdateMatrix();
+
+	//フェードイン処理
+	HandleTransition();
 
 	//グローバル変数の適用
 	ApplyGlobalVariables();
