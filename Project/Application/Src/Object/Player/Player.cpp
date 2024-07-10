@@ -74,6 +74,7 @@ void Player::Update()
 		if (invincibleTimer_ > invincibleDuration_)
 		{
 			isInvincible_ = false;
+			invincibleTimer_ = 0.0f;
 		}
 
 		//ダメージスプライトを徐々に透明にする
@@ -87,6 +88,7 @@ void Player::Update()
 	ImGui::Begin("Player");
 	ImGui::DragFloat3("ColliderOffset", &colliderOffset_.x, 0.1f);
 	ImGui::DragFloat("Hp", &hp_);
+	ImGui::Checkbox("IsInvincible", &isInvincible_);
 	ImGui::End();
 }
 

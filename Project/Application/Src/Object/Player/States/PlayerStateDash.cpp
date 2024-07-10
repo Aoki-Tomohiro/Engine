@@ -184,7 +184,7 @@ void PlayerStateDash::Draw(const Camera& camera)
 void PlayerStateDash::OnCollision(GameObject* other)
 {
 	Collider* collider = other->GetComponent<Collider>();
-	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
+	if (collider->GetCollisionAttribute() == kCollisionAttributeEnemy)
 	{
 		Enemy* enemy = dynamic_cast<Enemy*>(other);
 		if (enemy->GetIsAttack())
