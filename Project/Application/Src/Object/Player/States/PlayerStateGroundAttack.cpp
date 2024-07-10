@@ -26,9 +26,6 @@ void PlayerStateGroundAttack::Initialize()
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//名前の初期化
-	name_ = "GroundAttack";
-
 	//武器の初期化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
 	weapon->SetisParryable(true);

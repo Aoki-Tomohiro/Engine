@@ -42,18 +42,6 @@ private:
 	//バックフリップ状態のタイマー
 	float backFlipParameter_ = 0.0f;
 
-	//ジャスト回避が成功したか
-	bool isJustDodgeSuccess_ = false;
-
-	//ジャスト回避が可能か
-	bool isJustDodgeAvailable_ = true;
-
-	//ジャスト回避の受付時間
-	float justDodgeDuration_ = 0.2f;
-
-	//ジャスト回避のタイマー
-	float justDodgeTimer_ = 0.0f;
-
 	//バックフリップの状態
 	enum BackFlipState
 	{

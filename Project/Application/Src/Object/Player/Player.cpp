@@ -151,13 +151,13 @@ void Player::OnCollision(GameObject* gameObject)
 void Player::OnCollisionEnter(GameObject* gameObject)
 {
 	//状態の衝突判定
-	state_->OnCollisionEnter();
+	state_->OnCollisionEnter(gameObject);
 }
 
 void Player::OnCollisionExit(GameObject* gameObject)
 {
 	//状態の衝突判定
-	state_->OnCollisionExit();
+	state_->OnCollisionExit(gameObject);
 }
 
 const uint32_t Player::GetComboIndex() const
@@ -169,7 +169,7 @@ const uint32_t Player::GetComboIndex() const
 	return 0;
 }
 
-const uint32_t Player::GetComboNum()
+const uint32_t Player::GetComboNum() const
 {
 	return PlayerStateGroundAttack::kComboNum;
 }

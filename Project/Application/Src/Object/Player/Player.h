@@ -29,7 +29,7 @@ public:
 
 	const uint32_t GetComboIndex() const;
 
-	const uint32_t GetComboNum();
+	const uint32_t GetComboNum() const ;
 
 	const float GetHP() const { return hp_; };
 

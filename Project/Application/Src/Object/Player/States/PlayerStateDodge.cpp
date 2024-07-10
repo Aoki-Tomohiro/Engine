@@ -7,11 +7,18 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateIdle.h"
+#include "PlayerStateGroundAttack.h"
 
 void PlayerStateDodge::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
+
+	//アニメーションのリセット
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 
 	//速度が0でない場合
 	if (player_->velocity != Vector3{ 0.0f,0.0f,0.0f })
@@ -20,10 +27,6 @@ void PlayerStateDodge::Initialize()
 		player_->velocity = Mathf::Normalize(player_->velocity) * dodgeSpeed_;
 
 		//アニメーションを設定
-		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-		modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.6f);
-		modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.001");
 	}
 	//速度が0の場合
@@ -37,10 +40,6 @@ void PlayerStateDodge::Initialize()
 		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-dodgeSpeed_ }, transformComponent->worldTransform_.matWorld_);
 
 		//アニメーションを設定
-		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-		modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.6f);
-		modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
 	}
 
@@ -49,7 +48,6 @@ void PlayerStateDodge::Initialize()
 	const char* groupName = "Player";
 	globalVariables->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
-	globalVariables->AddItem(groupName, "JustDodgeDuration", justDodgeDuration_);
 }
 
 void PlayerStateDodge::Update()
@@ -118,18 +116,7 @@ void PlayerStateDodge::Draw(const Camera& camera)
 
 void PlayerStateDodge::OnCollision(GameObject* other)
 {
-	Collider* collider = other->GetComponent<Collider>();
-	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
-	{
-		Enemy* enemy = dynamic_cast<Enemy*>(other);
-		if (enemy->GetIsAttack())
-		{
-			if (isJustDodgeAvailable_)
-			{
-				isJustDodgeSuccess_ = true;
-			}
-		}
-	}
+
 }
 
 void PlayerStateDodge::OnCollisionEnter(GameObject* other)
@@ -145,5 +132,4 @@ void PlayerStateDodge::ApplyGlobalVariables()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	dodgeSpeed_ = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
-	justDodgeDuration_ = globalVariables->GetFloatValue(groupName, "JustDodgeDuration");
 }

@@ -1,4 +1,5 @@
 #include "PlayerStateIdle.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Collision/Collider.h"
 #include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Component/TransformComponent.h"
@@ -87,13 +88,16 @@ void PlayerStateIdle::Update()
 	transformComponent->worldTransform_.translation_.z = std::max<float>(transformComponent->worldTransform_.translation_.z, -kMoveLimitZ);
 	transformComponent->worldTransform_.translation_.z = std::min<float>(transformComponent->worldTransform_.translation_.z, +kMoveLimitZ);
 
+	//ジャスト回避の処理
+	UpdateJustDodge();
+
 	//ジャンプ状態に変更
 	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
 	{
 		player_->ChangeState(new PlayerStateJump());
 	}
 	//回避状態に変更
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !justDodgeSettings_.isJustDodgeSuccess)
 	{
 		player_->ChangeState(new PlayerStateDodge());
 	}
@@ -103,7 +107,12 @@ void PlayerStateIdle::Update()
 		player_->ChangeState(new PlayerStateDash());
 	}
 	//地上攻撃の状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && !justDodgeSettings_.isCounterAttackSuccess)
+	{
+		player_->ChangeState(new PlayerStateGroundAttack());
+	}
+	//カウンター攻撃の状態に遷移
+	else if (justDodgeSettings_.isCounterAttackSuccess)
 	{
 		player_->ChangeState(new PlayerStateGroundAttack());
 	}
@@ -147,6 +156,95 @@ void PlayerStateIdle::OnCollisionEnter(GameObject* other)
 
 void PlayerStateIdle::OnCollisionExit(GameObject* other)
 {
+}
+
+void PlayerStateIdle::UpdateJustDodge()
+{
+	//敵の座標を取得
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
+	//プレイヤーの座標を取得
+	TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
+
+	//敵とプレイヤーの距離を計算
+	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemyTransformComponent->GetWorldPosition();
+
+	//敵とプレイヤーの距離がジャスト回避が成功できる距離より近かった場合
+	if (Mathf::Length(sub) < justDodgeSettings_.maxJustDodgeDistance)
+	{
+		//敵の攻撃が終了したらフラグをリセット
+		if (!enemy->GetIsAttack())
+		{
+			justDodgeSettings_.isJustDodgeAvailable = false;
+		}
+
+		//ジャスト回避が可能ではない場合
+		if (!justDodgeSettings_.isJustDodgeAvailable)
+		{
+			//敵が攻撃した場合
+			if (enemy->GetIsAttack())
+			{
+				//ジャスト回避が可能にする
+				justDodgeSettings_.isJustDodgeAvailable = true;
+			}
+		}
+
+		//ジャスト回避が可能でジャスト回避が成功していない場合
+		if (justDodgeSettings_.isJustDodgeAvailable && !justDodgeSettings_.isJustDodgeSuccess)
+		{
+			//ジャスト回避のタイマーを進める
+			justDodgeSettings_.justDodgeTimer += GameTimer::GetDeltaTime();
+
+			//ジャスト回避のタイマーが一定間隔を超えていない場合
+			if (justDodgeSettings_.justDodgeTimer < justDodgeSettings_.justDodgeDuration)
+			{
+				//RBボタンを押したとき
+				if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+				{
+					//ジャスト回避を成功させる
+					justDodgeSettings_.isJustDodgeSuccess = true;
+					//カウンター攻撃の受け付ける
+					justDodgeSettings_.isCounterAttackEnded = false;
+					//ゲーム全体をゆっくりにする
+					GameTimer::SetTimeScale(0.1f);
+				}
+			}
+		}
+	}
+
+	//ジャスト回避に成功したいた場合
+	if (justDodgeSettings_.isJustDodgeSuccess)
+	{
+		//Xボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			//カウンター攻撃成功のフラグを立てる
+			justDodgeSettings_.isCounterAttackSuccess = true;
+			//ゲーム全体の時間を戻す
+			GameTimer::SetTimeScale(1.0f);
+		}
+
+		//カウンター攻撃のタイマーを進める
+		const float kCounterAttackDeltaTime = 1.0f / 60.0f;
+		justDodgeSettings_.counterAttackTimer += kCounterAttackDeltaTime;
+
+		//カウンター攻撃の受付が終了していない場合
+		if (!justDodgeSettings_.isCounterAttackEnded)
+		{
+			//カウンター攻撃のタイマーが一定間隔を超えた場合
+			if (justDodgeSettings_.counterAttackTimer > justDodgeSettings_.counterAttackDuration)
+			{
+				//ゲーム全体の時間を戻す
+				GameTimer::SetTimeScale(1.0f);
+				//カウンター攻撃の受付終了
+				justDodgeSettings_.isCounterAttackEnded = true;
+				//カウンター攻撃のタイマーをリセット
+				justDodgeSettings_.counterAttackTimer = 0.0f;
+				//ジャスト回避成功のフラグをリセット
+				justDodgeSettings_.isJustDodgeSuccess = false;
+			}
+		}
+	}
 }
 
 void PlayerStateIdle::ApplyGlobalVariables()
