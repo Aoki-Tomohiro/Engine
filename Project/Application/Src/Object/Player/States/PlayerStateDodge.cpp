@@ -1,20 +1,15 @@
 #include "PlayerStateDodge.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateIdle.h"
 
 void PlayerStateDodge::Initialize()
 {
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
-	//環境変数の適用
-	ApplyGlobalVariables();
-
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
@@ -48,6 +43,13 @@ void PlayerStateDodge::Initialize()
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
 	}
+
+	//環境変数の設定
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	globalVariables->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
+	globalVariables->AddItem(groupName, "JustDodgeDuration", justDodgeDuration_);
 }
 
 void PlayerStateDodge::Update()
@@ -114,9 +116,34 @@ void PlayerStateDodge::Draw(const Camera& camera)
 {
 }
 
+void PlayerStateDodge::OnCollision(GameObject* other)
+{
+	Collider* collider = other->GetComponent<Collider>();
+	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
+	{
+		Enemy* enemy = dynamic_cast<Enemy*>(other);
+		if (enemy->GetIsAttack())
+		{
+			if (isJustDodgeAvailable_)
+			{
+				isJustDodgeSuccess_ = true;
+			}
+		}
+	}
+}
+
+void PlayerStateDodge::OnCollisionEnter(GameObject* other)
+{
+}
+
+void PlayerStateDodge::OnCollisionExit(GameObject* other)
+{
+}
+
 void PlayerStateDodge::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	dodgeSpeed_ = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
+	justDodgeDuration_ = globalVariables->GetFloatValue(groupName, "JustDodgeDuration");
 }

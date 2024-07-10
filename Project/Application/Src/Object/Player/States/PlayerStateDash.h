@@ -15,6 +15,12 @@ public:
 
 	void Draw(const Camera& camera) override;
 
+	void OnCollision(GameObject* other) override;
+
+	void OnCollisionEnter(GameObject* other) override;
+
+	void OnCollisionExit(GameObject* other) override;
+
 private:
 
 

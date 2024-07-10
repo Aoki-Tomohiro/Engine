@@ -6,6 +6,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/States/PlayerStateIdle.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateDodge.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
 void Player::Initialize()
@@ -110,61 +111,53 @@ void Player::DrawUI()
 
 void Player::OnCollision(GameObject* gameObject)
 {
-	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
-	{
-		if (!enemy->GetIsAttack())
-		{
-			AABBCollider* enemyAABBCollider = enemy->GetComponent<AABBCollider>();
-			AABBCollider* playerAABBCollider = GetComponent<AABBCollider>();
-			Vector3 overlapAxis = {
-				std::min<float>(playerAABBCollider->GetCenter().x + playerAABBCollider->GetMax().x,enemyAABBCollider->GetCenter().x + enemyAABBCollider->GetMax().x) - std::max<float>(playerAABBCollider->GetCenter().x + playerAABBCollider->GetMin().x,enemyAABBCollider->GetCenter().x + enemyAABBCollider->GetMin().x),
-				std::min<float>(playerAABBCollider->GetCenter().y + playerAABBCollider->GetMax().y,enemyAABBCollider->GetCenter().y + enemyAABBCollider->GetMax().y) - std::max<float>(playerAABBCollider->GetCenter().y + playerAABBCollider->GetMin().y,enemyAABBCollider->GetCenter().y + enemyAABBCollider->GetMin().y),
-				std::min<float>(playerAABBCollider->GetCenter().z + playerAABBCollider->GetMax().z,enemyAABBCollider->GetCenter().z + enemyAABBCollider->GetMax().z) - std::max<float>(playerAABBCollider->GetCenter().z + playerAABBCollider->GetMin().z,enemyAABBCollider->GetCenter().z + enemyAABBCollider->GetMin().z),
-			};
+	//状態の衝突判定
+	state_->OnCollision(gameObject);
 
-			TransformComponent* transformComponent = GetComponent<TransformComponent>();
-			TransformComponent* enemyTransformComponent = GetComponent<TransformComponent>();
-			Vector3 directionAxis{};
-			if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
-				//X軸方向で最小の重なりが発生している場合
-				directionAxis.x = (transformComponent->worldTransform_.translation_.x < enemyTransformComponent->worldTransform_.translation_.x) ? -1.0f : 1.0f;
-				directionAxis.y = 0.0f;
-			}
-			else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
-				//Y軸方向で最小の重なりが発生している場合
-				directionAxis.y = (transformComponent->worldTransform_.translation_.y < enemyTransformComponent->worldTransform_.translation_.y) ? -1.0f : 1.0f;
-				directionAxis.x = 0.0f;
-			}
-			else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
-			{
-				directionAxis.z = (transformComponent->worldTransform_.translation_.z < enemyTransformComponent->worldTransform_.translation_.z) ? -1.0f : 1.0f;
-				directionAxis.x = 0.0f;
-				directionAxis.y = 0.0f;
-			}
+	//押し戻し処理
+	AABBCollider* AABB1 = gameObject->GetComponent<AABBCollider>();
+	AABBCollider* AABB2 = GetComponent<AABBCollider>();
+	Vector3 overlapAxis = {
+		std::min<float>(AABB2->GetCenter().x + AABB2->GetMax().x,AABB1->GetCenter().x + AABB1->GetMax().x) -
+		std::max<float>(AABB2->GetCenter().x + AABB2->GetMin().x,AABB1->GetCenter().x + AABB1->GetMin().x),
+		std::min<float>(AABB2->GetCenter().y + AABB2->GetMax().y,AABB1->GetCenter().y + AABB1->GetMax().y) -
+		std::max<float>(AABB2->GetCenter().y + AABB2->GetMin().y,AABB1->GetCenter().y + AABB1->GetMin().y),
+		std::min<float>(AABB2->GetCenter().z + AABB2->GetMax().z,AABB1->GetCenter().z + AABB1->GetMax().z) -
+		std::max<float>(AABB2->GetCenter().z + AABB2->GetMin().z,AABB1->GetCenter().z + AABB1->GetMin().z),
+	};
 
-			transformComponent->worldTransform_.translation_ += overlapAxis * directionAxis;
-		}
-		else
-		{
-			if (!isInvincible_)
-			{
-				hp_ -= 10.0f;
-				isInvincible_ = true;
-				invincibleTimer_ = 0.0f;
-				damageSpriteColor_.w = 0.5f;
-			}
-		}
+	TransformComponent* transform1 = GetComponent<TransformComponent>();
+	TransformComponent* transform2 = gameObject->GetComponent<TransformComponent>();
+	Vector3 directionAxis{};
+	if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
+		//X軸方向で最小の重なりが発生している場合
+		directionAxis.x = (transform1->worldTransform_.translation_.x < transform2->worldTransform_.translation_.x) ? -1.0f : 1.0f;
+		directionAxis.y = 0.0f;
 	}
+	else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
+		//Y軸方向で最小の重なりが発生している場合
+		directionAxis.y = (transform1->worldTransform_.translation_.y < transform2->worldTransform_.translation_.y) ? -1.0f : 1.0f;
+		directionAxis.x = 0.0f;
+	}
+	else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
+	{
+		directionAxis.z = (transform1->worldTransform_.translation_.z < transform2->worldTransform_.translation_.z) ? -1.0f : 1.0f;
+		directionAxis.x = 0.0f;
+		directionAxis.y = 0.0f;
+	}
+	transform1->worldTransform_.translation_ += overlapAxis * directionAxis;
 }
 
 void Player::OnCollisionEnter(GameObject* gameObject)
 {
-
+	//状態の衝突判定
+	state_->OnCollisionEnter();
 }
 
 void Player::OnCollisionExit(GameObject* gameObject)
 {
-
+	//状態の衝突判定
+	state_->OnCollisionExit();
 }
 
 const uint32_t Player::GetComboIndex() const

@@ -52,11 +52,16 @@ private:
 	//LockOn
 	const LockOn* lockOn_ = nullptr;
 
+	//Collider
+	Vector3 colliderOffset_{ 0.0f,2.2f,0.0f };
+
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
 
-	//Collider
-	Vector3 colliderOffset_{ 0.0f,2.2f,0.0f };
+	//無敵状態の変数
+	bool isInvincible_ = false;
+	float invincibleDuration_ = 1.0f;
+	float invincibleTimer_ = 0;
 
 	//HP
 	std::unique_ptr<Sprite> spriteHpBar_ = nullptr;
@@ -68,11 +73,6 @@ private:
 	//ダメージエフェクトのスプライト
 	std::unique_ptr<Sprite> damageSprite_ = nullptr;
 	Vector4 damageSpriteColor_ = { 1.0f,0.0f,0.0f,0.0f };
-
-	//無敵状態の変数
-	bool isInvincible_ = false;
-	float invincibleDuration_ = 1.0f;
-	float invincibleTimer_ = 0;
 
 	//フレンドクラスに登録
 	friend class PlayerStateIdle;

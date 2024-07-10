@@ -1,8 +1,11 @@
 #include "PlayerStateIdle.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
 #include "PlayerStateDash.h"
@@ -118,6 +121,31 @@ void PlayerStateIdle::Update()
 }
 
 void PlayerStateIdle::Draw(const Camera& camera)
+{
+}
+
+void PlayerStateIdle::OnCollision(GameObject* other)
+{
+	Collider* collider = other->GetComponent<Collider>();
+	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
+	{
+		Enemy* enemy = dynamic_cast<Enemy*>(other);
+		if (enemy->GetIsAttack())
+		{
+			if (!player_->isInvincible_)
+			{
+				player_->isInvincible_ = true;
+				player_->hp_ -= 10.0f;
+			}
+		}
+	}
+}
+
+void PlayerStateIdle::OnCollisionEnter(GameObject* other)
+{
+}
+
+void PlayerStateIdle::OnCollisionExit(GameObject* other)
 {
 }
 

@@ -1,8 +1,11 @@
 #include "PlayerStateJump.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateAirAttack.h"
 #include "PlayerStateRangedAttack.h"
@@ -71,6 +74,30 @@ void PlayerStateJump::Draw(const Camera& camera)
 {
 }
 
+void PlayerStateJump::OnCollision(GameObject* other)
+{
+	Collider* collider = other->GetComponent<Collider>();
+	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
+	{
+		Enemy* enemy = dynamic_cast<Enemy*>(other);
+		if (enemy->GetIsAttack())
+		{
+			if (!player_->isInvincible_)
+			{
+				player_->isInvincible_ = true;
+				player_->hp_ -= 10.0f;
+			}
+		}
+	}
+}
+
+void PlayerStateJump::OnCollisionEnter(GameObject* other)
+{
+}
+
+void PlayerStateJump::OnCollisionExit(GameObject* other)
+{
+}
 
 void PlayerStateJump::ApplyGlobalVariables()
 {

@@ -1,5 +1,7 @@
 #include "PlayerStateGroundAttack.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/Collision/Collider.h"
+#include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
@@ -23,6 +25,9 @@ void PlayerStateGroundAttack::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
+
+	//名前の初期化
+	name_ = "GroundAttack";
 
 	//武器の初期化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
@@ -209,6 +214,31 @@ void PlayerStateGroundAttack::Update()
 }
 
 void PlayerStateGroundAttack::Draw(const Camera& camera)
+{
+}
+
+void PlayerStateGroundAttack::OnCollision(GameObject* other)
+{
+	Collider* collider = other->GetComponent<Collider>();
+	if (collider->GetCollisionAttribute() == kCollisionMaskEnemy)
+	{
+		Enemy* enemy = dynamic_cast<Enemy*>(other);
+		if (enemy->GetIsAttack())
+		{
+			if (!player_->isInvincible_)
+			{
+				player_->isInvincible_ = true;
+				player_->hp_ -= 10.0f;
+			}
+		}
+	}
+}
+
+void PlayerStateGroundAttack::OnCollisionEnter(GameObject* other)
+{
+}
+
+void PlayerStateGroundAttack::OnCollisionExit(GameObject* other)
 {
 }
 
