@@ -49,6 +49,8 @@ private:
 
 	std::vector<std::unique_ptr<GameObject>> gameObjects_{};
 
+	std::vector<std::unique_ptr<GameObject>> newGameObjectsBuffer_;
+
 	const Camera* camera_ = nullptr;
 
 	AbstractGameObjectFactory* gameObjectFactory_ = nullptr;
@@ -68,13 +70,20 @@ Type* GameObjectManager::CreateGameObjectInternal()
 	Type* newObject = new Type();
 	newObject->Initialize();
 	newObject->SetGameObjectManager(this);
-	gameObjects_.push_back(std::unique_ptr<GameObject>(newObject));
+	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newObject));
 	return newObject;
 }
 
 template <typename Type>
 Type* GameObjectManager::GetGameObject() const
 {
+	for (const auto& gameObject : newGameObjectsBuffer_)
+	{
+		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		{
+			return castedObject;
+		}
+	}
 	for (const auto& gameObject : gameObjects_)
 	{
 		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
@@ -89,6 +98,13 @@ template <typename Type>
 std::vector<Type*> GameObjectManager::GetGameObjects() const
 {
 	std::vector<Type*> gameObjects;
+	for (const auto& gameObject : newGameObjectsBuffer_)
+	{
+		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		{
+			gameObjects.push_back(castedObject);
+		}
+	}
 	for (const auto& gameObject : gameObjects_)
 	{
 		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))

@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Ground/Ground.h"
 #include "Application/Src/Object/Warning/Warning.h"
+#include "Application/Src/Object/Illusion/Illusion.h"
 
 class GameObjectFactory : public AbstractGameObjectFactory
 {

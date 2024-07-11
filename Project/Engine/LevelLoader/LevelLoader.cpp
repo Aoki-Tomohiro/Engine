@@ -4,6 +4,7 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/Collision/SphereCollider.h"
 #include <numbers>
 
 const std::string LevelLoader::kBaseDirectory = "Application/Resources/LevelData/";
@@ -116,8 +117,16 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		{
 			nlohmann::json collider = object["collider"];
 			objectData.colliderData.type = collider["type"].get<std::string>();
-			objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
-			objectData.colliderData.size = { (float)collider["size"][0],(float)collider["size"][2] ,(float)collider["size"][1] };
+			if (objectData.colliderData.type == "BOX")
+			{
+				objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
+				objectData.colliderData.size = { (float)collider["size"][0],(float)collider["size"][2] ,(float)collider["size"][1] };
+			}
+			else if (objectData.colliderData.type == "SPHERE")
+			{
+				objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
+				objectData.colliderData.radius = (float)collider["radius"];
+			}
 		}
 	}
 	else if (type.compare("CAMERA") == 0)
@@ -177,8 +186,15 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			if (objectData.colliderData.type == "BOX")
 			{
 				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
+				collider->SetCenter(objectData.colliderData.center);
 				collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
 				collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
+			}
+			else if (objectData.colliderData.type == "SPHERE")
+			{
+				SphereCollider* collider = newObject->AddComponent<SphereCollider>();
+				collider->SetCenter(objectData.colliderData.center);
+				collider->SetRadius(objectData.colliderData.radius);
 			}
 		}
 	}

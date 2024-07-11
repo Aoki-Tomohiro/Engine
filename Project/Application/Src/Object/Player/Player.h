@@ -78,6 +78,7 @@ private:
 	friend class PlayerStateIdle;
 	friend class PlayerStateJump;
 	friend class PlayerStateDodge;
+	friend class PlayerStateJustDodge;
 	friend class PlayerStateDash;
 	friend class PlayerStateGroundAttack;
 

@@ -32,9 +32,14 @@ void GameObjectManager::Update()
 		});
 	gameObjects_.erase(it, gameObjects_.end());
 
+	//バッファ内のGameObjectを実際のコンテナに追加
+	gameObjects_.insert(gameObjects_.end(), std::make_move_iterator(newGameObjectsBuffer_.begin()), std::make_move_iterator(newGameObjectsBuffer_.end()));
+	newGameObjectsBuffer_.clear();
+
 	//ゲームオブジェクトの更新
-	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
+	for (auto it = gameObjects_.begin(); it != gameObjects_.end(); ++it)
 	{
+		const std::unique_ptr<GameObject>& gameObject = *it;
 		if (gameObject->GetIsActive())
 		{
 			gameObject->Update();
@@ -87,6 +92,6 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
 	newGameObject->Initialize();
 	newGameObject->SetGameObjectManager(this);
-	gameObjects_.push_back(std::unique_ptr<GameObject>(newGameObject));
+	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;
 }

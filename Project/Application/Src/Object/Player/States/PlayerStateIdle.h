@@ -29,10 +29,6 @@ private:
 		bool isJustDodgeSuccess = false;// ジャスト回避に成功したかどうか
 		float justDodgeDuration = 1.0f;// ジャスト回避の成功時間
 		float justDodgeTimer = 0.0f;// ジャスト回避用のタイマー
-		bool isCounterAttackSuccess = false;
-		bool isCounterAttackEnded = false; // カウンター攻撃の受付が終了したかどうか
-		float counterAttackDuration = 3.0f;// カウンター攻撃の受付時間
-		float counterAttackTimer = 0.0f;// カウンター攻撃用のタイマー
 	};
 
 	void UpdateJustDodge();

@@ -19,6 +19,7 @@ public:
 				std::string type;
 				Vector3 center;
 				Vector3 size;
+				float radius;
 			};
 			std::string objectName;
 			std::string modelName;

@@ -64,6 +64,8 @@ void Enemy::Update()
 	//ImGui
 	ImGui::Begin("Enemy");
 	ImGui::DragFloat3("ColliderOffset", &colliderOffset_.x, 0.1f);
+	ImGui::Checkbox("IsDebug", &isDebug_);
+	ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f);
 	ImGui::End();
 }
 

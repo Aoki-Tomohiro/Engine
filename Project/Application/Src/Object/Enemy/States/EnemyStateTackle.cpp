@@ -19,17 +19,29 @@ void EnemyStateTackle::Update()
     ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
     modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(enemy_->timeScale_);
 
-    //チャージタイマーを進める
-    attackTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
+    //デバッグのフラグが立っているとき
+    if (enemy_->isDebug_)
+    {
+        modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+    }
 
-    //チャージが終ったら攻撃判定を付ける
-    if (attackTimer_ >= timeToActivateHitbox_ && attackTimer_ < timeToDeactivateHitbox_)
+    //現在のアニメーションの時間を取得
+    float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+    if (currentAnimationTime <= chargeDuration_)
+    {
+
+    }
+    else if (currentAnimationTime > chargeDuration_ && currentAnimationTime <= warningDuration_)
+    {
+        isWarning_ = true;
+    }
+    else if (currentAnimationTime > warningDuration_ && currentAnimationTime <= attackDuration_)
     {
         isAttack_ = true;
     }
-    //攻撃が終っていたら攻撃判定をなくす
-    else if (attackTimer_ >= timeToDeactivateHitbox_)
+    else if (currentAnimationTime > attackDuration_)
     {
+        isWarning_ = false;
         isAttack_ = false;
     }
 

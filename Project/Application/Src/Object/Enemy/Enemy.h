@@ -47,6 +47,12 @@ public:
 	void OnCollisionExit(GameObject* gameObject) override;
 
 	/// <summary>
+	/// 警告状態科を取得
+	/// </summary>
+	/// <returns></returns>
+	const bool GetIsWarning() const { return state_->GetIsWarning(); };
+
+	/// <summary>
 	/// 攻撃状態かを取得
 	/// </summary>
 	/// <returns></returns>
@@ -98,6 +104,12 @@ private:
 
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
+
+	//Debugモードなのか
+	bool isDebug_ = false;
+
+	//アニメーションの時間
+	float animationTime_ = 0.0f;
 
 	//Collider
 	Vector3 colliderOffset_{ 0.0f,4.0f,0.0f };

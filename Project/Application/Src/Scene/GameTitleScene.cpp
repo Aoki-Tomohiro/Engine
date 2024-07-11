@@ -16,7 +16,16 @@ void GameTitleScene::Initialize()
 
 	//カメラを初期化
 	camera_.Initialize();
-	camera_.rotation_ = { 0.3f,0.0f,0.0f };
+	camera_.translation_ = {
+	7.358891487121582f,
+		-6.925790786743164f,
+		4.958309173583984f
+	};
+	camera_.rotation_ = {
+		0.4835360646247864f,
+			0.20870362222194672f,
+			0.3368716239929199f
+	};
 
 	//GameObjectManagerの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
@@ -24,7 +33,7 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->SetCamera(&camera_);
 
 	//LevelDataの読み込み
-	LevelLoader::Load("GameScene");
+	LevelLoader::Load("Sample2");
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
@@ -65,7 +74,7 @@ void GameTitleScene::Update()
 	transition_->Update();
 
 	//カメラの更新
-	CameraUpdate();
+	//CameraUpdate();
 
 	//カメラの行列の更新
 	camera_.UpdateMatrix();

@@ -12,6 +12,7 @@
 #include "PlayerStateDash.h"
 #include "PlayerStateGroundAttack.h"
 #include "PlayerStateRangedAttack.h"
+#include "PlayerStateJustDodge.h"
 
 void PlayerStateIdle::Initialize()
 {
@@ -101,18 +102,18 @@ void PlayerStateIdle::Update()
 	{
 		player_->ChangeState(new PlayerStateDodge());
 	}
+	////ジャスト回避状態に変更
+	//else if (justDodgeSettings_.isJustDodgeSuccess)
+	//{
+	//	player_->ChangeState(new PlayerStateJustDodge());
+	//}
 	//ダッシュ状態に変更
 	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
 	{
 		player_->ChangeState(new PlayerStateDash());
 	}
 	//地上攻撃の状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && !justDodgeSettings_.isCounterAttackSuccess)
-	{
-		player_->ChangeState(new PlayerStateGroundAttack());
-	}
-	//カウンター攻撃の状態に遷移
-	else if (justDodgeSettings_.isCounterAttackSuccess)
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 	{
 		player_->ChangeState(new PlayerStateGroundAttack());
 	}
@@ -182,7 +183,7 @@ void PlayerStateIdle::UpdateJustDodge()
 		if (!justDodgeSettings_.isJustDodgeAvailable)
 		{
 			//敵が攻撃した場合
-			if (enemy->GetIsAttack())
+			if (enemy->GetIsWarning())
 			{
 				//ジャスト回避が可能にする
 				justDodgeSettings_.isJustDodgeAvailable = true;
@@ -203,45 +204,7 @@ void PlayerStateIdle::UpdateJustDodge()
 				{
 					//ジャスト回避を成功させる
 					justDodgeSettings_.isJustDodgeSuccess = true;
-					//カウンター攻撃の受け付ける
-					justDodgeSettings_.isCounterAttackEnded = false;
-					//ゲーム全体をゆっくりにする
-					GameTimer::SetTimeScale(0.1f);
 				}
-			}
-		}
-	}
-
-	//ジャスト回避に成功したいた場合
-	if (justDodgeSettings_.isJustDodgeSuccess)
-	{
-		//Xボタンを押したとき
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-		{
-			//カウンター攻撃成功のフラグを立てる
-			justDodgeSettings_.isCounterAttackSuccess = true;
-			//ゲーム全体の時間を戻す
-			GameTimer::SetTimeScale(1.0f);
-		}
-
-		//カウンター攻撃のタイマーを進める
-		const float kCounterAttackDeltaTime = 1.0f / 60.0f;
-		justDodgeSettings_.counterAttackTimer += kCounterAttackDeltaTime;
-
-		//カウンター攻撃の受付が終了していない場合
-		if (!justDodgeSettings_.isCounterAttackEnded)
-		{
-			//カウンター攻撃のタイマーが一定間隔を超えた場合
-			if (justDodgeSettings_.counterAttackTimer > justDodgeSettings_.counterAttackDuration)
-			{
-				//ゲーム全体の時間を戻す
-				GameTimer::SetTimeScale(1.0f);
-				//カウンター攻撃の受付終了
-				justDodgeSettings_.isCounterAttackEnded = true;
-				//カウンター攻撃のタイマーをリセット
-				justDodgeSettings_.counterAttackTimer = 0.0f;
-				//ジャスト回避成功のフラグをリセット
-				justDodgeSettings_.isJustDodgeSuccess = false;
 			}
 		}
 	}

@@ -27,6 +27,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Warning* warning = new Warning;
 		return warning;
 	}
+	else if (objectName == "Illusion")
+	{
+		Illusion* illusion = new Illusion();
+		return illusion;
+	}
 
 	return nullptr;
 }
