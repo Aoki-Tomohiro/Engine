@@ -1,0 +1,124 @@
+{
+    "name": "scene",
+    "objects": [
+        {
+            "type": "MESH",
+            "name": "Ground",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Ground",
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "Enemy",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Enemy",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "Player",
+            "transform": {
+                "translation": [
+                    0.0,
+                    -20.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.0,
+                    -0.0,
+                    -57.295780181884766
+                ],
+                "scaling": [
+                    1.2000000476837158,
+                    1.2000000476837158,
+                    1.2000000476837158
+                ]
+            },
+            "file_name": "Player",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    1.600000023841858
+                ],
+                "size": [
+                    1.399999976158142,
+                    1.399999976158142,
+                    3.200000047683716
+                ]
+            }
+        },
+        {
+            "type": "LIGHT",
+            "name": "Light"
+        },
+        {
+            "type": "CAMERA",
+            "name": "Camera",
+            "transform": {
+                "translation": [
+                    0.0,
+                    -80.0,
+                    20.0
+                ],
+                "rotation": [
+                    1.3613568544387817,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ]
+}

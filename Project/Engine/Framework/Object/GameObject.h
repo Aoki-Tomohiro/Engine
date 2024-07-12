@@ -27,15 +27,15 @@ public:
 
 	virtual void OnCollisionExit(GameObject* collider) = 0;
 
-	const std::string& GetTag() const { return tag_; };
+	const std::string& GetName() const { return name_; };
 
-	void SetTag(const std::string& tag) { tag_ = tag; };
+	void SetName(const std::string& name) { name_ = name; };
+
+	const bool GetIsActive() const { return isActive_; };
 
 	const bool GetIsVisible() const { return isVisible_; };
 
 	void SetIsVisible(bool isVisible) { isVisible_ = isVisible; };
-
-	const bool GetIsActive() const { return isActive_; };
 
 	void SetIsActive(bool isActive) { isActive_ = isActive; };
 
@@ -62,7 +62,7 @@ private:
 	std::list<std::unique_ptr<Component>> components_{};
 
 	//タグ
-	std::string tag_{};
+	std::string name_{};
 
 	//描画フラグ
 	bool isVisible_ = true;

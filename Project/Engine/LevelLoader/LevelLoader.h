@@ -10,33 +10,37 @@
 class LevelLoader
 {
 public:
-	struct LevelData
-	{
-		struct ObjectData
-		{
-			struct ColliderData
-			{
-				std::string type;
-				Vector3 center;
-				Vector3 size;
-				float radius;
-			};
-			std::string objectName;
-			std::string modelName;
-			Vector3 translation;
-			Vector3 rotation;
-			Vector3 scaling;
-			ColliderData colliderData;
-		};
-		struct CameraData
-		{
-			std::string name;
-			Vector3 translation;
-			Vector3 rotation;
-		};
-		std::vector<ObjectData> objects;
-		std::vector<CameraData> cameras;
-	};
+    struct ColliderData
+    {
+        std::string type{};
+        Vector3 center{};
+        Vector3 size{};
+        float radius = 1.0f;
+    };
+
+    struct ObjectData
+    {
+        std::string objectName{};
+        std::string modelName{};
+        Vector3 translation{};
+        Vector3 rotation{};
+        Vector3 scaling{};
+        bool isVisible = true;
+        ColliderData colliderData{};
+    };
+
+    struct CameraData
+    {
+        std::string name{};
+        Vector3 translation{};
+        Vector3 rotation{};
+    };
+
+    struct LevelData 
+    {
+        std::vector<ObjectData> objects{};
+        std::vector<CameraData> cameras{};
+    };
 
 	static LevelLoader* GetInstance();
 

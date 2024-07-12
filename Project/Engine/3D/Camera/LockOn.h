@@ -9,7 +9,7 @@ class LockOn
 public:
 	void Initialize();
 
-	void Update(GameObject* gameObject, const Camera& camera);
+	void Update(GameObject* gameObject, const Camera* camera);
 
 	void Draw();
 
@@ -22,13 +22,13 @@ public:
 	void SetLockOnMark(const std::string& name) { lockOnMark_->SetTexture(name); };
 
 private:
-	bool InRange(const Camera& camera);
+	bool InRange(const Camera* camera);
 
-	void SearchLockOnTarget(GameObject* gameObject, const Camera& camera);
+	void SearchLockOnTarget(GameObject* gameObject, const Camera* camera);
 
-	Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera& camera);
+	Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera);
 
-	void SetLockOnMarkPosition(const Camera& camera);
+	void SetLockOnMarkPosition(const Camera* camera);
 
 private:
 	Input* input_ = nullptr;

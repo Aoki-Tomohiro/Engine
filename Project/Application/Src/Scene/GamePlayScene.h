@@ -2,6 +2,7 @@
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Base/Renderer.h"
+#include "Engine/3D/Camera/CameraManager.h"
 #include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
@@ -66,7 +67,7 @@ private:
 	Audio* audio_ = nullptr;
 
 	//Camera
-	Camera camera_{};
+	Camera* camera_ = nullptr;
 
 	//GameObjectManager
 	GameObjectManager* gameObjectManager_ = nullptr;

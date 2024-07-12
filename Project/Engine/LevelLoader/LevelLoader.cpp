@@ -1,5 +1,6 @@
 #include "LevelLoader.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/3D/Camera/CameraManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
@@ -85,10 +86,10 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 	if (type.compare("MESH") == 0)
 	{
 		//要素を追加
-		levelData->objects.emplace_back(LevelData::ObjectData{});
+		levelData->objects.emplace_back(ObjectData{});
 
 		//今回追加した要素の参照を得る
-		LevelData::ObjectData& objectData = levelData->objects.back();
+		ObjectData& objectData = levelData->objects.back();
 
 		//オブジェクトの名前を取得
 		if (object.contains("name"))
@@ -99,8 +100,13 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		//モデルの名前を取得
 		if (object.contains("file_name"))
 		{
-			//ファイル名
 			objectData.modelName = object["file_name"];
+		}
+
+		//Activeフラグを取得
+		if (object.contains("visible"))
+		{
+			objectData.isVisible = object["visible"];
 		}
 
 		//トランスフォーム
@@ -132,9 +138,9 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 	else if (type.compare("CAMERA") == 0)
 	{
 		//要素を追加
-		levelData->cameras.emplace_back(LevelData::CameraData{});
+		levelData->cameras.emplace_back(CameraData{});
 		//今回追加した要素の参照を得る
-		LevelData::CameraData& cameraData = levelData->cameras.back();
+		CameraData& cameraData = levelData->cameras.back();
 
 		//カメラの名前を取得
 		if (object.contains("name"))
@@ -167,6 +173,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	{
 		//3Dオブジェクトを生成
 		GameObject* newObject = GameObjectManager::CreateGameObject(objectData.objectName);
+		newObject->SetIsVisible(objectData.isVisible);
 
 		//トランスフォームの追加
 		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
@@ -203,7 +210,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	for (auto& cameraData : levelData->cameras)
 	{
 		//カメラの作成
-		Camera* camera = GameObjectManager::CreateCamera();
+		Camera* camera = CameraManager::CreateCamera(cameraData.name);
 		camera->translation_ = cameraData.translation;
 		camera->rotation_ = cameraData.rotation;
 	}

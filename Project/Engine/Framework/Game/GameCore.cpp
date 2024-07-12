@@ -64,6 +64,9 @@ void GameCore::Finalize()
 	//LineRendererの開放
 	LineRenderer::Destroy();
 
+	//CameraManagerの解放
+	CameraManager::Destroy();
+
 	//ModelManagerの解放
 	ModelManager::Destroy();
 

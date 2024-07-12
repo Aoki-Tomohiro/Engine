@@ -15,8 +15,6 @@ public:
 
 	static GameObject* CreateGameObject(const std::string& objectName);
 
-	static Camera* CreateCamera();
-
 	void Update();
 
 	void Draw();
@@ -24,8 +22,6 @@ public:
 	void DrawUI();
 
 	void Clear();
-
-	Camera* GetCamera() const { return baseCamera_.get(); };
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
 
@@ -48,16 +44,12 @@ private:
 
 	GameObject* CreateGameObjectInternal(const std::string& objectName);
 
-	Camera* CreateCameraInternal();
-
 private:
 	static GameObjectManager* instance_;
 
 	std::vector<std::unique_ptr<GameObject>> gameObjects_{};
 
 	std::vector<std::unique_ptr<GameObject>> newGameObjectsBuffer_;
-
-	std::unique_ptr<Camera> baseCamera_ = nullptr;
 
 	const Camera* camera_ = nullptr;
 

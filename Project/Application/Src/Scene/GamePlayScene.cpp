@@ -16,21 +16,21 @@ void GamePlayScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//カメラの初期化
-	camera_.Initialize();
-
 	//GameObjectManagerの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
-	gameObjectManager_->SetCamera(&camera_);
+
+	//LevelDataの読み込み
+	LevelLoader::Load("Sample3");
+
+	//カメラを取得
+	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	gameObjectManager_->SetCamera(camera_);
 
 	//ParticleManagerを初期化
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
-	particleManager_->SetCamera(&camera_);
-
-	//LevelDataの読み込み
-	LevelLoader::Load("GameScene");
+	particleManager_->SetCamera(camera_);
 
 	//LockOnの生成
 	lockOn_ = std::make_unique<LockOn>();
@@ -52,7 +52,7 @@ void GamePlayScene::Initialize()
 	playerCollider->SetCollisionAttribute(kCollisionAttributePlayer);
 	playerCollider->SetCollisionMask(kCollisionMaskPlayer);
 	//カメラとロックオンを設定
-	player->SetCamera(&camera_);
+	player->SetCamera(camera_);
 	player->SetLockOn(lockOn_.get());
 
 	//敵の初期化
@@ -158,8 +158,8 @@ void GamePlayScene::Update()
 	cameraController_->Update();
 
 	//カメラの更新
-	camera_ = cameraController_->GetCamera();
-	camera_.UpdateMatrix();
+	*camera_ = cameraController_->GetCamera();
+	camera_->UpdateMatrix();
 
 	//フェードイン処理
 	HandleTransition();
@@ -181,7 +181,7 @@ void GamePlayScene::Draw()
 	renderer_->PreDrawSkybox();
 
 	//Skyboxの描画
-	skybox_->Draw(camera_);
+	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();

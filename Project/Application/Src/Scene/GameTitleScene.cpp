@@ -19,10 +19,11 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//LevelDataの読み込み
-	LevelLoader::Load("Sample2");
+	LevelLoader::Load("Sample3");
 
 	//カメラを取得
-	camera_ = gameObjectManager_->GetCamera();
+	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	gameObjectManager_->SetCamera(camera_);
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();

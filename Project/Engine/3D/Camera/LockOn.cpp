@@ -15,7 +15,7 @@ void LockOn::Initialize()
 	lockOnMark_->SetAnchorPoint({ 0.5f,0.5f });
 }
 
-void LockOn::Update(GameObject* gameObject, const Camera& camera)
+void LockOn::Update(GameObject* gameObject, const Camera* camera)
 {
 	//ロックオン状態なら
 	if (target_)
@@ -66,13 +66,13 @@ Vector3 LockOn::GetTargetPosition() const
 	return Vector3();
 }
 
-bool LockOn::InRange(const Camera& camera)
+bool LockOn::InRange(const Camera* camera)
 {
 	//敵のロックオン座標取得
 	TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
 	Vector3 positionWorld = transformComponent->GetWorldPosition();
 	//ワールド→ビュー座標変換
-	Vector3 positionView = Mathf::Transform(positionWorld, camera.matView_);
+	Vector3 positionView = Mathf::Transform(positionWorld, camera->matView_);
 
 	//距離条件チェック
 	if (minDistance_ <= positionView.z && positionView.z <= maxDistance_)
@@ -92,13 +92,13 @@ bool LockOn::InRange(const Camera& camera)
 	return true;
 }
 
-void LockOn::SearchLockOnTarget(GameObject* gameObject, const Camera& camera)
+void LockOn::SearchLockOnTarget(GameObject* gameObject, const Camera* camera)
 {
 	//敵のロックオン座標取得
 	TransformComponent* transformComponent = gameObject->GetComponent<TransformComponent>();
 	Vector3 positionWorld = transformComponent->GetWorldPosition();
 	//ワールド→ビュー座標変換
-	Vector3 positionView = Mathf::Transform(positionWorld, camera.matView_);
+	Vector3 positionView = Mathf::Transform(positionWorld, camera->matView_);
 
 	//距離条件チェック
 	if (minDistance_ <= positionView.z && positionView.z <= maxDistance_) {
@@ -117,19 +117,19 @@ void LockOn::SearchLockOnTarget(GameObject* gameObject, const Camera& camera)
 	}
 }
 
-Vector2 LockOn::WorldToScreenPosition(const Vector3& worldPosition, const Camera& camera)
+Vector2 LockOn::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera)
 {
 	// ビューポート行列
 	Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);
 	// ビュー行列とプロジェクション行列、ビューポート行列を合成する
-	Matrix4x4 matViewProjectionViewport = camera.matView_ * camera.matProjection_ * matViewport;
+	Matrix4x4 matViewProjectionViewport = camera->matView_ * camera->matProjection_ * matViewport;
 	//ワールド座標からスクリーン座標に変換
 	Vector3 positionScreen = Mathf::Transform(worldPosition, matViewProjectionViewport);
 	//Vector2に変換して返す
 	return Vector2(positionScreen.x, positionScreen.y);
 }
 
-void LockOn::SetLockOnMarkPosition(const Camera& camera)
+void LockOn::SetLockOnMarkPosition(const Camera* camera)
 {
 	TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
 	Vector3 positionWorld = transformComponent->GetWorldPosition() + targetOffset_;
