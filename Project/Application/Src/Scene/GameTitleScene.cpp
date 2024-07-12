@@ -14,26 +14,15 @@ void GameTitleScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//カメラを初期化
-	camera_.Initialize();
-	camera_.translation_ = {
-	7.358891487121582f,
-		-6.925790786743164f,
-		4.958309173583984f
-	};
-	camera_.rotation_ = {
-		0.4835360646247864f,
-			0.20870362222194672f,
-			0.3368716239929199f
-	};
-
 	//GameObjectManagerの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
-	gameObjectManager_->SetCamera(&camera_);
 
 	//LevelDataの読み込み
 	LevelLoader::Load("Sample2");
+
+	//カメラを取得
+	camera_ = gameObjectManager_->GetCamera();
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
@@ -77,7 +66,7 @@ void GameTitleScene::Update()
 	//CameraUpdate();
 
 	//カメラの行列の更新
-	camera_.UpdateMatrix();
+	camera_->UpdateMatrix();
 
 	//フェードイン処理
 	HandleTransition();
@@ -85,8 +74,8 @@ void GameTitleScene::Update()
 	//ImGui
 	ImGui::Begin("GameTitleScene");
 	ImGui::Text("Space or AButton: GamePlayScene");
-	ImGui::DragFloat3("CameraTranslation", &camera_.translation_.x, 0.1f);
-	ImGui::DragFloat3("CameraRotation", &camera_.rotation_.x, 0.01f);
+	ImGui::DragFloat3("CameraTranslation", &camera_->translation_.x, 0.1f);
+	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x, 0.01f);
 	ImGui::End();
 }
 
@@ -97,7 +86,7 @@ void GameTitleScene::Draw()
 	renderer_->PreDrawSkybox();
 
 	//Skyboxの描画
-	skybox_->Draw(camera_);
+	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();
@@ -149,18 +138,18 @@ void GameTitleScene::CameraUpdate()
 	const float kRotSpeed = 0.006f;
 
 	//回転処理
-	camera_.rotation_.y += kRotSpeed;
-	camera_.rotation_.y = std::fmod(camera_.rotation_.y, std::numbers::pi_v<float> * 2.0f);
+	camera_->rotation_.y += kRotSpeed;
+	camera_->rotation_.y = std::fmod(camera_->rotation_.y, std::numbers::pi_v<float> * 2.0f);
 
 	//回転行列の作成
-	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_.rotation_.y);
+	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
 
 	//Offsetに回転行列を適用
 	Vector3 offset = { 0.0f,30.0f ,-80.0f };
 	offset = Mathf::TransformNormal(offset, rotateYMatrix);
 
 	//カメラの座標を設定
-	camera_.translation_ = offset;
+	camera_->translation_ = offset;
 }
 
 void GameTitleScene::HandleTransition()

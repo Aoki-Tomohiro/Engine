@@ -2,41 +2,6 @@
     "name": "scene",
     "objects": [
         {
-            "type": "MESH",
-            "name": "Player",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "MonsterBall",
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    2.0,
-                    2.0,
-                    2.0
-                ]
-            }
-        },
-        {
             "type": "LIGHT",
             "name": "Light"
         },
@@ -45,14 +10,14 @@
             "name": "Camera",
             "transform": {
                 "translation": [
-                    7.358891487121582,
-                    -6.925790786743164,
-                    4.958309173583984
+                    0.0,
+                    -2.0,
+                    5.0
                 ],
                 "rotation": [
-                    0.4835360646247864,
-                    0.20870362222194672,
-                    0.3368716239929199
+                    1.036725640296936,
+                    0.0,
+                    0.0
                 ],
                 "scaling": [
                     1.0,
@@ -82,6 +47,41 @@
                 ]
             },
             "file_name": "terrain",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "Player",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "MonsterBall",
             "collider": {
                 "type": "BOX",
                 "center": [

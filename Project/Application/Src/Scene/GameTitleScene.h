@@ -39,7 +39,7 @@ private:
 	GameObjectManager* gameObjectManager_ = nullptr;
 
 	//カメラ
-	Camera camera_{};
+	Camera* camera_ = nullptr;
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;

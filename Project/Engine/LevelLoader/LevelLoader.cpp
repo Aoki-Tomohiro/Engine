@@ -147,7 +147,7 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		//平行移動
 		cameraData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,(float)transform["translation"][1] };
 		//回転角
-		cameraData.rotation = { (float)transform["rotation"][0] ,(float)transform["rotation"][2] ,(float)transform["rotation"][1] };
+		cameraData.rotation = { std::numbers::pi_v<float> / 2.0f - (float)transform["rotation"][0] ,(float)transform["rotation"][2] ,(float)transform["rotation"][1] };
 	}
 
 	//オブジェクト捜査を再起関数にまとめ、再起呼び出しで枝を捜査する
@@ -197,5 +197,14 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 				collider->SetRadius(objectData.colliderData.radius);
 			}
 		}
+	}
+
+	//レベルデータからすべてのカメラを生成
+	for (auto& cameraData : levelData->cameras)
+	{
+		//カメラの作成
+		Camera* camera = GameObjectManager::CreateCamera();
+		camera->translation_ = cameraData.translation;
+		camera->rotation_ = cameraData.rotation;
 	}
 }
