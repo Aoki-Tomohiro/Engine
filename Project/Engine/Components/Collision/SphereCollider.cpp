@@ -9,7 +9,14 @@ void SphereCollider::Initialize()
 
 void SphereCollider::Update()
 {
-
+    if (transformComponent_)
+    {
+        worldCenter_ = transformComponent_->GetWorldPosition() + center_;
+    }
+    else
+    {
+        worldCenter_ = center_;
+    }
 }
 
 void SphereCollider::Draw(const Camera& camera)
@@ -33,30 +40,30 @@ void SphereCollider::Draw(const Camera& camera)
                 float lon = lonIndex * kLonEvery;//φ
                 //基準点a
                 Vector3 pointA = {
-                    center_.x + radius_ * std::cos(lat) * std::cos(lon),
-                    center_.y + radius_ * std::sin(lat),
-                    center_.z + radius_ * std::cos(lat) * std::sin(lon)
+                    worldCenter_.x + radius_ * std::cos(lat) * std::cos(lon),
+                    worldCenter_.y + radius_ * std::sin(lat),
+                    worldCenter_.z + radius_ * std::cos(lat) * std::sin(lon)
                 };
 
                 //点b
                 Vector3 pointB = {
-                    center_.x + radius_ * std::cos(lat + kLatEvery) * std::cos(lon),
-                    center_.y + radius_ * std::sin(lat + kLatEvery),
-                    center_.z + radius_ * std::cos(lat + kLatEvery) * std::sin(lon)
+                    worldCenter_.x + radius_ * std::cos(lat + kLatEvery) * std::cos(lon),
+                    worldCenter_.y + radius_ * std::sin(lat + kLatEvery),
+                    worldCenter_.z + radius_ * std::cos(lat + kLatEvery) * std::sin(lon)
                 };
 
                 //点c
                 Vector3 pointC = {
-                    center_.x + radius_ * std::cos(lat) * std::cos(lon + kLonEvery),
-                    center_.y + radius_ * std::sin(lat),
-                    center_.z + radius_ * std::cos(lat) * std::sin(lon + kLonEvery)
+                    worldCenter_.x + radius_ * std::cos(lat) * std::cos(lon + kLonEvery),
+                    worldCenter_.y + radius_ * std::sin(lat),
+                    worldCenter_.z + radius_ * std::cos(lat) * std::sin(lon + kLonEvery)
                 };
 
                 //点d
                 Vector3 pointD = {
-                    center_.x + radius_ * std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery),
-                    center_.y + radius_ * std::sin(lat + kLatEvery),
-                    center_.z + radius_ * std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery)
+                    worldCenter_.x + radius_ * std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery),
+                    worldCenter_.y + radius_ * std::sin(lat + kLatEvery),
+                    worldCenter_.z + radius_ * std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery)
                 };
 
                 //各頂点間の線分を追加

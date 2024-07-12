@@ -1,9 +1,5 @@
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/Base/TextureManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/LevelLoader/LevelLoader.h"
 #include <numbers>
 
 void GameTitleScene::Initialize()
@@ -18,12 +14,19 @@ void GameTitleScene::Initialize()
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
+	//ParticleManagerを初期化
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
+
 	//LevelDataの読み込み
-	LevelLoader::Load("Sample3");
+	LevelLoader::Load("TitleScene");
 
 	//カメラを取得
 	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	//GameObjectManagerにカメラを設定
 	gameObjectManager_->SetCamera(camera_);
+	//ParticleManagerにカメラを設定
+	particleManager_->SetCamera(camera_);
 
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
@@ -64,7 +67,7 @@ void GameTitleScene::Update()
 	transition_->Update();
 
 	//カメラの更新
-	//CameraUpdate();
+	CameraUpdate();
 
 	//カメラの行列の更新
 	camera_->UpdateMatrix();

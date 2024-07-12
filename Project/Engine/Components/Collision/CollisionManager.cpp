@@ -116,7 +116,7 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 
 bool CollisionManager::CheckSphereSphereCollision(const SphereCollider* sphere1, const SphereCollider* sphere2)
 {
-	float distance = Mathf::Length(sphere1->GetCenter() - sphere2->GetCenter());
+	float distance = Mathf::Length(sphere1->GetWorldCenter() - sphere2->GetWorldCenter());
 
 	float radiusSum = sphere1->GetRadius() + sphere2->GetRadius();
 
@@ -125,10 +125,10 @@ bool CollisionManager::CheckSphereSphereCollision(const SphereCollider* sphere1,
 
 bool CollisionManager::CheckAABBAABBCollision(const AABBCollider* aabb1, const AABBCollider* aabb2)
 {
-	Vector3 min1 = aabb1->GetCenter() + aabb1->GetMin();
-	Vector3 max1 = aabb1->GetCenter() + aabb1->GetMax();
-	Vector3 min2 = aabb2->GetCenter() + aabb2->GetMin();
-	Vector3 max2 = aabb2->GetCenter() + aabb2->GetMax();
+	Vector3 min1 = aabb1->GetWorldCenter() + aabb1->GetMin();
+	Vector3 max1 = aabb1->GetWorldCenter() + aabb1->GetMax();
+	Vector3 min2 = aabb2->GetWorldCenter() + aabb2->GetMin();
+	Vector3 max2 = aabb2->GetWorldCenter() + aabb2->GetMax();
 
 	if (max1.x < min2.x || min1.x > max2.x) return false;
 
@@ -155,7 +155,7 @@ bool CollisionManager::CheckOBBOBBCollision(const OBBCollider* obb1, const OBBCo
 	Vector3 NBe3 = obb2->GetOrientation(2);
 	Vector3 Be3 = NBe3 * obb2->GetSize().z;
 
-	Vector3 Interval = obb1->GetCenter() - obb2->GetCenter();
+	Vector3 Interval = obb1->GetWorldCenter() - obb2->GetWorldCenter();
 
 	auto LenSegOnSeparateAxis = [](const Vector3* Sep, const Vector3* e1, const Vector3* e2, const Vector3* e3) -> float {
 		float r1 = fabs(Mathf::Dot(*Sep, *e1));
@@ -315,13 +315,13 @@ bool CollisionManager::CheckSphereAABBCollision(const SphereCollider* sphere1, c
 {
 	//最近接点を求める
 	Vector3 closestPoint{
-		std::clamp(sphere1->GetCenter().x,aabb1->GetMin().x,aabb1->GetMax().x),
-		std::clamp(sphere1->GetCenter().y,aabb1->GetMin().y,aabb1->GetMax().y),
-		std::clamp(sphere1->GetCenter().z,aabb1->GetMin().z,aabb1->GetMax().z)
+		std::clamp(sphere1->GetWorldCenter().x,aabb1->GetMin().x,aabb1->GetMax().x),
+		std::clamp(sphere1->GetWorldCenter().y,aabb1->GetMin().y,aabb1->GetMax().y),
+		std::clamp(sphere1->GetWorldCenter().z,aabb1->GetMin().z,aabb1->GetMax().z)
 	};
 
 	//最近接点と球の中心との距離を求める
-	float distance = Mathf::Length(closestPoint - sphere1->GetCenter());
+	float distance = Mathf::Length(closestPoint - sphere1->GetWorldCenter());
 
 	//距離が半径よりも小さければ衝突
 	if (distance <= sphere1->GetRadius())
@@ -334,8 +334,8 @@ bool CollisionManager::CheckSphereAABBCollision(const SphereCollider* sphere1, c
 
 bool CollisionManager::CheckSphereOBBCollision(const SphereCollider* sphere1, const OBBCollider* obb1)
 {
-	Vector3 sphereCenter = sphere1->GetCenter();
-	Vector3 obbCenter = obb1->GetCenter();
+	Vector3 sphereCenter = sphere1->GetWorldCenter();
+	Vector3 obbCenter = obb1->GetWorldCenter();
 	Vector3 obbSize = obb1->GetSize();
 
 	//球体の中心からOBB中心へのベクトル
@@ -368,7 +368,7 @@ bool CollisionManager::CheckSphereOBBCollision(const SphereCollider* sphere1, co
 
 bool CollisionManager::CheckAABBOBBCollision(const AABBCollider* aabb1, const OBBCollider* obb1)
 {
-	Vector3 aabbCenter = (aabb1->GetCenter() + aabb1->GetMin() + aabb1->GetCenter() + aabb1->GetMax()) * 0.5f;
+	Vector3 aabbCenter = (aabb1->GetWorldCenter() + aabb1->GetMin() + aabb1->GetWorldCenter() + aabb1->GetMax()) * 0.5f;
 
 	float aabbHalfSize[3] = {
 	0.5f * (aabb1->GetMax().x - aabb1->GetMin().x),
@@ -390,7 +390,7 @@ bool CollisionManager::CheckAABBOBBCollision(const AABBCollider* aabb1, const OB
 	Vector3 NBe3 = obb1->GetOrientation(2);
 	Vector3 Be3 = NBe3 * obb1->GetSize().z;
 
-	Vector3 Interval = aabbCenter - obb1->GetCenter();
+	Vector3 Interval = aabbCenter - obb1->GetWorldCenter();
 
 	auto LenSegOnSeparateAxis = [](const Vector3* Sep, const Vector3* e1, const Vector3* e2, const Vector3* e3) -> float {
 		float r1 = fabs(Mathf::Dot(*Sep, *e1));

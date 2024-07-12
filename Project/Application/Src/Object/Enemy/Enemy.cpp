@@ -43,8 +43,9 @@ void Enemy::Update()
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 
 	//Colliderの更新
-	AABBCollider* collider = GetComponent<AABBCollider>();
-	collider->SetCenter(transformComponent->GetWorldPosition() + colliderOffset_);
+	//AABBCollider* collider = GetComponent<AABBCollider>();
+	//collider->SetDebugDrawEnabled(true);
+	//collider->SetCenter(transformComponent->GetWorldPosition() + colliderOffset_);
 
 	//GameObjectの更新
 	GameObject::Update();

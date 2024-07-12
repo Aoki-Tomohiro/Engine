@@ -55,6 +55,7 @@
     <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp" />
     <ClCompile Include="Engine\Components\Collision\AABBCollider.cpp" />
     <ClCompile Include="Engine\Components\Collision\Collider.cpp" />
+    <ClCompile Include="Engine\Components\Collision\CollisionAttributeManager.cpp" />
     <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp" />
     <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp" />
     <ClCompile Include="Engine\Components\Component\Component.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="Engine\Base\PSO.h" />
     <ClInclude Include="Engine\Base\RWStructuredBuffer.h" />
     <ClInclude Include="Engine\Components\Collision\AABBCollider.h" />
+    <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h" />
     <ClInclude Include="Engine\Components\Collision\OBBCollider.h" />
     <ClInclude Include="Engine\Components\Collision\SphereCollider.h" />
     <ClInclude Include="Engine\Components\Component\Component.h" />

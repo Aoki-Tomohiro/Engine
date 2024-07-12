@@ -20,37 +20,29 @@ void GamePlayScene::Initialize()
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
-	//LevelDataの読み込み
-	LevelLoader::Load("Sample3");
-
-	//カメラを取得
-	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
-	gameObjectManager_->SetCamera(camera_);
-
 	//ParticleManagerを初期化
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
+
+	//LevelDataの読み込み
+	LevelLoader::Load("GameScene");
+
+	//カメラを取得
+	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	//GameObjectManagerにカメラを設定
+	gameObjectManager_->SetCamera(camera_);
+	//ParticleManagerにカメラを設定
 	particleManager_->SetCamera(camera_);
 
 	//LockOnの生成
 	lockOn_ = std::make_unique<LockOn>();
 	lockOn_->Initialize();
 
-	//FollowCameraの作成
-	cameraController_ = std::make_unique<CameraController>();
-	cameraController_->Initialize();
-	cameraController_->SetTarget(&gameObjectManager_->GetGameObject<Player>()->GetComponent<TransformComponent>()->worldTransform_);
-	cameraController_->SetLockOn(lockOn_.get());
-
 	//プレイヤーの初期化
 	Player* player = gameObjectManager_->GetGameObject<Player>();
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	//Colliderの設定
-	AABBCollider* playerCollider = player->GetComponent<AABBCollider>();
-	playerCollider->SetCollisionAttribute(kCollisionAttributePlayer);
-	playerCollider->SetCollisionMask(kCollisionMaskPlayer);
 	//カメラとロックオンを設定
 	player->SetCamera(camera_);
 	player->SetLockOn(lockOn_.get());
@@ -60,40 +52,28 @@ void GamePlayScene::Initialize()
 	//TransformComponentの初期化
 	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	//Colliderの設定
-	AABBCollider* enemyCollider = enemy->GetComponent<AABBCollider>();
-	enemyCollider->SetCollisionAttribute(kCollisionAttributeEnemy);
-	enemyCollider->SetCollisionMask(kCollisionMaskEnemy);
 
 	//武器の生成
-	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>();
-	//TransformComponentの追加
-	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
-	weaponTransformComponent->Initialize();
-	weaponTransformComponent->worldTransform_.rotation_ = { 0.0f,std::numbers::pi_v<float> / 2.0f,0.0f };
-	weaponTransformComponent->worldTransform_.scale_ = { 1.4f,1.4f,1.4f };
-	//ModelComponentの追加
-	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
-	weaponModelComponent->Initialize("Sword", Opaque);
-	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
-	//ColliderComponentの追加
-	OBBCollider* weaponCollider = weapon->AddComponent<OBBCollider>();
-	weaponCollider->SetCollisionAttribute(kCollisionAttributeWeapon);
-	weaponCollider->SetCollisionMask(kCollisionMaskWeapon);
+	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
 	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
-	//weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
+
+	//FollowCameraの作成
+	cameraController_ = std::make_unique<CameraController>();
+	cameraController_->Initialize();
+	cameraController_->SetTarget(&playerTransformComponent->worldTransform_);
+	cameraController_->SetLockOn(lockOn_.get());
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
-	//CollisionManagerの生成
-	collisionManager_ = std::make_unique<CollisionManager>();
-
 	//Skyboxの初期化
 	skybox_.reset(Skybox::Create());
+
+	//CollisionManagerの生成
+	collisionManager_ = std::make_unique<CollisionManager>();
 
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");

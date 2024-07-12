@@ -20,8 +20,7 @@ void Weapon::Update()
 
 	//Colliderの更新
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	Vector3 offset = Mathf::TransformNormal(collisionOffset_, transformComponent->worldTransform_.matWorld_);
-	Vector3 center = transformComponent->GetWorldPosition() + offset;
+	Vector3 center = Mathf::TransformNormal(collisionOffset_, transformComponent->worldTransform_.matWorld_);
 	OBBCollider* collider = GetComponent<OBBCollider>();
 	collider->SetCenter(center);
 	collider->SetOrientations(
@@ -83,7 +82,7 @@ void Weapon::OnCollisionEnter(GameObject* gameObject)
 	OBBCollider* collider = GetComponent<OBBCollider>();
 	ParticleEmitter* newEmitter = new ParticleEmitter();
 	newEmitter->Initialize("Hit", 1.0f);
-	newEmitter->SetTranslate(collider->GetCenter());
+	newEmitter->SetTranslate(collider->GetWorldCenter());
 	newEmitter->SetCount(400);
 	newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
 	newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });

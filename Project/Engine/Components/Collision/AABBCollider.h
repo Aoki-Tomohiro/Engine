@@ -11,6 +11,8 @@ public:
 
 	void Draw(const Camera& camera) override;
 
+	const Vector3& GetWorldCenter() const { return worldCenter_; };
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };
@@ -24,6 +26,8 @@ public:
 	void SetMax(const Vector3& max) { max_ = max; };
 
 private:
+	Vector3 worldCenter_{};
+
 	Vector3 center_{};
 
 	Vector3 min_{ -1.0f,-1.0f,-1.0f };

@@ -11,6 +11,8 @@ public:
 
 	void Draw(const Camera& camera) override;
 
+	const Vector3& GetWorldCenter() const { return worldCenter_; };
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };
@@ -20,6 +22,8 @@ public:
 	void SetRadius(const float radius) { radius_ = radius; };
 
 private:
+	Vector3 worldCenter_{};
+
 	Vector3 center_{};
 
 	float radius_ = 1.0f;

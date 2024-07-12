@@ -9,6 +9,15 @@ void OBBCollider::Initialize()
 
 void OBBCollider::Update()
 {
+	if (transformComponent_)
+	{
+		worldCenter_ = transformComponent_->GetWorldPosition() + center_;
+	}
+	else
+	{
+		worldCenter_ = center_;
+	}
+
 	orientations_[0] = Mathf::Normalize(orientations_[0]);
 	orientations_[1] = Mathf::Normalize(orientations_[1]);
 	orientations_[2] = Mathf::Normalize(orientations_[2]);
@@ -32,7 +41,7 @@ void OBBCollider::Draw(const Camera& camera)
 		rotateMatrix.m[2][0] = orientations_[2].x;
 		rotateMatrix.m[2][1] = orientations_[2].y;
 		rotateMatrix.m[2][2] = orientations_[2].z;
-		Matrix4x4 worldMatrix = Mathf::MakeScaleMatrix(size_) * rotateMatrix * Mathf::MakeTranslateMatrix(center_);
+		Matrix4x4 worldMatrix = Mathf::MakeScaleMatrix(size_) * rotateMatrix * Mathf::MakeTranslateMatrix(worldCenter_);
 
 		//軸
 		Vector3 orientations[3] = { {1.0f,0.0f,0.0f},{0.0f,1.0f,0.0f},{0.0f,0.0f,1.0f} };
@@ -54,7 +63,7 @@ void OBBCollider::Draw(const Camera& camera)
 
 		//頂点を計算
 		for (int i = 0; i < 8; ++i) {
-			Vector3 vertex = center_;
+			Vector3 vertex = worldCenter_;
 			for (int j = 0; j < 3; ++j) {
 				vertex.x += (i & (1 << j)) ? orientations[j].x : -orientations[j].x;
 				vertex.y += (i & (1 << j)) ? orientations[j].y : -orientations[j].y;

@@ -8,6 +8,7 @@
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
+#include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
@@ -56,7 +57,11 @@ protected:
 
 	PostEffects* postEffects_ = nullptr;
 
+	CollisionAttributeManager* collisionAttributeManager_ = nullptr;
+
 	SceneManager* sceneManager_ = nullptr;
+
+	GameObjectManager* gameObjectManager_ = nullptr;
 
 	LineRenderer* lineRenderer_ = nullptr;
 

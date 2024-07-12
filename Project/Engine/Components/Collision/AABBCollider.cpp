@@ -8,7 +8,14 @@ void AABBCollider::Initialize()
 
 void AABBCollider::Update()
 {
-
+	if (transformComponent_)
+	{
+		worldCenter_ = transformComponent_->GetWorldPosition() + center_;
+	}
+	else
+	{
+		worldCenter_ = center_;
+	}
 }
 
 void AABBCollider::Draw(const Camera& camera)
@@ -19,14 +26,14 @@ void AABBCollider::Draw(const Camera& camera)
 		std::vector<Vector3> corners(8);
 
 		//AABBの8つの頂点を計算する
-		corners[0] = center_ + min_;
-		corners[1] = Vector3(center_.x + max_.x, center_.y + min_.y, center_.z + min_.z);
-		corners[2] = Vector3(center_.x + min_.x, center_.y + max_.y, center_.z + min_.z);
-		corners[3] = Vector3(center_.x + max_.x, center_.y + max_.y, center_.z + min_.z);
-		corners[4] = Vector3(center_.x + min_.x, center_.y + min_.y, center_.z + max_.z);
-		corners[5] = Vector3(center_.x + max_.x, center_.y + min_.y, center_.z + max_.z);
-		corners[6] = Vector3(center_.x + min_.x, center_.y + max_.y, center_.z + max_.z);
-		corners[7] = center_ + max_;
+		corners[0] = worldCenter_ + min_;
+		corners[1] = Vector3(worldCenter_.x + max_.x, worldCenter_.y + min_.y, worldCenter_.z + min_.z);
+		corners[2] = Vector3(worldCenter_.x + min_.x, worldCenter_.y + max_.y, worldCenter_.z + min_.z);
+		corners[3] = Vector3(worldCenter_.x + max_.x, worldCenter_.y + max_.y, worldCenter_.z + min_.z);
+		corners[4] = Vector3(worldCenter_.x + min_.x, worldCenter_.y + min_.y, worldCenter_.z + max_.z);
+		corners[5] = Vector3(worldCenter_.x + max_.x, worldCenter_.y + min_.y, worldCenter_.z + max_.z);
+		corners[6] = Vector3(worldCenter_.x + min_.x, worldCenter_.y + max_.y, worldCenter_.z + max_.z);
+		corners[7] = worldCenter_ + max_;
 
 		//各頂点を線分で描画する
 		LineRenderer* lineRenderer = LineRenderer::GetInstance();

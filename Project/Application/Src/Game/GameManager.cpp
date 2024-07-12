@@ -12,7 +12,14 @@ void GameManager::Initialize()
 
 	//ゲームオブジェクトファクトリーを生成
 	gameObjectFactory_ = std::make_unique<GameObjectFactory>();
-	GameObjectManager::GetInstance()->SetGameObjectFactory(gameObjectFactory_.get());
+	gameObjectManager_->SetGameObjectFactory(gameObjectFactory_.get());
+
+	//衝突属性の追加
+	collisionAttributeManager_->AddAttribute("Player", 0b00001, 0b11010);
+	collisionAttributeManager_->AddAttribute("Enemy", 0b00010, 0b00101);
+	collisionAttributeManager_->AddAttribute("Weapon", 0b00100, 0b01010);
+	collisionAttributeManager_->AddAttribute("Missile", 0b01000, 0b00101);
+	collisionAttributeManager_->AddAttribute("Laser", 0b10000, 0b00001);
 
 	//PostEffectsの有効化
 	postEffects_->SetIsEnable(true);

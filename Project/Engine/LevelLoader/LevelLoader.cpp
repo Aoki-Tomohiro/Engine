@@ -5,7 +5,9 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/Collision/OBBCollider.h"
 #include "Engine/Components/Collision/SphereCollider.h"
+#include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include <numbers>
 
 const std::string LevelLoader::kBaseDirectory = "Application/Resources/LevelData/";
@@ -123,7 +125,13 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		{
 			nlohmann::json collider = object["collider"];
 			objectData.colliderData.type = collider["type"].get<std::string>();
-			if (objectData.colliderData.type == "BOX")
+			objectData.colliderData.attribute = collider["attribute"].get<std::string>();
+			if (objectData.colliderData.type == "AABB")
+			{
+				objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
+				objectData.colliderData.size = { (float)collider["size"][0],(float)collider["size"][2] ,(float)collider["size"][1] };
+			}
+			else if (objectData.colliderData.type == "OBB")
 			{
 				objectData.colliderData.center = { (float)collider["center"][0],(float)collider["center"][2] ,(float)collider["center"][1] };
 				objectData.colliderData.size = { (float)collider["size"][0],(float)collider["size"][2] ,(float)collider["size"][1] };
@@ -190,16 +198,33 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		//Typeが無かったらColliderがないとみなす
 		if (objectData.colliderData.type != "")
 		{
-			if (objectData.colliderData.type == "BOX")
+			CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
+			if (objectData.colliderData.type == "AABB")
 			{
 				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
+				collider->SetTransformComponent(transformComponent);
+				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
 				collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
 				collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
 			}
+			else if (objectData.colliderData.type == "OBB")
+			{
+				OBBCollider* collider = newObject->AddComponent<OBBCollider>();
+				collider->SetTransformComponent(transformComponent);
+				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
+				collider->SetCenter(objectData.colliderData.center);
+				collider->SetSize(objectData.colliderData.size);
+				collider->SetOrientations({ 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f });
+			}
 			else if (objectData.colliderData.type == "SPHERE")
 			{
 				SphereCollider* collider = newObject->AddComponent<SphereCollider>();
+				collider->SetTransformComponent(transformComponent);
+				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
 				collider->SetRadius(objectData.colliderData.radius);
 			}

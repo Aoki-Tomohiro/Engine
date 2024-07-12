@@ -13,6 +13,7 @@ public:
     struct ColliderData
     {
         std::string type{};
+        std::string attribute{};
         Vector3 center{};
         Vector3 size{};
         float radius = 1.0f;

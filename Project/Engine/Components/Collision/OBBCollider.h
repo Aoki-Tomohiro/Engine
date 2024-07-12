@@ -11,6 +11,8 @@ public:
 
     void Draw(const Camera& camera) override;
 
+    const Vector3& GetWorldCenter() const { return worldCenter_; };
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };
@@ -37,6 +39,9 @@ public:
     void SetSize(const Vector3& size) { size_ = size; };
 
 private:
+    //ワールド座標の中心点
+    Vector3 worldCenter_{};
+
     //中心点
 	Vector3 center_ = { 0.0f,0.0f,0.0f };
 

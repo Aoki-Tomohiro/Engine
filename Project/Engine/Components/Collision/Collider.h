@@ -19,6 +19,8 @@ public:
 
 	void OnCollisionExit(GameObject* other);
 
+	void SetTransformComponent(TransformComponent* transformComponent) { transformComponent_ = transformComponent; };
+
 	const uint32_t GetCollisionAttribute() const { return collisionAttribute_; };
 
 	void SetCollisionAttribute(uint32_t collisionAttribute) { collisionAttribute_ = collisionAttribute; };
@@ -37,6 +39,8 @@ public:
 
 protected:
 	std::set<Collider*> currentCollisions_;
+
+	TransformComponent* transformComponent_ = nullptr;
 
 	uint32_t collisionAttribute_ = 0xffffffff;
 

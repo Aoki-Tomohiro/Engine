@@ -41,8 +41,14 @@ void GameCore::Initialize()
 	postEffects_ = PostEffects::GetInstance();
 	postEffects_->Initialize();
 
+	//CollisionAttributeManagerのインスタンスを取得
+	collisionAttributeManager_ = CollisionAttributeManager::GetInstance();
+
 	//SceneManagerのインスタンスを取得
 	sceneManager_ = SceneManager::GetInstance();
+
+	//GameObjectManagerのインスタンスを取得
+	gameObjectManager_ = GameObjectManager::GetInstance();
 
 	//LineRendererの初期化
 	lineRenderer_ = LineRenderer::GetInstance();
