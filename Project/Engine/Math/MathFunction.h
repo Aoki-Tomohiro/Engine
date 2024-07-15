@@ -20,6 +20,8 @@ namespace Mathf
 
 	float EaseInOutSine(float x);
 
+	float EaseOutExpo(float x);
+
 	float Norm(const Quaternion& quaternion);
 
 	Vector3 Normalize(const Vector3& v);

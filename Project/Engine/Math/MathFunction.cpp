@@ -61,6 +61,10 @@ namespace Mathf
 		return -(std::cos(std::numbers::pi_v<float> *x) - 1.0f) / 2.0f;
 	}
 
+	float EaseOutExpo(float x)
+	{
+		return x == 1 ? 1 : 1 - std::pow(2.0f, -10.0f * x);
+	}
 
 	float Norm(const Quaternion& quaternion) 
 	{

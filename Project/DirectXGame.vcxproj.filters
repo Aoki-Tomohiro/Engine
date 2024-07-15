@@ -471,15 +471,6 @@
     <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
       <Filter>ソース ファイル\Application\Object\Transition</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
-      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateIdle.cpp">
-      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
-      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
       <Filter>ソース ファイル\Application\Object\Ground</Filter>
     </ClCompile>
@@ -504,19 +495,7 @@
     <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
-      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateAirAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRangedAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\CameraController\CameraController.cpp">
@@ -534,9 +513,6 @@
     <ClCompile Include="Application\Src\Object\Warning\Warning.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Illusion\Illusion.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -544,6 +520,21 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\Collision\CollisionAttributeManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateIdle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateWalk.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRun.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -854,15 +845,6 @@
     <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h">
       <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateIdle.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Components\Particle\AccelerationField.h">
       <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
     </ClInclude>
@@ -884,19 +866,7 @@
     <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h">
       <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
-      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateAirAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRangedAttack.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Enemy\States\IEnemyState.h">
@@ -917,9 +887,6 @@
     <ClInclude Include="Application\Src\Object\Warning\Warning.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Illusion\Illusion.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -927,6 +894,21 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateIdle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateWalk.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRun.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

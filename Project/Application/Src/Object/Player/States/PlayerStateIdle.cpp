@@ -1,133 +1,59 @@
 #include "PlayerStateIdle.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Components/Collision/Collider.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Player/States/PlayerStateWalk.h"
+#include "Application/Src/Object/Player/States/PlayerStateRun.h"
+#include "Application/Src/Object/Player/States/PlayerStateDodge.h"
+#include "Application/Src/Object/Player/States/PlayerStateJustDodge.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
-#include "PlayerStateJump.h"
-#include "PlayerStateDodge.h"
-#include "PlayerStateDash.h"
-#include "PlayerStateGroundAttack.h"
-#include "PlayerStateRangedAttack.h"
-#include "PlayerStateJustDodge.h"
 
 void PlayerStateIdle::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
-
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "MoveSpeed", moveSpeed_);
 }
 
 void PlayerStateIdle::Update()
 {
-	//移動フラグ
-	bool isMove = false;
-
-	//閾値
-	const float kThreshold = 0.6f;
+	//アニメーションの設定
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 
 	//スティックの入力を取得
-	player_->velocity = { 
+	Vector3 value = {
 		input_->GetLeftStickX(),
 		0.0f,
 		input_->GetLeftStickY()
 	};
 
-	//速度が閾値を超えていたら移動フラグをtrueにする
-	if (Mathf::Length(player_->velocity) > kThreshold)
-	{
-		isMove = true;
-	}
+	//スティックの入力値を計算
+	float length = Mathf::Length(value);
 
-	//移動処理
-	if (isMove)
-	{
-		//移動量に速さを反映
-		player_->velocity = Mathf::Normalize(player_->velocity) * moveSpeed_;
-
-		//移動ベクトルをカメラの角度だけ回転させる
-		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-		player_->velocity = Mathf::TransformNormal(player_->velocity, rotateMatrix);
-
-		//移動処理
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
-
-		//回転処理
-		Vector3 vector = Mathf::Normalize(player_->velocity);
-		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
-		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
-		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
-
-		//走りアニメーションにする
-		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0");
-	}
-	else
-	{
-		//入力がない場合は速度を0にする
-		player_->velocity = { 0.0f,0.0f,0.0f };
-		//通常のアニメーションにする
-		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-		modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
-	}
-
-	//移動限界座標
-	const float kMoveLimitX = 79;
-	const float kMoveLimitZ = 79;
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_.x = std::max<float>(transformComponent->worldTransform_.translation_.x, -kMoveLimitX);
-	transformComponent->worldTransform_.translation_.x = std::min<float>(transformComponent->worldTransform_.translation_.x, +kMoveLimitX);
-	transformComponent->worldTransform_.translation_.z = std::max<float>(transformComponent->worldTransform_.translation_.z, -kMoveLimitZ);
-	transformComponent->worldTransform_.translation_.z = std::min<float>(transformComponent->worldTransform_.translation_.z, +kMoveLimitZ);
-
-	//ジャスト回避の処理
+	//ジャスト回避の更新
 	UpdateJustDodge();
-
-	//ジャンプ状態に変更
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
-	{
-		player_->ChangeState(new PlayerStateJump());
-	}
-	//回避状態に変更
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !justDodgeSettings_.isJustDodgeSuccess)
+	
+	//RBで回避状態に遷移
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !justDodgeSettings_.isJustDodgeSuccess)
 	{
 		player_->ChangeState(new PlayerStateDodge());
 	}
-	////ジャスト回避状態に変更
-	//else if (justDodgeSettings_.isJustDodgeSuccess)
-	//{
-	//	player_->ChangeState(new PlayerStateJustDodge());
-	//}
-	//ダッシュ状態に変更
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	//ジャスト回避に成功していたらジャスト回避状態に遷移
+	else if (justDodgeSettings_.isJustDodgeSuccess)
 	{
-		player_->ChangeState(new PlayerStateDash());
+		player_->ChangeState(new PlayerStateJustDodge());
 	}
-	//地上攻撃の状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	//スティックの入力が走りの閾値より大きい場合、走り状態に遷移
+	else if (length > player_->runThreshold_)
 	{
-		player_->ChangeState(new PlayerStateGroundAttack());
+		player_->ChangeState(new PlayerStateRun());
 	}
-	////遠距離攻撃の状態に遷移
-	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
-	//{
-	//	player_->ChangeState(new PlayerStateRangedAttack());
-	//}
-
-	//環境変数の適用
-	ApplyGlobalVariables();
-
-	ImGui::Begin("PlayerStateRoot");
-	ImGui::End();
+	//スティックの入力が歩きの閾値を超えていた場合、歩き状態に遷移
+	else if (length > player_->walkThreshold_)
+	{
+		player_->ChangeState(new PlayerStateWalk());
+	}
 }
 
 void PlayerStateIdle::Draw(const Camera& camera)
@@ -136,19 +62,6 @@ void PlayerStateIdle::Draw(const Camera& camera)
 
 void PlayerStateIdle::OnCollision(GameObject* other)
 {
-	Collider* collider = other->GetComponent<Collider>();
-	if (collider->GetCollisionAttribute() == kCollisionAttributeEnemy)
-	{
-		Enemy* enemy = dynamic_cast<Enemy*>(other);
-		if (enemy->GetIsAttack())
-		{
-			if (!player_->isInvincible_)
-			{
-				player_->isInvincible_ = true;
-				player_->hp_ -= 10.0f;
-			}
-		}
-	}
 }
 
 void PlayerStateIdle::OnCollisionEnter(GameObject* other)
@@ -174,7 +87,7 @@ void PlayerStateIdle::UpdateJustDodge()
 	if (Mathf::Length(sub) < justDodgeSettings_.maxJustDodgeDistance)
 	{
 		//敵の攻撃が終了したらフラグをリセット
-		if (!enemy->GetIsAttack())
+		if (!enemy->GetIsWarning())
 		{
 			justDodgeSettings_.isJustDodgeAvailable = false;
 		}
@@ -208,11 +121,4 @@ void PlayerStateIdle::UpdateJustDodge()
 			}
 		}
 	}
-}
-
-void PlayerStateIdle::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	moveSpeed_ = globalVariables->GetFloatValue(groupName, "MoveSpeed");
 }

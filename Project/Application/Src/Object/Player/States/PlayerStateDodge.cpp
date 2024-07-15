@@ -1,113 +1,142 @@
 #include "PlayerStateDodge.h"
-#include "Engine/Components/Collision/Collider.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "PlayerStateIdle.h"
-#include "PlayerStateGroundAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateIdle.h"
+#include "Application/Src/Object/Player/States/PlayerStateWalk.h"
+#include "Application/Src/Object/Player/States/PlayerStateRun.h"
 
 void PlayerStateDodge::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーションのリセット
+	// アニメーションの初期化
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
-	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f); //アニメーションの再生時間を初期化
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.2f);
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false); //アニメーションをループしないように設定
 
-	//速度が0でない場合
-	if (player_->velocity != Vector3{ 0.0f,0.0f,0.0f })
+	//スティックの入力を取得
+	player_->velocity = {
+		input_->GetLeftStickX(),
+		0.0f,
+		input_->GetLeftStickY()
+	};
+
+	//スティックの入力が歩きの閾値を超えていた場合
+	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
 	{
-		//速度ベクトルを計算
-		player_->velocity = Mathf::Normalize(player_->velocity) * dodgeSpeed_;
+		//アニメーションの設定
+		if (player_->lockOn_->ExistTarget())
+		{
+			//速度の絶対値を取得
+			float horizontalValue = std::abs(player_->velocity.x);
+			float verticalValue = std::abs(player_->velocity.z);
 
-		//アニメーションを設定
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.001");
+			//垂直方向の移動量が水平方向よりも大きい場合
+			if (verticalValue >= horizontalValue)
+			{
+				if (player_->velocity.z > 0.0f)
+				{
+					dodgeDirection_ = Forward;
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.010"); //前進アニメーション
+				}
+				else
+				{
+					dodgeDirection_ = Backward;
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.011"); //後退アニメーション
+				}
+			}
+			//水平方向の移動量が垂直方向よりも大きい場合
+			else
+			{
+				if (player_->velocity.x > 0.0f)
+				{
+					dodgeDirection_ = Right;
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.013"); //右横移動アニメーション
+				}
+				else
+				{
+					dodgeDirection_ = Left;
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.012"); //左横移動アニメーション
+				}
+			}
+		}
+		else
+		{
+			dodgeDirection_ = Forward;
+			modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.010"); //前進アニメーション
+		}
+
+		//速度を計算
+		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dodgeSpeed_;
+
+		//移動ベクトルをカメラの角度だけ回転させる
+		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
+		player_->velocity = Mathf::TransformNormal(player_->velocity, rotateMatrix);
 	}
-	//速度が0の場合
+	//スティックの入力がない場合は後ろに下がる
 	else
 	{
-		//BackFlipフラグを立てる
-		isBackFlip_ = true;
+		//アニメーションの設定
+		dodgeDirection_ = Backward;
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.011");
 
-		//速度ベクトルを計算
+		//速度を計算
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-dodgeSpeed_ }, transformComponent->worldTransform_.matWorld_);
-
-		//アニメーションを設定
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
+		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-player_->dodgeSpeed_ }, transformComponent->worldTransform_.matWorld_);
 	}
-
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
 }
 
 void PlayerStateDodge::Update()
 {
-	//TransformComponentを取得
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	//デバッグのフラグが立っているときは処理を飛ばす
+	if (player_->isDebug_)
+	{
+		return;
+	}
+
 	//ModelConponentを取得
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-
-	//バックステップ状態でないとき
-	if (!isBackFlip_)
+	float animationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+	if (animationTime > dodgeSettings_[dodgeDirection_].chargeDuration && animationTime < dodgeSettings_[dodgeDirection_].dodgeDuration)
 	{
-		//速度を加算
+		//移動処理
+		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
+	}
 
-		//回避が終わったら
-		if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+	//アニメーションが終っていた場合
+	if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+	{
+		//アニメーションをループ状態にする
+		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+		modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
+		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+
+		//スティックの入力を取得
+		Vector3 value = {
+			input_->GetLeftStickX(),
+			0.0f,
+			input_->GetLeftStickY()
+		};
+
+		//入力の値に応じて状態を遷移
+		float length = Mathf::Length(value);
+		if (length > player_->runThreshold_)
 		{
-			//通常状態に戻す
-			modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
-			modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
+			player_->ChangeState(new PlayerStateRun());
+		}
+		else if (length > player_->walkThreshold_)
+		{
+			player_->ChangeState(new PlayerStateWalk());
+		}
+		else
+		{
 			player_->ChangeState(new PlayerStateIdle());
 		}
 	}
-	else
-	{
-		//タイマーを進める
-		backFlipParameter_ += GameTimer::GetDeltaTime();
-		switch (backFlipState_)
-		{
-		case kAnticipation:
-			if (backFlipParameter_ > backFlipAnticipationTime)
-			{
-				backFlipParameter_ = 0;
-				backFlipState_ = kBackFlip;
-			}
-			break;
-		case kBackFlip:
-			//速度を加算
-			transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
-			if (backFlipParameter_ > backFlipTime)
-			{
-				//通常状態に戻す
-				modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
-				modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
-				player_->ChangeState(new PlayerStateIdle());
-			}
-			break;
-		case kRecovery:
-			break;
-		}
-	}
-
-	//環境変数の適用
-	ApplyGlobalVariables();
-
-	ImGui::Begin("PlayerStateDodge");
-	ImGui::DragFloat("BackFlipAnticipationTime", &backFlipAnticipationTime);
-	ImGui::DragFloat("BackFlipTime", &backFlipTime);
-	ImGui::End();
 }
 
 void PlayerStateDodge::Draw(const Camera& camera)
@@ -116,7 +145,6 @@ void PlayerStateDodge::Draw(const Camera& camera)
 
 void PlayerStateDodge::OnCollision(GameObject* other)
 {
-
 }
 
 void PlayerStateDodge::OnCollisionEnter(GameObject* other)
@@ -125,11 +153,4 @@ void PlayerStateDodge::OnCollisionEnter(GameObject* other)
 
 void PlayerStateDodge::OnCollisionExit(GameObject* other)
 {
-}
-
-void PlayerStateDodge::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	dodgeSpeed_ = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
 }

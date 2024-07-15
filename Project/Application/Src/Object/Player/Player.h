@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/3D/Camera/LockOn.h"
 #include "Engine/Math/MathFunction.h"
 #include "States/IPlayerState.h"
@@ -27,14 +28,10 @@ public:
 
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
-	const uint32_t GetComboIndex() const;
-
-	const uint32_t GetComboNum() const ;
-
-	const float GetHP() const { return hp_; };
-
 private:
 	void ChangeState(IPlayerState* state);
+
+	void ImGui();
 
 private:
 	//プレイヤーの状態
@@ -52,46 +49,57 @@ private:
 	//LockOn
 	const LockOn* lockOn_ = nullptr;
 
-	//Collider
-	Vector3 colliderOffset_{ 0.0f,2.2f,0.0f };
-
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
 
-	//無敵状態の変数
-	bool isInvincible_ = false;
-	float invincibleDuration_ = 1.0f;
-	float invincibleTimer_ = 0;
+	//歩きのスティック入力の閾値
+	float walkThreshold_ = 0.3f;
 
-	//HP
-	std::unique_ptr<Sprite> spriteHpBar_ = nullptr;
-	std::unique_ptr<Sprite> spriteHpBarFrame_ = nullptr;
-	Vector2 hpBarSize_{ 480.0f,16.0f };
-	const float kMaxHP = 40.0f;
-	float hp_ = kMaxHP;
+	//歩きの移動速度
+	float walkSpeed_ = 9.0f;
 
-	//ダメージエフェクトのスプライト
-	std::unique_ptr<Sprite> damageSprite_ = nullptr;
-	Vector4 damageSpriteColor_ = { 1.0f,0.0f,0.0f,0.0f };
+	//走りのスティック入力の閾値
+	float runThreshold_ = 0.6f;
+
+	//走りの移動速度
+	float runSpeed_ = 18.0f;
+
+	//回避の速度
+	float dodgeSpeed_ = 18.0f;
+
+	//ジャスト回避の速度
+	float justDodgeSpeed_ = 72.0f;
+
+	//デバッグ用のフラグ
+	bool isDebug_ = false;
+
+	//アニメーションの時間
+	float animationTime_ = 0.0f;
+
+	//アニメーションの名前
+	std::string currentAnimationName_ = "Armature|mixamo.com|Layer0";
+	std::vector<std::string> animationName_ = {
+		{"Armature|mixamo.com|Layer0"},
+		{"Armature.001|mixamo.com|Layer0"},
+		{"Armature.001|mixamo.com|Layer0.001"},
+		{"Armature.001|mixamo.com|Layer0.002"},
+		{"Armature.001|mixamo.com|Layer0.003"},
+		{"Armature.001|mixamo.com|Layer0.004"},
+		{"Armature.001|mixamo.com|Layer0.005"},
+		{"Armature.001|mixamo.com|Layer0.006"},
+		{"Armature.001|mixamo.com|Layer0.007"},
+		{"Armature.001|mixamo.com|Layer0.009"},
+		{"Armature.001|mixamo.com|Layer0.010"},
+		{"Armature.001|mixamo.com|Layer0.011"},
+		{"Armature.001|mixamo.com|Layer0.012"},
+		{"Armature.001|mixamo.com|Layer0.013"},
+	};
 
 	//フレンドクラスに登録
 	friend class PlayerStateIdle;
-	friend class PlayerStateJump;
+	friend class PlayerStateWalk;
+	friend class PlayerStateRun;
 	friend class PlayerStateDodge;
 	friend class PlayerStateJustDodge;
-	friend class PlayerStateDash;
-	friend class PlayerStateGroundAttack;
-
-#pragma region アニメーションの名前一覧
-	//Armature.001|mixamo.com|Layer0
-	//Armature.001|mixamo.com|Layer0.001
-	//Armature.001|mixamo.com|Layer0.002
-	//Armature.001|mixamo.com|Layer0.003
-	//Armature.001|mixamo.com|Layer0.004
-	//Armature.001|mixamo.com|Layer0.005
-	//Armature.001|mixamo.com|Layer0.006
-	//Armature.001|mixamo.com|Layer0.007
-	//Armature|mixamo.com|Layer0
-#pragma endregion
 };
 

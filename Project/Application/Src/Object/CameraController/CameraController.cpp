@@ -120,46 +120,46 @@ void CameraController::Update()
 
 void CameraController::UpdateCameraShake()
 {
-	//プレイヤーの攻撃が当たっていた時
-	GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
-	if (gameObjectManager->GetGameObject<Weapon>()->GetIsHit())
-	{
-		//プレイヤーを取得
-		Player* player = gameObjectManager->GetGameObject<Player>();
-		//プレイヤーの攻撃が最後のコンボの時
-		if (player->GetComboIndex() == player->GetComboNum() - 1)
-		{
-			//カメラシェイクを有効にする
-			cameraShakeSettings_.isShaking = true;
-			cameraShakeSettings_.offset = camera_.translation_;
-		}
-	}
+	////プレイヤーの攻撃が当たっていた時
+	//GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
+	//if (gameObjectManager->GetGameObject<Weapon>()->GetIsHit())
+	//{
+	//	//プレイヤーを取得
+	//	Player* player = gameObjectManager->GetGameObject<Player>();
+	//	//プレイヤーの攻撃が最後のコンボの時
+	//	if (player->GetComboIndex() == player->GetComboNum() - 1)
+	//	{
+	//		//カメラシェイクを有効にする
+	//		cameraShakeSettings_.isShaking = true;
+	//		cameraShakeSettings_.offset = camera_.translation_;
+	//	}
+	//}
 
-	//カメラシェイクが有効な場合
-	if (cameraShakeSettings_.isShaking)
-	{
-		//シェイクタイマーを進める
-		const float kShakeDeltaTime = 1.0f / 60.0f;
-		cameraShakeSettings_.timer += kShakeDeltaTime;
+	////カメラシェイクが有効な場合
+	//if (cameraShakeSettings_.isShaking)
+	//{
+	//	//シェイクタイマーを進める
+	//	const float kShakeDeltaTime = 1.0f / 60.0f;
+	//	cameraShakeSettings_.timer += kShakeDeltaTime;
 
-		//揺らし幅をランダムで決める
-		Vector3 randomValue = {
-			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.x,cameraShakeSettings_.intensity.x),
-			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.y,cameraShakeSettings_.intensity.y),
-			RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.z,cameraShakeSettings_.intensity.z),
-		};
+	//	//揺らし幅をランダムで決める
+	//	Vector3 randomValue = {
+	//		RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.x,cameraShakeSettings_.intensity.x),
+	//		RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.y,cameraShakeSettings_.intensity.y),
+	//		RandomGenerator::GetRandomFloat(-cameraShakeSettings_.intensity.z,cameraShakeSettings_.intensity.z),
+	//	};
 
-		//カメラの座標に揺らし幅を加算する
-		camera_.translation_ = cameraShakeSettings_.offset + randomValue;
+	//	//カメラの座標に揺らし幅を加算する
+	//	camera_.translation_ = cameraShakeSettings_.offset + randomValue;
 
-		//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
-		if (cameraShakeSettings_.timer > cameraShakeSettings_.duration)
-		{
-			cameraShakeSettings_.isShaking = false;
-			cameraShakeSettings_.timer = 0.0f;
-			camera_.translation_ = cameraShakeSettings_.offset;
-		}
-	}
+	//	//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
+	//	if (cameraShakeSettings_.timer > cameraShakeSettings_.duration)
+	//	{
+	//		cameraShakeSettings_.isShaking = false;
+	//		cameraShakeSettings_.timer = 0.0f;
+	//		camera_.translation_ = cameraShakeSettings_.offset;
+	//	}
+	//}
 }
 
 Vector3 CameraController::Offset()

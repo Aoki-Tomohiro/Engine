@@ -57,7 +57,7 @@ void GamePlayScene::Initialize()
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
+	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//FollowCameraの作成
 	cameraController_ = std::make_unique<CameraController>();
@@ -111,7 +111,7 @@ void GamePlayScene::Update()
 
 	//ロックオンの処理
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->SetTargetOffset(enemy->GetColliderOffset());
+	lockOn_->SetTargetOffset({ 0.0f,4.0f,0.0f });
 	lockOn_->Update(enemy, camera_);
 
 	//衝突判定
@@ -219,45 +219,45 @@ void GamePlayScene::DrawUI()
 
 void GamePlayScene::HandleTransition()
 {
-	//FadeInしていないとき
-	if (transition_->GetFadeState() != transition_->FadeState::In)
-	{
-		Player* player = gameObjectManager_->GetGameObject<Player>();
-		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-		//Kキーを押したらGameClearSceneに遷移
-		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
-		{
-			isGameClear_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-		//Lキーを押したらGameOverSceneに遷移
-		else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
-		{
-			isGameOver_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-	}
+	////FadeInしていないとき
+	//if (transition_->GetFadeState() != transition_->FadeState::In)
+	//{
+	//	Player* player = gameObjectManager_->GetGameObject<Player>();
+	//	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	//	//Kキーを押したらGameClearSceneに遷移
+	//	if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
+	//	{
+	//		isGameClear_ = true;
+	//		player->SetIsInTitleScene(true);
+	//		enemy->SetIsInTitleScene(true);
+	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+	//		modelComponent->SetAnimationName("Idle");
+	//	}
+	//	//Lキーを押したらGameOverSceneに遷移
+	//	else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
+	//	{
+	//		isGameOver_ = true;
+	//		player->SetIsInTitleScene(true);
+	//		enemy->SetIsInTitleScene(true);
+	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+	//		modelComponent->SetAnimationName("Idle");
+	//	}
+	//}
 
-	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
-	if (isGameClear_ || isGameOver_)
-	{
-		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
-		{
-			transition_->SetFadeState(Transition::FadeState::In);
-		}
-	}
+	////ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
+	//if (isGameClear_ || isGameOver_)
+	//{
+	//	if (input_->IsPressButton(XINPUT_GAMEPAD_A))
+	//	{
+	//		transition_->SetFadeState(Transition::FadeState::In);
+	//	}
+	//}
 
-	//シーン遷移
-	if (transition_->GetFadeInComplete())
-	{
-		sceneManager_->ChangeScene("GameTitleScene");
-	}
+	////シーン遷移
+	//if (transition_->GetFadeInComplete())
+	//{
+	//	sceneManager_->ChangeScene("GameTitleScene");
+	//}
 }
 
 void GamePlayScene::UpdateHitStop()
