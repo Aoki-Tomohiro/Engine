@@ -1,10 +1,10 @@
 #include "PlayerStateJustDodge.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Player/States/PlayerStateIdle.h"
-#include "Application/Src/Object/Player/States/PlayerStateWalk.h"
-#include "Application/Src/Object/Player/States/PlayerStateRun.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 #include <numbers>
 
 void PlayerStateJustDodge::Initialize()
@@ -14,77 +14,78 @@ void PlayerStateJustDodge::Initialize()
 
 	//アニメーションの設定
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-	modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.019");
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+
+	//最初の座標を取得
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	startPosition_ = transformComponent->GetWorldPosition();
 
 	//スティックの入力を取得
-	player_->velocity = {
+	Vector3 stickValue = {
 		input_->GetLeftStickX(),
 		0.0f,
 		input_->GetLeftStickY()
 	};
 
-	//スティックの入力が歩きの閾値を超えていた場合
+	//スティックの入力が閾値を超えていた場合
 	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
 	{
 		//速度を計算
-		player_->velocity = Mathf::Normalize(player_->velocity) * player_->justDodgeSpeed_;
+		targetPosition_ = Mathf::Normalize(stickValue) * player_->justDodgeDistance_;
 
 		//移動ベクトルをカメラの角度だけ回転させる
 		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-		player_->velocity = Mathf::TransformNormal(player_->velocity, rotateMatrix);
+		targetPosition_ = Mathf::TransformNormal(targetPosition_, rotateMatrix);
+
+		//目標座標を計算
+		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+		targetPosition_ += transformComponent->GetWorldPosition();
 	}
 	//スティックの入力がない場合
 	else
 	{
 		//速度を計算
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-player_->justDodgeSpeed_ }, transformComponent->worldTransform_.matWorld_);
+		targetPosition_ = transformComponent->GetWorldPosition() +Mathf::TransformNormal({ player_->justDodgeDistance_,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
 	}
 }
 
 void PlayerStateJustDodge::Update()
 {
-	dodgeParameter_ += GameTimer::GetDeltaTime();
-	if (dodgeParameter_ < justDodgeDuration_)
-	{
-		//移動処理
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+	//移動処理
+	easingParameter_ += 0.01f;
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.translation_.x = startPosition_.x + (targetPosition_.x - startPosition_.x) * Mathf::EaseOutExpo(easingParameter_);
+	transformComponent->worldTransform_.translation_.y = startPosition_.y + (targetPosition_.y - startPosition_.y) * Mathf::EaseOutExpo(easingParameter_);
+	transformComponent->worldTransform_.translation_.z = startPosition_.z + (targetPosition_.z - startPosition_.z) * Mathf::EaseOutExpo(easingParameter_);
+	
+	//敵の座標を取得
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
 
-		//回転処理
-		float fullRotationAngle = std::numbers::pi_v<float> * 2.0f;
-		float rotationSpeed = fullRotationAngle / justDodgeDuration_;
-		float rotationAngle = rotationSpeed * GameTimer::GetDeltaTime();
-		Vector3 rotationAxis = { 0.0f, 1.0f, 0.0f };
-		Quaternion quaternion = Mathf::MakeRotateAxisAngleQuaternion(rotationAxis, rotationAngle);
-		player_->destinationQuaternion_ *= quaternion;
-		transformComponent->worldTransform_.quaternion_ = player_->destinationQuaternion_;
+	//差分ベクトルを計算
+	TransformComponent* playerTransformConponent = player_->GetComponent<TransformComponent>();
+	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
+
+	//回転
+	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
+	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
+	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+
+	//イージングが終了したら通常状態に戻す
+	if (easingParameter_ > 1.0f)
+	{
+		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+		player_->ChangeState(new PlayerStateRoot());
 	}
 
-	if (dodgeParameter_ > recoveryDuration_)
-	{
-		//スティックの入力を取得
-		Vector3 value = {
-			input_->GetLeftStickX(),
-			0.0f,
-			input_->GetLeftStickY()
-		};
-
-		//入力の値に応じて状態を遷移
-		float length = Mathf::Length(value);
-		if (length > player_->runThreshold_)
-		{
-			player_->ChangeState(new PlayerStateRun());
-		}
-		else if (length > player_->walkThreshold_)
-		{
-			player_->ChangeState(new PlayerStateWalk());
-		}
-		else
-		{
-			player_->ChangeState(new PlayerStateIdle());
-		}
-	}
+	ImGui::Begin("Player");
+	ImGui::DragFloat3("StartPosition", &startPosition_.x);
+	ImGui::DragFloat3("TargetPosition", &targetPosition_.x);
+	ImGui::DragFloat("EasingParameter", &easingParameter_, 0.01f);
+	ImGui::End();
 }
 
 void PlayerStateJustDodge::Draw(const Camera& camera)

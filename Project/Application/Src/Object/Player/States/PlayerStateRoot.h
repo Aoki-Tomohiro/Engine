@@ -2,7 +2,7 @@
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
 
-class PlayerStateIdle : public IPlayerState
+class PlayerStateRoot : public IPlayerState
 {
 public:
 	void Initialize();
@@ -28,11 +28,27 @@ private:
 		float justDodgeTimer = 0.0f;// ジャスト回避用のタイマー
 	};
 
+	void UpdateStickInput();
+
+	void UpdateMovement();
+
+	void UpdateRotation();
+
+	void UpdateLockOnAnimation();
+
+	void UpdateIdleAnimation();
+
 	void UpdateJustDodge();
 
 private:
 	Input* input_ = nullptr;
 
 	JustDodgeSettings justDodgeSettings_{};
+
+	Vector3 inputValue_{};
+
+	float inputLength_ = 0.0f;
+
+	bool isRunning_ = false;
 };
 

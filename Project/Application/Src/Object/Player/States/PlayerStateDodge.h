@@ -31,8 +31,9 @@ private:
 	//回避用のパラメーターの構造体
 	struct DodgeActionSettings
 	{
-		float chargeDuration; // 充電時間
-		float dodgeDuration;   // 回避時間
+		float chargeDuration; //溜め時間
+		float dodgeDuration;   //回避時間
+		float recoveryDuration; //硬直時間
 	};
 
 private:
@@ -44,10 +45,10 @@ private:
 	//回避用のパラメーター
 	std::vector<DodgeActionSettings> dodgeSettings_ =
 	{
-		{0.26f,0.638f},
-		{0.28f,0.72f},
-		{0.26f,0.75f},
-		{0.26f,0.72f},
+		{0.26f,0.638f,0.84f},
+		{0.28f,0.72f,0.738f},
+		{0.26f,0.75f,0.728f},
+		{0.26f,0.72f,0.758f},
 	};
 };
 

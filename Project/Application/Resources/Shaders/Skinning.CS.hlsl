@@ -42,17 +42,17 @@ void main(uint32_t3 DTid : SV_DispatchThreadID)
         Vertex skinned;
         skinned.texcoord = input.texcoord;
         //位置の変換
-        skinned.position = mul(input.position, gMatrixPalette[gInfluences[vertexIndex].index.x].skeletonSpaceMatrix) * gInfluences[vertexIndex].weight.x;
-        skinned.position += mul(input.position, gMatrixPalette[gInfluences[vertexIndex].index.y].skeletonSpaceMatrix) * gInfluences[vertexIndex].weight.y;
-        skinned.position += mul(input.position, gMatrixPalette[gInfluences[vertexIndex].index.z].skeletonSpaceMatrix) * gInfluences[vertexIndex].weight.z;
-        skinned.position += mul(input.position, gMatrixPalette[gInfluences[vertexIndex].index.w].skeletonSpaceMatrix) * gInfluences[vertexIndex].weight.w;
+        skinned.position = mul(input.position, gMatrixPalette[influence.index.x].skeletonSpaceMatrix) * influence.weight.x;
+        skinned.position += mul(input.position, gMatrixPalette[influence.index.y].skeletonSpaceMatrix) * influence.weight.y;
+        skinned.position += mul(input.position, gMatrixPalette[influence.index.z].skeletonSpaceMatrix) * influence.weight.z;
+        skinned.position += mul(input.position, gMatrixPalette[influence.index.w].skeletonSpaceMatrix) * influence.weight.w;
         skinned.position.w = 1.0f; //確実に1を入れる
     
         //法線の変換
-        skinned.normal = mul(input.normal, (float32_t3x3) gMatrixPalette[gInfluences[vertexIndex].index.x].skeletonSpaceInverseTransposeMatrix) * gInfluences[vertexIndex].weight.x;
-        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[gInfluences[vertexIndex].index.y].skeletonSpaceInverseTransposeMatrix) * gInfluences[vertexIndex].weight.y;
-        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[gInfluences[vertexIndex].index.z].skeletonSpaceInverseTransposeMatrix) * gInfluences[vertexIndex].weight.z;
-        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[gInfluences[vertexIndex].index.w].skeletonSpaceInverseTransposeMatrix) * gInfluences[vertexIndex].weight.w;
+        skinned.normal = mul(input.normal, (float32_t3x3) gMatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
+        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
+        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
+        skinned.normal += mul(input.normal, (float32_t3x3) gMatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;
         skinned.normal = normalize(skinned.normal);
         
         //Skinning後の頂点データを格納

@@ -20,10 +20,10 @@ public:
 private:
 	Input* input_ = nullptr;
 
-	float dodgeParameter_ = 0.0f;
+	Vector3 startPosition_{};
 
-	float justDodgeDuration_ = 0.16f;
+	Vector3 targetPosition_{};
 
-	float recoveryDuration_ = 2.0f;
+	float easingParameter_ = 0.0f;
 };
 

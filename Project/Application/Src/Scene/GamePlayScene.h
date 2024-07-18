@@ -37,7 +37,7 @@ private:
 	struct HitStopSettings 
 	{
 		bool isActive = false;// ヒットストップがアクティブかどうか
-		float duration = 0.08f;// ヒットストップの持続時間（秒）
+		float duration = 0.12f;// ヒットストップの持続時間（秒）
 		float timer = 0.0f;// ヒットストップのタイマー（秒）
 	};
 

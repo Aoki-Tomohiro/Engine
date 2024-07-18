@@ -57,7 +57,7 @@ void GamePlayScene::Initialize()
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
+	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
 
 	//FollowCameraの作成
 	cameraController_ = std::make_unique<CameraController>();
@@ -116,7 +116,8 @@ void GamePlayScene::Update()
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
+	Player* player = gameObjectManager_->GetGameObject<Player>();
+	if (Collider* collider = player->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}

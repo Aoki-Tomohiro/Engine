@@ -2,7 +2,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
-#include "Application/Src/Object/Player/States/PlayerStateIdle.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 
 void Player::Initialize()
 {
@@ -10,7 +10,19 @@ void Player::Initialize()
 	GameObject::Initialize();
 
 	//Stateの初期化
-	ChangeState(new PlayerStateIdle());
+	ChangeState(new PlayerStateRoot());
+
+	//環境変数の設定
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	globalVariables->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "WalkSpeed", walkSpeed_);
+	globalVariables->AddItem(groupName, "WalkThreshold", walkThreshold_);
+	globalVariables->AddItem(groupName, "RunSpeed", runSpeed_);
+	globalVariables->AddItem(groupName, "RunThreshold", runThreshold_);
+	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
+	globalVariables->AddItem(groupName, "JumpFirstSpeed", jumpFirstSpeed_);
+	globalVariables->AddItem(groupName, "GravityAcceleration", gravityAcceleration_);
 }
 
 void Player::Update()
@@ -26,6 +38,7 @@ void Player::Update()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 
+	//ImGuiの処理
 	ImGui();
 
 	//デバッグ用の処理
@@ -38,6 +51,9 @@ void Player::Update()
 
 	//Gameobjectの更新
 	GameObject::Update();
+
+	//環境変数の適用
+	ApplyGlobalVariables();
 }
 
 void Player::Draw(const Camera& camera)
@@ -115,6 +131,7 @@ void Player::ImGui()
 {
 	//ImGui
 	ImGui::Begin("Player");
+	ImGui::DragFloat3("Velocity", &velocity.x);
 	ImGui::Checkbox("IsDebug", &isDebug_);
 	ImGui::DragFloat("AnimationTime", &animationTime_, 0.001f);
 	if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
@@ -134,4 +151,17 @@ void Player::ImGui()
 		ImGui::EndCombo();
 	}
 	ImGui::End();
+}
+
+void Player::ApplyGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	walkSpeed_ = globalVariables->GetFloatValue(groupName, "WalkSpeed");
+	walkThreshold_ = globalVariables->GetFloatValue(groupName, "WalkThreshold");
+	runSpeed_ = globalVariables->GetFloatValue(groupName, "RunSpeed");
+	runThreshold_ = globalVariables->GetFloatValue(groupName, "RunThreshold");
+	dodgeSpeed_ = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
+	jumpFirstSpeed_ = globalVariables->GetFloatValue(groupName, "JumpFirstSpeed");
+	gravityAcceleration_ = globalVariables->GetFloatValue(groupName, "GravityAcceleration");
 }

@@ -29,7 +29,7 @@ void CameraController::Update()
 	//追従対象が存在する場合、追従座標を補間する
 	if (target_)
 	{
-		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.2f);
+		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 0.1f);
 	}
 
 	//オフセット値を補間する

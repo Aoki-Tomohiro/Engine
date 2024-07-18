@@ -2,9 +2,7 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Player/States/PlayerStateIdle.h"
-#include "Application/Src/Object/Player/States/PlayerStateWalk.h"
-#include "Application/Src/Object/Player/States/PlayerStateRun.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 
 void PlayerStateDodge::Initialize()
 {
@@ -100,42 +98,22 @@ void PlayerStateDodge::Update()
 	//ModelConponentを取得
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	float animationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+	//溜め時間を超えていて、回避時間を超えていない場合
 	if (animationTime > dodgeSettings_[dodgeDirection_].chargeDuration && animationTime < dodgeSettings_[dodgeDirection_].dodgeDuration)
 	{
 		//移動処理
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
 	}
-
 	//アニメーションが終っていた場合
-	if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+	else if (animationTime > dodgeSettings_[dodgeDirection_].recoveryDuration)
 	{
 		//アニメーションをループ状態にする
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 		modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
-
-		//スティックの入力を取得
-		Vector3 value = {
-			input_->GetLeftStickX(),
-			0.0f,
-			input_->GetLeftStickY()
-		};
-
-		//入力の値に応じて状態を遷移
-		float length = Mathf::Length(value);
-		if (length > player_->runThreshold_)
-		{
-			player_->ChangeState(new PlayerStateRun());
-		}
-		else if (length > player_->walkThreshold_)
-		{
-			player_->ChangeState(new PlayerStateWalk());
-		}
-		else
-		{
-			player_->ChangeState(new PlayerStateIdle());
-		}
+		//通常状態に遷移
+		player_->ChangeState(new PlayerStateRoot());
 	}
 }
 

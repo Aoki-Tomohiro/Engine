@@ -1,0 +1,210 @@
+#include "PlayerStateGroundAttack.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Utilities/GameTimer.h"
+#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+
+//コンボ定数表
+const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
+{
+	{
+		{0.53f, 0.84f, 1.52f,  9.0f},
+		{0.6f,  0.96f, 0.0f,   0.0f},
+		{0.2f,  0.74f, 1.333f, 14.0f},
+		{1.26f, 1.62f, 2.46f,  11.0f},
+	}
+};
+
+void PlayerStateGroundAttack::Initialize()
+{
+	//Inputのインスタンスを取得
+	input_ = Input::GetInstance();
+
+	//武器の初期化
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	weapon->SetisParryable(true);
+
+	//アニメーションの初期化
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.6f);
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+}
+
+void PlayerStateGroundAttack::Update()
+{
+	//コンボ上限に達していない
+	if (workAttack_.comboIndex < kComboNum - 1)
+	{
+		//攻撃ボタンをトリガーしたら
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			//コンボ有効
+			workAttack_.comboNext = true;
+		}
+	}
+
+	//武器を取得
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	//プレイヤーのモデルを取得
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+	//現在のアニメーションの時間を取得
+	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+
+	//攻撃が終わっていた場合
+	if (currentAnimationTime > kConstAttacks_[workAttack_.comboIndex].swingTime)
+	{
+		//コンボ継続なら次のコンボに進む
+		if (workAttack_.comboNext)
+		{
+			//コンボ用パラメータをリセット
+			workAttack_.comboNext = false;
+			workAttack_.comboIndex++;
+			workAttack_.attackParameter = 0.0f;
+			parryWindow_ = 0.0f;
+
+			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
+			const float threshold = 0.7f;
+
+			//回転方向
+			Vector3 direction = {
+				input_->GetLeftStickX(),
+				0.0f,
+				input_->GetLeftStickY(),
+			};
+
+			//スティックの入力が遊び範囲を超えていたら回転フラグをtrueにする
+			if (Mathf::Length(direction) > threshold)
+			{
+				//回転角度を正規化
+				direction = Mathf::Normalize(direction);
+
+				//移動ベクトルをカメラの角度だけ回転する
+				Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
+				direction = Mathf::TransformNormal(direction, rotateMatrix);
+
+				//回転処理
+				Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, direction));
+				float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, direction);
+				player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+			}
+
+			//武器の初期化
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
+
+			//アニメーションの時間をリセット
+			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+			//次のコンボ用に回転角とアニメーションの初期化
+			switch (workAttack_.comboIndex)
+			{
+			case 0:
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+				break;
+			case 1:
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.015");
+				break;
+			case 2:
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.016");
+				break;
+			case 3:
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.017");
+				break;
+			}
+		}
+		else if(modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+		{
+			//武器をリセット
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
+
+			//アニメーションをループ再生に戻す
+			modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+			modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
+
+			//通常状態に戻す
+			player_->ChangeState(new PlayerStateRoot());
+
+			//これ以降の処理を飛ばす
+			return;
+		}
+	}
+
+	//敵の座標を取得
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
+
+	//差分ベクトルを計算
+	TransformComponent* playerTransformConponent = player_->GetComponent<TransformComponent>();
+	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
+
+	//距離を計算
+	float distance = Mathf::Length(sub);
+
+	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
+	if (distance < attackThreshold_ || player_->lockOn_->ExistTarget())
+	{
+		//回転
+		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
+		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
+		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+	}
+
+	//アニメーション処理
+	if (workAttack_.comboIndex < kComboNum)
+	{
+		//速度を計算
+		player_->velocity = { 0.0f,0.0f,kConstAttacks_[workAttack_.comboIndex].moveSpeed };
+		player_->velocity = Mathf::TransformNormal(player_->velocity, playerTransformConponent->worldTransform_.matWorld_);
+
+		//現在のアニメーションの時間が、チャージ時間を超えていて、攻撃振り時間を超えていない場合
+		if (currentAnimationTime >= kConstAttacks_[workAttack_.comboIndex].chargeTime && currentAnimationTime < kConstAttacks_[workAttack_.comboIndex].swingTime)
+		{
+			//敵と一定距離離れている場合移動させる
+			if (distance > attackThreshold_)
+			{
+				playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+			}
+
+			//攻撃判定をつける
+			weapon->SetIsAttack(true);
+
+			//パリィタイマーを進める
+			parryWindow_ += GameTimer::GetDeltaTime();
+			//タイマーがパリィ成功時間を超えていない場合パリィを有効にする
+			if (parryWindow_ < player_->parrySuccessTime_)
+			{
+				weapon->SetisParryable(true);
+			}
+			else
+			{
+				weapon->SetisParryable(false);
+			}
+		}
+		else if (currentAnimationTime >= kConstAttacks_[workAttack_.comboIndex].swingTime && currentAnimationTime < kConstAttacks_[workAttack_.comboIndex].recoveryTime)
+		{
+			//攻撃判定をなくす
+			weapon->SetIsAttack(false);
+		}
+	}
+}
+
+void PlayerStateGroundAttack::Draw(const Camera& camera)
+{
+}
+
+void PlayerStateGroundAttack::OnCollision(GameObject* other)
+{
+}
+
+void PlayerStateGroundAttack::OnCollisionEnter(GameObject* other)
+{
+}
+
+void PlayerStateGroundAttack::OnCollisionExit(GameObject* other)
+{
+}

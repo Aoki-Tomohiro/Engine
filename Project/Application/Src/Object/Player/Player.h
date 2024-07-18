@@ -3,6 +3,7 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/3D/Camera/LockOn.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Utilities/GlobalVariables.h"
 #include "States/IPlayerState.h"
 
 class Player : public GameObject
@@ -32,6 +33,8 @@ private:
 	void ChangeState(IPlayerState* state);
 
 	void ImGui();
+
+	void ApplyGlobalVariables();
 
 private:
 	//プレイヤーの状態
@@ -68,7 +71,19 @@ private:
 	float dodgeSpeed_ = 18.0f;
 
 	//ジャスト回避の速度
-	float justDodgeSpeed_ = 72.0f;
+	float justDodgeDistance_ = 20.0f;
+
+	//ジャンプの初速度
+	float jumpFirstSpeed_ = 45.0f;
+	
+	//ジャンプの重力加速度
+	float gravityAcceleration_ = 2.8f;
+
+	//ダッシュの速度
+	float dashSpeed_ = 96.0f;
+
+	//パリィの成功時間
+	float parrySuccessTime_ = 0.1f;
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
@@ -88,18 +103,25 @@ private:
 		{"Armature.001|mixamo.com|Layer0.005"},
 		{"Armature.001|mixamo.com|Layer0.006"},
 		{"Armature.001|mixamo.com|Layer0.007"},
+		{"Armature.001|mixamo.com|Layer0.008"},
 		{"Armature.001|mixamo.com|Layer0.009"},
 		{"Armature.001|mixamo.com|Layer0.010"},
 		{"Armature.001|mixamo.com|Layer0.011"},
 		{"Armature.001|mixamo.com|Layer0.012"},
 		{"Armature.001|mixamo.com|Layer0.013"},
+		{"Armature.001|mixamo.com|Layer0.014"},
+		{"Armature.001|mixamo.com|Layer0.015"},
+		{"Armature.001|mixamo.com|Layer0.016"},
+		{"Armature.001|mixamo.com|Layer0.017"},
+		{"Armature.001|mixamo.com|Layer0.018"},
 	};
 
 	//フレンドクラスに登録
-	friend class PlayerStateIdle;
-	friend class PlayerStateWalk;
-	friend class PlayerStateRun;
+	friend class PlayerStateRoot;
 	friend class PlayerStateDodge;
 	friend class PlayerStateJustDodge;
+	friend class PlayerStateJump;
+	friend class PlayerStateGroundAttack;
+	friend class PlayerStateDash;
 };
 

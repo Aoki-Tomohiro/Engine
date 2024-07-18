@@ -2,7 +2,7 @@
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
 
-class PlayerStateRun : public IPlayerState
+class PlayerStateJump : public IPlayerState
 {
 public:
 	void Initialize();
