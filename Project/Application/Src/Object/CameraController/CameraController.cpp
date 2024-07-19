@@ -13,6 +13,12 @@ void CameraController::Initialize()
 
 void CameraController::Update()
 {
+	//追従対象が存在する場合、追従座標を補間する
+	if (target_)
+	{
+		interTarget_ = Mathf::Lerp(interTarget_, target_->translation_, 1.0f);
+	}
+
 	//状態の更新
 	state_->Update();
 

@@ -124,8 +124,8 @@ void PlayerStateRoot::UpdateMovement()
 	}
 
 	//移動ベクトルをカメラの角度だけ回転させる
-	Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-	player_->velocity = Mathf::TransformNormal(player_->velocity, rotateMatrix);
+	player_->velocity = Mathf::RotateVector(player_->velocity, player_->camera_->quaternion_);
+	player_->velocity.y = 0.0f;
 
 	//移動処理
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();

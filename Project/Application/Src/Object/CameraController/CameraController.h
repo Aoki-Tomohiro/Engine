@@ -34,10 +34,14 @@ private:
 	//追従対象
 	const WorldTransform* target_ = nullptr;
 
+	//追従対象の残像座標
+	Vector3 interTarget_{};
+
 	//Quaternion
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
 	//フレンドクラスに登録
 	friend class CameraStateFollow;
+	friend class CameraStateLockOn;
 };
 

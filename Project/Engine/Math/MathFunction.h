@@ -80,6 +80,8 @@ namespace Mathf
 
 	Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 
+	Quaternion LookRotation(const Vector3& forward, const Vector3& up);
+
 	Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 }
 
