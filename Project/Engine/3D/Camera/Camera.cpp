@@ -11,10 +11,21 @@ void Camera::Initialize()
 void Camera::UpdateViewMatrix()
 {
 	Matrix4x4 translateMatrix = Mathf::MakeTranslateMatrix(translation_);
-	Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(rotation_.x);
-	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(rotation_.y);
-	Matrix4x4 rotateZMatrix = Mathf::MakeRotateZMatrix(rotation_.z);
-	Matrix4x4 rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+	Matrix4x4 rotateMatrix = Mathf::MakeIdentity4x4();
+
+	switch (rotationType_)
+	{
+	case RotationType::Euler:
+		Matrix4x4 rotateXMatrix = Mathf::MakeRotateXMatrix(rotation_.x);
+		Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(rotation_.y);
+		Matrix4x4 rotateZMatrix = Mathf::MakeRotateZMatrix(rotation_.z);
+		rotateMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+		break;
+	case RotationType::Quaternion:
+		rotateMatrix = Mathf::MakeRotateMatrix(quaternion_);
+		break;
+	}
+
 	matView_ = Mathf::Inverse(translateMatrix) * Mathf::Inverse(rotateMatrix);
 }
 

@@ -35,6 +35,12 @@ struct ConstBuffDataMaterial
 	Vector3 edgeColor;
 };
 
+enum class RotationType
+{
+	Euler,
+	Quaternion
+};
+
 struct ConstBuffDataWorldTransform
 {
 	Matrix4x4 world;

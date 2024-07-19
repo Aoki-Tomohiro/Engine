@@ -140,7 +140,7 @@ void GamePlayScene::Update()
 
 	//カメラの更新
 	*camera_ = cameraController_->GetCamera();
-	camera_->UpdateMatrix();
+	camera_->TransferMatrix();
 
 	//フェードイン処理
 	HandleTransition();
@@ -306,8 +306,8 @@ void GamePlayScene::UpdateParry()
 		//敵の行動を遅くする
 		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
 
-		//カメラを近づける
-		cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
+		////カメラを近づける
+		//cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
 
 		//GrayScaleを有効化
 		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
@@ -332,8 +332,8 @@ void GamePlayScene::UpdateParry()
 				//スロウモーションのフラグを折る
 				parrySettings_.isSlow = false;
 
-				//カメラの元に戻す
-				cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
+				////カメラの元に戻す
+				//cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
 
 				//ゲーム全体の時間の流れをもとに戻す
 				GameTimer::SetTimeScale(1.0f);

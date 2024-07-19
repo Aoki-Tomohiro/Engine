@@ -32,46 +32,37 @@ void PlayerStateJustDodge::Initialize()
 	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
 	{
 		//速度を計算
-		targetPosition_ = Mathf::Normalize(stickValue) * player_->justDodgeDistance_;
+		Vector3 offset = Mathf::Normalize(stickValue) * player_->justDodgeDistance_;
 
 		//移動ベクトルをカメラの角度だけ回転させる
 		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-		targetPosition_ = Mathf::TransformNormal(targetPosition_, rotateMatrix);
+		offset = Mathf::TransformNormal(offset, rotateMatrix);
 
 		//目標座標を計算
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		targetPosition_ += transformComponent->GetWorldPosition();
+		targetPosition_ = transformComponent->GetWorldPosition() + offset;
 	}
 	//スティックの入力がない場合
 	else
 	{
-		//速度を計算
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+		//目標座標を計算
 		targetPosition_ = transformComponent->GetWorldPosition() +Mathf::TransformNormal({ player_->justDodgeDistance_,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
 	}
+
+	//進行方向に回転させる
+	Vector3 sub = targetPosition_ - transformComponent->GetWorldPosition();
+	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
+	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
+	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 }
 
 void PlayerStateJustDodge::Update()
 {
 	//移動処理
-	easingParameter_ += 0.01f;
+	easingParameter_ += 0.02f;
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_.x = startPosition_.x + (targetPosition_.x - startPosition_.x) * Mathf::EaseOutExpo(easingParameter_);
 	transformComponent->worldTransform_.translation_.y = startPosition_.y + (targetPosition_.y - startPosition_.y) * Mathf::EaseOutExpo(easingParameter_);
 	transformComponent->worldTransform_.translation_.z = startPosition_.z + (targetPosition_.z - startPosition_.z) * Mathf::EaseOutExpo(easingParameter_);
-	
-	//敵の座標を取得
-	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
-
-	//差分ベクトルを計算
-	TransformComponent* playerTransformConponent = player_->GetComponent<TransformComponent>();
-	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
-
-	//回転
-	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
-	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
-	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 
 	//イージングが終了したら通常状態に戻す
 	if (easingParameter_ > 1.0f)
@@ -80,12 +71,6 @@ void PlayerStateJustDodge::Update()
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
 		player_->ChangeState(new PlayerStateRoot());
 	}
-
-	ImGui::Begin("Player");
-	ImGui::DragFloat3("StartPosition", &startPosition_.x);
-	ImGui::DragFloat3("TargetPosition", &targetPosition_.x);
-	ImGui::DragFloat("EasingParameter", &easingParameter_, 0.01f);
-	ImGui::End();
 }
 
 void PlayerStateJustDodge::Draw(const Camera& camera)
