@@ -10,9 +10,7 @@
 enum DrawPass
 {
 	Opaque,
-	SkinningOpaque,
 	Transparent,
-	SkinningTransparent,
 	NumTypes,
 };
 

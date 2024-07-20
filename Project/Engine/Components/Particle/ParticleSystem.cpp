@@ -432,7 +432,16 @@ void ParticleSystem::UpdatePerViewResource(const Camera* camera)
 	if (isBillboard_)
 	{
 		Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->rotation_, camera->translation_);
+		Matrix4x4 cameraMatrix = Mathf::MakeIdentity4x4();
+		switch (camera->rotationType_)
+		{
+		case RotationType::Euler:
+			cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->rotation_, camera->translation_);
+			break;
+		case RotationType::Quaternion:
+			cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->quaternion_, camera->translation_);
+			break;
+		}
 		billboardMatrix = backToFrontMatrix * cameraMatrix;
 		billboardMatrix.m[3][0] = 0.0f;
 		billboardMatrix.m[3][1] = 0.0f;

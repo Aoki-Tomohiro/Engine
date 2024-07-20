@@ -32,11 +32,11 @@ void PlayerStateJustDodge::Initialize()
 	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
 	{
 		//速度を計算
-		Vector3 offset = Mathf::Normalize(stickValue) * player_->justDodgeDistance_;
+		Vector3 offset = Mathf::Normalize(stickValue) * player_->justDodgeTargetDistance_;
 
 		//移動ベクトルをカメラの角度だけ回転させる
-		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-		offset = Mathf::TransformNormal(offset, rotateMatrix);
+		offset = Mathf::RotateVector(offset, player_->camera_->quaternion_);
+		offset.y = 0.0f;
 
 		//目標座標を計算
 		targetPosition_ = transformComponent->GetWorldPosition() + offset;
@@ -45,7 +45,7 @@ void PlayerStateJustDodge::Initialize()
 	else
 	{
 		//目標座標を計算
-		targetPosition_ = transformComponent->GetWorldPosition() +Mathf::TransformNormal({ player_->justDodgeDistance_,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
+		targetPosition_ = transformComponent->GetWorldPosition() + Mathf::TransformNormal({ player_->justDodgeTargetDistance_,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
 	}
 
 	//進行方向に回転させる
@@ -53,22 +53,41 @@ void PlayerStateJustDodge::Initialize()
 	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
 	player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+
+	//敵をゆっくりにする
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	enemy->SetTimeScale(0.1f);
 }
 
 void PlayerStateJustDodge::Update()
 {
 	//移動処理
-	easingParameter_ += 0.02f;
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_.x = startPosition_.x + (targetPosition_.x - startPosition_.x) * Mathf::EaseOutExpo(easingParameter_);
-	transformComponent->worldTransform_.translation_.y = startPosition_.y + (targetPosition_.y - startPosition_.y) * Mathf::EaseOutExpo(easingParameter_);
-	transformComponent->worldTransform_.translation_.z = startPosition_.z + (targetPosition_.z - startPosition_.z) * Mathf::EaseOutExpo(easingParameter_);
+	justDodgeTimer_ += GameTimer::GetDeltaTime();
 
-	//イージングが終了したら通常状態に戻す
-	if (easingParameter_ > 1.0f)
+	//現在の進行状況を計算
+	float currentTime = justDodgeTimer_ / player_->justDodgeDuration_;
+
+	//移動処理
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.translation_.x = startPosition_.x + (targetPosition_.x - startPosition_.x) * Mathf::EaseOutExpo(currentTime);
+	transformComponent->worldTransform_.translation_.y = startPosition_.y + (targetPosition_.y - startPosition_.y) * Mathf::EaseOutExpo(currentTime);
+	transformComponent->worldTransform_.translation_.z = startPosition_.z + (targetPosition_.z - startPosition_.z) * Mathf::EaseOutExpo(currentTime);
+
+	//イージングが終了したら
+	if (justDodgeTimer_ > player_->justDodgeDuration_)
 	{
+		//敵の速度をもとに戻す
+		Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+		enemy->SetTimeScale(1.0f);
+
+		//アニメーションの設定を戻す
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+
+		//ジャスト回避のフラグを折る
+		player_->isJustDodgeSuccess_ = false;
+
+		//通常状態に戻す
 		player_->ChangeState(new PlayerStateRoot());
 	}
 }

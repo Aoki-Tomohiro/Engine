@@ -11,17 +11,14 @@ public:
 	void Update() override;
 
 private:
-	Vector3 Offset();
-
 	void Reset();
-
-	void NormalizeRotation(float& rotation);
 
 private:
 	//Input
 	Input* input_ = nullptr;
 
-	//追従対象からのオフセット
-	Vector3 offset_{ 0.0f, 2.0f, -20.0f };
+	//累積用のQuaternion
+	Quaternion quaternionX = { 0.0f,0.0f,0.0f,1.0f };
+	Quaternion quaternionY = { 0.0f,0.0f,0.0f,1.0f };
 };
 

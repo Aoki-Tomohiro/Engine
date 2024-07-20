@@ -9,6 +9,7 @@
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Warning/Warning.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -46,14 +47,16 @@ void PlayerStateRoot::Update()
 	//ジャスト回避の処理
 	UpdateJustDodge();
 
+	//警告範囲に入っているかのフラグのリセット
+	justDodgeSettings_.isInWarningRange = false;
+
 	//回避状態に遷移
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !justDodgeSettings_.isJustDodgeSuccess)
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !player_->isJustDodgeSuccess_)
 	{
-		/*player_->ChangeState(new PlayerStateDodge());*/
-		player_->ChangeState(new PlayerStateJustDodge());
+		player_->ChangeState(new PlayerStateDodge());
 	}
 	//ジャスト回避状態に遷移
-	else if (justDodgeSettings_.isJustDodgeSuccess)
+	else if (player_->isJustDodgeSuccess_)
 	{
 		player_->ChangeState(new PlayerStateJustDodge());
 	}
@@ -80,6 +83,11 @@ void PlayerStateRoot::Draw(const Camera& camera)
 
 void PlayerStateRoot::OnCollision(GameObject* other)
 {
+	//衝突相手が警告オブジェクトだった場合
+	if (dynamic_cast<Warning*>(other))
+	{
+		justDodgeSettings_.isInWarningRange = true;
+	}
 }
 
 void PlayerStateRoot::OnCollisionEnter(GameObject* other)
@@ -257,40 +265,44 @@ void PlayerStateRoot::UpdateJustDodge()
 	//敵とプレイヤーの距離を計算
 	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemyTransformComponent->GetWorldPosition();
 
-	//敵とプレイヤーの距離がジャスト回避が成功できる距離より近かった場合
-	if (Mathf::Length(sub) < justDodgeSettings_.maxJustDodgeDistance)
+	//敵の攻撃範囲に入っている場合
+	if (justDodgeSettings_.isInWarningRange)
 	{
-		//敵の攻撃が終了したらフラグをリセット
-		if (!enemy->GetIsWarning())
+		//敵とプレイヤーの距離がジャスト回避が成功できる距離より近かった場合
+		if (Mathf::Length(sub) < player_->justDodgeDistance_)
 		{
-			justDodgeSettings_.isJustDodgeAvailable = false;
-		}
-
-		//ジャスト回避が可能ではない場合
-		if (!justDodgeSettings_.isJustDodgeAvailable)
-		{
-			//敵が攻撃した場合
-			if (enemy->GetIsWarning())
+			//敵の攻撃が終了したらフラグをリセット
+			if (!enemy->GetIsWarning())
 			{
-				//ジャスト回避が可能にする
-				justDodgeSettings_.isJustDodgeAvailable = true;
+				justDodgeSettings_.isJustDodgeAvailable = false;
 			}
-		}
 
-		//ジャスト回避が可能でジャスト回避が成功していない場合
-		if (justDodgeSettings_.isJustDodgeAvailable && !justDodgeSettings_.isJustDodgeSuccess)
-		{
-			//ジャスト回避のタイマーを進める
-			justDodgeSettings_.justDodgeTimer += GameTimer::GetDeltaTime();
-
-			//ジャスト回避のタイマーが一定間隔を超えていない場合
-			if (justDodgeSettings_.justDodgeTimer < justDodgeSettings_.justDodgeDuration)
+			//ジャスト回避が可能ではない場合
+			if (!justDodgeSettings_.isJustDodgeAvailable)
 			{
-				//RBボタンを押したとき
-				if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+				//敵が攻撃した場合
+				if (enemy->GetIsWarning())
 				{
-					//ジャスト回避を成功させる
-					justDodgeSettings_.isJustDodgeSuccess = true;
+					//ジャスト回避が可能にする
+					justDodgeSettings_.isJustDodgeAvailable = true;
+				}
+			}
+
+			//ジャスト回避が可能でジャスト回避が成功していない場合
+			if (justDodgeSettings_.isJustDodgeAvailable && !player_->isJustDodgeSuccess_)
+			{
+				//ジャスト回避のタイマーを進める
+				justDodgeSettings_.justDodgeTimer += GameTimer::GetDeltaTime();
+
+				//ジャスト回避のタイマーが一定間隔を超えていない場合
+				if (justDodgeSettings_.justDodgeTimer < player_->justDodgeDuration_)
+				{
+					//RBボタンを押したとき
+					if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+					{
+						//ジャスト回避を成功させる
+						player_->isJustDodgeSuccess_ = true;
+					}
 				}
 			}
 		}

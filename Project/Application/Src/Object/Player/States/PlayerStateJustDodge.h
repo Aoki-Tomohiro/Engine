@@ -24,6 +24,6 @@ private:
 
 	Vector3 targetPosition_{};
 
-	float easingParameter_ = 0.0f;
+	float justDodgeTimer_ = 0.0f;
 };
 

@@ -133,6 +133,14 @@ void GamePlayScene::Update()
 			collisionManager_->SetColliderList(collider);
 		}
 	}
+	std::vector<Warning*> warnings = gameObjectManager_->GetGameObjects<Warning>();
+	for (Warning* warning : warnings)
+	{
+		if (Collider* collider = warning->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
 	collisionManager_->CheckAllCollisions();
 
 	//CameraControllerの更新

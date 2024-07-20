@@ -2,7 +2,7 @@
 #include "ICameraState.h"
 #include "Engine/Math/MathFunction.h"
 
-class CameraStateLockOn : public ICameraState
+class CameraStateJustDodge : public ICameraState
 {
 public:
 	void Initialize() override;

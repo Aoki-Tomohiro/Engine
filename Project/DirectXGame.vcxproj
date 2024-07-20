@@ -22,6 +22,7 @@
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\CameraController\CameraController.cpp" />
     <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateFollow.cpp" />
+    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.cpp" />
     <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateLockOn.cpp" />
     <ClCompile Include="Application\Src\Object\Enemy\Enemy.cpp" />
     <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateIdle.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\CameraController\CameraController.h" />
     <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateFollow.h" />
+    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.h" />
     <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateLockOn.h" />
     <ClInclude Include="Application\Src\Object\CameraController\States\ICameraState.h" />
     <ClInclude Include="Application\Src\Object\Enemy\Enemy.h" />

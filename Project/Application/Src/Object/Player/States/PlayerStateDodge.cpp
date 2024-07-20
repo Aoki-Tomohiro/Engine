@@ -71,8 +71,8 @@ void PlayerStateDodge::Initialize()
 		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dodgeSpeed_;
 
 		//移動ベクトルをカメラの角度だけ回転させる
-		Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-		player_->velocity = Mathf::TransformNormal(player_->velocity, rotateMatrix);
+		player_->velocity = Mathf::RotateVector(player_->velocity, player_->camera_->quaternion_);
+		player_->velocity.y = 0.0f;
 	}
 	//スティックの入力がない場合は後ろに下がる
 	else

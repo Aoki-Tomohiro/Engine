@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Base/ImGuiManager.h"
 
 class Warning : public GameObject
 {

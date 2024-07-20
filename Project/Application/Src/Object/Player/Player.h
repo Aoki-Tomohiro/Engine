@@ -29,6 +29,8 @@ public:
 
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
+	const bool GetIsJustDodgeSuccess() const { return isJustDodgeSuccess_; };
+
 private:
 	void ChangeState(IPlayerState* state);
 
@@ -70,8 +72,17 @@ private:
 	//回避の速度
 	float dodgeSpeed_ = 18.0f;
 
-	//ジャスト回避の速度
-	float justDodgeDistance_ = 20.0f;
+	//ジャスト回避成功時の移動距離
+	float justDodgeTargetDistance_ = 20.0f;
+
+	//ジャスト回避が成功する距離
+	float justDodgeDistance_ = 8.0f;
+
+	//ジャスト回避の成功時間
+	float justDodgeDuration_ = 1.0f;
+
+	//ジャスト回避に成功したかどうか
+	bool isJustDodgeSuccess_ = false;
 
 	//ジャンプの初速度
 	float jumpFirstSpeed_ = 45.0f;

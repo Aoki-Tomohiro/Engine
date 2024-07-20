@@ -11,10 +11,10 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{0.53f, 0.84f, 1.52f,  9.0f},
+		{0.53f, 0.84f, 1.52f,  18.0f},
 		{0.6f,  0.96f, 0.0f,   0.0f},
-		{0.2f,  0.74f, 1.333f, 14.0f},
-		{1.26f, 1.62f, 2.46f,  11.0f},
+		{0.2f,  0.74f, 1.333f, 28.0f},
+		{1.26f, 1.62f, 2.46f,  22.0f},
 	}
 };
 
