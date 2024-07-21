@@ -11,10 +11,10 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{0.53f, 0.84f, 1.52f,  18.0f},
-		{0.6f,  0.96f, 0.0f,   0.0f},
-		{0.2f,  0.74f, 1.333f, 28.0f},
-		{1.26f, 1.62f, 2.46f,  22.0f},
+		{0.53f, 0.84f, 1.52f,  11.0f, 0.07f, 1},
+		{0.6f,  0.96f, 0.0f,   11.0f,  0.17f, 1},
+		{0.2f,  0.74f, 1.333f, 28.0f, 0.22f, 1},
+		{1.26f, 1.62f, 2.46f,  22.0f, 0.075f, 1},
 	}
 };
 
@@ -31,20 +31,30 @@ void PlayerStateGroundAttack::Initialize()
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.6f);
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
 	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+
+	//ダッシュ攻撃が有効なら
+	if (player_->isDashAttack_)
+	{
+		//攻撃振り時間をなくす
+		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(kConstAttacks_[workGroundAttack_.comboIndex].chargeTime);
+
+		//ダッシュ攻撃のフラグをリセット
+		player_->isDashAttack_ = false;
+	}
 }
 
 void PlayerStateGroundAttack::Update()
 {
 	//コンボ上限に達していない
-	if (workAttack_.comboIndex < kComboNum - 1)
+	if (workGroundAttack_.comboIndex < kComboNum - 1)
 	{
 		//攻撃ボタンをトリガーしたら
 		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{
 			//コンボ有効
-			workAttack_.comboNext = true;
+			workGroundAttack_.comboNext = true;
 		}
 	}
 
@@ -56,16 +66,20 @@ void PlayerStateGroundAttack::Update()
 	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 
 	//攻撃が終わっていた場合
-	if (currentAnimationTime > kConstAttacks_[workAttack_.comboIndex].swingTime)
+	if (currentAnimationTime > kConstAttacks_[workGroundAttack_.comboIndex].swingTime)
 	{
 		//コンボ継続なら次のコンボに進む
-		if (workAttack_.comboNext)
+		if (workGroundAttack_.comboNext)
 		{
 			//コンボ用パラメータをリセット
-			workAttack_.comboNext = false;
-			workAttack_.comboIndex++;
-			workAttack_.attackParameter = 0.0f;
-			parryWindow_ = 0.0f;
+			workGroundAttack_.comboNext = false;
+			workGroundAttack_.comboIndex++;
+			workGroundAttack_.attackParameter = 0.0f;
+			workGroundAttack_.inComboPhase = 0;
+			workGroundAttack_.hitTimer = 0.0f;
+			workGroundAttack_.hitCount = 0;
+			workGroundAttack_.isMovementFinished = false;
+			workGroundAttack_.parryTimer = 0.0f;
 
 			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
 			const float threshold = 0.7f;
@@ -100,7 +114,7 @@ void PlayerStateGroundAttack::Update()
 			//アニメーションの時間をリセット
 			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
 			//次のコンボ用に回転角とアニメーションの初期化
-			switch (workAttack_.comboIndex)
+			switch (workGroundAttack_.comboIndex)
 			{
 			case 0:
 				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
@@ -116,7 +130,7 @@ void PlayerStateGroundAttack::Update()
 				break;
 			}
 		}
-		else if(modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+		else if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
 		{
 			//武器をリセット
 			weapon->SetIsAttack(false);
@@ -146,7 +160,7 @@ void PlayerStateGroundAttack::Update()
 	float distance = Mathf::Length(sub);
 
 	//ボスとの距離が閾値より小さかったらボスの方向に回転させる
-	if (distance < attackThreshold_ || player_->lockOn_->ExistTarget())
+	if (distance < player_->groundAttackParameters_.attackDistance || player_->lockOn_->ExistTarget())
 	{
 		//回転
 		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
@@ -155,28 +169,70 @@ void PlayerStateGroundAttack::Update()
 	}
 
 	//アニメーション処理
-	if (workAttack_.comboIndex < kComboNum)
+	if (workGroundAttack_.comboIndex < kComboNum)
 	{
 		//速度を計算
-		player_->velocity = { 0.0f,0.0f,kConstAttacks_[workAttack_.comboIndex].moveSpeed };
+		player_->velocity = { 0.0f,0.0f,kConstAttacks_[workGroundAttack_.comboIndex].moveSpeed };
 		player_->velocity = Mathf::TransformNormal(player_->velocity, playerTransformConponent->worldTransform_.matWorld_);
 
-		//現在のアニメーションの時間が、チャージ時間を超えていて、攻撃振り時間を超えていない場合
-		if (currentAnimationTime >= kConstAttacks_[workAttack_.comboIndex].chargeTime && currentAnimationTime < kConstAttacks_[workAttack_.comboIndex].swingTime)
+		//チャージ時間を超えていない場合
+		if (currentAnimationTime < kConstAttacks_[workGroundAttack_.comboIndex].chargeTime)
 		{
+			workGroundAttack_.inComboPhase = kCharge;
+		}
+		//チャージ時間を超えていて、攻撃振り時間を超えていない場合
+		else if (currentAnimationTime >= kConstAttacks_[workGroundAttack_.comboIndex].chargeTime && currentAnimationTime < kConstAttacks_[workGroundAttack_.comboIndex].swingTime)
+		{
+			workGroundAttack_.inComboPhase = kSwing;
+		}
+		//攻撃振り時間を超えていて、硬直時間を超えていない場合
+		else if (currentAnimationTime >= kConstAttacks_[workGroundAttack_.comboIndex].swingTime && currentAnimationTime < kConstAttacks_[workGroundAttack_.comboIndex].recoveryTime)
+		{
+			workGroundAttack_.inComboPhase = kRecovery;
+		}
+
+		//コンボのフェーズごとの処理
+		switch (workGroundAttack_.inComboPhase)
+		{
+		case kCharge:
 			//敵と一定距離離れている場合移動させる
-			if (distance > attackThreshold_)
+			if (distance > player_->groundAttackParameters_.attackDistance)
 			{
-				playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+				if (!workGroundAttack_.isMovementFinished)
+				{
+					playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+				}
 			}
+			else
+			{
+				workGroundAttack_.isMovementFinished = true;
+			}
+			break;
+		case kSwing:
+			//ヒットタイマーを進める
+			workGroundAttack_.hitTimer += GameTimer::GetDeltaTime();
 
 			//攻撃判定をつける
-			weapon->SetIsAttack(true);
+			if (workGroundAttack_.hitTimer > kConstAttacks_[workGroundAttack_.comboIndex].attackInterval)
+			{
+				//ヒット回数が最大数を超えていない場合
+				if (workGroundAttack_.hitCount < kConstAttacks_[workGroundAttack_.comboIndex].maxHitCount)
+				{
+					weapon->SetIsAttack(true);
+					workGroundAttack_.hitCount++;
+				}
+				workGroundAttack_.hitTimer = 0.0f;
+			}
+			else
+			{
+				weapon->SetIsAttack(false);
+			}
 
 			//パリィタイマーを進める
-			parryWindow_ += GameTimer::GetDeltaTime();
+			workGroundAttack_.parryTimer += GameTimer::GetDeltaTime();
+
 			//タイマーがパリィ成功時間を超えていない場合パリィを有効にする
-			if (parryWindow_ < player_->parrySuccessTime_)
+			if (workGroundAttack_.parryTimer < player_->groundAttackParameters_.parryDuration)
 			{
 				weapon->SetisParryable(true);
 			}
@@ -184,11 +240,11 @@ void PlayerStateGroundAttack::Update()
 			{
 				weapon->SetisParryable(false);
 			}
-		}
-		else if (currentAnimationTime >= kConstAttacks_[workAttack_.comboIndex].swingTime && currentAnimationTime < kConstAttacks_[workAttack_.comboIndex].recoveryTime)
-		{
+			break;
+		case kRecovery:
 			//攻撃判定をなくす
 			weapon->SetIsAttack(false);
+			break;
 		}
 	}
 }

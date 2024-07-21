@@ -8,7 +8,7 @@
 void CameraStateJustDodge::Initialize()
 {
 	//オフセット値を変更
-	cameraController_->destinationOffset_ = { 3.0f,2.0f,-12.0f };
+	cameraController_->destinationOffset_ = { 3.0f,2.0f,-14.0f };
 }
 
 void CameraStateJustDodge::Update()
@@ -16,6 +16,10 @@ void CameraStateJustDodge::Update()
 	//追従対象からのオフセットを取得してカメラ座標を計算する
 	Vector3 offset = cameraController_->Offset();
 	cameraController_->camera_.translation_ = cameraController_->interTarget_ + offset;
+	if (cameraController_->camera_.translation_.y < 0.1f)
+	{
+		cameraController_->camera_.translation_.y = 0.1f;
+	}
 
 	//ロックオン対象の座標を取得
 	Vector3 lockOnPosition = cameraController_->lockOn_->GetTargetPosition();

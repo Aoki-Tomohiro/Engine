@@ -5,6 +5,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateDash::Initialize()
@@ -16,7 +17,7 @@ void PlayerStateDash::Initialize()
 	if (player_->lockOn_->ExistTarget())
 	{
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->GetWorldPosition();
 
 		//プレイヤーの座標を取得
 		Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
@@ -25,7 +26,7 @@ void PlayerStateDash::Initialize()
 		Vector3 sub = enemyPosition - playerPosition;
 
 		//速度を計算
-		player_->velocity = Mathf::Normalize(sub) * player_->dashSpeed_;
+		player_->velocity = Mathf::Normalize(sub) * player_->dashParameters_.dashSpeed_;
 
 		//差分ベクトルのY成分を0にする
 		sub.y = 0.0f;
@@ -45,7 +46,7 @@ void PlayerStateDash::Initialize()
 		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,1.0f }, transformComponent->worldTransform_.matWorld_);
 
 		//速度を掛ける
-		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dashSpeed_;
+		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dashParameters_.dashSpeed_;
 	}
 
 	//RadialBlurをかける
@@ -58,16 +59,16 @@ void PlayerStateDash::Initialize()
 void PlayerStateDash::Update()
 {
 	//チャージが終わっていない場合
-	if (!workDash_.isChargingFinished)
+	if (!dashWork_.isChargingFinished)
 	{
 		//チャージタイマーを進める
-		workDash_.chargeTimer += GameTimer::GetDeltaTime();
+		dashWork_.chargeTimer += GameTimer::GetDeltaTime();
 
 		//チャージタイマーが一定値を超えた場合
-		if (workDash_.chargeTimer > workDash_.chargeDuration)
+		if (dashWork_.chargeTimer > player_->dashParameters_.chargeDuration)
 		{
 			//チャージ終了フラグを立てる
-			workDash_.isChargingFinished = true;
+			dashWork_.isChargingFinished = true;
 
 			//プレイヤーを消す
 			player_->SetIsVisible(false);
@@ -97,16 +98,22 @@ void PlayerStateDash::Update()
 	}
 
 	//チャージが終わっていてダッシュが終了していない場合
-	if (workDash_.isChargingFinished && !workDash_.isDashFinished)
+	if (dashWork_.isChargingFinished && !dashWork_.isDashFinished)
 	{
+		//Xボタンを押した場合攻撃状態に派生
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			player_->isDashAttack_ = true;
+		}
+
 		//ダッシュタイマーを進める
-		workDash_.dashTimer += GameTimer::GetDeltaTime();
+		dashWork_.dashTimer += GameTimer::GetDeltaTime();
 
 		//ダッシュタイマーが一定値を超えていたら
-		if (workDash_.dashTimer > workDash_.dashDuration)
+		if (dashWork_.dashTimer > player_->dashParameters_.dashDuration)
 		{
 			//ダッシュ終了フラグを立てる
-			workDash_.isDashFinished = true;
+			dashWork_.isDashFinished = true;
 
 			//プレイヤーを描画させる
 			player_->SetIsVisible(true);
@@ -136,7 +143,7 @@ void PlayerStateDash::Update()
 		TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 
 		//敵と一定距離近づいたら速度を0にする
-		if (Mathf::Length(enemyTransformComponent->GetWorldPosition() - transformComponent->GetWorldPosition()) < workDash_.proximityThreshold)
+		if (Mathf::Length(enemyTransformComponent->GetWorldPosition() - transformComponent->GetWorldPosition()) < player_->dashParameters_.proximityThreshold)
 		{
 			player_->velocity = { 0.0f,0.0f,0.0f };
 		}
@@ -149,7 +156,7 @@ void PlayerStateDash::Update()
 	}
 
 	//ダッシュが終わっていたら
-	if (workDash_.isDashFinished)
+	if (dashWork_.isDashFinished)
 	{
 		//アニメーションの設定を戻す
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
@@ -159,6 +166,11 @@ void PlayerStateDash::Update()
 		if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
 		{
 			player_->ChangeState(new PlayerStateRoot());
+		}
+		//ダッシュ攻撃が有効なら攻撃状態に派生
+		else if (player_->isDashAttack_)
+		{
+			player_->ChangeState(new PlayerStateGroundAttack());
 		}
 	}
 }

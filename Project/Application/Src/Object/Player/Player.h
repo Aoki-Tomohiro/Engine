@@ -31,7 +31,60 @@ public:
 
 	const bool GetIsJustDodgeSuccess() const { return isJustDodgeSuccess_; };
 
+	const bool GetIsJustDodgeAttack() const { return isJustDodgeAttack_; };
+
 private:
+	//通常状態の構造体
+	struct RootParameters
+	{
+		float walkThreshold = 0.3f; // 歩きのスティック入力の閾値
+		float walkSpeed = 9.0f;     // 歩きの移動速度
+		float runThreshold = 0.6f;  // 走りのスティック入力の閾値
+		float runSpeed = 18.0f;     // 走りの移動速度
+	};
+
+	//ダッシュ用の構造体
+	struct DashParameters
+	{
+		float proximityThreshold = 10.0f; // 移動を止める距離
+		float dashSpeed_ = 96.0f;        // ダッシュの移動速度
+		float dashDuration = 0.5f;       // ダッシュ時間
+		float chargeDuration = 0.16f;    // チャージ時間
+	};
+
+	//回避用の構造体
+	struct DodgeParameters
+	{
+		float dodgeSpeed = 18.0f;              // 回避の移動速度
+		float justDodgeSuccessDistance = 8.0f; // ジャスト回避が成功可能距離
+		float justDodgeSuccessDuration = 1.0f; // ジャスト回避の成功可能時間
+		float justDodgeDuration = 1.2f;        // ジャスト回避の時間
+		float justDodgeTargetDistance = 20.0f; // ジャスト回避成功時の移動距離
+	};
+
+	//ジャンプの構造体
+	struct JumpParameters
+	{
+		float firstSpeed = 45.0f;         // ジャンプの初速度
+		float gravityAcceleration = 2.8f; // ジャンプの重力加速度
+	};
+
+	//地上攻撃用の構造体
+	struct GroundAttackParameters
+	{
+		float attackDistance = 8.0f;  // 攻撃の補正を掛ける距離
+		float parryDuration = 0.1f;   // パリィの成功時間
+	};
+
+	//回避攻撃用の構造体
+	struct JustDodgeAttackParameters
+	{
+		float moveDuration = 0.4f;    // 移動時間
+		float targetDistance = -6.0f; // 移動後の敵との距離
+		float hitInterval = 0.09f;     // ヒット間隔
+		int32_t maxHitCount = 1;      // ヒット数
+	};
+
 	void ChangeState(IPlayerState* state);
 
 	void ImGui();
@@ -48,6 +101,9 @@ private:
 	//Quaternion
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
+	//回転の保管速度
+	float quaternionInterpolationSpeed_ = 0.4f;
+
 	//Camera
 	const Camera* camera_ = nullptr;
 
@@ -57,44 +113,32 @@ private:
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;
 
-	//歩きのスティック入力の閾値
-	float walkThreshold_ = 0.3f;
+	//通常状態用のパラメーター
+	RootParameters rootParameters_{};
 
-	//歩きの移動速度
-	float walkSpeed_ = 9.0f;
+	//ダッシュ用のパラメーター
+	DashParameters dashParameters_{};
 
-	//走りのスティック入力の閾値
-	float runThreshold_ = 0.6f;
+	//回避用のパラメーター
+	DodgeParameters dodgeParameters_{}; 
 
-	//走りの移動速度
-	float runSpeed_ = 18.0f;
+	//ジャンプ用のパラメーター
+	JumpParameters jumpParameters_{};
 
-	//回避の速度
-	float dodgeSpeed_ = 18.0f;
+	//地上攻撃用のパラメーター
+	GroundAttackParameters groundAttackParameters_{};
 
-	//ジャスト回避成功時の移動距離
-	float justDodgeTargetDistance_ = 20.0f;
-
-	//ジャスト回避が成功する距離
-	float justDodgeDistance_ = 8.0f;
-
-	//ジャスト回避の成功時間
-	float justDodgeDuration_ = 1.0f;
+	//回避攻撃用のパラメーター
+	JustDodgeAttackParameters justDodgeAttackParameters_{};
 
 	//ジャスト回避に成功したかどうか
 	bool isJustDodgeSuccess_ = false;
 
-	//ジャンプの初速度
-	float jumpFirstSpeed_ = 45.0f;
-	
-	//ジャンプの重力加速度
-	float gravityAcceleration_ = 2.8f;
+	//回避攻撃に派生したかどうか
+	bool isJustDodgeAttack_ = false;
 
-	//ダッシュの速度
-	float dashSpeed_ = 96.0f;
-
-	//パリィの成功時間
-	float parrySuccessTime_ = 0.1f;
+	//ダッシュ攻撃に派生したかどうか
+	bool isDashAttack_ = false;
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
@@ -131,6 +175,7 @@ private:
 	friend class PlayerStateRoot;
 	friend class PlayerStateDodge;
 	friend class PlayerStateJustDodge;
+	friend class PlayerStateJustDodgeAttack;
 	friend class PlayerStateJump;
 	friend class PlayerStateGroundAttack;
 	friend class PlayerStateDash;

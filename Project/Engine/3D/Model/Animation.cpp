@@ -62,8 +62,15 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 		//アニメーションが終わったら
 		if (animationTime_ > animationData.duration)
 		{
-			//アニメーションの終了フラグを立てる
-			isAnimationEnd_ = true;
+			if (!isStop_)
+			{
+				//アニメーションの終了フラグを立てる
+				isAnimationEnd_ = true;
+			}
+			else
+			{
+				isAnimationEnd_ = false;
+			}
 
 			//ループフラグが立っていたらanimationTimeをリセット
 			if (isLoop_)

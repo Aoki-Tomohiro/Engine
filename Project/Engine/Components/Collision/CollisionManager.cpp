@@ -39,7 +39,7 @@ void CollisionManager::CheckAllCollisions()
 void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collider2)
 {
 	//nullチェック
-	if (!collider1 || !collider2) 
+	if (!collider1 || !collider2)
 	{
 		return;
 	}
@@ -51,9 +51,23 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 		return;
 	}
 
+	//衝突判定が無効化された場合
+	if (!collider1->GetCollisionEnabled() || !collider2->GetCollisionEnabled())
+	{
+		if (collider1->IsCollidingWith(collider2))
+		{
+			collider1->RemoveCollision(collider2);
+			collider2->RemoveCollision(collider1);
+			collider1->OnCollisionExit(collider2->owner_);
+			collider2->OnCollisionExit(collider1->owner_);
+		}
+		return;
+	}
+
 	bool isColliding = false;
 
-	if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<SphereCollider*>(collider2)) 
+	//衝突判定
+	if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<SphereCollider*>(collider2))
 	{
 		isColliding = CheckSphereSphereCollision(static_cast<SphereCollider*>(collider1), static_cast<SphereCollider*>(collider2));
 	}
@@ -65,7 +79,7 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 	{
 		isColliding = CheckOBBOBBCollision(static_cast<OBBCollider*>(collider1), static_cast<OBBCollider*>(collider2));
 	}
-	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<AABBCollider*>(collider2)) 
+	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<AABBCollider*>(collider2))
 	{
 		isColliding = CheckSphereAABBCollision(static_cast<SphereCollider*>(collider1), static_cast<AABBCollider*>(collider2));
 	}
@@ -73,7 +87,7 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 	{
 		isColliding = CheckSphereAABBCollision(static_cast<SphereCollider*>(collider2), static_cast<AABBCollider*>(collider1));
 	}
-	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2)) 
+	else if (dynamic_cast<SphereCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2))
 	{
 		isColliding = CheckSphereOBBCollision(static_cast<SphereCollider*>(collider1), static_cast<OBBCollider*>(collider2));
 	}
@@ -81,7 +95,7 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 	{
 		isColliding = CheckSphereOBBCollision(static_cast<SphereCollider*>(collider2), static_cast<OBBCollider*>(collider1));
 	}
-	else if (dynamic_cast<AABBCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2)) 
+	else if (dynamic_cast<AABBCollider*>(collider1) && dynamic_cast<OBBCollider*>(collider2))
 	{
 		isColliding = CheckAABBOBBCollision(static_cast<AABBCollider*>(collider1), static_cast<OBBCollider*>(collider2));
 	}
@@ -104,7 +118,7 @@ void CollisionManager::CheckCollisionPair(Collider* collider1, Collider* collide
 	}
 	else
 	{
-		if (collider1->IsCollidingWith(collider2)) 
+		if (collider1->IsCollidingWith(collider2))
 		{
 			collider1->RemoveCollision(collider2);
 			collider2->RemoveCollision(collider1);

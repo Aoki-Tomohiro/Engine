@@ -21,26 +21,36 @@ private:
 	//コンボの数
 	static const int kComboNum = 4;
 
+	//攻撃フェーズの列挙体
+	enum ComboPhase
+	{
+		kCharge,
+		kSwing,
+		kRecovery,
+	};
+
 	//攻撃用定数
 	struct ConstGroundAttack
 	{
-		//溜めの時間
-		float chargeTime;
-		//攻撃振りの時間
-		float swingTime;
-		//硬直時間
-		float recoveryTime;
-		//移動速度
-		float moveSpeed;
+		float chargeTime;     // 溜めの時間
+		float swingTime;      // 攻撃振りの時間
+		float recoveryTime;   // 硬直時間
+		float moveSpeed;      // 移動速度
+		float attackInterval; // ヒット間隔
+		int32_t maxHitCount;     // ヒット回数
 	};
 
 	//攻撃用ワーク
 	struct WorkGroundAttack
 	{
-		float attackParameter = 0.0f;
-		int32_t comboIndex = 0;
-		int32_t inComboPhase = 0;
-		bool comboNext = false;
+		float attackParameter = 0.0f;    // 攻撃用のパラメーター
+		int32_t comboIndex = 0;          // 現在のコンボのインデックス
+		int32_t inComboPhase = 0;        // 現在のコンボの中のフェーズ
+		bool comboNext = false;          // 次のコンボが有効かどうか
+		float hitTimer = 0.0f;           // ヒット用タイマー
+		int32_t hitCount = 0;            // ヒット回数
+		bool isMovementFinished = false; // 移動が終了したかどうか
+		float parryTimer = 0.0f;         // パリィ用のタイマー
 	};
 
 	//コンボ定数表
@@ -50,13 +60,7 @@ private:
 	//Input
 	Input* input_ = nullptr;
 
-	//攻撃用ワーク
-	WorkGroundAttack workAttack_{};
-
-	//攻撃の補正を掛ける距離の閾値
-	float attackThreshold_ = 8.0f;
-
-	//パリィ用のタイマー
-	float parryWindow_ = 0.0f;
+	//地上攻撃用ワーク
+	WorkGroundAttack workGroundAttack_{};
 };
 

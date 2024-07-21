@@ -18,14 +18,6 @@ public:
 	void OnCollisionExit(GameObject* other);
 
 private:
-	//ジャスト回避用の構造体
-	struct JustDodgeSettings
-	{
-		bool isInWarningRange = false; // 警告範囲に入っているか
-		bool isJustDodgeAvailable = false;// ジャスト回避が可能かどうか
-		float justDodgeTimer = 0.0f;// ジャスト回避用のタイマー
-	};
-
 	void UpdateStickInput();
 
 	void UpdateMovement();
@@ -38,15 +30,28 @@ private:
 
 	void UpdateJustDodge();
 
+	//ジャスト回避用の構造体
+	struct WorkJustDodge
+	{
+		bool isInWarningRange = false;         // 警告範囲に入っているか
+		bool isJustDodgeAvailable = false;     // ジャスト回避が可能かどうか
+		float justDodgeSuccessTimer = 0.0f;    // ジャスト回避が成功したかを判別するタイマー
+	};
+
 private:
+	//Input
 	Input* input_ = nullptr;
 
-	JustDodgeSettings justDodgeSettings_{};
-
+	//スティックの入力値
 	Vector3 inputValue_{};
 
+	//入力の強さ
 	float inputLength_ = 0.0f;
 
+	//走り状態かどうか
 	bool isRunning_ = false;
+
+	//ジャスト回避用の設定
+	WorkJustDodge justDodgeWork_{};
 };
 

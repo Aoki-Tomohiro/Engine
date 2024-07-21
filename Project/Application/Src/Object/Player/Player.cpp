@@ -17,13 +17,13 @@ void Player::Initialize()
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "WalkSpeed", walkSpeed_);
-	globalVariables->AddItem(groupName, "WalkThreshold", walkThreshold_);
-	globalVariables->AddItem(groupName, "RunSpeed", runSpeed_);
-	globalVariables->AddItem(groupName, "RunThreshold", runThreshold_);
-	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeSpeed_);
-	globalVariables->AddItem(groupName, "JumpFirstSpeed", jumpFirstSpeed_);
-	globalVariables->AddItem(groupName, "GravityAcceleration", gravityAcceleration_);
+	globalVariables->AddItem(groupName, "WalkSpeed", rootParameters_.walkSpeed);
+	globalVariables->AddItem(groupName, "WalkThreshold", rootParameters_.walkThreshold);
+	globalVariables->AddItem(groupName, "RunSpeed", rootParameters_.runSpeed);
+	globalVariables->AddItem(groupName, "RunThreshold", rootParameters_.runThreshold);
+	globalVariables->AddItem(groupName, "DodgeSpeed", dodgeParameters_.dodgeSpeed);
+	globalVariables->AddItem(groupName, "JumpFirstSpeed", jumpParameters_.firstSpeed);
+	globalVariables->AddItem(groupName, "GravityAcceleration", jumpParameters_.gravityAcceleration);
 }
 
 void Player::Update()
@@ -37,7 +37,11 @@ void Player::Update()
 
 	//回転処理
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
+	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+
+	//Colliderを設定
+	AABBCollider* collider = GetComponent<AABBCollider>();
+	collider->SetDebugDrawEnabled(isDebug_);
 
 	//ImGuiの処理
 	ImGui();
@@ -135,9 +139,12 @@ void Player::ChangeState(IPlayerState* state)
 void Player::ImGui()
 {
 	//ImGui
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	ImGui::Begin("Player");
-	ImGui::DragFloat3("Velocity", &velocity.x);
 	ImGui::Checkbox("IsDebug", &isDebug_);
+	ImGui::DragFloat3("Translation", &transformComponent->worldTransform_.translation_.x, 0.01f);
+	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
+	ImGui::DragFloat3("Velocity", &velocity.x);
 	ImGui::DragFloat("AnimationTime", &animationTime_, 0.001f);
 	if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
 	{
@@ -162,11 +169,11 @@ void Player::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
-	walkSpeed_ = globalVariables->GetFloatValue(groupName, "WalkSpeed");
-	walkThreshold_ = globalVariables->GetFloatValue(groupName, "WalkThreshold");
-	runSpeed_ = globalVariables->GetFloatValue(groupName, "RunSpeed");
-	runThreshold_ = globalVariables->GetFloatValue(groupName, "RunThreshold");
-	dodgeSpeed_ = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
-	jumpFirstSpeed_ = globalVariables->GetFloatValue(groupName, "JumpFirstSpeed");
-	gravityAcceleration_ = globalVariables->GetFloatValue(groupName, "GravityAcceleration");
+	rootParameters_.walkThreshold = globalVariables->GetFloatValue(groupName, "WalkThreshold");
+	rootParameters_.walkSpeed = globalVariables->GetFloatValue(groupName, "WalkSpeed");
+	rootParameters_.runThreshold = globalVariables->GetFloatValue(groupName, "RunThreshold");
+	rootParameters_.runSpeed = globalVariables->GetFloatValue(groupName, "RunSpeed");
+	dodgeParameters_.dodgeSpeed = globalVariables->GetFloatValue(groupName, "DodgeSpeed");
+	jumpParameters_.firstSpeed = globalVariables->GetFloatValue(groupName, "JumpFirstSpeed");
+	jumpParameters_.gravityAcceleration = globalVariables->GetFloatValue(groupName, "GravityAcceleration");
 }

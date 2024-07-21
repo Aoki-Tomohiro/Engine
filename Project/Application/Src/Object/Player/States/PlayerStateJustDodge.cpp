@@ -4,6 +4,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateJustDodgeAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include <numbers>
 
@@ -16,6 +17,7 @@ void PlayerStateJustDodge::Initialize()
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.019");
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+	modelComponent->GetModel()->GetAnimation()->SetIsStop(true);
 
 	//最初の座標を取得
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
@@ -29,10 +31,10 @@ void PlayerStateJustDodge::Initialize()
 	};
 
 	//スティックの入力が閾値を超えていた場合
-	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
+	if (Mathf::Length(player_->velocity) > player_->rootParameters_.walkThreshold)
 	{
 		//速度を計算
-		Vector3 offset = Mathf::Normalize(stickValue) * player_->justDodgeTargetDistance_;
+		Vector3 offset = Mathf::Normalize(stickValue) * player_->dodgeParameters_.justDodgeTargetDistance;
 
 		//移動ベクトルをカメラの角度だけ回転させる
 		offset = Mathf::RotateVector(offset, player_->camera_->quaternion_);
@@ -45,7 +47,7 @@ void PlayerStateJustDodge::Initialize()
 	else
 	{
 		//目標座標を計算
-		targetPosition_ = transformComponent->GetWorldPosition() + Mathf::TransformNormal({ player_->justDodgeTargetDistance_,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
+		targetPosition_ = transformComponent->GetWorldPosition() + Mathf::TransformNormal({ player_->dodgeParameters_.justDodgeTargetDistance,0.0f,0.0f}, transformComponent->worldTransform_.matWorld_);
 	}
 
 	//進行方向に回転させる
@@ -56,7 +58,7 @@ void PlayerStateJustDodge::Initialize()
 
 	//敵をゆっくりにする
 	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-	enemy->SetTimeScale(0.1f);
+	enemy->SetTimeScale(0.01f);
 }
 
 void PlayerStateJustDodge::Update()
@@ -65,7 +67,7 @@ void PlayerStateJustDodge::Update()
 	justDodgeTimer_ += GameTimer::GetDeltaTime();
 
 	//現在の進行状況を計算
-	float currentTime = justDodgeTimer_ / player_->justDodgeDuration_;
+	float currentTime = justDodgeTimer_ / player_->dodgeParameters_.justDodgeDuration;
 
 	//移動処理
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
@@ -73,8 +75,20 @@ void PlayerStateJustDodge::Update()
 	transformComponent->worldTransform_.translation_.y = startPosition_.y + (targetPosition_.y - startPosition_.y) * Mathf::EaseOutExpo(currentTime);
 	transformComponent->worldTransform_.translation_.z = startPosition_.z + (targetPosition_.z - startPosition_.z) * Mathf::EaseOutExpo(currentTime);
 
+	//Xボタンを押した場合
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		//ジャスト回避のフラグを折る
+		player_->isJustDodgeSuccess_ = false;
+
+		//回避攻撃のフラグを立てる
+		player_->isJustDodgeAttack_ = true;
+
+		//回避攻撃状態に遷移
+		player_->ChangeState(new PlayerStateJustDodgeAttack());
+	}
 	//イージングが終了したら
-	if (justDodgeTimer_ > player_->justDodgeDuration_)
+	else if (justDodgeTimer_ > player_->dodgeParameters_.justDodgeDuration)
 	{
 		//敵の速度をもとに戻す
 		Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
@@ -83,6 +97,7 @@ void PlayerStateJustDodge::Update()
 		//アニメーションの設定を戻す
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+		modelComponent->GetModel()->GetAnimation()->SetIsStop(false);
 
 		//ジャスト回避のフラグを折る
 		player_->isJustDodgeSuccess_ = false;

@@ -33,7 +33,11 @@ public:
 
 	void RemoveCollision(Collider* collider) { currentCollisions_.erase(collider); };
 
-	bool IsCollidingWith(Collider* collider) const { return currentCollisions_.find(collider) != currentCollisions_.end(); };
+	const bool IsCollidingWith(Collider* collider) const { return currentCollisions_.find(collider) != currentCollisions_.end(); };
+
+	const bool GetCollisionEnabled() const { return collisionEnabled_; };
+
+	void SetCollisionEnabled(const bool collisionEnabled) { collisionEnabled_ = collisionEnabled; };
 
 	void SetDebugDrawEnabled(const bool debugDrawEnabled) { debugDrawEnabled_ = debugDrawEnabled; };
 
@@ -45,6 +49,8 @@ protected:
 	uint32_t collisionAttribute_ = 0xffffffff;
 
 	uint32_t collisionMask_ = 0xffffffff;
+
+	bool collisionEnabled_ = true;
 
 	bool debugDrawEnabled_ = false;
 };

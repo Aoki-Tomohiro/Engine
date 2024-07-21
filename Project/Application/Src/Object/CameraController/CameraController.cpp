@@ -2,6 +2,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/CameraController/States/CameraStateFollow.h"
 
@@ -70,12 +71,26 @@ void CameraController::UpdateCameraShake()
 		//イージング関数を適用して、シェイクの強さを滑らかに減衰させる
 		float easedProgress = Mathf::EaseOutExpo(currentTime);
 
-		//現在のシェイク強度を計算
-		Vector3 currentIntensity = {
-			cameraShakeSettings_.intensity.x * (1.0f - easedProgress),
-			cameraShakeSettings_.intensity.y * (1.0f - easedProgress),
-			cameraShakeSettings_.intensity.z * (1.0f - easedProgress),
-		};
+		//プレイヤーを取得
+		Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
+
+		//現在のシェイク強度
+		Vector3 currentIntensity{};
+
+		//現在のシェイク間隔
+		float duration = 0.0f;
+
+		//現在のシェイク強度をと間隔を決める
+		if (player->GetIsJustDodgeAttack())
+		{
+			currentIntensity = cameraShakeSettings_.justDodgeIntensity * (1.0f - easedProgress);
+			duration = cameraShakeSettings_.justDodgeDuration;
+		}
+		else
+		{
+			currentIntensity = cameraShakeSettings_.intensity * (1.0f - easedProgress);
+			duration = cameraShakeSettings_.duration;
+		}
 
 		//現在の強度を基にランダムな揺らし幅を生成
 		Vector3 shakeOffset = {
@@ -88,7 +103,7 @@ void CameraController::UpdateCameraShake()
 		camera_.translation_ += shakeOffset;
 
 		//シェイクタイマーが指定の時間を超えたらカメラシェイクを無効化する
-		if (cameraShakeSettings_.timer > cameraShakeSettings_.duration)
+		if (cameraShakeSettings_.timer > duration)
 		{
 			cameraShakeSettings_.isShaking = false;
 		}

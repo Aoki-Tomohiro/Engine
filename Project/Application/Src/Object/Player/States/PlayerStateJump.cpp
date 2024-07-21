@@ -23,7 +23,7 @@ void PlayerStateJump::Initialize()
 	}
 
 	//速度にジャンプの初速度を設定
-	player_->velocity.y = player_->jumpFirstSpeed_;
+	player_->velocity.y = player_->jumpParameters_.firstSpeed;
 }
 
 void PlayerStateJump::Update()
@@ -32,7 +32,7 @@ void PlayerStateJump::Update()
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 
 	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f,-player_->gravityAcceleration_,0.0f };
+	Vector3 accelerationVector = { 0.0f,-player_->jumpParameters_.gravityAcceleration,0.0f };
 
 	//速度に重力加速度を加算
 	player_->velocity += accelerationVector;

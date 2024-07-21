@@ -22,11 +22,13 @@ private:
 	//カメラシェイク用の構造体
 	struct CameraShakeSettings
 	{
-		bool isShaking = false;// カメラシェイクが有効かどうかのフラグ
-		Vector3 intensity = { 0.0f, 0.6f, 0.0f };// カメラシェイクの強度
-		Vector3 originalPosition{}; // カメラシェイクの基準座標オフセット
-		float duration = 0.2f;// カメラシェイクの持続時間
-		float timer = 0.0f;// カメラシェイクの経過時間を計測するタイマー
+		bool isShaking = false;                             // カメラシェイクが有効かどうかのフラグ
+		Vector3 intensity = { 0.0f, 0.6f, 0.0f };           // カメラシェイクの強度
+		Vector3 justDodgeIntensity = { 0.0f, 10.0f, 0.0f }; // 回避攻撃のカメラシェイクの強度
+		Vector3 originalPosition{};                         // カメラシェイクの基準座標オフセット
+		float duration = 0.2f;                              // カメラシェイクの持続時間
+		float justDodgeDuration = 0.6f;                              // 回避攻撃のカメラシェイクの持続時間
+		float timer = 0.0f;                                 // カメラシェイクの経過時間を計測するタイマー
 	};
 
 	void ChangeState(ICameraState* state);
@@ -52,10 +54,10 @@ private:
 	Vector3 interTarget_{};
 
 	//追従対象からのオフセット
-	Vector3 offset_ { 0.0f, 2.0f, -20.0f };
+	Vector3 offset_ { 0.0f, 4.0f, -20.0f };
 
 	//補間用のオフセット
-	Vector3 destinationOffset_{ 0.0f, 2.0f, -20.0f };
+	Vector3 destinationOffset_{ 0.0f, 4.0f, -20.0f };
 
 	//Quaternion
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };

@@ -126,12 +126,9 @@ void GamePlayScene::Update()
 		collisionManager_->SetColliderList(collider);
 	}
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
-	if (weapon->GetIsAttack())
+	if (Collider* collider = weapon->GetComponent<Collider>())
 	{
-		if (Collider* collider = weapon->GetComponent<Collider>())
-		{
-			collisionManager_->SetColliderList(collider);
-		}
+		collisionManager_->SetColliderList(collider);
 	}
 	std::vector<Warning*> warnings = gameObjectManager_->GetGameObjects<Warning>();
 	for (Warning* warning : warnings)

@@ -11,6 +11,9 @@ void CameraStateFollow::Initialize()
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//オフセット値の初期化
+	cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+
 	//Quaternionの初期化
 	if (cameraController_->target_)
 	{

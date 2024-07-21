@@ -4,6 +4,16 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 
+const std::array<PlayerStateDodge::DodgeDurations, PlayerStateDodge::DodgeDirection::NumDirections> PlayerStateDodge::kDodgeDurations_ =
+{
+	{
+		{0.26f, 0.638f, 0.84f },
+		{0.28f, 0.72f,  0.738f},
+		{0.26f, 0.75f,  0.728f},
+		{0.26f, 0.72f,  0.758f},
+	}
+};
+
 void PlayerStateDodge::Initialize()
 {
 	//Inputのインスタンスを取得
@@ -23,7 +33,7 @@ void PlayerStateDodge::Initialize()
 	};
 
 	//スティックの入力が歩きの閾値を超えていた場合
-	if (Mathf::Length(player_->velocity) > player_->walkThreshold_)
+	if (Mathf::Length(player_->velocity) > player_->rootParameters_.walkThreshold)
 	{
 		//アニメーションの設定
 		if (player_->lockOn_->ExistTarget())
@@ -68,7 +78,7 @@ void PlayerStateDodge::Initialize()
 		}
 
 		//速度を計算
-		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dodgeSpeed_;
+		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dodgeParameters_.dodgeSpeed;
 
 		//移動ベクトルをカメラの角度だけ回転させる
 		player_->velocity = Mathf::RotateVector(player_->velocity, player_->camera_->quaternion_);
@@ -83,7 +93,7 @@ void PlayerStateDodge::Initialize()
 
 		//速度を計算
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-player_->dodgeSpeed_ }, transformComponent->worldTransform_.matWorld_);
+		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,-player_->dodgeParameters_.dodgeSpeed }, transformComponent->worldTransform_.matWorld_);
 	}
 }
 
@@ -99,14 +109,14 @@ void PlayerStateDodge::Update()
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	float animationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 	//溜め時間を超えていて、回避時間を超えていない場合
-	if (animationTime > dodgeSettings_[dodgeDirection_].chargeDuration && animationTime < dodgeSettings_[dodgeDirection_].dodgeDuration)
+	if (animationTime > kDodgeDurations_[dodgeDirection_].chargeDuration && animationTime < kDodgeDurations_[dodgeDirection_].dodgeDuration)
 	{
 		//移動処理
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();;
 	}
 	//アニメーションが終っていた場合
-	else if (animationTime > dodgeSettings_[dodgeDirection_].recoveryDuration)
+	else if (animationTime > kDodgeDurations_[dodgeDirection_].recoveryDuration)
 	{
 		//アニメーションをループ状態にする
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();

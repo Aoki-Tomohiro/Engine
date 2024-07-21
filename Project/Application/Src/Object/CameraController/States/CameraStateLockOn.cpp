@@ -8,7 +8,7 @@
 void CameraStateLockOn::Initialize()
 {
 	//オフセット値の初期化
-	cameraController_->destinationOffset_ = { 2.0f, 2.0f, -20.0f };
+	cameraController_->destinationOffset_ = { 2.0f, 2.0f, -24.0f };
 }
 
 void CameraStateLockOn::Update()

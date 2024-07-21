@@ -18,12 +18,16 @@ public:
 	void OnCollisionExit(GameObject* other);
 
 private:
+	//Input
 	Input* input_ = nullptr;
 
+	//始点座標
 	Vector3 startPosition_{};
 
+	//目標座標
 	Vector3 targetPosition_{};
 
-	float justDodgeTimer_ = 0.0f;
+	//ジャスト回避のタイマー
+	float justDodgeTimer_ = 0.0f;           
 };
 
