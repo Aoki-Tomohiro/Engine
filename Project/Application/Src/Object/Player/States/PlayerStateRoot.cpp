@@ -44,6 +44,9 @@ void PlayerStateRoot::Update()
 		player_->velocity = { 0.0f,0.0f,0.0f };
 	}
 
+	//魔法攻撃の処理
+	UpdateMagicProjectileAttack();
+
 	//ジャスト回避の処理
 	UpdateJustDodge();
 
@@ -116,8 +119,17 @@ void PlayerStateRoot::UpdateMovement()
 	//スティックの入力が走りの閾値を超えていた場合
 	if (inputLength_ > player_->rootParameters_.runThreshold)
 	{
-		//移動量に速さを反映
-		player_->velocity = Mathf::Normalize(inputValue_) * player_->rootParameters_.runSpeed;
+		//魔法攻撃中立った場合は歩きの速度にする
+		if (workMagicAttack_.isMagicAttack_)
+		{
+			//移動量に速さを反映
+			player_->velocity = Mathf::Normalize(inputValue_) * player_->rootParameters_.walkSpeed;
+		}
+		else
+		{
+			//移動量に速さを反映
+			player_->velocity = Mathf::Normalize(inputValue_) * player_->rootParameters_.runSpeed;
+		}
 
 		//走り状態にする
 		isRunning_ = true;
@@ -125,7 +137,7 @@ void PlayerStateRoot::UpdateMovement()
 	else
 	{
 		//移動量に速さを反映
-		player_->velocity = Mathf::Normalize(inputValue_) * player_->rootParameters_.walkThreshold;
+		player_->velocity = Mathf::Normalize(inputValue_) * player_->rootParameters_.walkSpeed;
 
 		//歩き状態にする
 		isRunning_ = false;
@@ -170,7 +182,14 @@ void PlayerStateRoot::UpdateIdleAnimation()
 {
 	//待機アニメーションに変える
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-	modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	if (workMagicAttack_.isMagicAttack_)
+	{
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.028");
+	}
+	else
+	{
+		modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	}
 }
 
 void PlayerStateRoot::UpdateLockOnAnimation()
@@ -191,7 +210,11 @@ void PlayerStateRoot::UpdateLockOnAnimation()
 			//前後の入力がある場合
 			if (inputValue_.z > 0.0f)
 			{
-				if (isRunning_)
+				if (workMagicAttack_.isMagicAttack_)
+				{
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.023"); //前進アニメーション
+				}
+				else if (isRunning_)
 				{
 					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004"); //前進アニメーション
 				}
@@ -202,7 +225,11 @@ void PlayerStateRoot::UpdateLockOnAnimation()
 			}
 			else
 			{
-				if (isRunning_)
+				if (workMagicAttack_.isMagicAttack_)
+				{
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.024"); //後退アニメーション
+				}
+				else if (isRunning_)
 				{
 					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.005"); //後退アニメーション
 				}
@@ -217,7 +244,11 @@ void PlayerStateRoot::UpdateLockOnAnimation()
 			//左右の入力がある場合
 			if (inputValue_.x > 0.0f)
 			{
-				if (isRunning_)
+				if (workMagicAttack_.isMagicAttack_)
+				{
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.026"); //右横移動アニメーション
+				}
+				else if (isRunning_)
 				{
 					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.006"); //右横移動アニメーション
 				}
@@ -228,7 +259,11 @@ void PlayerStateRoot::UpdateLockOnAnimation()
 			}
 			else
 			{
-				if (isRunning_)
+				if (workMagicAttack_.isMagicAttack_)
+				{
+					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.025"); //左横移動アニメーション
+				}
+				else if (isRunning_)
 				{
 					modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.007"); //左横移動アニメーション
 				}
@@ -241,7 +276,12 @@ void PlayerStateRoot::UpdateLockOnAnimation()
 	}
 	else
 	{
-		if (isRunning_)
+		if (workMagicAttack_.isMagicAttack_)
+		{
+			//前進アニメーション
+			modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.023");
+		}
+		else if (isRunning_)
 		{
 			//前進アニメーション
 			modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
@@ -310,6 +350,60 @@ void PlayerStateRoot::UpdateJustDodge()
 					}
 				}
 			}
+		}
+	}
+}
+
+void PlayerStateRoot::UpdateMagicProjectileAttack()
+{
+	//Yボタンを押しているとき
+	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
+	{
+		//魔法攻撃のタイマーを進める
+		workMagicAttack_.fireTimer_ += GameTimer::GetDeltaTime();
+
+		//魔法攻撃のフラグを立てる
+		workMagicAttack_.isMagicAttack_ = true;
+
+		//魔法攻撃終了のタイマーをリセット
+		workMagicAttack_.finishedTimer_ = 0.0f;
+	}
+
+	//魔法攻撃のフラグが立っているとき
+	if (workMagicAttack_.isMagicAttack_)
+	{
+		//Yボタンを押していなかった場合
+		if (!input_->IsPressButton(XINPUT_GAMEPAD_Y))
+		{
+			//魔法攻撃終了のタイマーを進める
+			workMagicAttack_.finishedTimer_ += GameTimer::GetDeltaTime();
+
+			//魔法攻撃終了のタイマーが規定値を超えていたら
+			if (workMagicAttack_.finishedTimer_ > player_->magicAttackParameters_.magicAttackFinishedDuration)
+			{
+				//魔法攻撃終了のタイマーをリセット
+				workMagicAttack_.finishedTimer_ = 0.0f;
+
+				//発射タイマーをリセット
+				workMagicAttack_.fireTimer_ = 0.0f;
+
+				//魔法攻撃を終了させる
+				workMagicAttack_.isMagicAttack_ = false;
+			}
+		}
+	}
+
+	//Yボタンを離した時
+	if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+	{
+		//魔法攻撃のタイマーが規定値を超えていたら
+		if (workMagicAttack_.fireTimer_ > player_->magicAttackParameters_.fireRate)
+		{
+			//タイマーをリセット
+			workMagicAttack_.fireTimer_ = 0.0f;
+
+			//魔法弾を生成
+			player_->AddMagicProjectile(false);
 		}
 	}
 }

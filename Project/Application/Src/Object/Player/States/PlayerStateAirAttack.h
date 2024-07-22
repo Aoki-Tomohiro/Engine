@@ -19,7 +19,7 @@ public:
 
 private:
 	//コンボの数
-	static const int kComboNum = 4;
+	static const int kComboNum = 3;
 
 	//攻撃フェーズの列挙体
 	enum ComboPhase

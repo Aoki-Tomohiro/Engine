@@ -27,10 +27,10 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Warning* warning = new Warning;
 		return warning;
 	}
-	else if (objectName == "Illusion")
+	else if (objectName == "MagicProjectile")
 	{
-		Illusion* illusion = new Illusion();
-		return illusion;
+		MagicProjectile* magicProjectile = new MagicProjectile;
+		return magicProjectile;
 	}
 
 	return nullptr;

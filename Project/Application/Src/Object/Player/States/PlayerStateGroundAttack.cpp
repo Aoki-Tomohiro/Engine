@@ -11,10 +11,10 @@
 const std::array<PlayerStateGroundAttack::ConstGroundAttack, PlayerStateGroundAttack::kComboNum> PlayerStateGroundAttack::kConstAttacks_ =
 {
 	{
-		{0.53f, 0.84f, 1.52f,  11.0f, 0.07f, 1},
-		{0.6f,  0.96f, 0.0f,   11.0f,  0.17f, 1},
-		{0.2f,  0.74f, 1.333f, 28.0f, 0.22f, 1},
-		{1.26f, 1.62f, 2.46f,  22.0f, 0.075f, 1},
+		{0.53f, 0.84f, 1.52f,  11.0f, 0.14f, 1},
+		{0.6f,  0.96f, 0.0f,   11.0f, 0.27f, 1},
+		{0.54f, 0.74f, 1.333f, 28.0f, 0.08f, 1},
+		{1.26f, 1.62f, 2.46f,  22.0f, 0.15f, 1},
 	}
 };
 
@@ -25,14 +25,28 @@ void PlayerStateGroundAttack::Initialize()
 
 	//武器の初期化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-	weapon->SetisParryable(true);
+	weapon->SetisParryable(false);
 
 	//アニメーションの初期化
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
-	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+	switch (workGroundAttack_.comboIndex)
+	{
+	case 0:
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+		break;
+	case 1:
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.015");
+		break;
+	case 2:
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.016");
+		break;
+	case 3:
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.017");
+		break;
+	}
 
 	//ダッシュ攻撃が有効なら
 	if (player_->isDashAttack_)
@@ -210,7 +224,7 @@ void PlayerStateGroundAttack::Update()
 			break;
 		case kSwing:
 			//ヒットタイマーを進める
-			workGroundAttack_.hitTimer += GameTimer::GetDeltaTime();
+			workGroundAttack_.hitTimer += modelComponent->GetModel()->GetAnimation()->GetAnimationSpeed() * GameTimer::GetDeltaTime();
 
 			//攻撃判定をつける
 			if (workGroundAttack_.hitTimer > kConstAttacks_[workGroundAttack_.comboIndex].attackInterval)
@@ -247,6 +261,9 @@ void PlayerStateGroundAttack::Update()
 			break;
 		}
 	}
+
+	//魔法攻撃の処理
+	UpdateEnhancedMagic();
 }
 
 void PlayerStateGroundAttack::Draw(const Camera& camera)
@@ -263,4 +280,66 @@ void PlayerStateGroundAttack::OnCollisionEnter(GameObject* other)
 
 void PlayerStateGroundAttack::OnCollisionExit(GameObject* other)
 {
+}
+
+void PlayerStateGroundAttack::UpdateEnhancedMagic()
+{
+	//武器を取得
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	//モデルを取得
+	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+
+	//攻撃が当たっていたら
+	if (weapon->GetIsHit())
+	{
+		//強化魔法を出せる状態にする
+		workGroundAttack_.isEnhancedMagicAvailable = true;
+	}
+
+	//強化魔法を出せる状態の場合
+	if (workGroundAttack_.isEnhancedMagicAvailable)
+	{
+		//入力の受付タイマーを進める
+		workGroundAttack_.enhancedMagicInputTimer += GameTimer::GetDeltaTime();
+		
+		//入力のタイマーが一定値を超えていない時
+		if (workGroundAttack_.enhancedMagicInputTimer < player_->magicAttackParameters_.enhancedMagicWindow)
+		{
+			//Yボタンを押したら
+			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
+			{
+				//強化魔法の成功したフラグを立てる
+				workGroundAttack_.isEnhancedMagicSuccess = true;
+
+				//強化魔法を出せない状態にする
+				workGroundAttack_.isEnhancedMagicAvailable = false;
+
+				//入力用のタイマーのリセット
+				workGroundAttack_.enhancedMagicInputTimer = 0.0f;
+
+				//アニメーションを切り替え
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.027");
+				modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.82f);
+			}
+		}
+		else
+		{
+			//強化魔法を出せない状態にする
+			workGroundAttack_.isEnhancedMagicAvailable = false;
+
+			//入力用のタイマーのリセット
+			workGroundAttack_.enhancedMagicInputTimer = 0.0f;
+		}
+	}
+
+	//強化魔法を出すことに成功していたら
+	if (workGroundAttack_.isEnhancedMagicSuccess)
+	{
+		//アニメーションの時間が一定値を超えていたら魔法を出す
+		if (modelComponent->GetModel()->GetAnimation()->GetAnimationTime() > player_->magicAttackParameters_.enhancedFireRate)
+		{
+			workGroundAttack_.isEnhancedMagicSuccess = false;
+			player_->AddMagicProjectile(true);
+		}
+	}
 }

@@ -11,10 +11,9 @@
 const std::array<PlayerStateAirAttack::ConstAirAttack, PlayerStateAirAttack::kComboNum> PlayerStateAirAttack::kConstAttacks_ =
 {
 	{
-		{0.53f, 0.84f, 1.52f,  11.0f, 0.07f, 1},
-		{0.6f,  0.96f, 1.6f,   11.0f,  0.17f, 1},
-		{0.2f,  0.74f, 1.333f, 28.0f, 0.22f, 1},
-		{1.26f, 1.62f, 2.46f,  22.0f, 0.075f, 1},
+		{0.6f,  0.96f, 2.33f, 6.0f, 0.26f, 1},
+		{0.38f, 0.7f,  2.56f, 6.0f, 0.06f, 1},
+		{0.7f,  0.88f, 2.4f,  6.0f, 0.13f, 1},
 	}
 };
 
@@ -28,14 +27,14 @@ void PlayerStateAirAttack::Initialize()
 
 	//武器の初期化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-	weapon->SetisParryable(true);
+	weapon->SetisParryable(false);
 
 	//アニメーションの初期化
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
 	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(2.0f);
-	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.020");
 
 	//ダッシュ攻撃が有効なら
 	if (player_->isDashAttack_)
@@ -85,8 +84,7 @@ void PlayerStateAirAttack::Update()
 			workAirAttack_.hitCount = 0;
 			workAirAttack_.isMovementFinished = false;
 			workAirAttack_.parryTimer = 0.0f;
-			player_->velocity = { 0.0f,0.0f,kConstAttacks_[workAirAttack_.comboIndex].moveSpeed };
-			player_->velocity = Mathf::TransformNormal(player_->velocity, playerTransformConponent->worldTransform_.matWorld_);
+
 			player_->velocity.y = 0.0f;
 
 			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
@@ -125,16 +123,13 @@ void PlayerStateAirAttack::Update()
 			switch (workAirAttack_.comboIndex)
 			{
 			case 0:
-				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.020");
 				break;
 			case 1:
-				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.015");
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.021");
 				break;
 			case 2:
-				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.016");
-				break;
-			case 3:
-				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.017");
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.022");
 				break;
 			}
 		}
@@ -211,17 +206,41 @@ void PlayerStateAirAttack::Update()
 			{
 				if (!workAirAttack_.isMovementFinished)
 				{
-					playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+					Vector3 horizontalVelocity = { 0.0f,0.0f,kConstAttacks_[workAirAttack_.comboIndex].moveSpeed };
+					horizontalVelocity = Mathf::TransformNormal(horizontalVelocity, playerTransformConponent->worldTransform_.matWorld_);
+					player_->velocity = { horizontalVelocity.x, player_->velocity.y, horizontalVelocity.z };
 				}
 			}
 			else
 			{
 				workAirAttack_.isMovementFinished = true;
 			}
+
+			//速度に重力加速度を加算
+			player_->velocity.y += -player_->airAttackParameters_.attackGravityAcceleration_;
+
+			//速度を加算
+			playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+
 			break;
 		case kSwing:
+			//速度のXとZを0にする
+			player_->velocity = { 0.0f,player_->velocity.y,0.0f };
+
+			//プレイヤーの攻撃が当たっていたら少し上に飛ばす
+			if (weapon->GetIsHit())
+			{
+				player_->velocity.y = player_->airAttackParameters_.verticalKnockback;
+			}
+
+			//速度に重力加速度を加算
+			player_->velocity.y += -player_->airAttackParameters_.attackGravityAcceleration_;
+
+			//速度を加算
+			playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+
 			//ヒットタイマーを進める
-			workAirAttack_.hitTimer += GameTimer::GetDeltaTime();
+			workAirAttack_.hitTimer += modelComponent->GetModel()->GetAnimation()->GetAnimationSpeed() * GameTimer::GetDeltaTime();
 
 			//攻撃判定をつける
 			if (workAirAttack_.hitTimer > kConstAttacks_[workAirAttack_.comboIndex].attackInterval)
@@ -256,11 +275,8 @@ void PlayerStateAirAttack::Update()
 			//速度のXとZを0にする
 			player_->velocity = { 0.0f,player_->velocity.y,0.0f };
 
-			//重力加速度ベクトルの設定
-			Vector3 accelerationVector = { 0.0f,-player_->jumpParameters_.gravityAcceleration,0.0f };
-
 			//速度に重力加速度を加算
-			player_->velocity += accelerationVector;
+			player_->velocity.y += -player_->airAttackParameters_.gravityAcceleration;
 
 			//速度を加算
 			playerTransformConponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();

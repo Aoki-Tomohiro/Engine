@@ -57,7 +57,8 @@ void GamePlayScene::Initialize()
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
+	//weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
+	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//FollowCameraの作成
 	cameraController_ = std::make_unique<CameraController>();
@@ -130,6 +131,14 @@ void GamePlayScene::Update()
 	{
 		collisionManager_->SetColliderList(collider);
 	}
+	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager_->GetGameObjects<MagicProjectile>();
+	for (MagicProjectile* magicProjectil : magicProjectiles)
+	{
+		if (Collider* collider = magicProjectil->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
 	std::vector<Warning*> warnings = gameObjectManager_->GetGameObjects<Warning>();
 	for (Warning* warning : warnings)
 	{
@@ -153,10 +162,19 @@ void GamePlayScene::Update()
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
+	//HSVの調整
+	PostEffects* postEffects = PostEffects::GetInstance();
+	postEffects->GetHSV()->SetHue(hue_);
+	postEffects->GetHSV()->SetSaturation(saturation_);
+	postEffects->GetHSV()->SetValue(value_);
+
 	//ImGui
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
+	ImGui::DragFloat("Hue", &hue_, 0.01f);
+	ImGui::DragFloat("Saturation", &saturation_, 0.01f);
+	ImGui::DragFloat("Value", &value_, 0.01f);
 	ImGui::End();
 }
 

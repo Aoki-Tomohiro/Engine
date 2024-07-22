@@ -77,9 +77,11 @@ public:
 
 	void ApplyAnimation(WorldTransform& worldTransform, const std::string& name, const std::string& animationName);
 
+	const float GetAnimationTime() const { return animationTime_; };
+
 	void SetAnimationTime(const float animationTime) { animationTime_ = animationTime; };
 
-	const float GetAnimationTime() const { return animationTime_; };
+	const float GetAnimationSpeed() const { return animationSpeed_; };
 
 	void SetAnimationSpeed(const float animationSpeed) { animationSpeed_ = animationSpeed; };
 

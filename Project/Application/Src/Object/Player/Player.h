@@ -39,19 +39,19 @@ private:
 	//通常状態の構造体
 	struct RootParameters
 	{
-		float walkThreshold = 0.3f; // 歩きのスティック入力の閾値
-		float walkSpeed = 9.0f;     // 歩きの移動速度
-		float runThreshold = 0.6f;  // 走りのスティック入力の閾値
-		float runSpeed = 18.0f;     // 走りの移動速度
+		float walkThreshold = 0.3f;               // 歩きのスティック入力の閾値
+		float walkSpeed = 9.0f;                   // 歩きの移動速度
+		float runThreshold = 0.6f;                // 走りのスティック入力の閾値
+		float runSpeed = 18.0f;                   // 走りの移動速度
 	};
 
 	//ダッシュ用の構造体
 	struct DashParameters
 	{
 		float proximityThreshold = 10.0f; // 移動を止める距離
-		float dashSpeed_ = 96.0f;        // ダッシュの移動速度
-		float dashDuration = 0.5f;       // ダッシュ時間
-		float chargeDuration = 0.16f;    // チャージ時間
+		float dashSpeed_ = 96.0f;         // ダッシュの移動速度
+		float dashDuration = 0.5f;        // ダッシュ時間
+		float chargeDuration = 0.16f;     // チャージ時間
 	};
 
 	//回避用の構造体
@@ -81,8 +81,11 @@ private:
 	//空中攻撃用の構造体
 	struct AirAttackParameters
 	{
-		float attackDistance = 12.0f;  // 攻撃の補正を掛ける距離
-		float parryDuration = 0.1f;    // パリィの成功時間
+		float attackDistance = 11.0f;            // 攻撃の補正を掛ける距離
+		float parryDuration = 0.1f;              // パリィの成功時間
+		float gravityAcceleration = 2.8f;        // 重力加速度
+		float attackGravityAcceleration_ = 0.1f; // 攻撃中の重力加速度
+		float verticalKnockback = 10.0f;         // 攻撃が当たった時の上昇力
 	};
 
 	//回避攻撃用の構造体
@@ -90,11 +93,25 @@ private:
 	{
 		float moveDuration = 0.4f;    // 移動時間
 		float targetDistance = -8.0f; // 移動後の敵との距離
-		float hitInterval = 0.09f;     // ヒット間隔
+		float hitInterval = 0.15f;    // ヒット間隔
 		int32_t maxHitCount = 1;      // ヒット数
 	};
 
+	//魔法攻撃用の構造体
+	struct MagicAtackParameters
+	{
+		float fireRate = 0.2f;                             // 魔法攻撃の発射間隔
+		float enhancedFireRate = 0.92f;                    // 強化魔法の発射間隔
+		float magicAttackFinishedDuration = 1.0f;          // 魔法攻撃が終了するまでの時間
+		Vector3 magicProjectileScale = { 0.6f,0.6f,0.6f }; // 魔法弾の大きさ
+		float magicProjectileSpeed = 96.0f;                // 魔法弾の速度
+		float enhancedMagicProjectileSpeed = 48.0f;        // 強化魔法弾の速度
+		float enhancedMagicWindow = 0.06f;                 // 強化魔法弾の受付時間
+	};
+
 	void ChangeState(IPlayerState* state);
+
+	void AddMagicProjectile(const bool isEnhanced);
 
 	void ImGui();
 
@@ -143,6 +160,9 @@ private:
 	//回避攻撃用のパラメーター
 	JustDodgeAttackParameters justDodgeAttackParameters_{};
 
+	//魔法攻撃用のパラメーター
+	MagicAtackParameters magicAttackParameters_{};
+
 	//ジャスト回避に成功したかどうか
 	bool isJustDodgeSuccess_ = false;
 
@@ -184,6 +204,16 @@ private:
 		{"Armature.001|mixamo.com|Layer0.016"},
 		{"Armature.001|mixamo.com|Layer0.017"},
 		{"Armature.001|mixamo.com|Layer0.018"},
+		{"Armature.001|mixamo.com|Layer0.019"},
+		{"Armature.001|mixamo.com|Layer0.020"},
+		{"Armature.001|mixamo.com|Layer0.021"},
+		{"Armature.001|mixamo.com|Layer0.022"},
+		{"Armature.001|mixamo.com|Layer0.023"},
+		{"Armature.001|mixamo.com|Layer0.024"},
+		{"Armature.001|mixamo.com|Layer0.025"},
+		{"Armature.001|mixamo.com|Layer0.026"},
+		{"Armature.001|mixamo.com|Layer0.027"},
+		{"Armature.001|mixamo.com|Layer0.028"},
 	};
 
 	//フレンドクラスに登録

@@ -43,18 +43,23 @@ private:
 	//攻撃用ワーク
 	struct WorkGroundAttack
 	{
-		float attackParameter = 0.0f;    // 攻撃用のパラメーター
-		int32_t comboIndex = 0;          // 現在のコンボのインデックス
-		int32_t inComboPhase = 0;        // 現在のコンボの中のフェーズ
-		bool comboNext = false;          // 次のコンボが有効かどうか
-		float hitTimer = 0.0f;           // ヒット用タイマー
-		int32_t hitCount = 0;            // ヒット回数
-		bool isMovementFinished = false; // 移動が終了したかどうか
-		float parryTimer = 0.0f;         // パリィ用のタイマー
+		float attackParameter = 0.0f;          // 攻撃用のパラメーター
+		int32_t comboIndex = 0;                // 現在のコンボのインデックス
+		int32_t inComboPhase = 0;              // 現在のコンボの中のフェーズ
+		bool comboNext = false;                // 次のコンボが有効かどうか
+		float hitTimer = 0.0f;                 // ヒット用タイマー
+		int32_t hitCount = 0;                  // ヒット回数
+		bool isMovementFinished = false;       // 移動が終了したかどうか
+		float parryTimer = 0.0f;               // パリィ用のタイマー
+		bool isEnhancedMagicAvailable = false; // 強化魔法を使えるかどうか
+		float enhancedMagicInputTimer = 0.0f;  // 強化魔法の入力用タイマー
+		bool isEnhancedMagicSuccess = false;   // 強化魔法を出すことに成功したかどうか
 	};
 
 	//コンボ定数表
 	static const std::array<ConstGroundAttack, kComboNum> kConstAttacks_;
+
+	void UpdateEnhancedMagic();
 
 private:
 	//Input

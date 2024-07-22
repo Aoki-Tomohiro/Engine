@@ -4,6 +4,7 @@
 void TransformComponent::Initialize()
 {
 	worldTransform_.Initialize();
+	worldTransform_.UpdateMatrix();
 }
 
 void TransformComponent::Update()

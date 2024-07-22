@@ -210,3 +210,10 @@ struct ConstBuffDataRadialBlur
 	Vector2 center;
 	float blurWidth;
 };
+
+struct ConstBuffDataHSV
+{
+	float hue;
+	float saturation;
+	float value;
+};

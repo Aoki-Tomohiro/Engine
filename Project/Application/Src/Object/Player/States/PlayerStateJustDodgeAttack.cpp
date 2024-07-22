@@ -70,7 +70,7 @@ void PlayerStateJustDodgeAttack::Update()
 		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 
 		//ヒットタイマーを進める
-		justDodgeAttackWork_.hitTimer += GameTimer::GetDeltaTime();
+		justDodgeAttackWork_.hitTimer += modelComponent->GetModel()->GetAnimation()->GetAnimationSpeed() * GameTimer::GetDeltaTime();
 
 		//攻撃判定をつける
 		Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();

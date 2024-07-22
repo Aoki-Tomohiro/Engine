@@ -43,7 +43,7 @@ void CameraStateFollow::Update()
 	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
 	if (player->GetIsAirAttack())
 	{
-		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -28.0f };
 	}
 	else
 	{
@@ -63,6 +63,32 @@ void CameraStateFollow::Update()
 		input_->GetRightStickX(),
 		0.0f
 	};
+
+	//カメラの制限を付ける
+	const float kMinHeight = 0.1f;
+	const float kMaxHeight = 20.0f;
+	if (cameraController_->camera_.translation_.y <= kMinHeight)
+	{
+		//カメラの高さを固定にする
+		cameraController_->camera_.translation_.y = kMinHeight;
+
+		//回転させないようにする
+		if (inputValue.x >= 0.0f)
+		{
+			inputValue.x = 0.0f;
+		}
+	}
+	else if (cameraController_->camera_.translation_.y >= kMaxHeight)
+	{
+		//カメラの高さを固定にする
+		cameraController_->camera_.translation_.y = kMaxHeight;
+
+		//回転させないようにする
+		if (inputValue.x <= 0.0f)
+		{
+			inputValue.x = 0.0f;
+		}
+	}
 
 	//スティックの入力が遊び範囲を超えていた場合
 	if (Mathf::Length(inputValue) > threshold)

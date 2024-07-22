@@ -32,6 +32,10 @@ void Enemy::Update()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 
+	//Colliderを設定
+	AABBCollider* collider = GetComponent<AABBCollider>();
+	collider->SetDebugDrawEnabled(isDebug_);
+
 	//GameObjectの更新
 	GameObject::Update();
 

@@ -329,9 +329,9 @@ bool CollisionManager::CheckSphereAABBCollision(const SphereCollider* sphere1, c
 {
 	//最近接点を求める
 	Vector3 closestPoint{
-		std::clamp(sphere1->GetWorldCenter().x,aabb1->GetMin().x,aabb1->GetMax().x),
-		std::clamp(sphere1->GetWorldCenter().y,aabb1->GetMin().y,aabb1->GetMax().y),
-		std::clamp(sphere1->GetWorldCenter().z,aabb1->GetMin().z,aabb1->GetMax().z)
+		std::clamp(sphere1->GetWorldCenter().x,aabb1->GetWorldCenter().x + aabb1->GetMin().x,aabb1->GetWorldCenter().x + aabb1->GetMax().x),
+		std::clamp(sphere1->GetWorldCenter().y,aabb1->GetWorldCenter().y + aabb1->GetMin().y,aabb1->GetWorldCenter().y + aabb1->GetMax().y),
+		std::clamp(sphere1->GetWorldCenter().z,aabb1->GetWorldCenter().z + aabb1->GetMin().z,aabb1->GetWorldCenter().z + aabb1->GetMax().z)
 	};
 
 	//最近接点と球の中心との距離を求める
