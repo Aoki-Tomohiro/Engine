@@ -111,7 +111,7 @@ void GamePlayScene::Update()
 
 	//ロックオンの処理
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->SetTargetOffset({ 0.0f,4.0f,0.0f });
+	lockOn_->SetTargetOffset({ 0.0f,5.0f,0.0f });
 	lockOn_->Update(enemy, camera_);
 
 	//衝突判定

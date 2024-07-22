@@ -63,43 +63,6 @@
         },
         {
             "type": "MESH",
-            "name": "Enemy",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    -0.0,
-                    0.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Enemy",
-            "collider": {
-                "type": "AABB",
-                "attribute": "Enemy",
-                "center": [
-                    0.0,
-                    0.0,
-                    4.0
-                ],
-                "size": [
-                    8.0,
-                    8.0,
-                    8.0
-                ]
-            },
-            "visible": true
-        },
-        {
-            "type": "MESH",
             "name": "Weapon",
             "transform": {
                 "translation": [
@@ -129,8 +92,45 @@
                 ],
                 "size": [
                     0.30000001192092896,
-                    0.60000000000000000,
-                    3.5000000000000000
+                    0.7200000286102295,
+                    4.400000095367432
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "Enemy",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.016631580889225006,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Enemy",
+            "collider": {
+                "type": "AABB",
+                "attribute": "Enemy",
+                "center": [
+                    0.0,
+                    0.0,
+                    5.0
+                ],
+                "size": [
+                    10.0,
+                    10.0,
+                    10.0
                 ]
             },
             "visible": true

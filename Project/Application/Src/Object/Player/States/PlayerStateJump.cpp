@@ -3,6 +3,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -51,6 +52,15 @@ void PlayerStateJump::Update()
 
 		//通常状態に遷移
 		player_->ChangeState(new PlayerStateRoot());
+	}
+	//攻撃状態に遷移
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		//速度の初期化
+		player_->velocity.y = 0.0f;
+
+		//空中攻撃状態に遷移
+		player_->ChangeState(new PlayerStateAirAttack());
 	}
 }
 

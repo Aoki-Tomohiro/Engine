@@ -98,8 +98,8 @@ void PlayerStateGroundAttack::Update()
 				direction = Mathf::Normalize(direction);
 
 				//移動ベクトルをカメラの角度だけ回転する
-				Matrix4x4 rotateMatrix = Mathf::MakeRotateYMatrix(player_->camera_->rotation_.y);
-				direction = Mathf::TransformNormal(direction, rotateMatrix);
+				direction = Mathf::RotateVector(direction, player_->camera_->quaternion_);
+				direction.y = 0.0f;
 
 				//回転処理
 				Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, direction));

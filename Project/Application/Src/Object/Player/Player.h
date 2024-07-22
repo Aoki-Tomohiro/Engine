@@ -33,6 +33,8 @@ public:
 
 	const bool GetIsJustDodgeAttack() const { return isJustDodgeAttack_; };
 
+	const bool GetIsAirAttack() const { return isAirAttack_; };
+
 private:
 	//通常状態の構造体
 	struct RootParameters
@@ -55,11 +57,11 @@ private:
 	//回避用の構造体
 	struct DodgeParameters
 	{
-		float dodgeSpeed = 18.0f;              // 回避の移動速度
-		float justDodgeSuccessDistance = 8.0f; // ジャスト回避が成功可能距離
-		float justDodgeSuccessDuration = 1.0f; // ジャスト回避の成功可能時間
-		float justDodgeDuration = 1.2f;        // ジャスト回避の時間
-		float justDodgeTargetDistance = 20.0f; // ジャスト回避成功時の移動距離
+		float dodgeSpeed = 18.0f;               // 回避の移動速度
+		float justDodgeSuccessDistance = 10.0f; // ジャスト回避が成功可能距離
+		float justDodgeSuccessDuration = 1.0f;  // ジャスト回避の成功可能時間
+		float justDodgeDuration = 1.2f;         // ジャスト回避の時間
+		float justDodgeTargetDistance = 20.0f;  // ジャスト回避成功時の移動距離
 	};
 
 	//ジャンプの構造体
@@ -72,15 +74,22 @@ private:
 	//地上攻撃用の構造体
 	struct GroundAttackParameters
 	{
-		float attackDistance = 8.0f;  // 攻撃の補正を掛ける距離
-		float parryDuration = 0.1f;   // パリィの成功時間
+		float attackDistance = 10.0f;  // 攻撃の補正を掛ける距離
+		float parryDuration = 0.1f;    // パリィの成功時間
+	};
+
+	//空中攻撃用の構造体
+	struct AirAttackParameters
+	{
+		float attackDistance = 12.0f;  // 攻撃の補正を掛ける距離
+		float parryDuration = 0.1f;    // パリィの成功時間
 	};
 
 	//回避攻撃用の構造体
 	struct JustDodgeAttackParameters
 	{
 		float moveDuration = 0.4f;    // 移動時間
-		float targetDistance = -6.0f; // 移動後の敵との距離
+		float targetDistance = -8.0f; // 移動後の敵との距離
 		float hitInterval = 0.09f;     // ヒット間隔
 		int32_t maxHitCount = 1;      // ヒット数
 	};
@@ -128,6 +137,9 @@ private:
 	//地上攻撃用のパラメーター
 	GroundAttackParameters groundAttackParameters_{};
 
+	//空中攻撃用のパラメーター
+	AirAttackParameters airAttackParameters_{};
+
 	//回避攻撃用のパラメーター
 	JustDodgeAttackParameters justDodgeAttackParameters_{};
 
@@ -139,6 +151,9 @@ private:
 
 	//ダッシュ攻撃に派生したかどうか
 	bool isDashAttack_ = false;
+
+	//空中攻撃中かどうか
+	bool isAirAttack_ = false;
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
@@ -178,6 +193,7 @@ private:
 	friend class PlayerStateJustDodgeAttack;
 	friend class PlayerStateJump;
 	friend class PlayerStateGroundAttack;
+	friend class PlayerStateAirAttack;
 	friend class PlayerStateDash;
 };
 

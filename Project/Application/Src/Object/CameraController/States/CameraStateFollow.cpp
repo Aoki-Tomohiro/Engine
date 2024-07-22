@@ -39,6 +39,17 @@ void CameraStateFollow::Initialize()
 
 void CameraStateFollow::Update()
 {
+	//プレイヤーが空中攻撃をしているときはOffset値を変える
+	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
+	if (player->GetIsAirAttack())
+	{
+		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+	}
+	else
+	{
+		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+	}
+
 	//追従対象からのオフセットを取得してカメラ座標を計算する
 	Vector3 offset = cameraController_->Offset();
 	cameraController_->camera_.translation_ = cameraController_->interTarget_ + offset;
@@ -78,8 +89,6 @@ void CameraStateFollow::Update()
 		cameraController_->destinationQuaternion_ = Mathf::Normalize(rotationQuaternion);
 	}
 
-	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
 	//ロックオンカメラに遷移
 	if (cameraController_->lockOn_->ExistTarget())
 	{

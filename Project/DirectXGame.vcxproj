@@ -30,6 +30,7 @@
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
     <ClCompile Include="Application\Src\Object\Ground\Ground.cpp" />
     <ClCompile Include="Application\Src\Object\Illusion\Illusion.cpp" />
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateAirAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
     <ClInclude Include="Application\Src\Object\Ground\Ground.h" />
     <ClInclude Include="Application\Src\Object\Illusion\Illusion.h" />
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateAirAttack.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.h" />
