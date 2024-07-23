@@ -97,6 +97,12 @@ void ParticleManager::Update()
 
 void ParticleManager::Draw()
 {
+	//カメラがない場合は飛ばす
+	if (!camera_) 
+	{
+		return;
+	};
+
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
@@ -109,7 +115,6 @@ void ParticleManager::Draw()
 	//パーティクルの描画
 	for (auto& particleSystem : particleSystems_)
 	{
-		assert(camera_);
 		particleSystem.second->Draw(camera_);
 	}
 }
