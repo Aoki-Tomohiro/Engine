@@ -41,9 +41,13 @@ void ParticleSystem::Initialize()
 	particleResource_ = std::make_unique<RWStructuredBuffer>();
 	particleResource_->Create(kMaxParticles, sizeof(ParticleCS));
 
-	//FreeCounterResourceの作成
-	freeCounterResource_ = std::make_unique<RWStructuredBuffer>();
-	freeCounterResource_->Create(1, sizeof(int32_t));
+	//FreeListIndexResourceの作成
+	freeListIndexResource_ = std::make_unique<RWStructuredBuffer>();
+	freeListIndexResource_->Create(1, sizeof(int32_t));
+
+	//FreeListResourceの作成
+	freeListResource_ = std::make_unique<RWStructuredBuffer>();
+	freeListResource_->Create(kMaxParticles, sizeof(uint32_t));
 
 	//EmitterResourceの作成
 	emitterResource_ = std::make_unique<StructuredBuffer>();
@@ -88,17 +92,23 @@ void ParticleSystem::Update()
 	//Particleを設定
 	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
 
+	//FreeListIndexを設定
+	commandContext->SetComputeDescriptorTable(1, freeListIndexResource_->GetUAVHandle());
+
+	//FreeListを設定
+	commandContext->SetComputeDescriptorTable(2, freeListResource_->GetUAVHandle());
+
 	//AccelerationFieldを設定
-	commandContext->SetComputeDescriptorTable(1, accelerationFieldResource_->GetSRVHandle());
+	commandContext->SetComputeDescriptorTable(3, accelerationFieldResource_->GetSRVHandle());
 
 	//GravityFieldを設定
-	commandContext->SetComputeDescriptorTable(2, gravityFieldResource_->GetSRVHandle());
+	commandContext->SetComputeDescriptorTable(4, gravityFieldResource_->GetSRVHandle());
 
 	//AccelerationFieldInformationを設定
-	commandContext->SetComputeConstantBuffer(3, accelerationFieldInformationResource_->GetGpuVirtualAddress());
+	commandContext->SetComputeConstantBuffer(5, accelerationFieldInformationResource_->GetGpuVirtualAddress());
 
 	//GravityFieldInformationを設定
-	commandContext->SetComputeConstantBuffer(4, gravityFieldInformationResource_->GetGpuVirtualAddress());
+	commandContext->SetComputeConstantBuffer(6, gravityFieldInformationResource_->GetGpuVirtualAddress());
 
 	//Dispatch
 	commandContext->Dispatch(1, 1, 1);
@@ -115,14 +125,17 @@ void ParticleSystem::UpdateEmitter()
 	//Particleを設定
 	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
 
-	//FreeCounterを設定
-	commandContext->SetComputeDescriptorTable(1, freeCounterResource_->GetUAVHandle());
+	//FreeListIndexを設定
+	commandContext->SetComputeDescriptorTable(1, freeListIndexResource_->GetUAVHandle());
+
+	//FreeListを設定
+	commandContext->SetComputeDescriptorTable(2, freeListResource_->GetUAVHandle());
 
 	//Emitterを設定
-	commandContext->SetComputeDescriptorTable(2, emitterResource_->GetSRVHandle());
+	commandContext->SetComputeDescriptorTable(3, emitterResource_->GetSRVHandle());
 
 	//EmitterInfomationを設定
-	commandContext->SetComputeConstantBuffer(3, emitterInformationResource_->GetGpuVirtualAddress());
+	commandContext->SetComputeConstantBuffer(4, emitterInformationResource_->GetGpuVirtualAddress());
 
 	//Dispatch
 	commandContext->Dispatch(1, 1, 1);
