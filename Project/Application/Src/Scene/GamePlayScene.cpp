@@ -328,9 +328,6 @@ void GamePlayScene::UpdateParry()
 		//敵の行動を遅くする
 		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
 
-		//GrayScaleを有効化
-		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
-
 		//ゲーム全体の時間の流れを遅くする
 		GameTimer::SetTimeScale(0.2f);
 	}
@@ -369,9 +366,6 @@ void GamePlayScene::UpdateParry()
 
 			//敵の行動をもとに戻す
 			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
-
-			//GrayScaleを無効化
-			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
 		}
 
 		//GreeScaleにする

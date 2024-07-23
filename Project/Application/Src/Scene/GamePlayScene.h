@@ -52,7 +52,7 @@ private:
 		float stopDuration = 1.0f;         // パリィ後の時間停止の持続時間
 		float timer = 0.0f;                // パリィのタイマー
 		float graySaturation = -0.4f;      // 最終的のグレーの色
-		float grayDuration = 3.0f;         // グレーになるまでの時間
+		float grayDuration = 0.2f;         // グレーになるまでの時間
 		float grayTimer = 0.0f;            // グレーになるまでの計測用タイマー
 	};
 
