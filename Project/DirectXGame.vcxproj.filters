@@ -217,6 +217,42 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Player\States">
       <UniqueIdentifier>{263438c4-2b14-4867-a282-ddc5f312b00d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\CameraController">
+      <UniqueIdentifier>{43c4d702-311b-4cd7-b2ac-867aefce46e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\CameraController\States">
+      <UniqueIdentifier>{0e768e63-151d-4c9a-8a52-269aadfbd63a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Enemy\States">
+      <UniqueIdentifier>{b022269a-7116-412f-820e-d189dd7eb97c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\MagicProjectile">
+      <UniqueIdentifier>{e661b52c-271b-456e-ba0d-9caedfcfc22c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Warning">
+      <UniqueIdentifier>{4682db8e-89a2-4b4b-b1fe-a6d973c7177a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Weapon">
+      <UniqueIdentifier>{d49fe143-68b8-4f00-bbaa-bad02ebc09d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\CameraController">
+      <UniqueIdentifier>{bb4d1a57-5f62-45e3-be21-aa0b5523e12e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\CameraController\States">
+      <UniqueIdentifier>{d687ff8e-3eb4-43a1-97f9-de825693c749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Enemy\States">
+      <UniqueIdentifier>{cf9d8c5b-71d7-4ca3-a25a-34ba02e5d430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Warning">
+      <UniqueIdentifier>{037b205e-bc4a-45db-96f8-2f8751ff554f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Weapon">
+      <UniqueIdentifier>{3f6f9d58-4df4-4853-b40d-b23f63bc5635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\MagicProjectile">
+      <UniqueIdentifier>{da1e54f6-db34-4c68-95e5-585735c1f123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -495,71 +531,71 @@
     <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\CameraController\CameraController.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Camera\LockOn.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateTackle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateIdle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Warning\Warning.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Camera\CameraManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\CollisionAttributeManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\CameraController</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateFollow.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateLockOn.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\CameraController\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\CameraController\States</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateLockOn.cpp">
+      <Filter>ソース ファイル\Application\Object\CameraController\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateIdle.cpp">
+      <Filter>ソース ファイル\Application\Object\Enemy\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateTackle.cpp">
+      <Filter>ソース ファイル\Application\Object\Enemy\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateAirAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\PostEffects\HSV.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\MagicProjectile\MagicProjectile.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\MagicProjectile</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Warning\Warning.cpp">
+      <Filter>ソース ファイル\Application\Object\Warning</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
+      <Filter>ソース ファイル\Application\Object\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Camera\LockOn.cpp">
+      <Filter>ソース ファイル\Engine\3D\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Camera\CameraManager.cpp">
+      <Filter>ソース ファイル\Engine\3D\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\CollisionAttributeManager.cpp">
+      <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Components\Particle\EmitterBuilder.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Engine\Components\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\PostEffects\HSV.cpp">
+      <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -890,77 +926,77 @@
     <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h">
       <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Enemy\States\IEnemyState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\CameraController\CameraController.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Camera\LockOn.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateTackle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateIdle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Warning\Warning.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Camera\CameraManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\CameraController\States\ICameraState.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\CameraController</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateFollow.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateLockOn.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\CameraController\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\CameraController\States</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateLockOn.h">
+      <Filter>ヘッダー ファイル\Application\Object\CameraController\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Enemy\States\IEnemyState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Enemy\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateIdle.h">
+      <Filter>ヘッダー ファイル\Application\Object\Enemy\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateTackle.h">
+      <Filter>ヘッダー ファイル\Application\Object\Enemy\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateAirAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\PostEffects\HSV.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\CameraController\States\ICameraState.h">
+      <Filter>ヘッダー ファイル\Application\Object\CameraController\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Warning\Warning.h">
+      <Filter>ヘッダー ファイル\Application\Object\Warning</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
+      <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\MagicProjectile\MagicProjectile.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\MagicProjectile</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Camera\CameraManager.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Camera\LockOn.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\PostEffects\HSV.h">
+      <Filter>ヘッダー ファイル\Engine\Components\PostEffects</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Particle\EmitterBuilder.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Engine\Components\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
