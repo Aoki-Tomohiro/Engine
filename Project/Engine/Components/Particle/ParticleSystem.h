@@ -1,5 +1,6 @@
 #pragma once
 #include "ParticleEmitter.h"
+#include "EmitterBuilder.h"
 #include "AccelerationField.h"
 #include "GravityField.h"
 #include "Engine/Base/RWStructuredBuffer.h"
@@ -52,7 +53,9 @@ public:
 
 	RWStructuredBuffer* GetParticleResource() const { return particleResource_.get(); };
 
-	RWStructuredBuffer* GetFreeCounterResource() const { return freeCounterResource_.get(); };
+	RWStructuredBuffer* GetFreeListIndexResource() const { return freeListIndexResource_.get(); };
+
+	RWStructuredBuffer* GetFreeListResource() const { return freeListResource_.get(); };
 
 private:
 	void UpdateEmitterResource();
@@ -67,8 +70,11 @@ private:
 	//ParticleResource
 	std::unique_ptr<RWStructuredBuffer> particleResource_ = nullptr;
 
-	//FreeCounterResource
-	std::unique_ptr<RWStructuredBuffer> freeCounterResource_ = nullptr;
+	//FreeListIndexResource
+	std::unique_ptr<RWStructuredBuffer> freeListIndexResource_ = nullptr;
+
+	//FreeListResource
+	std::unique_ptr<RWStructuredBuffer> freeListResource_ = nullptr;
 
 	//EmitterResource
 	std::unique_ptr<StructuredBuffer> emitterResource_ = nullptr;

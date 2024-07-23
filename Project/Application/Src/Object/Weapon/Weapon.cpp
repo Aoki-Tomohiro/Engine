@@ -22,6 +22,8 @@ void Weapon::Update()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	Vector3 center = Mathf::TransformNormal(collisionOffset_, transformComponent->worldTransform_.matWorld_);
 	OBBCollider* collider = GetComponent<OBBCollider>();
+	collider->SetDebugDrawEnabled(isDebug_);
+	collider->SetCollisionEnabled(isAttack_);
 	collider->SetCenter(center);
 	collider->SetOrientations(
 		{ transformComponent->worldTransform_.matWorld_.m[0][0], transformComponent->worldTransform_.matWorld_.m[0][1], transformComponent->worldTransform_.matWorld_.m[0][2] },
@@ -40,6 +42,7 @@ void Weapon::Update()
 	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("Offset", &collisionOffset_.x, 0.01f);
 	ImGui::DragFloat3("Size", &size_.x, 0.01f);
+	ImGui::Checkbox("IsDebug", &isDebug_);
 	ImGui::Checkbox("IsAttack", &isAttack_);
 	ImGui::Checkbox("IsParryable", &isParryable_);
 	ImGui::End();
@@ -57,11 +60,6 @@ void Weapon::DrawUI()
 }
 
 void Weapon::OnCollision(GameObject* gameObject)
-{
-
-}
-
-void Weapon::OnCollisionEnter(GameObject* gameObject)
 {
 	//ヒットフラグをtrueにする
 	isHit_ = true;
@@ -95,6 +93,11 @@ void Weapon::OnCollisionEnter(GameObject* gameObject)
 	newEmitter->SetVelocityMin({ -0.6f,-0.6f,-0.6f });
 	newEmitter->SetVelocityMax({ 0.6f,0.6f,0.6f });
 	particleSystem_->AddParticleEmitter(newEmitter);
+}
+
+void Weapon::OnCollisionEnter(GameObject* gameObject)
+{
+
 }
 
 void Weapon::OnCollisionExit(GameObject* gameObject)

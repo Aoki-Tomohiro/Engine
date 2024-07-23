@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,24 +21,27 @@
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\CameraController\CameraController.cpp" />
+    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateFollow.cpp" />
+    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.cpp" />
+    <ClCompile Include="Application\Src\Object\CameraController\States\CameraStateLockOn.cpp" />
     <ClCompile Include="Application\Src\Object\Enemy\Enemy.cpp" />
     <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateIdle.cpp" />
     <ClCompile Include="Application\Src\Object\Enemy\States\EnemyStateTackle.cpp" />
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
     <ClCompile Include="Application\Src\Object\Ground\Ground.cpp" />
-    <ClCompile Include="Application\Src\Object\Illusion\Illusion.cpp" />
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp" />
-    <ClCompile Include="Application\Src\Object\Warning\Warning.cpp" />
-    <ClCompile Include="Engine\3D\Camera\CameraManager.cpp" />
-    <ClCompile Include="Engine\3D\Camera\LockOn.cpp" />
-    <ClCompile Include="Application\Src\Object\Player\Player.cpp" />
+    <ClCompile Include="Application\Src\Object\MagicProjectile\MagicProjectile.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateAirAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDash.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp" />
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateIdle.cpp" />
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRangedAttack.cpp" />
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodge.cpp" />
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.cpp" />
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp" />
+    <ClCompile Include="Application\Src\Object\Warning\Warning.cpp" />
+    <ClCompile Include="Engine\3D\Camera\CameraManager.cpp" />
+    <ClCompile Include="Engine\3D\Camera\LockOn.cpp" />
+    <ClCompile Include="Application\Src\Object\Player\Player.cpp" />
     <ClCompile Include="Application\Src\Object\Transition\Transition.cpp" />
     <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp" />
     <ClCompile Include="Engine\3D\Camera\FollowCamera.cpp" />
@@ -62,10 +65,12 @@
     <ClCompile Include="Engine\Components\Component\ModelComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\RenderComponent.cpp" />
     <ClCompile Include="Engine\Components\Component\TransformComponent.cpp" />
+    <ClCompile Include="Engine\Components\Particle\EmitterBuilder.cpp" />
     <ClCompile Include="Engine\Components\Particle\GravityField.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleManager.cpp" />
     <ClCompile Include="Engine\Components\Particle\ParticleSystem.cpp" />
+    <ClCompile Include="Engine\Components\PostEffects\HSV.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\Outline.cpp" />
     <ClCompile Include="Engine\Components\PostEffects\RadialBlur.cpp" />
     <ClCompile Include="Engine\Framework\Object\GameObject.cpp" />
@@ -146,26 +151,30 @@
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\CameraController\CameraController.h" />
+    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateFollow.h" />
+    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateJustDodge.h" />
+    <ClInclude Include="Application\Src\Object\CameraController\States\CameraStateLockOn.h" />
+    <ClInclude Include="Application\Src\Object\CameraController\States\ICameraState.h" />
     <ClInclude Include="Application\Src\Object\Enemy\Enemy.h" />
     <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateIdle.h" />
     <ClInclude Include="Application\Src\Object\Enemy\States\EnemyStateTackle.h" />
     <ClInclude Include="Application\Src\Object\Enemy\States\IEnemyState.h" />
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
     <ClInclude Include="Application\Src\Object\Ground\Ground.h" />
-    <ClInclude Include="Application\Src\Object\Illusion\Illusion.h" />
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h" />
-    <ClInclude Include="Application\Src\Object\Warning\Warning.h" />
-    <ClInclude Include="Engine\3D\Camera\CameraManager.h" />
-    <ClInclude Include="Engine\3D\Camera\LockOn.h" />
-    <ClInclude Include="Application\Src\Object\Player\Player.h" />
-    <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h" />
+    <ClInclude Include="Application\Src\Object\MagicProjectile\MagicProjectile.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateAirAttack.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDash.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateGroundAttack.h" />
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h" />
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateIdle.h" />
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRangedAttack.h" />
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodge.h" />
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJustDodgeAttack.h" />
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h" />
+    <ClInclude Include="Application\Src\Object\Warning\Warning.h" />
+    <ClInclude Include="Engine\3D\Camera\CameraManager.h" />
+    <ClInclude Include="Engine\3D\Camera\LockOn.h" />
+    <ClInclude Include="Application\Src\Object\Player\Player.h" />
+    <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h" />
     <ClInclude Include="Application\Src\Object\Transition\Transition.h" />
     <ClInclude Include="Application\Src\Object\Weapon\Weapon.h" />
     <ClInclude Include="Engine\3D\Camera\FollowCamera.h" />
@@ -188,10 +197,12 @@
     <ClInclude Include="Engine\Components\Component\ModelComponent.h" />
     <ClInclude Include="Engine\Components\Component\RenderComponent.h" />
     <ClInclude Include="Engine\Components\Component\TransformComponent.h" />
+    <ClInclude Include="Engine\Components\Particle\EmitterBuilder.h" />
     <ClInclude Include="Engine\Components\Particle\GravityField.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleManager.h" />
     <ClInclude Include="Engine\Components\Particle\ParticleSystem.h" />
+    <ClInclude Include="Engine\Components\PostEffects\HSV.h" />
     <ClInclude Include="Engine\Components\PostEffects\Outline.h" />
     <ClInclude Include="Engine\Components\PostEffects\RadialBlur.h" />
     <ClInclude Include="Engine\Framework\Object\AbstractGameObjectFactory.h" />

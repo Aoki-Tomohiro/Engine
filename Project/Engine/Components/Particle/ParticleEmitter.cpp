@@ -5,9 +5,6 @@ void ParticleEmitter::Initialize(const std::string& name, const float lifeTime)
 {
 	//名前の初期化
 	name_ = name;
-
-	//エミッターの寿命の初期化
-	deathTimer_ = lifeTime;
 }
 
 void ParticleEmitter::Update()
@@ -28,10 +25,10 @@ void ParticleEmitter::Update()
 	}
 
 	//エミッターの寿命を減らす
-	deathTimer_ -= GameTimer::GetDeltaTime();
+	lifeTimer_ += GameTimer::GetDeltaTime();
 
 	//寿命が尽きたら死亡フラグを立てる
-	if (deathTimer_ < 0)
+	if (lifeTimer_ > emitterLifeTime_)
 	{
 		isDead_ = true;
 	}

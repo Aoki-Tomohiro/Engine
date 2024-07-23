@@ -106,10 +106,16 @@ private:
 	//射出間隔調整用時間
 	float frequencyTime_ = 0.0f;
 
+	//エミッターの寿命
+	float emitterLifeTime_ = 1.0f;
+
+	//死亡までのタイマー
+	float lifeTimer_ = 0.0f;
+
 	//死亡フラグ
 	bool isDead_ = false;
 
-	//死亡までのタイマー
-	float deathTimer_ = 0.0f;
+	//Builderをフレンドクラスに登録
+	friend class EmitterBuilder;
 };
 

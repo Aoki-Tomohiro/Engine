@@ -57,7 +57,7 @@ void GamePlayScene::Initialize()
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
+	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//FollowCameraの作成
 	cameraController_ = std::make_unique<CameraController>();
@@ -111,12 +111,13 @@ void GamePlayScene::Update()
 
 	//ロックオンの処理
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->SetTargetOffset(enemy->GetColliderOffset());
+	lockOn_->SetTargetOffset({ 0.0f,5.0f,0.0f });
 	lockOn_->Update(enemy, camera_);
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	if (Collider* collider = gameObjectManager_->GetGameObject<Player>()->GetComponent<Collider>())
+	Player* player = gameObjectManager_->GetGameObject<Player>();
+	if (Collider* collider = player->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
@@ -125,9 +126,22 @@ void GamePlayScene::Update()
 		collisionManager_->SetColliderList(collider);
 	}
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
-	if (weapon->GetIsAttack())
+	if (Collider* collider = weapon->GetComponent<Collider>())
 	{
-		if (Collider* collider = weapon->GetComponent<Collider>())
+		collisionManager_->SetColliderList(collider);
+	}
+	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager_->GetGameObjects<MagicProjectile>();
+	for (MagicProjectile* magicProjectil : magicProjectiles)
+	{
+		if (Collider* collider = magicProjectil->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
+	std::vector<Warning*> warnings = gameObjectManager_->GetGameObjects<Warning>();
+	for (Warning* warning : warnings)
+	{
+		if (Collider* collider = warning->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}
@@ -139,7 +153,7 @@ void GamePlayScene::Update()
 
 	//カメラの更新
 	*camera_ = cameraController_->GetCamera();
-	camera_->UpdateMatrix();
+	camera_->TransferMatrix();
 
 	//フェードイン処理
 	HandleTransition();
@@ -147,10 +161,19 @@ void GamePlayScene::Update()
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
+	////HSV
+	//PostEffects* postEffects = PostEffects::GetInstance();
+	//postEffects->GetHSV()->SetHue(hue_);
+	//postEffects->GetHSV()->SetSaturation(saturation_);
+	//postEffects->GetHSV()->SetValue(value_);
+
 	//ImGui
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
+	ImGui::DragFloat("Hue", &hue_, 0.02f, -0.5f, 0.5f);
+	ImGui::DragFloat("Saturation", &saturation_, 0.02f, -0.5f, 0.5f);
+	ImGui::DragFloat("Value", &value_, 0.02f, -0.5f, 0.5f);
 	ImGui::End();
 }
 
@@ -219,45 +242,45 @@ void GamePlayScene::DrawUI()
 
 void GamePlayScene::HandleTransition()
 {
-	//FadeInしていないとき
-	if (transition_->GetFadeState() != transition_->FadeState::In)
-	{
-		Player* player = gameObjectManager_->GetGameObject<Player>();
-		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-		//Kキーを押したらGameClearSceneに遷移
-		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
-		{
-			isGameClear_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-		//Lキーを押したらGameOverSceneに遷移
-		else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
-		{
-			isGameOver_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-	}
+	////FadeInしていないとき
+	//if (transition_->GetFadeState() != transition_->FadeState::In)
+	//{
+	//	Player* player = gameObjectManager_->GetGameObject<Player>();
+	//	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	//	//Kキーを押したらGameClearSceneに遷移
+	//	if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
+	//	{
+	//		isGameClear_ = true;
+	//		player->SetIsInTitleScene(true);
+	//		enemy->SetIsInTitleScene(true);
+	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+	//		modelComponent->SetAnimationName("Idle");
+	//	}
+	//	//Lキーを押したらGameOverSceneに遷移
+	//	else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
+	//	{
+	//		isGameOver_ = true;
+	//		player->SetIsInTitleScene(true);
+	//		enemy->SetIsInTitleScene(true);
+	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+	//		modelComponent->SetAnimationName("Idle");
+	//	}
+	//}
 
-	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
-	if (isGameClear_ || isGameOver_)
-	{
-		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
-		{
-			transition_->SetFadeState(Transition::FadeState::In);
-		}
-	}
+	////ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
+	//if (isGameClear_ || isGameOver_)
+	//{
+	//	if (input_->IsPressButton(XINPUT_GAMEPAD_A))
+	//	{
+	//		transition_->SetFadeState(Transition::FadeState::In);
+	//	}
+	//}
 
-	//シーン遷移
-	if (transition_->GetFadeInComplete())
-	{
-		sceneManager_->ChangeScene("GameTitleScene");
-	}
+	////シーン遷移
+	//if (transition_->GetFadeInComplete())
+	//{
+	//	sceneManager_->ChangeScene("GameTitleScene");
+	//}
 }
 
 void GamePlayScene::UpdateHitStop()
@@ -305,12 +328,6 @@ void GamePlayScene::UpdateParry()
 		//敵の行動を遅くする
 		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
 
-		//カメラを近づける
-		cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
-
-		//GrayScaleを有効化
-		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
-
 		//ゲーム全体の時間の流れを遅くする
 		GameTimer::SetTimeScale(0.2f);
 	}
@@ -331,9 +348,6 @@ void GamePlayScene::UpdateParry()
 				//スロウモーションのフラグを折る
 				parrySettings_.isSlow = false;
 
-				//カメラの元に戻す
-				cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
-
 				//ゲーム全体の時間の流れをもとに戻す
 				GameTimer::SetTimeScale(1.0f);
 			}
@@ -344,15 +358,35 @@ void GamePlayScene::UpdateParry()
 		{
 			//タイマーのリセット
 			parrySettings_.timer = 0.0f;
+			parrySettings_.grayTimer = 0.0f;
 
 			//フラグのリセット
 			parrySettings_.isActive = false;
 
+
 			//敵の行動をもとに戻す
 			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
+		}
 
-			//GrayScaleを無効化
-			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
+		//GreeScaleにする
+		PostEffects* postEffects = PostEffects::GetInstance();
+		if (parrySettings_.timer < parrySettings_.grayDuration)
+		{
+			parrySettings_.grayTimer += kParryDeltaTime;
+			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
+			float currentSaturation = 0.0f + (parrySettings_.graySaturation - 0.0f) * Mathf::EaseInSine(easingParameter);
+			postEffects->GetHSV()->SetSaturation(currentSaturation);
+		}
+		else if (parrySettings_.timer > parrySettings_.duration - parrySettings_.grayDuration)
+		{
+			parrySettings_.grayTimer += kParryDeltaTime;
+			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
+			float currentSaturation = parrySettings_.graySaturation + (0.0f - parrySettings_.graySaturation) * Mathf::EaseInSine(easingParameter);
+			postEffects->GetHSV()->SetSaturation(currentSaturation);
+		}
+		else
+		{
+			parrySettings_.grayTimer = 0.0f;
 		}
 	}
 }

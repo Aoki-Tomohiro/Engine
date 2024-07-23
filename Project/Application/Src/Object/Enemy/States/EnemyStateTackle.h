@@ -1,5 +1,6 @@
 #pragma once
 #include "IEnemyState.h"
+#include "Engine/Math/MathFunction.h"
 
 class EnemyStateTackle : public IEnemyState
 {

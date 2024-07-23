@@ -4,12 +4,6 @@
 #include "Engine/Math/Quaternion.h"
 #include <memory>
 
-enum class RotationType
-{
-	Euler,
-	Quaternion
-};
-
 class WorldTransform
 {
 public:

@@ -23,6 +23,7 @@ public:
 		if (this != &rhs)
 		{
 			rotation_ = rhs.rotation_;
+			quaternion_ = rhs.quaternion_;
 			translation_ = rhs.translation_;
 			matView_ = rhs.matView_;
 			matProjection_ = rhs.matProjection_;
@@ -30,6 +31,7 @@ public:
 			aspectRatio_ = rhs.aspectRatio_;
 			nearClip_ = rhs.nearClip_;
 			farClip_ = rhs.farClip_;
+			rotationType_ = rhs.rotationType_;
 		}
 		return *this;
 	}
@@ -39,6 +41,8 @@ private:
 
 public:
 	Vector3 rotation_ = { 0.0f,0.0f,0.0f };
+
+	Quaternion quaternion_ = { 0.0f,0.0f,0.0f,1.0f };
 
 	Vector3 translation_ = { 0.0f,0.0f,-50.0f };
 
@@ -53,5 +57,7 @@ public:
 	float nearClip_ = 0.1f;
 
 	float farClip_ = 1000.0f;
+
+	RotationType rotationType_ = RotationType::Euler;
 };
 

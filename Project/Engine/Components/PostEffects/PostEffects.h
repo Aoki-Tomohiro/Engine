@@ -7,6 +7,7 @@
 #include "GrayScale.h"
 #include "Outline.h"
 #include "RadialBlur.h"
+#include "HSV.h"
 
 class PostEffects
 {
@@ -42,6 +43,8 @@ public:
 	Outline* GetOutline() const { return outline_.get(); };
 
 	RadialBlur* GetRadialBlur() const { return radialBlur_.get(); };
+
+	HSV* GetHSV() const { return hsv_.get(); };
 
 private:
 	PostEffects() = default;
@@ -81,6 +84,8 @@ private:
 	std::unique_ptr<Outline> outline_ = nullptr;
 
 	std::unique_ptr<RadialBlur> radialBlur_ = nullptr;
+
+	std::unique_ptr<HSV> hsv_ = nullptr;
 
 	DescriptorHandle currentDescriptorHandle_{};
 

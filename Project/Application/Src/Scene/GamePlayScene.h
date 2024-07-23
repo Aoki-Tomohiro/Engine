@@ -3,6 +3,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/3D/Camera/CameraManager.h"
+#include "Engine/3D/Camera/LockOn.h"
 #include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
@@ -12,10 +13,11 @@
 #include "Engine/Components/Collision/CollisionManager.h"
 #include "Engine/Components/Collision/CollisionConfig.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
-#include "Engine/3D/Camera/LockOn.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
+#include "Application/Src/Object/Warning/Warning.h"
 #include "Application/Src/Object/CameraController/CameraController.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
@@ -36,19 +38,22 @@ private:
 	//HitStop用構造体
 	struct HitStopSettings 
 	{
-		bool isActive = false;// ヒットストップがアクティブかどうか
-		float duration = 0.08f;// ヒットストップの持続時間（秒）
-		float timer = 0.0f;// ヒットストップのタイマー（秒）
+		bool isActive = false;  // ヒットストップがアクティブかどうか
+		float duration = 0.12f; // ヒットストップの持続時間
+		float timer = 0.0f;     // ヒットストップのタイマー
 	};
 
 	//Parry用の構造体
 	struct ParrySettings
 	{
-		bool isActive = false;// パリィがアクティブかどうか
-		bool isSlow = false;// パリィのスローモーションがアクティブかどうか
-		float duration = 10.0f;// パリィの持続時間（秒）
-		float stopDuration = 1.0f;// パリィ後の時間停止の持続時間（秒）
-		float timer = 0.0f;// パリィのタイマー（秒）
+		bool isActive = false;             // パリィがアクティブかどうか
+		bool isSlow = false;               // パリィのスローモーションがアクティブかどうか
+		float duration = 8.0f;             // パリィの持続時間
+		float stopDuration = 1.0f;         // パリィ後の時間停止の持続時間
+		float timer = 0.0f;                // パリィのタイマー
+		float graySaturation = -0.4f;      // 最終的のグレーの色
+		float grayDuration = 0.1f;         // グレーになるまでの時間
+		float grayTimer = 0.0f;            // グレーになるまでの計測用タイマー
 	};
 
 	void HandleTransition();
@@ -103,5 +108,10 @@ private:
 	//ゲームクリアのスプライト
 	std::unique_ptr<Sprite> gameClearSprite_ = nullptr;
 	bool isGameClear_ = false;
+
+	//HSV
+	float hue_ = 0.0f;
+	float saturation_ = 0.0f;
+	float value_ = 0.0f;
 };
 

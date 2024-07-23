@@ -1,15 +1,12 @@
 #include "PlayerStateDash.h"
-#include "Engine/Components/PostEffects/PostEffects.h"
-#include "Engine/Components/Collision/Collider.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Components/Component/TransformComponent.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Utilities/GameTimer.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
-#include "PlayerStateIdle.h"
-#include "PlayerStateGroundAttack.h"
 
 void PlayerStateDash::Initialize()
 {
@@ -20,69 +17,58 @@ void PlayerStateDash::Initialize()
 	if (player_->lockOn_->ExistTarget())
 	{
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->GetWorldPosition();
 
 		//プレイヤーの座標を取得
 		Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
 
-		//目標の敵のY座標をプレイヤーと同じにする
-		enemyPosition.y = playerPosition.y;
+		//差分ベクトルを計算
+		Vector3 sub = enemyPosition - playerPosition;
 
 		//速度を計算
-		player_->velocity = Mathf::Normalize(enemyPosition - playerPosition) * speed_;
+		player_->velocity = Mathf::Normalize(sub) * player_->dashParameters_.dashSpeed_;
+
+		//差分ベクトルのY成分を0にする
+		sub.y = 0.0f;
+
+		//差分ベクトルを正規化
+		sub = Mathf::Normalize(sub);
 
 		//回転処理
-		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity)));
-		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(player_->velocity));
+		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, sub));
+		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, sub);
 		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 	}
 	else
 	{
-		//速度ベクトル
-		Vector3 velocity = { 0.0f,0.0f,1.0f };
-
 		//速度ベクトルにプレイヤーの回転を適用
 		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		velocity = Mathf::TransformNormal(velocity, transformComponent->worldTransform_.matWorld_);
+		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,1.0f }, transformComponent->worldTransform_.matWorld_);
 
-		//速度を計算
-		player_->velocity = Mathf::Normalize(velocity) * speed_;
+		//速度を掛ける
+		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dashParameters_.dashSpeed_;
 	}
 
 	//RadialBlurをかける
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
 
-	//通常のアニメーションにする
-	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-	modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
-
 	//パーティクルの初期化
 	particleSystem_ = ParticleManager::Create("Dash");
-
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "DashSpeed", speed_);
-	globalVariables->AddItem(groupName, "MaxDashDuration", static_cast<int>(maxDashDuration_));
-	globalVariables->AddItem(groupName, "MaxChargeDuration", static_cast<int>(maxChargeDuration_));
-	globalVariables->AddItem(groupName, "MaxRecoveryDuration", static_cast<int>(maxRecoveryDuration_));
-	globalVariables->AddItem(groupName, "ProximityThreshold", proximityThreshold_);
 }
 
 void PlayerStateDash::Update()
 {
-	//チャージが終っていないとき
-	if (!isChargingFinished_)
+	//チャージが終わっていない場合
+	if (!dashWork_.isChargingFinished)
 	{
-		//チャージタイマーを増やす
-		currentChargeDuration_ += GameTimer::GetDeltaTime();
+		//チャージタイマーを進める
+		dashWork_.chargeTimer += GameTimer::GetDeltaTime();
 
-		//チャージタイマーが一定値を超えたら
-		if (currentChargeDuration_ > maxChargeDuration_)
+		//チャージタイマーが一定値を超えた場合
+		if (dashWork_.chargeTimer > player_->dashParameters_.chargeDuration)
 		{
 			//チャージ終了フラグを立てる
-			isChargingFinished_ = true;
+			dashWork_.isChargingFinished = true;
 
 			//プレイヤーを消す
 			player_->SetIsVisible(false);
@@ -111,19 +97,53 @@ void PlayerStateDash::Update()
 		}
 	}
 
-	//チャージが終わっていたら
-	if (isChargingFinished_ && !isDashFinished_)
+	//チャージが終わっていてダッシュが終了していない場合
+	if (dashWork_.isChargingFinished && !dashWork_.isDashFinished)
 	{
+		//Xボタンを押した場合攻撃状態に派生
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			player_->isDashAttack_ = true;
+		}
+
+		//ダッシュタイマーを進める
+		dashWork_.dashTimer += GameTimer::GetDeltaTime();
+
+		//ダッシュタイマーが一定値を超えていたら
+		if (dashWork_.dashTimer > player_->dashParameters_.dashDuration)
+		{
+			//ダッシュ終了フラグを立てる
+			dashWork_.isDashFinished = true;
+
+			//プレイヤーを描画させる
+			player_->SetIsVisible(true);
+
+			//エミッターを削除
+			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
+			{
+				emitter->SetIsDead(true);
+			}
+
+			//アニメーションを変更
+			ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+			modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.018");
+			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+			modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+
+			//RadialBlurを切る
+			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+		}
+
 		//速度を加算
-		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-		playerTransformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
 
-		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->GetWorldPosition();
-		enemyPosition.y = playerTransformComponent->worldTransform_.translation_.y;
+		//敵のTransformを取得
+		Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+		TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 
-		//敵に近づいたら速度を0にする
-		if (Mathf::Length(enemyPosition - playerTransformComponent->worldTransform_.translation_) < proximityThreshold_)
+		//敵と一定距離近づいたら速度を0にする
+		if (Mathf::Length(enemyTransformComponent->GetWorldPosition() - transformComponent->GetWorldPosition()) < player_->dashParameters_.proximityThreshold)
 		{
 			player_->velocity = { 0.0f,0.0f,0.0f };
 		}
@@ -131,45 +151,24 @@ void PlayerStateDash::Update()
 		//エミッターの座標を移動させる
 		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
 		{
-			emitter->SetTranslate(playerTransformComponent->worldTransform_.translation_);
-		}
-
-		//ダッシュタイマーを進める
-		currentDashDuration_ += GameTimer::GetDeltaTime();
-
-		//ダッシュタイマーが一定値を超えたら
-		if (currentDashDuration_ > maxDashDuration_)
-		{
-			//ダッシュ終了フラグを立てる
-			isDashFinished_ = true;
-
-			//RadialBlurを切る
-			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-
-			//プレイヤーを描画させる
-			player_->SetIsVisible(true);
+			emitter->SetTranslate(transformComponent->worldTransform_.translation_);
 		}
 	}
 
 	//ダッシュが終わっていたら
-	if (isDashFinished_)
+	if (dashWork_.isDashFinished)
 	{
-		//エミッターを削除
-		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
-		{
-			emitter->SetIsDead(true);
-		}
+		//アニメーションの設定を戻す
+		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
+		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
 
-		//硬直タイマーを進める
-		currentRecoveryDuration_ += GameTimer::GetDeltaTime();
-
-		//硬直時間が終ったら通常状態に戻す
-		if (currentRecoveryDuration_ > maxRecoveryDuration_)
+		//アニメーションが終了したら通常状態に戻す
+		if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
 		{
-			player_->ChangeState(new PlayerStateIdle());
+			player_->ChangeState(new PlayerStateRoot());
 		}
-		//攻撃状態に遷移
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		//ダッシュ攻撃が有効なら攻撃状態に派生
+		else if (player_->isDashAttack_)
 		{
 			player_->ChangeState(new PlayerStateGroundAttack());
 		}
@@ -178,24 +177,10 @@ void PlayerStateDash::Update()
 
 void PlayerStateDash::Draw(const Camera& camera)
 {
-
 }
 
 void PlayerStateDash::OnCollision(GameObject* other)
 {
-	Collider* collider = other->GetComponent<Collider>();
-	if (collider->GetCollisionAttribute() == kCollisionAttributeEnemy)
-	{
-		Enemy* enemy = dynamic_cast<Enemy*>(other);
-		if (enemy->GetIsAttack())
-		{
-			if (!player_->isInvincible_)
-			{
-				player_->isInvincible_ = true;
-				player_->hp_ -= 10.0f;
-			}
-		}
-	}
 }
 
 void PlayerStateDash::OnCollisionEnter(GameObject* other)
@@ -204,15 +189,4 @@ void PlayerStateDash::OnCollisionEnter(GameObject* other)
 
 void PlayerStateDash::OnCollisionExit(GameObject* other)
 {
-}
-
-void PlayerStateDash::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	speed_ = globalVariables->GetFloatValue(groupName, "DashSpeed");
-	maxDashDuration_ = globalVariables->GetFloatValue(groupName, "MaxDashDuration");
-	maxChargeDuration_ = globalVariables->GetFloatValue(groupName, "MaxChargeDuration");
-	maxRecoveryDuration_ = globalVariables->GetFloatValue(groupName, "MaxRecoveryDuration");
-	proximityThreshold_ = globalVariables->GetFloatValue(groupName, "ProximityThreshold");
 }

@@ -119,7 +119,7 @@ void Renderer::Render()
 		commandContext->SetComputeDescriptorTable(kOutputVertices, skinningObject.outpuVerticesBuffer->GetUAVHandle());
 		commandContext->SetComputeConstantBuffer(kSkinningInformation, skinningObject.skinningInformationCBV);
 		commandContext->Dispatch(skinningObject.vertexCount + 1023 / 1024, 1, 1);
-		commandContext->TransitionResource(*skinningObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+		commandContext->TransitionResource(*skinningObject.outpuVerticesBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 	}
 
 	//SkinningObjectをクリア

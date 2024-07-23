@@ -1,32 +1,33 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Utilities/GlobalVariables.h"
 
 class PlayerStateJustDodge : public IPlayerState
 {
 public:
-	void Initialize() override;
+	void Initialize();
 
-	void Update() override;
+	void Update();
 
-	void Draw(const Camera& camera) override;
+	void Draw(const Camera& camera);
 
-	void OnCollision(GameObject* other) override;
+	void OnCollision(GameObject* other);
 
-	void OnCollisionEnter(GameObject* other) override;
+	void OnCollisionEnter(GameObject* other);
 
-	void OnCollisionExit(GameObject* other) override;
-
-private:
-	void ApplyGlobalVariables();
+	void OnCollisionExit(GameObject* other);
 
 private:
+	//Input
 	Input* input_ = nullptr;
 
-	Vector3 offset_ = { 0.0f,0.0f,-10.0f };
+	//始点座標
+	Vector3 startPosition_{};
 
-	float distance_ = 10.0f;
+	//目標座標
+	Vector3 targetPosition_{};
+
+	//ジャスト回避のタイマー
+	float justDodgeTimer_ = 0.0f;           
 };
 

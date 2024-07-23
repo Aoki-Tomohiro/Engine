@@ -76,7 +76,7 @@ void ParticleManager::Update()
 		commandContext->SetPipelineState(emitParticlePipelineState_);
 
 		//PerFrameを設定
-		commandContext->SetComputeConstantBuffer(4, perFrameResource_->GetGpuVirtualAddress());
+		commandContext->SetComputeConstantBuffer(5, perFrameResource_->GetGpuVirtualAddress());
 
 		//Emitterの更新
 		particleSystem.second->UpdateEmitter();
@@ -88,7 +88,7 @@ void ParticleManager::Update()
 		commandContext->SetPipelineState(updateParticlePipelineState_);
 
 		//PerFrameを設定
-		commandContext->SetComputeConstantBuffer(5, perFrameResource_->GetGpuVirtualAddress());
+		commandContext->SetComputeConstantBuffer(7, perFrameResource_->GetGpuVirtualAddress());
 
 		//Particleの更新
 		particleSystem.second->Update();
@@ -213,9 +213,10 @@ void ParticleManager::CreateParticlePipelineState()
 void ParticleManager::CreateInitializeParticlePipelineState()
 {
 	//RootSignatureの作成
-	initializeParticleRootSignature_.Create(2, 0);
+	initializeParticleRootSignature_.Create(3, 0);
 	initializeParticleRootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
 	initializeParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
+	initializeParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 2, 1, D3D12_SHADER_VISIBILITY_ALL);
 	initializeParticleRootSignature_.Finalize();
 
 	//PipelineStateの作成
@@ -229,12 +230,13 @@ void ParticleManager::CreateInitializeParticlePipelineState()
 void ParticleManager::CreateEmitParticlePipelineState()
 {
 	//RootSignatureの作成
-	emitParticleRootSignature_.Create(5, 0);
+	emitParticleRootSignature_.Create(6, 0);
 	emitParticleRootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
 	emitParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
-	emitParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	emitParticleRootSignature_[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
-	emitParticleRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 2, 1, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[4].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
+	emitParticleRootSignature_[5].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
 	emitParticleRootSignature_.Finalize();
 
 	//PipelineStateの作成
@@ -248,13 +250,15 @@ void ParticleManager::CreateEmitParticlePipelineState()
 void ParticleManager::CreateUpdateParticlePipelineState()
 {
 	//RootSignatureの作成
-	updateParticleRootSignature_.Create(6, 0);
+	updateParticleRootSignature_.Create(8, 0);
 	updateParticleRootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[3].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
-	updateParticleRootSignature_[5].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 2, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[4].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[5].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[6].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_ALL);
+	updateParticleRootSignature_[7].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_ALL);
 	updateParticleRootSignature_.Finalize();
 
 	//PipelineStateの作成
@@ -293,14 +297,20 @@ ParticleSystem* ParticleManager::CreateInternal(const std::string& name)
 	//ParticleResourceを取得
 	RWStructuredBuffer* particleResource = particleSystem->GetParticleResource();
 
-	//FreeCounterResourceを取得
-	RWStructuredBuffer* freeCounterResource = particleSystem->GetFreeCounterResource();
+	//FreeListIndexResourceを取得
+	RWStructuredBuffer* freeListIndexResource = particleSystem->GetFreeListIndexResource();
+
+	//FreeListResourceを取得
+	RWStructuredBuffer* freeListResource = particleSystem->GetFreeListResource();
 
 	//ParticleResourceの状態を遷移
 	commandContext.TransitionResource(*particleResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	//FreeCounterResourceの状態を遷移
-	commandContext.TransitionResource(*freeCounterResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//FreeListIndexResourceの状態を遷移
+	commandContext.TransitionResource(*freeListIndexResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	//FreeListResourceの状態を遷移
+	commandContext.TransitionResource(*freeListResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	//RootSignatureを設定
 	commandContext.SetComputeRootSignature(initializeParticleRootSignature_);
@@ -311,8 +321,11 @@ ParticleSystem* ParticleManager::CreateInternal(const std::string& name)
 	//ParticleResourceを設定
 	commandContext.SetComputeDescriptorTable(0, particleResource->GetUAVHandle());
 
-	//FreeCounterResourceを設定
-	commandContext.SetComputeDescriptorTable(1, freeCounterResource->GetUAVHandle());
+	//FreeListIndexResourceを設定
+	commandContext.SetComputeDescriptorTable(1, freeListIndexResource->GetUAVHandle());
+
+	//FreeListResourceを設定
+	commandContext.SetComputeDescriptorTable(2, freeListResource->GetUAVHandle());
 
 	//Dispatch
 	commandContext.Dispatch(1, 1, 1);

@@ -39,7 +39,7 @@ private:
 
 	//Collider
 	Vector3 collisionOffset_{ 0.0f,1.2f,0.0f };
-	Vector3 size_{ 0.2f,2.7f,0.4f };
+	Vector3 size_{ 0.2f,3.5f,0.4f };
 
 	//攻撃フラグ
 	bool isAttack_ = false;
@@ -52,5 +52,8 @@ private:
 
 	//パリィに成功したか
 	bool isParrySuccessful_ = false;
+
+	//デバッグ用のフラグ
+	bool isDebug_ = false;
 };
 

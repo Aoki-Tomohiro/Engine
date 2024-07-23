@@ -1,54 +1,48 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/GlobalVariables.h"
 
 class PlayerStateDodge : public IPlayerState
 {
 public:
-	void Initialize() override;
+	void Initialize();
 
-	void Update() override;
+	void Update();
 
-	void Draw(const Camera& camera) override;
+	void Draw(const Camera& camera);
 
-	void OnCollision(GameObject* other) override;
+	void OnCollision(GameObject* other);
 
-	void OnCollisionEnter(GameObject* other) override;
+	void OnCollisionEnter(GameObject* other);
 
-	void OnCollisionExit(GameObject* other) override;
-
-private:
-	void ApplyGlobalVariables();
+	void OnCollisionExit(GameObject* other);
 
 private:
-	//Input
+	//回避方向の列挙型
+	enum DodgeDirection
+	{
+		Forward,
+		Backward,
+		Left,
+		Right,
+		NumDirections // 方向の数を表す定数
+	};
+
+	//回避用のパラメーターの構造体
+	struct DodgeDurations
+	{
+		float chargeDuration; // 溜め時間
+		float dodgeDuration;   // 回避時間
+		float recoveryDuration; // 硬直時間
+	};
+
+	//回避の時間設定
+	static const std::array<DodgeDurations, NumDirections> kDodgeDurations_;
+
+private:
 	Input* input_ = nullptr;
 
-	//回避スピード
-	float dodgeSpeed_ = 24.0f;
-
-	//バックフリップ状態なのか
-	bool isBackFlip_ = false;
-
-	//バックフリップのため状態の時間
-	float backFlipAnticipationTime = 0.2f;
-
-	//バックフリップ状態の時間
-	float backFlipTime = 0.6f;
-
-	//バックフリップ状態のタイマー
-	float backFlipParameter_ = 0.0f;
-
-	//バックフリップの状態
-	enum BackFlipState
-	{
-		kAnticipation,
-		kBackFlip,
-		kRecovery,
-	};
-	BackFlipState backFlipState_ = BackFlipState::kAnticipation;
+	//回避方向
+	DodgeDirection dodgeDirection_{};
 };
 

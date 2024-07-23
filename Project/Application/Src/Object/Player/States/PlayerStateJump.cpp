@@ -1,34 +1,30 @@
 #include "PlayerStateJump.h"
-#include "Engine/Components/Collision/Collider.h"
-#include "Engine/Components/Collision/CollisionConfig.h"
-#include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "PlayerStateIdle.h"
-#include "PlayerStateAirAttack.h"
-#include "PlayerStateRangedAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
 
 void PlayerStateJump::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//速度にジャンプの初速度を設定
-	player_->velocity.y = jumpFirstSpeed_;
-
 	//アニメーションの初期化
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.003");
+	if (player_->velocity == Vector3{ 0.0f,0.0f,0.0f } || player_->lockOn_->ExistTarget())
+	{
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.008");
+		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.18f);
+	}
+	else
+	{
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.009");
+	}
 
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "JumpFirstSpeed", jumpFirstSpeed_);
-	globalVariables->AddItem(groupName, "GravityAcceleration", gravityAcceleration_);
+	//速度にジャンプの初速度を設定
+	player_->velocity.y = player_->jumpParameters_.firstSpeed;
 }
 
 void PlayerStateJump::Update()
@@ -37,7 +33,7 @@ void PlayerStateJump::Update()
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 
 	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f,-gravityAcceleration_,0.0f };
+	Vector3 accelerationVector = { 0.0f,-player_->jumpParameters_.gravityAcceleration,0.0f };
 
 	//速度に重力加速度を加算
 	player_->velocity += accelerationVector;
@@ -48,26 +44,24 @@ void PlayerStateJump::Update()
 	//通常状態に変更
 	if (transformComponent->worldTransform_.translation_.y <= 0.0f)
 	{
+		//プレイヤーを地面の座標に設定
 		transformComponent->worldTransform_.translation_.y = 0.0f;
-		player_->ChangeState(new PlayerStateIdle);
+
+		//速度の初期化
+		player_->velocity.y = 0.0f;
+
+		//通常状態に遷移
+		player_->ChangeState(new PlayerStateRoot());
 	}
-	////空中攻撃の状態に遷移
-	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-	//{
-	//	player_->ChangeState(new PlayerStateAirAttack());
-	//}
-	////遠距離攻撃の状態に遷移
-	//else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y))
-	//{
-	//	player_->ChangeState(new PlayerStateRangedAttack());
-	//}
+	//攻撃状態に遷移
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		//速度の初期化
+		player_->velocity.y = 0.0f;
 
-	//環境変数の適用
-	ApplyGlobalVariables();
-
-	//ImGui
-	ImGui::Begin("PlayerStateJump");
-	ImGui::End();
+		//空中攻撃状態に遷移
+		player_->ChangeState(new PlayerStateAirAttack());
+	}
 }
 
 void PlayerStateJump::Draw(const Camera& camera)
@@ -76,19 +70,6 @@ void PlayerStateJump::Draw(const Camera& camera)
 
 void PlayerStateJump::OnCollision(GameObject* other)
 {
-	Collider* collider = other->GetComponent<Collider>();
-	if (collider->GetCollisionAttribute() == kCollisionAttributeEnemy)
-	{
-		Enemy* enemy = dynamic_cast<Enemy*>(other);
-		if (enemy->GetIsAttack())
-		{
-			if (!player_->isInvincible_)
-			{
-				player_->isInvincible_ = true;
-				player_->hp_ -= 10.0f;
-			}
-		}
-	}
 }
 
 void PlayerStateJump::OnCollisionEnter(GameObject* other)
@@ -97,12 +78,4 @@ void PlayerStateJump::OnCollisionEnter(GameObject* other)
 
 void PlayerStateJump::OnCollisionExit(GameObject* other)
 {
-}
-
-void PlayerStateJump::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	jumpFirstSpeed_ = globalVariables->GetFloatValue(groupName, "JumpFirstSpeed");
-	gravityAcceleration_ = globalVariables->GetFloatValue(groupName, "GravityAcceleration");
 }

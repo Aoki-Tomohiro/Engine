@@ -17,16 +17,6 @@ void Enemy::Initialize()
 
 	//Stateの初期化
 	ChangeState(new EnemyStateIdle());
-
-	//体力バーのスプライトの生成
-	TextureManager::Load("HpBar.png");
-	spriteHpBar_.reset(Sprite::Create("HpBar.png", { 720.0f,32.0f }));
-	spriteHpBar_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
-
-	//体力バーのフレームのスプライトの生成
-	TextureManager::Load("HpBarFrame.png");
-	spriteHpBarFrame_.reset(Sprite::Create("HpBarFrame.png", { 719.0f,31.0f }));
-	spriteHpBarFrame_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
 }
 
 void Enemy::Update()
@@ -42,29 +32,15 @@ void Enemy::Update()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
 
-	//Colliderの更新
-	//AABBCollider* collider = GetComponent<AABBCollider>();
-	//collider->SetDebugDrawEnabled(true);
-	//collider->SetCenter(transformComponent->GetWorldPosition() + colliderOffset_);
+	//Colliderを設定
+	AABBCollider* collider = GetComponent<AABBCollider>();
+	collider->SetDebugDrawEnabled(isDebug_);
 
 	//GameObjectの更新
 	GameObject::Update();
 
-	//HPバーの処理
-	hpBarSize_ = { (hp_ / kMaxHP) * 480.0f,16.0f };
-	spriteHpBar_->SetSize(hpBarSize_);
-
-	//hpがなくなったらDisolveをかける
-	if (hp_ <= 0.0f)
-	{
-		disolveParameter_ += 1.0f / 180.0f;
-		ModelComponent* modelComponent = GetComponent<ModelComponent>();
-		modelComponent->GetModel()->GetMaterial(0)->SetDissolveThreshold(disolveParameter_);
-	}
-
 	//ImGui
 	ImGui::Begin("Enemy");
-	ImGui::DragFloat3("ColliderOffset", &colliderOffset_.x, 0.1f);
 	ImGui::Checkbox("IsDebug", &isDebug_);
 	ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f);
 	ImGui::End();
@@ -78,8 +54,7 @@ void Enemy::Draw(const Camera& camera)
 
 void Enemy::DrawUI()
 {
-	spriteHpBar_->Draw();
-	spriteHpBarFrame_->Draw();
+
 }
 
 void Enemy::OnCollision(GameObject* gameObject)
@@ -89,25 +64,7 @@ void Enemy::OnCollision(GameObject* gameObject)
 
 void Enemy::OnCollisionEnter(GameObject* gameObject)
 {
-	if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
-	{
-		const Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
-		switch (player->GetComboIndex())
-		{
-		case 0:
-			hp_ -= 12.0f;
-			break;
-		case 1:
-			hp_ -= 12.0f;
-			break;
-		case 2:
-			hp_ -= 8.0f;
-			break;
-		case 3:
-			hp_ -= 15.0f;
-			break;
-		}
-	}
+
 }
 
 void Enemy::OnCollisionExit(GameObject* gameObject)

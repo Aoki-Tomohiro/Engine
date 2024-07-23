@@ -67,6 +67,10 @@ void PostEffects::Initialize()
 	//RadialBlurの初期化
 	radialBlur_ = std::make_unique<RadialBlur>();
 	radialBlur_->Initialize();
+
+	//HSVの初期化
+	hsv_ = std::make_unique<HSV>();
+	hsv_->Initialize();
 }
 
 void PostEffects::Update()
@@ -94,6 +98,9 @@ void PostEffects::Update()
 
 	//RadialBlurの更新
 	radialBlur_->Update();
+
+	//HSVの更新
+	hsv_->Update();
 }
 
 void PostEffects::Apply()
@@ -187,6 +194,9 @@ void PostEffects::Draw()
 	//DescriptorTableを設定
 	commandContext->SetDescriptorTable(0, currentDescriptorHandle_);
 
+	//ConstantBufferを設定
+	commandContext->SetConstantBuffer(1, hsv_->GetConstantBuffer()->GetGpuVirtualAddress());
+
 	//DrawCall
 	commandContext->DrawInstanced(6, 1);
 }
@@ -220,10 +230,11 @@ void PostEffects::CreateVertexBuffer()
 void PostEffects::CreatePipelineState()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(1, 1);
+	rootSignature_.Create(2, 1);
 
 	//RootParameterの設定
 	rootSignature_[0].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};

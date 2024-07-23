@@ -1,53 +1,36 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Particle/ParticleManager.h"
-#include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/GlobalVariables.h"
 
 class PlayerStateDash : public IPlayerState
 {
 public:
-	void Initialize() override;
+	void Initialize();
 
-	void Update() override;
+	void Update();
 
-	void Draw(const Camera& camera) override;
+	void Draw(const Camera& camera);
 
-	void OnCollision(GameObject* other) override;
+	void OnCollision(GameObject* other);
 
-	void OnCollisionEnter(GameObject* other) override;
+	void OnCollisionEnter(GameObject* other);
 
-	void OnCollisionExit(GameObject* other) override;
+	void OnCollisionExit(GameObject* other);
 
 private:
-
-
-	void ApplyGlobalVariables();
+	struct WorkDash
+	{
+		float dashTimer = 0.0f;          // ダッシュ用タイマー
+		bool isDashFinished = false;     // ダッシュが終了したか
+		float chargeTimer = 0.0f;        // チャージ用タイマー
+		bool isChargingFinished = false; // チャージが終了したか
+	};
 
 private:
 	Input* input_ = nullptr;
 
-	float speed_ = 96.0f;
-
-	float proximityThreshold_ = 10.0f;
-
-	float maxDashDuration_ = 0.5f;
-
-	float currentDashDuration_ = 0;
-
-	bool isDashFinished_ = false;
-
-	float maxChargeDuration_ = 0.16f;
-
-	float currentChargeDuration_ = 0;
-
-	bool isChargingFinished_ = false;
-
-	float maxRecoveryDuration_ = 0.3f;
-
-	float currentRecoveryDuration_ = 0;
+	WorkDash dashWork_{};
 
 	ParticleSystem* particleSystem_ = nullptr;
 };

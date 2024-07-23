@@ -1,0 +1,12 @@
+{
+    "Player": {
+        "DodgeSpeed": 18.0,
+        "GravityAcceleration": 2.799999952316284,
+        "JumpFirstSpeed": 45.0,
+        "JustDodgeSpeed": 72.0,
+        "RunSpeed": 18.0,
+        "RunThreshold": 0.6000000238418579,
+        "WalkSpeed": 9.0,
+        "WalkThreshold": 0.30000001192092896
+    }
+}

@@ -20,6 +20,8 @@ namespace Mathf
 
 	float EaseInOutSine(float x);
 
+	float EaseOutExpo(float x);
+
 	float Norm(const Quaternion& quaternion);
 
 	Vector3 Normalize(const Vector3& v);
@@ -77,6 +79,8 @@ namespace Mathf
 	Quaternion Inverse(const Quaternion& quaternion);
 
 	Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+
+	Quaternion LookRotation(const Vector3& forward, const Vector3& up);
 
 	Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 }

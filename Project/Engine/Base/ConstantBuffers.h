@@ -35,6 +35,12 @@ struct ConstBuffDataMaterial
 	Vector3 edgeColor;
 };
 
+enum class RotationType
+{
+	Euler,
+	Quaternion
+};
+
 struct ConstBuffDataWorldTransform
 {
 	Matrix4x4 world;
@@ -203,4 +209,11 @@ struct ConstBuffDataRadialBlur
 {
 	Vector2 center;
 	float blurWidth;
+};
+
+struct ConstBuffDataHSV
+{
+	float hue;
+	float saturation;
+	float value;
 };
