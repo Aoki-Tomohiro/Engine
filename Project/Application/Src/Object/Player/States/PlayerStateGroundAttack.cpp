@@ -336,7 +336,7 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 	if (workGroundAttack_.isEnhancedMagicSuccess)
 	{
 		//アニメーションの時間が一定値を超えていたら魔法を出す
-		if (modelComponent->GetModel()->GetAnimation()->GetAnimationTime() > player_->magicAttackParameters_.enhancedFireRate)
+		if (modelComponent->GetModel()->GetAnimation()->GetAnimationTime() > player_->magicAttackParameters_.enhancedMagicProjectileFireRate)
 		{
 			workGroundAttack_.isEnhancedMagicSuccess = false;
 			player_->AddMagicProjectile(true);

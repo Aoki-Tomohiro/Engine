@@ -362,15 +362,15 @@ void PlayerStateRoot::UpdateMagicProjectileAttack()
 		//魔法攻撃のタイマーを進める
 		workMagicAttack_.fireTimer_ += GameTimer::GetDeltaTime();
 
-		//魔法攻撃のフラグを立てる
-		workMagicAttack_.isMagicAttack_ = true;
+		//魔法を発射可能にする
+		workMagicAttack_.isFireEnabled = true;
 
 		//魔法攻撃終了のタイマーをリセット
 		workMagicAttack_.finishedTimer_ = 0.0f;
 	}
 
-	//魔法攻撃のフラグが立っているとき
-	if (workMagicAttack_.isMagicAttack_)
+	//魔法攻撃が発射可能の時
+	if (workMagicAttack_.isFireEnabled)
 	{
 		//Yボタンを押していなかった場合
 		if (!input_->IsPressButton(XINPUT_GAMEPAD_Y))
@@ -381,6 +381,9 @@ void PlayerStateRoot::UpdateMagicProjectileAttack()
 			//魔法攻撃終了のタイマーが規定値を超えていたら
 			if (workMagicAttack_.finishedTimer_ > player_->magicAttackParameters_.magicAttackFinishedDuration)
 			{
+				//魔法攻撃のフラグの初期化
+				workMagicAttack_.isMagicAttack_ = false;
+
 				//魔法攻撃終了のタイマーをリセット
 				workMagicAttack_.finishedTimer_ = 0.0f;
 
@@ -399,6 +402,9 @@ void PlayerStateRoot::UpdateMagicProjectileAttack()
 		//魔法攻撃のタイマーが規定値を超えていたら
 		if (workMagicAttack_.fireTimer_ > player_->magicAttackParameters_.fireRate)
 		{
+			//魔法攻撃のフラグを立てる
+			workMagicAttack_.isMagicAttack_ = true;
+
 			//タイマーをリセット
 			workMagicAttack_.fireTimer_ = 0.0f;
 

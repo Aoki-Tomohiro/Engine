@@ -1,5 +1,6 @@
 #pragma once
 #include "ParticleEmitter.h"
+#include "EmitterBuilder.h"
 #include "AccelerationField.h"
 #include "GravityField.h"
 #include "Engine/Base/RWStructuredBuffer.h"

@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/3D/Camera/LockOn.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GlobalVariables.h"
@@ -101,23 +102,27 @@ private:
 	struct MagicAtackParameters
 	{
 		float fireRate = 0.2f;                             // 魔法攻撃の発射間隔
-		float enhancedFireRate = 0.92f;                    // 強化魔法の発射間隔
 		float magicAttackFinishedDuration = 1.0f;          // 魔法攻撃が終了するまでの時間
 		Vector3 magicProjectileScale = { 0.6f,0.6f,0.6f }; // 魔法弾の大きさ
 		float magicProjectileSpeed = 96.0f;                // 魔法弾の速度
+		float enhancedMagicProjectileFireRate = 0.92f;     // 強化魔法の発射間隔
 		float enhancedMagicProjectileSpeed = 48.0f;        // 強化魔法弾の速度
 		float enhancedMagicWindow = 0.06f;                 // 強化魔法弾の受付時間
+		float chargeMagicInputDuration = 2.0f;             // チャージ魔法の入力時間
 	};
 
 	void ChangeState(IPlayerState* state);
 
 	void AddMagicProjectile(const bool isEnhanced);
 
-	void ImGui();
+	void UpdateChargeMagicProjectile();
 
 	void ApplyGlobalVariables();
 
 private:
+	//Input
+	Input* input_ = nullptr;
+
 	//プレイヤーの状態
 	std::unique_ptr<IPlayerState> state_ = nullptr;
 
@@ -178,11 +183,19 @@ private:
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
 
+	//チャージ魔法が終了しているか
+	bool isChargeMagicFinished_ = false;
+
+	//チャージ魔法用のタイマー
+	float chargeMagicTimer_ = 0.0f;
+
+	//パーティクル
+	ParticleSystem* chargeMagicParticle_ = nullptr;
+
 	//アニメーションの時間
 	float animationTime_ = 0.0f;
 
-	//アニメーションの名前
-	std::string currentAnimationName_ = "Armature|mixamo.com|Layer0";
+	//アニメーション一覧
 	std::vector<std::string> animationName_ = {
 		{"Armature|mixamo.com|Layer0"},
 		{"Armature.001|mixamo.com|Layer0"},
@@ -215,6 +228,9 @@ private:
 		{"Armature.001|mixamo.com|Layer0.027"},
 		{"Armature.001|mixamo.com|Layer0.028"},
 	};
+
+	//現在のアニメーション
+	std::string currentAnimationName_ = animationName_[0];
 
 	//フレンドクラスに登録
 	friend class PlayerStateRoot;

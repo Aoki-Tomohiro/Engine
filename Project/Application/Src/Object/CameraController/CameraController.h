@@ -27,7 +27,7 @@ private:
 		Vector3 justDodgeIntensity = { 0.0f, 10.0f, 0.0f }; // 回避攻撃のカメラシェイクの強度
 		Vector3 originalPosition{};                         // カメラシェイクの基準座標オフセット
 		float duration = 0.2f;                              // カメラシェイクの持続時間
-		float justDodgeDuration = 0.6f;                              // 回避攻撃のカメラシェイクの持続時間
+		float justDodgeDuration = 0.6f;                     // 回避攻撃のカメラシェイクの持続時間
 		float timer = 0.0f;                                 // カメラシェイクの経過時間を計測するタイマー
 	};
 

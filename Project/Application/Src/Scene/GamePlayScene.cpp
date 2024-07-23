@@ -57,7 +57,6 @@ void GamePlayScene::Initialize()
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	//weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightForeArm"));
 	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//FollowCameraの作成
@@ -162,19 +161,19 @@ void GamePlayScene::Update()
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
-	//HSVの調整
-	PostEffects* postEffects = PostEffects::GetInstance();
-	postEffects->GetHSV()->SetHue(hue_);
-	postEffects->GetHSV()->SetSaturation(saturation_);
-	postEffects->GetHSV()->SetValue(value_);
+	////HSV
+	//PostEffects* postEffects = PostEffects::GetInstance();
+	//postEffects->GetHSV()->SetHue(hue_);
+	//postEffects->GetHSV()->SetSaturation(saturation_);
+	//postEffects->GetHSV()->SetValue(value_);
 
 	//ImGui
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
-	ImGui::DragFloat("Hue", &hue_, 0.01f);
-	ImGui::DragFloat("Saturation", &saturation_, 0.01f);
-	ImGui::DragFloat("Value", &value_, 0.01f);
+	ImGui::DragFloat("Hue", &hue_, 0.02f, -0.5f, 0.5f);
+	ImGui::DragFloat("Saturation", &saturation_, 0.02f, -0.5f, 0.5f);
+	ImGui::DragFloat("Value", &value_, 0.02f, -0.5f, 0.5f);
 	ImGui::End();
 }
 
@@ -329,9 +328,6 @@ void GamePlayScene::UpdateParry()
 		//敵の行動を遅くする
 		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
 
-		////カメラを近づける
-		//cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -10.0f });
-
 		//GrayScaleを有効化
 		PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(true);
 
@@ -355,9 +351,6 @@ void GamePlayScene::UpdateParry()
 				//スロウモーションのフラグを折る
 				parrySettings_.isSlow = false;
 
-				////カメラの元に戻す
-				//cameraController_->SetDestinationOffset({ 0.0f, 2.0f, -20.0f });
-
 				//ゲーム全体の時間の流れをもとに戻す
 				GameTimer::SetTimeScale(1.0f);
 			}
@@ -368,15 +361,38 @@ void GamePlayScene::UpdateParry()
 		{
 			//タイマーのリセット
 			parrySettings_.timer = 0.0f;
+			parrySettings_.grayTimer = 0.0f;
 
 			//フラグのリセット
 			parrySettings_.isActive = false;
+
 
 			//敵の行動をもとに戻す
 			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
 
 			//GrayScaleを無効化
 			PostEffects::GetInstance()->GetGrayScale()->SetIsEnable(false);
+		}
+
+		//GreeScaleにする
+		PostEffects* postEffects = PostEffects::GetInstance();
+		if (parrySettings_.timer < parrySettings_.grayDuration)
+		{
+			parrySettings_.grayTimer += kParryDeltaTime;
+			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
+			float currentSaturation = 0.0f + (parrySettings_.graySaturation - 0.0f) * Mathf::EaseInSine(easingParameter);
+			postEffects->GetHSV()->SetSaturation(currentSaturation);
+		}
+		else if (parrySettings_.timer > parrySettings_.duration - parrySettings_.grayDuration)
+		{
+			parrySettings_.grayTimer += kParryDeltaTime;
+			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
+			float currentSaturation = parrySettings_.graySaturation + (0.0f - parrySettings_.graySaturation) * Mathf::EaseInSine(easingParameter);
+			postEffects->GetHSV()->SetSaturation(currentSaturation);
+		}
+		else
+		{
+			parrySettings_.grayTimer = 0.0f;
 		}
 	}
 }

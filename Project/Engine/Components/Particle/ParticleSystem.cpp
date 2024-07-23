@@ -122,6 +122,15 @@ void ParticleSystem::UpdateEmitter()
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
+	//ParticleResourceの状態を遷移
+	commandContext->TransitionResource(*particleResource_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	//FreeListIndexResourceの状態を遷移
+	commandContext->TransitionResource(*freeListIndexResource_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	//FreeListResourceの状態を遷移
+	commandContext->TransitionResource(*freeListResource_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
 	//Particleを設定
 	commandContext->SetComputeDescriptorTable(0, particleResource_->GetUAVHandle());
 

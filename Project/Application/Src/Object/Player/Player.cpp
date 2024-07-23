@@ -5,6 +5,7 @@
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/Components/Collision/SphereCollider.h"
 #include "Engine/Components/Collision/CollisionAttributeManager.h"
+#include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
@@ -14,8 +15,14 @@ void Player::Initialize()
 	//GameObjectの初期化
 	GameObject::Initialize();
 
+	//Inputのインスタンスを取得
+	input_ = Input::GetInstance();
+
 	//Stateの初期化
 	ChangeState(new PlayerStateRoot());
+
+	//パーティクルを生成
+	chargeMagicParticle_ = ParticleManager::Create("ChargeMagicFinished");
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -39,6 +46,9 @@ void Player::Update()
 		state_->Update();
 	}
 
+	//チャージ魔法の更新
+	UpdateChargeMagicProjectile();
+
 	//回転処理
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
@@ -48,7 +58,27 @@ void Player::Update()
 	collider->SetDebugDrawEnabled(isDebug_);
 
 	//ImGuiの処理
-	ImGui();
+	ImGui::Begin("Player");
+	ImGui::Checkbox("IsDebug", &isDebug_);
+	ImGui::DragFloat3("Velocity", &velocity.x);
+	ImGui::DragFloat("AnimationTime", &animationTime_, 0.001f);
+	if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
+	{
+		for (int i = 0; i < animationName_.size(); ++i)
+		{
+			const bool isSelected = (currentAnimationName_ == animationName_[i]);
+			if (ImGui::Selectable(animationName_[i].c_str(), isSelected))
+			{
+				currentAnimationName_ = animationName_[i];
+			}
+			if (isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::End();
 
 	//デバッグ用の処理
 	ModelComponent* modelComponent = GetComponent<ModelComponent>();
@@ -140,35 +170,6 @@ void Player::ChangeState(IPlayerState* state)
 	state_.reset(state);
 }
 
-void Player::ImGui()
-{
-	//ImGui
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	ImGui::Begin("Player");
-	ImGui::Checkbox("IsDebug", &isDebug_);
-	ImGui::DragFloat3("Translation", &transformComponent->worldTransform_.translation_.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
-	ImGui::DragFloat3("Velocity", &velocity.x);
-	ImGui::DragFloat("AnimationTime", &animationTime_, 0.001f);
-	if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
-	{
-		for (int i = 0; i < animationName_.size(); ++i)
-		{
-			const bool isSelected = (currentAnimationName_ == animationName_[i]);
-			if (ImGui::Selectable(animationName_[i].c_str(), isSelected))
-			{
-				currentAnimationName_ = animationName_[i];
-			}
-			if (isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndCombo();
-	}
-	ImGui::End();
-}
-
 void Player::ApplyGlobalVariables()
 {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -247,4 +248,83 @@ void Player::AddMagicProjectile(const bool isEnhanced)
 	collider->SetCollisionMask(CollisionAttributeManager::GetInstance()->GetMask("Weapon"));
 	//一度更新を入れる
 	magicProjectile->Update();
+}
+
+void Player::UpdateChargeMagicProjectile()
+{
+	//Yボタンを押しているとき
+	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
+	{
+		//チャージが終了していないとき
+		if (!isChargeMagicFinished_)
+		{
+			//チャージタイマーを進める
+			chargeMagicTimer_ += GameTimer::GetDeltaTime();
+
+			//チャージタイマーが一定値を超えていたら
+			if (chargeMagicTimer_ > magicAttackParameters_.chargeMagicInputDuration)
+			{
+				//チャージ終了のフラグを立てる
+				isChargeMagicFinished_ = true;
+
+				//タイマーをリセット
+				chargeMagicTimer_ = 0.0f;
+
+				//左手にパーティクルを出す
+				ParticleEmitter* emitter = EmitterBuilder()
+					.SetEmitterName("ChargeMagicFinished")
+					.SetRadius(0.2f)
+					.SetEmitterLifeTime(100.0f)
+					.SetCount(20)
+					.SetFrequency(0.01f)
+					.SetScale({ 0.1f,0.1f,0.1f }, { 0.14f,0.14f,0.14f })
+					.SetColor({ 0.6f,0.0f,0.0f,1.0f }, { 1.0f,0.0f,0.0f,1.0f })
+					.SetVelocity({ -0.02f,0.02f,-0.02f }, { 0.02f,0.06f,0.02f })
+					.SetLifeTime(0.06f, 0.12f)
+					.Build();
+				chargeMagicParticle_->AddParticleEmitter(emitter);
+			}
+		}
+	}
+	else
+	{
+		chargeMagicTimer_ = 0.0f;
+	}
+
+	//チャージが終了しているとき
+	if (isChargeMagicFinished_)
+	{
+		//Yボタンを離した時
+		if(input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+		{
+			//フラグをリセット
+			isChargeMagicFinished_ = false;
+
+			//エミッターを削除
+			if (ParticleEmitter* emitter = chargeMagicParticle_->GetParticleEmitter("ChargeMagicFinished"))
+			{
+				emitter->SetIsDead(true);
+			}
+		}
+
+		//エミッターの座標を移動させる
+		if (ParticleEmitter* emitter = chargeMagicParticle_->GetParticleEmitter("ChargeMagicFinished"))
+		{
+			//プレイヤーのモデル
+			ModelComponent* modelComponent = GetComponent<ModelComponent>();
+
+			//左手のWorldTransformを取得
+			WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
+
+			//プレイヤーの左手のワールド座標を取得
+			Vector3 leftHandWorldPosition = {
+				worldTransform.matWorld_.m[3][0],
+				worldTransform.matWorld_.m[3][1],
+				worldTransform.matWorld_.m[3][2],
+			};
+
+			//座標を設定する
+			emitter->SetTranslate(leftHandWorldPosition);
+		}
+	}
 }
