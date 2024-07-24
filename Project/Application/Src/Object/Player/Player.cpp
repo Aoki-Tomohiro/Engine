@@ -8,7 +8,6 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 
 void Player::Initialize()
 {
@@ -183,7 +182,7 @@ void Player::ApplyGlobalVariables()
 	jumpParameters_.gravityAcceleration = globalVariables->GetFloatValue(groupName, "GravityAcceleration");
 }
 
-void Player::AddMagicProjectile(const bool isEnhanced)
+void Player::AddMagicProjectile(const MagicProjectile::MagicType magicType)
 {
 	//Modelを取得
 	ModelComponent* modelComponent = GetComponent<ModelComponent>();
@@ -203,11 +202,13 @@ void Player::AddMagicProjectile(const bool isEnhanced)
 
 	//速度ベクトル
 	Vector3 velocity = { 0.0f,0.0f,1.0f };
+	//敵の中心までのオフセット値
+	const Vector3 enemyOffset = { 0.0f,5.0f,0.0f };
 	//ロックオン中の場合
 	if (lockOn_->ExistTarget())
 	{
 		//敵の方向へのベクトルを計算して速度を掛ける
-		velocity = Mathf::Normalize(enemyTransformComponent->GetWorldPosition() + Vector3{ 0.0f,5.0f,0.0f } - leftHandWorldPosition);
+		velocity = Mathf::Normalize(enemyTransformComponent->GetWorldPosition() + enemyOffset - leftHandWorldPosition);
 	}
 	else
 	{
@@ -215,31 +216,35 @@ void Player::AddMagicProjectile(const bool isEnhanced)
 	}
 
 	//強化魔法の場合
-	if (isEnhanced)
+	switch (magicType)
 	{
-		velocity *= magicAttackParameters_.enhancedMagicProjectileSpeed;
-	}
-	//通常状態の場合
-	else
-	{
+	case MagicProjectile::MagicType::kNormal:
 		velocity *= magicAttackParameters_.magicProjectileSpeed;
+		break;
+	case MagicProjectile::MagicType::kEnhanced:
+		velocity *= magicAttackParameters_.enhancedMagicProjectileSpeed;
+		break;
+	case MagicProjectile::MagicType::kCharged:
+		velocity *= magicAttackParameters_.magicProjectileSpeed;
+		break;
 	}
 
 	//魔法弾を作成
 	MagicProjectile* magicProjectile = GameObjectManager::GetInstance()->CreateGameObject<MagicProjectile>();
 	magicProjectile->SetVelocity(velocity);
-	magicProjectile->SetisEnhanced(isEnhanced);
+	magicProjectile->SetMagicType(magicType);
 	//Transformの追加
 	TransformComponent* transformComponent = magicProjectile->AddComponent<TransformComponent>();
 	transformComponent->Initialize();
+	transformComponent->worldTransform_.quaternion_ = destinationQuaternion_;
 	transformComponent->worldTransform_.translation_ = leftHandWorldPosition;
 	transformComponent->worldTransform_.scale_ = magicAttackParameters_.magicProjectileScale;
-	//Modelの追加
+	//ModelComponentの追加
 	ModelComponent* magicProjectileModelComponent = magicProjectile->AddComponent<ModelComponent>();
 	magicProjectileModelComponent->Initialize("Sphere", Transparent);
-	magicProjectileModelComponent->SetTransformComponent(transformComponent);
 	magicProjectileModelComponent->GetModel()->GetMaterial(1)->SetEnableLighting(false);
-	magicProjectileModelComponent->GetModel()->GetMaterial(1)->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+	magicProjectileModelComponent->GetModel()->GetMaterial(1)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	magicProjectileModelComponent->SetTransformComponent(transformComponent);
 	//Colliderの追加
 	SphereCollider* collider = magicProjectile->AddComponent<SphereCollider>();
 	collider->SetTransformComponent(transformComponent);
@@ -252,23 +257,43 @@ void Player::AddMagicProjectile(const bool isEnhanced)
 
 void Player::UpdateChargeMagicProjectile()
 {
+	//Yボタンを離した時
+	if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+	{
+		//チャージが終了していたら
+		if (chargeMagicAttackWork_.isChargeMagicComplete_)
+		{
+			//チャージのフラグをリセット
+			chargeMagicAttackWork_.isChargeMagicComplete_ = false;
+
+			//チャージ魔法攻撃のフラグを立てる
+			chargeMagicAttackWork_.isChargeMagicAttack_ = true;
+
+			//エミッターを削除
+			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
+			{
+				emitter->SetIsDead(true);
+			}
+		}
+	}
+
 	//Yボタンを押しているとき
 	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
 	{
-		//チャージが終了していないとき
-		if (!isChargeMagicFinished_)
+		//チャージが終了していない場合
+		if (!chargeMagicAttackWork_.isChargeMagicComplete_)
 		{
 			//チャージタイマーを進める
-			chargeMagicTimer_ += GameTimer::GetDeltaTime();
+			chargeMagicAttackWork_.chargeMagicTimer_ += GameTimer::GetDeltaTime();
 
-			//チャージタイマーが一定値を超えていたら
-			if (chargeMagicTimer_ > magicAttackParameters_.chargeMagicInputDuration)
+			//チャージタイマーが一定値を超えた場合
+			if (chargeMagicAttackWork_.chargeMagicTimer_ > magicAttackParameters_.chargeMagicHoldDuration)
 			{
-				//チャージ終了のフラグを立てる
-				isChargeMagicFinished_ = true;
+				//チャージが終了したフラグを立てる
+				chargeMagicAttackWork_.isChargeMagicComplete_ = true;
 
 				//タイマーをリセット
-				chargeMagicTimer_ = 0.0f;
+				chargeMagicAttackWork_.chargeMagicTimer_ = 0.0f;
 
 				//左手にパーティクルを出す
 				ParticleEmitter* emitter = EmitterBuilder()
@@ -286,48 +311,29 @@ void Player::UpdateChargeMagicProjectile()
 			}
 		}
 	}
+	//Yボタンを押していない場合タイマーをリセット
 	else
 	{
-		chargeMagicTimer_ = 0.0f;
+		chargeMagicAttackWork_.chargeMagicTimer_ = 0.0f;
 	}
 
-	//チャージが終了しているとき
-	if (isChargeMagicFinished_)
+	//エミッターの存在する場合は座標を移動させる
+	if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
 	{
-		//Yボタンを離した時
-		if(input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
-		{
-			//フラグをリセット
-			isChargeMagicFinished_ = false;
+		//プレイヤーのモデル
+		ModelComponent* modelComponent = GetComponent<ModelComponent>();
 
-			//チャージ魔法攻撃のフラグを立てる
-			isChargeMagicAttack_ = true;
+		//左手のWorldTransformを取得
+		WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
 
-			//エミッターを削除
-			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
-			{
-				emitter->SetIsDead(true);
-			}
-		}
+		//プレイヤーの左手のワールド座標を取得
+		Vector3 leftHandWorldPosition = {
+			worldTransform.matWorld_.m[3][0],
+			worldTransform.matWorld_.m[3][1],
+			worldTransform.matWorld_.m[3][2],
+		};
 
-		//エミッターの座標を移動させる
-		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
-		{
-			//プレイヤーのモデル
-			ModelComponent* modelComponent = GetComponent<ModelComponent>();
-
-			//左手のWorldTransformを取得
-			WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
-
-			//プレイヤーの左手のワールド座標を取得
-			Vector3 leftHandWorldPosition = {
-				worldTransform.matWorld_.m[3][0],
-				worldTransform.matWorld_.m[3][1],
-				worldTransform.matWorld_.m[3][2],
-			};
-
-			//座標を設定する
-			emitter->SetTranslate(leftHandWorldPosition);
-		}
+		//座標を設定する
+		emitter->SetTranslate(leftHandWorldPosition);
 	}
 }

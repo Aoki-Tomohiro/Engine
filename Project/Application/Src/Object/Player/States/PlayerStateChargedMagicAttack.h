@@ -18,6 +18,13 @@ public:
 	void OnCollisionExit(GameObject* other);
 
 private:
+	//Input
+	Input* input_ = nullptr;
+
+	//減速度
 	Vector3 decelerationVector_{};
+
+	//空中にいる状態かどうか
+	bool isInAir_ = false;
 };
 

@@ -80,7 +80,7 @@ void PlayerStateRoot::Update()
 		player_->ChangeState(new PlayerStateGroundAttack());
 	}
 	//チャージ魔法状態に遷移
-	else if (player_->isChargeMagicAttack_)
+	else if (player_->chargeMagicAttackWork_.isChargeMagicAttack_)
 	{
 		player_->ChangeState(new PlayerStateChargedMagicAttack());
 	}
@@ -362,60 +362,49 @@ void PlayerStateRoot::UpdateJustDodge()
 
 void PlayerStateRoot::UpdateMagicProjectileAttack()
 {
-	//Yボタンを押しているとき
-	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
-	{
-		//魔法攻撃のタイマーを進める
-		workMagicAttack_.fireTimer_ += GameTimer::GetDeltaTime();
-
-		//魔法を発射可能にする
-		workMagicAttack_.isFireEnabled = true;
-
-		//魔法攻撃終了のタイマーをリセット
-		workMagicAttack_.finishedTimer_ = 0.0f;
-	}
-
-	//魔法攻撃が発射可能の時
-	if (workMagicAttack_.isFireEnabled)
-	{
-		//Yボタンを押していなかった場合
-		if (!input_->IsPressButton(XINPUT_GAMEPAD_Y))
-		{
-			//魔法攻撃終了のタイマーを進める
-			workMagicAttack_.finishedTimer_ += GameTimer::GetDeltaTime();
-
-			//魔法攻撃終了のタイマーが規定値を超えていたら
-			if (workMagicAttack_.finishedTimer_ > player_->magicAttackParameters_.magicAttackFinishedDuration)
-			{
-				//魔法攻撃のフラグの初期化
-				workMagicAttack_.isMagicAttack_ = false;
-
-				//魔法攻撃終了のタイマーをリセット
-				workMagicAttack_.finishedTimer_ = 0.0f;
-
-				//発射タイマーをリセット
-				workMagicAttack_.fireTimer_ = 0.0f;
-
-				//魔法攻撃を終了させる
-				workMagicAttack_.isMagicAttack_ = false;
-			}
-		}
-	}
-
 	//Yボタンを離した時
 	if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
 	{
-		//魔法攻撃のタイマーが規定値を超えていて、チャージが終了していなかったら
-		if (workMagicAttack_.fireTimer_ > player_->magicAttackParameters_.fireRate && !player_->isChargeMagicFinished_)
+		//魔法が発射可能でチャージが終了していないとき
+		if (workMagicAttack_.isFireEnabled && !player_->chargeMagicAttackWork_.isChargeMagicComplete_)
 		{
-			//魔法攻撃のフラグを立てる
+			//魔法を生成
+			player_->AddMagicProjectile(MagicProjectile::MagicType::kNormal);
+
+			//魔法攻撃をできないようにする
+			workMagicAttack_.isFireEnabled = false;
+
+			//魔法を発射したしたフラグを立てる
 			workMagicAttack_.isMagicAttack_ = true;
 
-			//タイマーをリセット
-			workMagicAttack_.fireTimer_ = 0.0f;
+			//クールタイマーをリセット
+			workMagicAttack_.fireTimer = 0.0f;
+		}
+	}
 
-			//魔法弾を生成
-			player_->AddMagicProjectile(false);
+	//魔法を発射していた場合
+	if (workMagicAttack_.isMagicAttack_)
+	{
+		//魔法を発射できない場合クールタイマーを進める
+		workMagicAttack_.fireTimer += GameTimer::GetDeltaTime();
+
+		//クールタイマーが攻撃終了時間を超えていたら
+		if (workMagicAttack_.fireTimer > player_->magicAttackParameters_.finishedDuration)
+		{
+			//魔法を発射可能にする
+			workMagicAttack_.isFireEnabled = true;
+
+			//魔法攻撃をしていない状態にする
+			workMagicAttack_.isMagicAttack_ = false;
+
+			//クールタイマーをリセット
+			workMagicAttack_.fireTimer = 0.0f;
+		}
+		//クールタイマーが発射間隔を超えていたら
+		else if (workMagicAttack_.fireTimer > player_->magicAttackParameters_.fireRate)
+		{
+			//魔法を発射可能にする
+			workMagicAttack_.isFireEnabled = true;
 		}
 	}
 }

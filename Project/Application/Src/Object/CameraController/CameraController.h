@@ -33,11 +33,13 @@ private:
 	struct CameraShakeParameter
 	{
 		Vector3 baseIntensity = { 0.0f, 0.6f, 0.0f };          // カメラシェイクの強度
-		Vector3 justDodgeIntensity = { 0.0f, 10.0f, 0.0f };    // 回避攻撃のカメラシェイクの強度
+		Vector3 justDodgeIntensity = { 0.0f, 8.0f, 0.0f };     // 回避攻撃のカメラシェイクの強度
 		Vector3 enhancedMagicIntensity = { 0.0f, 0.8f, 0.0f }; // 強化魔法のカメラシェイクの強度
+		Vector3 chargedMagicIntensity = { 0.0f, 6.0f, 0.0f };  // チャージ魔法のカメラシェイクの強度
 		float baseDuration = 0.2f;                             // カメラシェイクの持続時間
 		float justDodgeDuration = 0.6f;                        // 回避攻撃のカメラシェイクの持続時間
-		float enhancedMagicDuration = 0.4f;               // 強化魔法のカメラシェイクの持続時間
+		float enhancedMagicDuration = 0.4f;                    // 強化魔法のカメラシェイクの持続時間
+		float chargedMagicDuration = 0.6f;                     // 強化魔法のカメラシェイクの持続時間
 	};
 
 	void ChangeState(ICameraState* state);

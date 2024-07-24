@@ -6,6 +6,7 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "States/IPlayerState.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 
 class Player : public GameObject
 {
@@ -75,7 +76,7 @@ private:
 	//地上攻撃用の構造体
 	struct GroundAttackParameters
 	{
-		float attackDistance = 10.0f;  // 攻撃の補正を掛ける距離
+		float attackDistance = 9.0f;   // 攻撃の補正を掛ける距離
 		float parryDuration = 0.1f;    // パリィの成功時間
 	};
 
@@ -101,22 +102,31 @@ private:
 	//魔法攻撃用の構造体
 	struct MagicAtackParameters
 	{
-		float fireRate = 0.2f;                             // 魔法攻撃の発射間隔
-		float magicAttackFinishedDuration = 1.0f;          // 魔法攻撃が終了するまでの時間
-		Vector3 magicProjectileScale = { 0.6f,0.6f,0.6f }; // 魔法弾の大きさ
+		float fireRate = 0.6f;                             // 魔法攻撃の発射間隔
+		float finishedDuration = 1.0f;                     // 魔法攻撃が終了するまでの時間
+		Vector3 magicProjectileScale = { 0.1f,0.1f,0.1f }; // 魔法弾の大きさ
 		float magicProjectileSpeed = 96.0f;                // 魔法弾の速度
 		float enhancedMagicProjectileFireRate = 0.92f;     // 強化魔法の発射間隔
 		float enhancedMagicProjectileSpeed = 48.0f;        // 強化魔法弾の速度
 		float enhancedMagicWindow = 0.06f;                 // 強化魔法弾の受付時間
-		float chargeMagicInputDuration = 2.0f;             // チャージ魔法の入力時間
-		float chargeMagicKnockbackSpeed = -45.0f;          // チャージ魔法後のノックバック速度
-		float chargeMagicKnockbackDeceleration = 2.8f;     // チャージ魔法後のノックバック減速度
-		float airChargeMagicVerticalBoost = -20.0f;        // 空中でチャージ魔法を使った時の上方向のノックバック速度
+		float chargeMagicHoldDuration = 2.0f;              // チャージ魔法の入力時間
+		float chargeMagicKnockbackSpeed = -20.0f;          // チャージ魔法後のノックバック速度
+		float chargeMagicKnockbackDeceleration = 1.0f;     // チャージ魔法後のノックバック減速度
+		float chargeMagicVerticalBoost = 45.0f;         // 空中でチャージ魔法を使った時の上方向のノックバック速度
+		float chargeMagicVerticalAcceleration = -2.8f; // チャージ魔法後のノックバック減速度
+	};
+
+	//チャージ魔法攻撃の構造体
+	struct WorkChargeMagicAttack
+	{
+		bool isChargeMagicAttack_ = false;   // チャージ魔法攻撃をしたかどうか
+		bool isChargeMagicComplete_ = false; // 魔法のチャージが終了しているかどうか
+		float chargeMagicTimer_ = 0.0f;      // チャージ魔法用のタイマー
 	};
 
 	void ChangeState(IPlayerState* state);
 
-	void AddMagicProjectile(const bool isEnhanced);
+	void AddMagicProjectile(const MagicProjectile::MagicType magicType);
 
 	void UpdateChargeMagicProjectile();
 
@@ -171,6 +181,9 @@ private:
 	//魔法攻撃用のパラメーター
 	MagicAtackParameters magicAttackParameters_{};
 
+	//チャージ魔法攻撃用ワーク
+	WorkChargeMagicAttack chargeMagicAttackWork_{};
+
 	//ジャスト回避に成功したかどうか
 	bool isJustDodgeSuccess_ = false;
 
@@ -182,15 +195,6 @@ private:
 
 	//空中攻撃中かどうか
 	bool isAirAttack_ = false;
-
-	//チャージ魔法攻撃をしたかどうか
-	bool isChargeMagicAttack_ = false;
-
-	//魔法のチャージが終了しているかどうか
-	bool isChargeMagicFinished_ = false;
-
-	//チャージ魔法用のタイマー
-	float chargeMagicTimer_ = 0.0f;
 
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;

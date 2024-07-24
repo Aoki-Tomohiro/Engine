@@ -74,15 +74,30 @@ void CameraController::UpdateCameraShake()
 	for (MagicProjectile* magicProjectile : magicProjectiles)
 	{
 		//魔法弾がヒットしていて、強化状態にあるとき
-		if (magicProjectile->GetIsHit() && magicProjectile->GetIsEnhanced())
+		if (magicProjectile->GetIsHit())
 		{
 			//カメラシェイクを有効にする
 			cameraShakeSettings_.isShaking = true;
+
 			//カメラシェイクのタイマーをリセット
 			cameraShakeSettings_.timer = 0.0f;
-			//カメラシェイクの強度とシェイク間隔を決める
-			cameraShakeSettings_.intensity = cameraShakeParameters_.enhancedMagicIntensity;
-			cameraShakeSettings_.duration = cameraShakeParameters_.enhancedMagicDuration;
+
+			//魔法のタイプによって//カメラシェイクの強度とシェイク間隔を決める
+			switch (magicProjectile->GetMagicType())
+			{
+			case MagicProjectile::MagicType::kNormal:
+				cameraShakeSettings_.intensity = cameraShakeParameters_.baseIntensity;
+				cameraShakeSettings_.duration = cameraShakeParameters_.baseDuration;
+				break;
+			case MagicProjectile::MagicType::kEnhanced:
+				cameraShakeSettings_.intensity = cameraShakeParameters_.enhancedMagicIntensity;
+				cameraShakeSettings_.duration = cameraShakeParameters_.enhancedMagicDuration;
+				break;
+			case MagicProjectile::MagicType::kCharged:
+				cameraShakeSettings_.intensity = cameraShakeParameters_.chargedMagicIntensity;
+				cameraShakeSettings_.duration = cameraShakeParameters_.chargedMagicDuration;
+				break;
+			}
 		}
 	}
 

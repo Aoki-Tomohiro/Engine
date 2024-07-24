@@ -4,6 +4,7 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -61,6 +62,11 @@ void PlayerStateJump::Update()
 
 		//空中攻撃状態に遷移
 		player_->ChangeState(new PlayerStateAirAttack());
+	}
+	//チャージ魔法状態に遷移
+	else if (player_->chargeMagicAttackWork_.isChargeMagicAttack_)
+	{
+		player_->ChangeState(new PlayerStateChargedMagicAttack());
 	}
 }
 

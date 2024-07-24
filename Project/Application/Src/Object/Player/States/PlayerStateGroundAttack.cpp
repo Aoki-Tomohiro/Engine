@@ -4,6 +4,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
@@ -156,6 +157,23 @@ void PlayerStateGroundAttack::Update()
 
 			//通常状態に戻す
 			player_->ChangeState(new PlayerStateRoot());
+
+			//これ以降の処理を飛ばす
+			return;
+		}
+		//チャージ魔法状態に遷移
+		else if (player_->chargeMagicAttackWork_.isChargeMagicAttack_)
+		{
+			//武器をリセット
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
+
+			//アニメーションをループ再生に戻す
+			modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+			modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(1.0f);
+
+			//チャージ魔法状態に遷移
+			player_->ChangeState(new PlayerStateChargedMagicAttack());
 
 			//これ以降の処理を飛ばす
 			return;
@@ -340,7 +358,7 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 		{
 			//魔法を出す
 			workGroundAttack_.isEnhancedMagicSuccess = false;
-			player_->AddMagicProjectile(true);
+			player_->AddMagicProjectile(MagicProjectile::MagicType::kEnhanced);
 
 			//プレイヤーの左手のWorldTransformを取得
 			WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
@@ -367,7 +385,7 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 					.SetEmitterLifeTime(0.1f)
 					.SetCount(1)
 					.SetFrequency(0.2f)
-					.SetLifeTime(0.2f, 0.2f)
+					.SetLifeTime(0.3f, 0.3f)
 					.SetRadius(0.1f)
 					.SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
 					.SetTranslation(leftHandWorldPosition)

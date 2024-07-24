@@ -44,9 +44,8 @@ private:
 	struct WorkMagicAttack
 	{
 		bool isMagicAttack_ = false;         // 魔法攻撃のフラグ
-		bool isFireEnabled = false;          // 魔法を発射可能かどうか
-		float fireTimer_ = 0.0f;             // 魔法攻撃用のタイマー
-		float finishedTimer_ = 0.0f;         // 魔法攻撃が終了してるかを判別するタイマー
+		bool isFireEnabled = true;           // 魔法を発射可能かどうか
+		float fireTimer = 0.0f;              // 魔法攻撃用のクールタイマー
 	};
 
 private:
