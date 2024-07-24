@@ -37,7 +37,7 @@ private:
 		float recoveryTime;   // 硬直時間
 		float moveSpeed;      // 移動速度
 		float attackInterval; // ヒット間隔
-		int32_t maxHitCount;     // ヒット回数
+		int32_t maxHitCount;  // ヒット回数
 	};
 
 	//攻撃用ワーク

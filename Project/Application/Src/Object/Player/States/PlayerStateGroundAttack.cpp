@@ -318,7 +318,7 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 				workGroundAttack_.enhancedMagicInputTimer = 0.0f;
 
 				//アニメーションを切り替え
-				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.027");
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.028");
 				modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.82f);
 			}
 		}
@@ -335,11 +335,46 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 	//強化魔法を出すことに成功していたら
 	if (workGroundAttack_.isEnhancedMagicSuccess)
 	{
-		//アニメーションの時間が一定値を超えていたら魔法を出す
+		//アニメーションの時間が一定値を超えていたら
 		if (modelComponent->GetModel()->GetAnimation()->GetAnimationTime() > player_->magicAttackParameters_.enhancedMagicProjectileFireRate)
 		{
+			//魔法を出す
 			workGroundAttack_.isEnhancedMagicSuccess = false;
 			player_->AddMagicProjectile(true);
+
+			//プレイヤーの左手のWorldTransformを取得
+			WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
+
+			//プレイヤーの左手のワールド座標を取得
+			Vector3 leftHandWorldPosition = {
+				worldTransform.matWorld_.m[3][0],
+				worldTransform.matWorld_.m[3][1],
+				worldTransform.matWorld_.m[3][2],
+			};
+
+			//パーティクルを出す
+			for (uint32_t i = 0; i < 360; ++i)
+			{
+				//速度を決める
+				const float kParticleVelocity = 0.3f;
+				Quaternion rotate = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, i * (3.14f / 180.0f));
+				Vector3 velocity = Mathf::RotateVector({ 0.0f,1.0f,0.0f }, player_->destinationQuaternion_ * rotate) * kParticleVelocity;
+
+				//エミッターの生成
+				ParticleEmitter* emitter = EmitterBuilder()
+					.SetEmitterName("EnhancedMagicSuccess")
+					.SetColor({ 0.6f,0.5f,0.0f,1.0f }, { 1.0f,0.5f,0.0f,1.0f })
+					.SetEmitterLifeTime(0.1f)
+					.SetCount(1)
+					.SetFrequency(0.2f)
+					.SetLifeTime(0.2f, 0.2f)
+					.SetRadius(0.1f)
+					.SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
+					.SetTranslation(leftHandWorldPosition)
+					.SetVelocity(velocity, velocity)
+					.Build();
+				player_->particleSystem_->AddParticleEmitter(emitter);
+			}
 		}
 	}
 }

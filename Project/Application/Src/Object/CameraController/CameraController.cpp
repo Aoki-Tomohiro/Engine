@@ -2,9 +2,10 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/RandomGenerator.h"
+#include "Application/Src/Object/CameraController/States/CameraStateFollow.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/CameraController/States/CameraStateFollow.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 
 void CameraController::Initialize()
 {
@@ -57,6 +58,32 @@ void CameraController::UpdateCameraShake()
 		cameraShakeSettings_.isShaking = true;
 		//カメラシェイクのタイマーをリセット
 		cameraShakeSettings_.timer = 0.0f;
+		//プレイヤーを取得
+		Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
+		//カメラシェイクの強度とシェイク間隔を決める
+		cameraShakeSettings_.intensity = cameraShakeParameters_.baseIntensity;
+		cameraShakeSettings_.duration = cameraShakeParameters_.baseDuration;
+		if (player->GetIsJustDodgeAttack())
+		{
+			cameraShakeSettings_.intensity = cameraShakeParameters_.justDodgeIntensity;
+			cameraShakeSettings_.duration = cameraShakeParameters_.justDodgeDuration;
+		}
+	}
+	//魔法弾を取得
+	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager->GetGameObjects<MagicProjectile>();
+	for (MagicProjectile* magicProjectile : magicProjectiles)
+	{
+		//魔法弾がヒットしていて、強化状態にあるとき
+		if (magicProjectile->GetIsHit() && magicProjectile->GetIsEnhanced())
+		{
+			//カメラシェイクを有効にする
+			cameraShakeSettings_.isShaking = true;
+			//カメラシェイクのタイマーをリセット
+			cameraShakeSettings_.timer = 0.0f;
+			//カメラシェイクの強度とシェイク間隔を決める
+			cameraShakeSettings_.intensity = cameraShakeParameters_.enhancedMagicIntensity;
+			cameraShakeSettings_.duration = cameraShakeParameters_.enhancedMagicDuration;
+		}
 	}
 
 	//カメラシェイクが有効な場合
@@ -71,26 +98,11 @@ void CameraController::UpdateCameraShake()
 		//イージング関数を適用して、シェイクの強さを滑らかに減衰させる
 		float easedProgress = Mathf::EaseOutExpo(currentTime);
 
-		//プレイヤーを取得
-		Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
-
 		//現在のシェイク強度
-		Vector3 currentIntensity{};
+		Vector3 currentIntensity = cameraShakeSettings_.intensity * (1.0f - easedProgress);
 
 		//現在のシェイク間隔
-		float duration = 0.0f;
-
-		//現在のシェイク強度をと間隔を決める
-		if (player->GetIsJustDodgeAttack())
-		{
-			currentIntensity = cameraShakeSettings_.justDodgeIntensity * (1.0f - easedProgress);
-			duration = cameraShakeSettings_.justDodgeDuration;
-		}
-		else
-		{
-			currentIntensity = cameraShakeSettings_.intensity * (1.0f - easedProgress);
-			duration = cameraShakeSettings_.duration;
-		}
+		float duration = cameraShakeSettings_.duration;
 
 		//現在の強度を基にランダムな揺らし幅を生成
 		Vector3 shakeOffset = {

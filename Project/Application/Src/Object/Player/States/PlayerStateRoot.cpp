@@ -8,6 +8,7 @@
 #include "Application/Src/Object/Player/States/PlayerStateJump.h"
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Warning/Warning.h"
 
@@ -77,6 +78,11 @@ void PlayerStateRoot::Update()
 	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 	{
 		player_->ChangeState(new PlayerStateGroundAttack());
+	}
+	//チャージ魔法状態に遷移
+	else if (player_->isChargeMagicAttack_)
+	{
+		player_->ChangeState(new PlayerStateChargedMagicAttack());
 	}
 }
 
@@ -184,7 +190,7 @@ void PlayerStateRoot::UpdateIdleAnimation()
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	if (workMagicAttack_.isMagicAttack_)
 	{
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.028");
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.027");
 	}
 	else
 	{
@@ -399,8 +405,8 @@ void PlayerStateRoot::UpdateMagicProjectileAttack()
 	//Yボタンを離した時
 	if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
 	{
-		//魔法攻撃のタイマーが規定値を超えていたら
-		if (workMagicAttack_.fireTimer_ > player_->magicAttackParameters_.fireRate)
+		//魔法攻撃のタイマーが規定値を超えていて、チャージが終了していなかったら
+		if (workMagicAttack_.fireTimer_ > player_->magicAttackParameters_.fireRate && !player_->isChargeMagicFinished_)
 		{
 			//魔法攻撃のフラグを立てる
 			workMagicAttack_.isMagicAttack_ = true;

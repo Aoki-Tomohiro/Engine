@@ -30,6 +30,9 @@ void MagicProjectile::DrawUI()
 
 void MagicProjectile::OnCollision(GameObject* gameObject)
 {
+	//ヒットフラグを立てる
+	isHit_ = true;
+
 	//破壊フラグを立てる
 	SetIsDestroy(true);
 }

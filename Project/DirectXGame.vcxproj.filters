@@ -597,6 +597,9 @@
     <ClCompile Include="Engine\Components\PostEffects\HSV.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateChargedMagicAttack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -997,6 +1000,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h">
       <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateChargedMagicAttack.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

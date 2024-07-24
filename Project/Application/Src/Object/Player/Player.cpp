@@ -22,7 +22,7 @@ void Player::Initialize()
 	ChangeState(new PlayerStateRoot());
 
 	//パーティクルを生成
-	chargeMagicParticle_ = ParticleManager::Create("ChargeMagicFinished");
+	particleSystem_ = ParticleManager::Create("ChargeMagicFinished");
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
@@ -282,7 +282,7 @@ void Player::UpdateChargeMagicProjectile()
 					.SetVelocity({ -0.02f,0.02f,-0.02f }, { 0.02f,0.06f,0.02f })
 					.SetLifeTime(0.06f, 0.12f)
 					.Build();
-				chargeMagicParticle_->AddParticleEmitter(emitter);
+				particleSystem_->AddParticleEmitter(emitter);
 			}
 		}
 	}
@@ -300,15 +300,18 @@ void Player::UpdateChargeMagicProjectile()
 			//フラグをリセット
 			isChargeMagicFinished_ = false;
 
+			//チャージ魔法攻撃のフラグを立てる
+			isChargeMagicAttack_ = true;
+
 			//エミッターを削除
-			if (ParticleEmitter* emitter = chargeMagicParticle_->GetParticleEmitter("ChargeMagicFinished"))
+			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
 			{
 				emitter->SetIsDead(true);
 			}
 		}
 
 		//エミッターの座標を移動させる
-		if (ParticleEmitter* emitter = chargeMagicParticle_->GetParticleEmitter("ChargeMagicFinished"))
+		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("ChargeMagicFinished"))
 		{
 			//プレイヤーのモデル
 			ModelComponent* modelComponent = GetComponent<ModelComponent>();

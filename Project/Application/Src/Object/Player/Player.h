@@ -109,6 +109,9 @@ private:
 		float enhancedMagicProjectileSpeed = 48.0f;        // 強化魔法弾の速度
 		float enhancedMagicWindow = 0.06f;                 // 強化魔法弾の受付時間
 		float chargeMagicInputDuration = 2.0f;             // チャージ魔法の入力時間
+		float chargeMagicKnockbackSpeed = -45.0f;          // チャージ魔法後のノックバック速度
+		float chargeMagicKnockbackDeceleration = 2.8f;     // チャージ魔法後のノックバック減速度
+		float airChargeMagicVerticalBoost = -20.0f;        // 空中でチャージ魔法を使った時の上方向のノックバック速度
 	};
 
 	void ChangeState(IPlayerState* state);
@@ -180,17 +183,20 @@ private:
 	//空中攻撃中かどうか
 	bool isAirAttack_ = false;
 
-	//デバッグ用のフラグ
-	bool isDebug_ = false;
+	//チャージ魔法攻撃をしたかどうか
+	bool isChargeMagicAttack_ = false;
 
-	//チャージ魔法が終了しているか
+	//魔法のチャージが終了しているかどうか
 	bool isChargeMagicFinished_ = false;
 
 	//チャージ魔法用のタイマー
 	float chargeMagicTimer_ = 0.0f;
 
 	//パーティクル
-	ParticleSystem* chargeMagicParticle_ = nullptr;
+	ParticleSystem* particleSystem_ = nullptr;
+
+	//デバッグ用のフラグ
+	bool isDebug_ = false;
 
 	//アニメーションの時間
 	float animationTime_ = 0.0f;
@@ -227,6 +233,7 @@ private:
 		{"Armature.001|mixamo.com|Layer0.026"},
 		{"Armature.001|mixamo.com|Layer0.027"},
 		{"Armature.001|mixamo.com|Layer0.028"},
+		{"Armature.001|mixamo.com|Layer0.029"},
 	};
 
 	//現在のアニメーション
@@ -241,5 +248,6 @@ private:
 	friend class PlayerStateGroundAttack;
 	friend class PlayerStateAirAttack;
 	friend class PlayerStateDash;
+	friend class PlayerStateChargedMagicAttack;
 };
 
