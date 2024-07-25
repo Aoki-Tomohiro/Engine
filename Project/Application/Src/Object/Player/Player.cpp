@@ -21,7 +21,7 @@ void Player::Initialize()
 	ChangeState(new PlayerStateRoot());
 
 	//パーティクルを生成
-	particleSystem_ = ParticleManager::Create("ChargeMagicFinished");
+	particleSystem_ = ParticleManager::Create("Player");
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();

@@ -1,6 +1,6 @@
 #pragma once
 #include "IEnemyState.h"
-#include "Engine/Math/MathFunction.h"
+#include "Application/Src/Object/Warning/Warning.h"
 
 class EnemyStateTackle : public IEnemyState
 {
@@ -9,18 +9,25 @@ public:
 
 	void Update() override;
 
-	void Draw(const Camera& camera);
-
-    const bool GetIsAttack() const { return isAttack_; };
+	void Draw(const Camera& camera) override;
 
 private:
-	//溜め時間
-	float chargeDuration_ = 2.07f;
+	enum TackleState
+	{
+		kCharge,
+		kWarning,
+		kAttacking,
+		kRecovery,
+	};
 
-	//攻撃予告時間
-	float warningDuration_ = 2.26f;
+private:
+	//警告オブジェクト
+	Warning* warning_ = nullptr;
 
-	//攻撃時間
-	float attackDuration_ = 2.9f;
+	//現在の状態
+	TackleState currentTackleState_ = kCharge;
+
+	//前のフレームの状態
+	TackleState preTackleState_ = kCharge;
 };
 

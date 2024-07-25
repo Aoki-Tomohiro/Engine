@@ -112,8 +112,8 @@ private:
 		float chargeMagicHoldDuration = 2.0f;              // チャージ魔法の入力時間
 		float chargeMagicKnockbackSpeed = -20.0f;          // チャージ魔法後のノックバック速度
 		float chargeMagicKnockbackDeceleration = 1.0f;     // チャージ魔法後のノックバック減速度
-		float chargeMagicVerticalBoost = 45.0f;         // 空中でチャージ魔法を使った時の上方向のノックバック速度
-		float chargeMagicVerticalAcceleration = -2.8f; // チャージ魔法後のノックバック減速度
+		float chargeMagicVerticalBoost = 45.0f;            // 空中でチャージ魔法を使った時の上方向のノックバック速度
+		float chargeMagicVerticalAcceleration = -2.8f;     // チャージ魔法後のノックバック減速度
 	};
 
 	//チャージ魔法攻撃の構造体

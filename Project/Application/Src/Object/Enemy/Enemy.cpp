@@ -4,11 +4,14 @@
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/Collision/OBBCollider.h"
+#include "Engine/Components/Collision/SphereCollider.h"
+#include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/Enemy/States/EnemyStateTackle.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 
 void Enemy::Initialize()
 {
@@ -16,7 +19,10 @@ void Enemy::Initialize()
 	GameObject::Initialize();
 
 	//Stateの初期化
-	ChangeState(new EnemyStateIdle());
+	ChangeState(new EnemyStateRoot());
+
+	//パーティクルを生成
+	particleSystem_ = ParticleManager::Create("Enemy");
 }
 
 void Enemy::Update()
@@ -77,4 +83,78 @@ void Enemy::ChangeState(IEnemyState* state)
 	state->SetEnemy(this);
 	state->Initialize();
 	state_.reset(state);
+}
+
+void Enemy::CreateWarningParticle()
+{
+	//パーティクルを出す
+	for (uint32_t i = 0; i < 360; ++i)
+	{
+		//速度を決める
+		TransformComponent* transformComponent = GetComponent<TransformComponent>();
+		const Vector3 offset = { 0.0f,4.0f,0.0f };
+		const float kParticleVelocity = 0.1f;
+		const float distance = 1.2f;
+		Quaternion rotate = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, i * (3.14f / 180.0f));
+		Vector3 direction = Mathf::RotateVector({ 0.0f,1.0f,0.0f }, destinationQuaternion_ * rotate);
+
+		//エミッターの生成
+		ParticleEmitter* emitter = EmitterBuilder()
+			.SetEmitterName("ChargeUp")
+			.SetColor({ 0.6f,0.5f,0.0f,1.0f }, { 1.0f,0.5f,0.0f,1.0f })
+			.SetEmitterLifeTime(0.1f)
+			.SetCount(1)
+			.SetFrequency(0.2f)
+			.SetLifeTime(0.4f, 0.4f)
+			.SetRadius(0.1f)
+			.SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
+			.SetTranslation(transformComponent->GetWorldPosition() + offset + direction * distance)
+			.SetVelocity(direction * kParticleVelocity, direction * kParticleVelocity)
+			.Build();
+		particleSystem_->AddParticleEmitter(emitter);
+	}
+}
+
+Warning* Enemy::CreateBoxWarningObject(const Warning::BoxWarningObjectSettings& warningObjectSettings)
+{
+	//警告用のオブジェクトを生成
+	Warning* warning = GameObjectManager::GetInstance()->CreateGameObject<Warning>();
+	warning->SetBoxWarningObjectSettings(warningObjectSettings);
+
+	//Transformの追加
+	TransformComponent* warningTransformComponent = warning->AddComponent<TransformComponent>();
+	warningTransformComponent->Initialize();
+	warningTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+
+	//Modelの追加
+	ModelComponent* warningModelComponent = warning->AddComponent<ModelComponent>();
+	switch (warningObjectSettings.warningPrimitive)
+	{
+	case Warning::kBox:
+		warningModelComponent->Initialize("Cube", Transparent);
+		break;
+	case Warning::kSphere:
+		warningModelComponent->Initialize("Sphere", Transparent);
+		break;
+	}
+	warningModelComponent->SetTransformComponent(warningTransformComponent);
+	warningModelComponent->GetModel()->GetMaterial(1)->SetColor({ 1.0f,0.0f,0.0f,0.6f });
+
+	//Colliderの追加
+	Collider* collider = nullptr;
+	switch (warningObjectSettings.warningPrimitive)
+	{
+	case Warning::kBox:
+		collider = warning->AddComponent<OBBCollider>();
+		break;
+	case Warning::kSphere:
+		collider = warning->AddComponent<SphereCollider>();
+		break;
+	}
+	collider->Initialize();
+	collider->SetTransformComponent(warningTransformComponent);
+	collider->SetCollisionAttribute(CollisionAttributeManager::GetInstance()->GetAttribute("Warning"));
+	collider->SetCollisionMask(CollisionAttributeManager::GetInstance()->GetMask("Warning"));
+
+	return warning;
 }

@@ -186,9 +186,9 @@
         {
             "bufferView" : 4,
             "componentType" : 5126,
-            "count" : 131,
+            "count" : 101,
             "max" : [
-                5.416666666666667
+                4.166666666666667
             ],
             "min" : [
                 0
@@ -198,19 +198,19 @@
         {
             "bufferView" : 5,
             "componentType" : 5126,
-            "count" : 131,
+            "count" : 101,
             "type" : "VEC3"
         },
         {
             "bufferView" : 6,
             "componentType" : 5126,
-            "count" : 131,
+            "count" : 101,
             "type" : "VEC4"
         },
         {
             "bufferView" : 7,
             "componentType" : 5126,
-            "count" : 131,
+            "count" : 101,
             "type" : "VEC3"
         },
         {
@@ -271,43 +271,43 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 524,
+            "byteLength" : 404,
             "byteOffset" : 9224
         },
         {
             "buffer" : 0,
-            "byteLength" : 1572,
-            "byteOffset" : 9748
+            "byteLength" : 1212,
+            "byteOffset" : 9628
         },
         {
             "buffer" : 0,
-            "byteLength" : 2096,
-            "byteOffset" : 11320
+            "byteLength" : 1616,
+            "byteOffset" : 10840
         },
         {
             "buffer" : 0,
-            "byteLength" : 1572,
-            "byteOffset" : 13416
+            "byteLength" : 1212,
+            "byteOffset" : 12456
         },
         {
             "buffer" : 0,
             "byteLength" : 260,
-            "byteOffset" : 14988
+            "byteOffset" : 13668
         },
         {
             "buffer" : 0,
             "byteLength" : 780,
-            "byteOffset" : 15248
+            "byteOffset" : 13928
         },
         {
             "buffer" : 0,
             "byteLength" : 1040,
-            "byteOffset" : 16028
+            "byteOffset" : 14708
         },
         {
             "buffer" : 0,
             "byteLength" : 780,
-            "byteOffset" : 17068
+            "byteOffset" : 15748
         }
     ],
     "samplers" : [
@@ -318,7 +318,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 17848,
+            "byteLength" : 16528,
             "uri" : "Enemy.bin"
         }
     ]

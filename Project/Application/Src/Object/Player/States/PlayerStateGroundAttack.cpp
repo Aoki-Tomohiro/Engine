@@ -381,7 +381,7 @@ void PlayerStateGroundAttack::UpdateEnhancedMagic()
 				//エミッターの生成
 				ParticleEmitter* emitter = EmitterBuilder()
 					.SetEmitterName("EnhancedMagicSuccess")
-					.SetColor({ 0.6f,0.5f,0.0f,1.0f }, { 1.0f,0.5f,0.0f,1.0f })
+					.SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f })
 					.SetEmitterLifeTime(0.1f)
 					.SetCount(1)
 					.SetFrequency(0.2f)

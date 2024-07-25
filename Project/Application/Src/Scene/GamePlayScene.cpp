@@ -49,6 +49,7 @@ void GamePlayScene::Initialize()
 
 	//敵の初期化
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+	enemy->SetCamera(camera_);
 	//TransformComponentの初期化
 	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
