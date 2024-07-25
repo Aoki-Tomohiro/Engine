@@ -27,6 +27,25 @@ void Enemy::Initialize()
 
 void Enemy::Update()
 {
+	//動いていない状態の時
+	if (!isMove_)
+	{
+		//プレイヤーを取得
+		if (Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>())
+		{	
+			//プレイヤーの速度が0でなければ
+			if (player->GetVelocity() != Vector3{ 0.0f,0.0f,0.0f })
+			{
+				//移動フラグを立てる
+				isMove_ = true;
+
+				//アニメーションを歩きにする
+				ModelComponent* modelComponent = GetComponent<ModelComponent>();
+				modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0");
+			}
+		}
+	}
+
 	//タイトルシーンにいる場合は移動処理をスキップ
 	if (!isInTitleScene_)
 	{

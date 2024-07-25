@@ -37,6 +37,8 @@ public:
 
 	const bool GetIsAirAttack() const { return isAirAttack_; };
 
+	const Vector3& GetVelocity() const { return velocity; };
+
 private:
 	//通常状態の構造体
 	struct RootParameters

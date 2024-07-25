@@ -188,6 +188,10 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		transformComponent->Initialize();
 		transformComponent->worldTransform_.translation_ = objectData.translation;
 		transformComponent->worldTransform_.rotation_ = objectData.rotation;
+		transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(
+			Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, objectData.rotation.z) *
+			Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, objectData.rotation.y) *
+			Mathf::MakeRotateAxisAngleQuaternion({ 1.0f,0.0f,0.0f }, objectData.rotation.x));
 		transformComponent->worldTransform_.scale_ = objectData.scaling;
 
 		//モデルの追加

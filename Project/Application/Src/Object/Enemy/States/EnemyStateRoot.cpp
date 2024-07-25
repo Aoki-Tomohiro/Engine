@@ -12,6 +12,12 @@ void EnemyStateRoot::Initialize()
 {
 	//次の行動の間隔を決める
 	currentActionInterval_ = RandomGenerator::GetRandomFloat(enemy_->rootParameters_.minActionInterval_, enemy_->rootParameters_.maxActionInterval_);
+
+	//アニメーションの初期化
+	if (ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>())
+	{
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0");
+	}
 }
 
 void EnemyStateRoot::Update()
@@ -21,6 +27,12 @@ void EnemyStateRoot::Update()
 	if (enemy_->isDebug_)
 	{
 		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+		return;
+	}
+
+	//動いている状態でなければ処理を飛ばす
+	if (!enemy_->isMove_)
+	{
 		return;
 	}
 
@@ -35,11 +47,23 @@ void EnemyStateRoot::Update()
 	//距離を計算
 	float distance = Mathf::Length(sub);
 
-	//プレイヤーとの距離が一定以上離れていたら移動させる
+	//プレイヤーとの距離が一定以上離れていたら
 	if (distance >= enemy_->rootParameters_.stopDistance)
 	{
+		//速度を計算して移動させる
 		enemy_->velocity = Mathf::Normalize(sub) * enemy_->rootParameters_.moveSpeed;
 		enemyTransformComponent->worldTransform_.translation_ += enemy_->velocity * GameTimer::GetDeltaTime() * enemy_->timeScale_;
+
+		//アニメーションを歩きにする
+		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0");
+	}
+	else
+	{
+		//速度を0にする
+		enemy_->velocity = { 0.0f,0.0f,0.0f };
+
+		//アニメーションを通常状態にする
+		modelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 	}
 
 	//回転処理
@@ -67,15 +91,15 @@ void EnemyStateRoot::Update()
 		}
 		else
 		{
-			int nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
-			switch (nextAction)
-			{
-			case kDash:
-				break;
-			case kMagicAttack:
-				enemy_->ChangeState(new EnemyStateMissile());
-				break;
-			}
+			//int nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
+			//switch (nextAction)
+			//{
+			//case kDash:
+			//	break;
+			//case kMagicAttack:
+			//	enemy_->ChangeState(new EnemyStateMissile());
+			//	break;
+			//}
 		}
 	}
 }

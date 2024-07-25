@@ -38,6 +38,9 @@ void GameTitleScene::Initialize()
 	//敵の初期化
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
 	enemy->SetIsInTitleScene(true);
+	//ModelComponentの初期化
+	ModelComponent* enemyModelComponent = enemy->GetComponent<ModelComponent>();
+	enemyModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();

@@ -33,6 +33,8 @@ public:
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
 
+	void SetDestinationQuaternion(const Quaternion& quaternion) { destinationQuaternion_ = quaternion; };
+
 private:
 	//通常状態のパラメーター
 	struct RootParameters
@@ -47,9 +49,10 @@ private:
 	//タックル状態のパラメーター
 	struct TackleParameters
 	{
-		float chargeDuration_ = 1.16f;  // 溜め時間
-		float warningDuration_ = 1.45f; // 攻撃予告時間
-		float attackDuration_ = 2.1f;   // 攻撃時間
+		float chargeDuration_ = 0.8f;  // 溜め時間
+		float warningDuration_ = 1.0f; // 攻撃予告時間
+		float attackDuration_ = 1.7f;  // 攻撃時間
+		float targetDistance = 20.0f;
 	};
 
 	//ミサイル攻撃状態のパラメーター
@@ -96,6 +99,9 @@ private:
 
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;
+
+	//アクティブ状態かどうか
+	bool isMove_ = false;
 
 	//タイトルシーンなのか
 	bool isInTitleScene_ = false;

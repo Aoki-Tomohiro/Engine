@@ -29,5 +29,11 @@ private:
 
 	//前のフレームの状態
 	TackleState preTackleState_ = kCharge;
+
+	//始点座標
+	Vector3 startPosition_{};
+
+	//目標座標
+	Vector3 targetPosition_{};
 };
 

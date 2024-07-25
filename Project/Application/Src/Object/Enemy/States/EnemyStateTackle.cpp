@@ -2,12 +2,13 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include <algorithm>
 
 void EnemyStateTackle::Initialize()
 {
     //アニメーションの設定
     ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
-    modelComponent->SetAnimationName("Tackle");
+    modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.001");
     modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
     modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 
@@ -17,13 +18,19 @@ void EnemyStateTackle::Initialize()
     warningObjectSettings.warningPrimitive = Warning::kBox;
     warningObjectSettings.position = transformComponent->GetWorldPosition();
     warningObjectSettings.quaternion = enemy_->destinationQuaternion_;
-    warningObjectSettings.scale = { 5.0f,0.01f,17.5f };
-    warningObjectSettings.offset = { 0.0f, 0.0f, 7.64f };
+    warningObjectSettings.scale = { 5.0f,0.01f,14.0f };
+    warningObjectSettings.offset = { 0.0f, 0.0f, 11.87f };
     warningObjectSettings.colliderCenter = { 0.0f,4.0f,0.0f };
-    warningObjectSettings.colliderSize = { 5.0f,4.0f,17.5f };
+    warningObjectSettings.colliderSize = { 5.0f,4.0f,14.0f };
 
     //警告用のオブジェクトを作成
     warning_ = enemy_->CreateBoxWarningObject(warningObjectSettings);
+
+    //開始地点を設定
+    startPosition_ = transformComponent->GetWorldPosition();
+    //目標座標を設定
+    Vector3 offset = { 0.0f,0.0f,enemy_->tackleParameters_.targetDistance };
+    targetPosition_ = startPosition_ + Mathf::RotateVector(offset, enemy_->destinationQuaternion_);
 }
 
 void EnemyStateTackle::Update()
@@ -33,7 +40,6 @@ void EnemyStateTackle::Update()
     if (enemy_->isDebug_)
     {
         modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
-        return;
     }
 
     //前のフレームの状態を更新
@@ -63,6 +69,10 @@ void EnemyStateTackle::Update()
         currentTackleState_ = kRecovery;
     }
 
+    //TransformComponentを取得
+    TransformComponent* transformComponent = enemy_->GetComponent<TransformComponent>();
+    float attackDuration = enemy_->tackleParameters_.attackDuration_ - enemy_->tackleParameters_.warningDuration_;
+    float attackTime = currentAnimationTime - enemy_->tackleParameters_.warningDuration_;
     //現在の状態の処理
     switch (currentTackleState_)
     {
@@ -86,6 +96,9 @@ void EnemyStateTackle::Update()
         //攻撃フラグを立てる
         isAttack_ = true;
 
+        //イージングさせる
+        transformComponent->worldTransform_.translation_ = startPosition_ + (targetPosition_ - startPosition_) * Mathf::EaseOutExpo(1.0f * (attackTime / attackDuration));
+
         break;
     case kRecovery:
 
@@ -103,8 +116,9 @@ void EnemyStateTackle::Update()
     }
 
     // アニメーションが終わっていたら通常状態に戻す
-    if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+    if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd() && !enemy_->isDebug_)
     {
+        modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
         enemy_->ChangeState(new EnemyStateRoot());
     }
 }

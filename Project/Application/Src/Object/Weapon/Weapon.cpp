@@ -64,9 +64,10 @@ void Weapon::OnCollision(GameObject* gameObject)
 	//ヒットフラグをtrueにする
 	isHit_ = true;
 
-	//パリィ成功
+	//敵と衝突していた場合
 	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
 	{
+		//パリィを成功させる
 		if (enemy->GetIsAttack())
 		{
 			if (isParryable_)
@@ -74,25 +75,25 @@ void Weapon::OnCollision(GameObject* gameObject)
 				isParrySuccessful_ = true;
 			}
 		}
-	}
 
-	//パーティクルを出す
-	OBBCollider* collider = GetComponent<OBBCollider>();
-	ParticleEmitter* newEmitter = new ParticleEmitter();
-	newEmitter->Initialize("Hit", 1.0f);
-	newEmitter->SetTranslate(collider->GetWorldCenter());
-	newEmitter->SetCount(400);
-	newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
-	newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
-	newEmitter->SetFrequency(2.0f);
-	newEmitter->SetLifeTimeMin(0.2f);
-	newEmitter->SetLifeTimeMax(0.4f);
-	newEmitter->SetRadius(0.0f);
-	newEmitter->SetScaleMin({ 0.2f,0.2f,0.2f });
-	newEmitter->SetScaleMax({ 0.3f,0.3f,0.3f });
-	newEmitter->SetVelocityMin({ -0.6f,-0.6f,-0.6f });
-	newEmitter->SetVelocityMax({ 0.6f,0.6f,0.6f });
-	particleSystem_->AddParticleEmitter(newEmitter);
+		//パーティクルを出す
+		OBBCollider* collider = GetComponent<OBBCollider>();
+		ParticleEmitter* newEmitter = new ParticleEmitter();
+		newEmitter->Initialize("Hit", 1.0f);
+		newEmitter->SetTranslate(collider->GetWorldCenter());
+		newEmitter->SetCount(400);
+		newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
+		newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
+		newEmitter->SetFrequency(2.0f);
+		newEmitter->SetLifeTimeMin(0.2f);
+		newEmitter->SetLifeTimeMax(0.4f);
+		newEmitter->SetRadius(0.0f);
+		newEmitter->SetScaleMin({ 0.2f,0.2f,0.2f });
+		newEmitter->SetScaleMax({ 0.3f,0.3f,0.3f });
+		newEmitter->SetVelocityMin({ -0.6f,-0.6f,-0.6f });
+		newEmitter->SetVelocityMax({ 0.6f,0.6f,0.6f });
+		particleSystem_->AddParticleEmitter(newEmitter);
+	}
 }
 
 void Weapon::OnCollisionEnter(GameObject* gameObject)

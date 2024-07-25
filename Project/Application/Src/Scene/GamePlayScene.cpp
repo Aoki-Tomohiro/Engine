@@ -43,6 +43,9 @@ void GamePlayScene::Initialize()
 	//TransformComponentの初期化
 	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
 	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//ModelComponentの初期化
+	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
+	playerModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 	//カメラとロックオンを設定
 	player->SetCamera(camera_);
 	player->SetLockOn(lockOn_.get());
@@ -53,11 +56,14 @@ void GamePlayScene::Initialize()
 	//TransformComponentの初期化
 	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
 	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	enemy->SetDestinationQuaternion(enemyTransformComponent->worldTransform_.quaternion_);
+	//ModelComponentの初期化
+	ModelComponent* enemyModelComponent = enemy->GetComponent<ModelComponent>();
+	enemyModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
 
 	//武器の生成
 	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
 	//プレイヤーを親に設定
-	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
 	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//FollowCameraの作成
