@@ -6,6 +6,8 @@
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateTackle.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateMissile.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDash.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateJumpAttack.h"
 #include "Application/Src/Object/Player/Player.h"
 
 void EnemyStateRoot::Initialize()
@@ -85,21 +87,26 @@ void EnemyStateRoot::Update()
 			switch (nextAction)
 			{
 			case kTackle:
-				enemy_->ChangeState(new EnemyStateTackle());
+				//enemy_->ChangeState(new EnemyStateTackle());
+				enemy_->ChangeState(new EnemyStateJumpAttack());
+				break;
+			case kJumpAttack:
+				enemy_->ChangeState(new EnemyStateJumpAttack());
 				break;
 			}
 		}
 		else
 		{
-			//int nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
-			//switch (nextAction)
-			//{
-			//case kDash:
-			//	break;
-			//case kMagicAttack:
-			//	enemy_->ChangeState(new EnemyStateMissile());
-			//	break;
-			//}
+			int nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
+			switch (nextAction)
+			{
+			case kDash:
+				enemy_->ChangeState(new EnemyStateDash());
+				break;
+			case kMagicAttack:
+				enemy_->ChangeState(new EnemyStateMissile());
+				break;
+			}
 		}
 	}
 }

@@ -27,6 +27,10 @@ void Enemy::Initialize()
 
 void Enemy::Update()
 {
+	//アニメーションの速度の更新
+	ModelComponent* modelComponent = GetComponent<ModelComponent>();
+	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(timeScale_);
+
 	//動いていない状態の時
 	if (!isMove_)
 	{

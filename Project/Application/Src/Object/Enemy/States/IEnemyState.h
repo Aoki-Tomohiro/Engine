@@ -21,6 +21,15 @@ public:
 	void SetEnemy(Enemy* enemy) { enemy_ = enemy; };
 
 protected:
+	enum AttackState
+	{
+		kCharge,
+		kWarning,
+		kAttacking,
+		kRecovery,
+	};
+
+protected:
 	Enemy* enemy_ = nullptr;
 
 	bool isWarning_ = false;

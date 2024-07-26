@@ -9,74 +9,78 @@
 
 void EnemyStateMissile::Initialize()
 {
+	//アニメーションの設定
+	ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
+	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
+	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 }
 
 void EnemyStateMissile::Update()
 {
-	//アニメーションの速度の更新
+	//デバッグのフラグが立っているとき
 	ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
-	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(enemy_->timeScale_);
-
-	//チャージが終了していないとき
-	if (!isChargeFinished_)
+	if (enemy_->isDebug_)
 	{
-		//チャージタイマーを進める
-		chargeTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
-
-		//チャージタイマーが一定値を超えていたら
-		if (chargeTimer_ > enemy_->missileAttackParameters_.chargeDuration_)
-		{
-			//ミサイルを発射可能にする
-			isFireEnabled_ = true;
-		}
+		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
 	}
 
-	//ミサイルが発射可能の時
-	if (isFireEnabled_)
+	//現在のアニメーションの時間を取得
+	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
+
+	//現在のアニメーションの時間が溜め時間を超えていなかったらチャージ状態にする
+	if (currentAnimationTime <= enemy_->missileAttackParameters_.chargeDuration_)
 	{
-		//発射カウントが一定値を超えていなかったら
-		if (fireCount_ < enemy_->missileAttackParameters_.missileParameters.size())
-		{
-			//発射タイマーを進める
-			fireTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
-
-			//発射タイマーが一定間隔を超えていたら
-			if (fireTimer_ > enemy_->missileAttackParameters_.fireInterval)
-			{
-				//右方向から出るミサイルの生成
-				Vector3 velocity[2];
-				velocity[0] = { 1.0f,1.0f,0.0f };
-				velocity[0] = Mathf::RotateVector(velocity[0], enemy_->destinationQuaternion_);
-				CreateMissile(enemy_->missileAttackParameters_.missileParameters[fireCount_], velocity[0]);
-				//左方向から出るミサイルの生成
-				velocity[1] = { -1.0f,1.0f,0.0f };
-				velocity[1] = Mathf::RotateVector(velocity[1], enemy_->destinationQuaternion_);
-				CreateMissile(enemy_->missileAttackParameters_.missileParameters[fireCount_], velocity[1]);
-
-				//ミサイルの発射カウントをインクリメント
-				fireCount_++;
-
-				//タイマーをリセット
-				fireTimer_ = 0.0f;
-			}
-		}
-		else
-		{
-			isRecovery_ = true;
-		}
+		attackState_ = kCharge;
+	}
+	//現在のアニメーションの時間が攻撃時間を超えていなかったら攻撃状態にする
+	else if (currentAnimationTime <= enemy_->missileAttackParameters_.attackDuration_)
+	{
+		attackState_ = kAttacking;
+	}
+	//現在のアニメーションの時間が溜め時間を超えていたら硬直状態にする
+	else if (currentAnimationTime > enemy_->missileAttackParameters_.attackDuration_)
+	{
+		attackState_ = kRecovery;
 	}
 
-	//硬直のフラグが立っていたら
-	if (isRecovery_)
+	//攻撃状態ごとの処理
+	float totalFiringTime = enemy_->missileAttackParameters_.attackDuration_ - enemy_->missileAttackParameters_.chargeDuration_;
+	float fireInterval = totalFiringTime / enemy_->missileAttackParameters_.maxFireCount;
+	switch (attackState_)
 	{
-		//硬直タイマーを進める
-		recoveryTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
-
-		//硬直タイマーが一定値を超えていたら通常状態に戻す
-		if (recoveryTimer_ > enemy_->missileAttackParameters_.recoveryDuration_)
+	case kCharge:
+		break;
+	case kAttacking:
+		fireTimer_ -= GameTimer::GetDeltaTime() * enemy_->timeScale_;
+		if (fireTimer_ <= 0.0f)
 		{
-			enemy_->ChangeState(new EnemyStateRoot());
+			//右方向から出るミサイルの生成
+			Vector3 velocity[2];
+			velocity[0] = { 1.0f,1.0f,0.0f };
+			velocity[0] = Mathf::RotateVector(velocity[0], enemy_->destinationQuaternion_);
+			CreateMissile(enemy_->missileAttackParameters_.missileParameters[fireCount_], velocity[0]);
+			//左方向から出るミサイルの生成
+			velocity[1] = { -1.0f,1.0f,0.0f };
+			velocity[1] = Mathf::RotateVector(velocity[1], enemy_->destinationQuaternion_);
+			CreateMissile(enemy_->missileAttackParameters_.missileParameters[fireCount_], velocity[1]);
+
+			//タイマーをリセット
+			fireTimer_ = fireInterval;
+
+			//発射カウントをインクリメント
+			fireCount_++;
 		}
+		break;
+	case kRecovery:
+		break;
+	}
+
+	//アニメーションが終了していたら通常状態に戻す
+	if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
+	{
+		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+		enemy_->ChangeState(new EnemyStateRoot());
 	}
 }
 
@@ -92,16 +96,35 @@ void EnemyStateMissile::CreateMissile(const Missile::MissileParameters& missileP
 	missile->SetMissileParameters(missileParameters);
 	missile->SetVelocity(velocity);
 
+	//敵の手の座標を取得
+	ModelComponent* enemyModelComponent = enemy_->GetComponent<ModelComponent>();
+	//手のワールドトランスフォームを取得
+	WorldTransform handWorldTransform{};
+	if (velocity.x == -1.0f)
+	{
+		handWorldTransform = enemyModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
+	}
+	else
+	{
+		handWorldTransform = enemyModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand");
+	}
+	//ワールド座標を取得
+	Vector3 handWorldPosition = {
+		handWorldTransform.matWorld_.m[3][0],
+		handWorldTransform.matWorld_.m[3][1],
+		handWorldTransform.matWorld_.m[3][2],
+	};
+
 	//TransformComponentを追加
 	TransformComponent* enemyTransformComponent = enemy_->GetComponent<TransformComponent>();
 	TransformComponent* transformComponent = missile->AddComponent<TransformComponent>();
 	transformComponent->Initialize();
-	transformComponent->worldTransform_.translation_ = enemyTransformComponent->GetWorldPosition() + Vector3{0.0f, 5.0f, 0.0f};
+	transformComponent->worldTransform_.translation_ = handWorldPosition;
 	transformComponent->worldTransform_.scale_ = { 0.4f,0.4f,0.4f };
 
 	//ModelComponentを追加
 	ModelComponent* modelComponent = missile->AddComponent<ModelComponent>();
-	modelComponent->Initialize("Fire", Transparent);
+	modelComponent->Initialize("Sphere", Transparent);
 	modelComponent->SetTransformComponent(transformComponent);
 	modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.2f, 0.2f, 1.0f });
 

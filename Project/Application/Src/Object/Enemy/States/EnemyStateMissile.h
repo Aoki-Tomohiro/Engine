@@ -15,25 +15,13 @@ private:
 	void CreateMissile(const Missile::MissileParameters& missileParameters, const Vector3& velocity);
 
 private:
-	//チャージが終了したかどうか
-	bool isChargeFinished_ = false;
-
-	//発射可能かどうか
-	bool isFireEnabled_ = false;
-
-	//チャージタイマー
-	float chargeTimer_ = 0.0f;
+	//現在の攻撃の状態
+	AttackState attackState_ = kCharge;
 
 	//発射タイマー
 	float fireTimer_ = 0.0f;
 
-	//発射回数
-	uint32_t fireCount_ = 0;
-
-	//硬直フラグ
-	bool isRecovery_ = false;
-
-	//硬直タイマー
-	float recoveryTimer_ = 0.0f;
+	//現在の発射数
+	int32_t fireCount_ = 0;
 };
 

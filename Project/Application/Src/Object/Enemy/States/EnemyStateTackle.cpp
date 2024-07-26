@@ -45,9 +45,6 @@ void EnemyStateTackle::Update()
     //前のフレームの状態を更新
     preTackleState_ = currentTackleState_;
 
-    //アニメーションの速度の更新
-    modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(enemy_->timeScale_);
-
     //現在のアニメーションの時間を取得
     float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 

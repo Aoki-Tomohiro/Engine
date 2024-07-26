@@ -4,17 +4,11 @@
 class EnemyStateRoot : public IEnemyState
 {
 public:
-	void Initialize() override;
-
-	void Update() override;
-
-	void Draw(const Camera& camera) override;
-
-private:
 	//近距離の行動
 	enum CloseRangeAction
 	{
 		kTackle,
+		kJumpAttack,
 		kMaxCloseRangeActions
 	};
 
@@ -25,6 +19,12 @@ private:
 		kMagicAttack,
 		kMaxLongRangeActions
 	};
+
+	void Initialize() override;
+
+	void Update() override;
+
+	void Draw(const Camera& camera) override;
 
 private:
 	//現在の次の行動の間隔

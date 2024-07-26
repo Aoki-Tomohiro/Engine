@@ -58,11 +58,14 @@ private:
 	//ミサイル攻撃状態のパラメーター
 	struct MissleAttackParameters
 	{
-		float chargeDuration_ = 2.0f;                             // 溜め時間
-		float fireInterval = 0.2f;                                // 発射間隔
-		float recoveryDuration_ = 1.0f;                           // 硬直時間
+		float chargeDuration_ = 1.1f;                             // 溜め時間
+		float attackDuration_ = 3.3f;                             // 攻撃時間
+		int32_t maxFireCount = 6;                                // 弾の最大発射数
 		std::vector<Missile::MissileParameters> missileParameters //ミサイルのパラメーター
 		{
+			{ 1.0f,0.06f,4.0f,26.0f},
+			{ 1.0f,0.06f,4.0f,26.0f},
+			{ 1.0f,0.06f,4.0f,26.0f},
 			{ 1.0f,0.06f,4.0f,26.0f},
 			{ 1.0f,0.06f,4.0f,26.0f},
 			{ 1.0f,0.06f,4.0f,26.0f},
@@ -117,7 +120,9 @@ private:
 
 	//フレンドクラスに登録
 	friend class EnemyStateRoot;
+	friend class EnemyStateDash;
 	friend class EnemyStateTackle;
 	friend class EnemyStateMissile;
+	friend class EnemyStateJumpAttack;
 };
 

@@ -1,7 +1,7 @@
 #include "LockOn.h"
 #include "Engine/Base/Application.h"
 #include "Engine/Base/TextureManager.h"
-#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Math/MathFunction.h"
 
 void LockOn::Initialize()
@@ -69,16 +69,19 @@ Vector3 LockOn::GetTargetPosition() const
 bool LockOn::InRange(const Camera* camera)
 {
 	//敵のロックオン座標取得
-	TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
-	Vector3 positionWorld = transformComponent->GetWorldPosition();
+	ModelComponent* modelComponent = target_->GetComponent<ModelComponent>();
+	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
+	Vector3 positionWorld = {
+		hipWorldTransform.matWorld_.m[3][0],
+		hipWorldTransform.matWorld_.m[3][1],
+		hipWorldTransform.matWorld_.m[3][2],
+	};
 	//ワールド→ビュー座標変換
 	Vector3 positionView = Mathf::Transform(positionWorld, camera->matView_);
 
 	//距離条件チェック
 	if (minDistance_ <= positionView.z && positionView.z <= maxDistance_)
 	{
-		////カメラ前方との角度を計算
-		//float arcTangent = std::atan2(std::sqrt(positionView.x * positionView.x + positionView.y * positionView.y), positionView.z);
 		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, positionView);
 		float length = Mathf::Length(positionView);
 		float angle = std::acos(dot / length);
@@ -95,8 +98,13 @@ bool LockOn::InRange(const Camera* camera)
 void LockOn::SearchLockOnTarget(GameObject* gameObject, const Camera* camera)
 {
 	//敵のロックオン座標取得
-	TransformComponent* transformComponent = gameObject->GetComponent<TransformComponent>();
-	Vector3 positionWorld = transformComponent->GetWorldPosition();
+	ModelComponent* modelComponent = gameObject->GetComponent<ModelComponent>();
+	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
+	Vector3 positionWorld = {
+		hipWorldTransform.matWorld_.m[3][0],
+		hipWorldTransform.matWorld_.m[3][1],
+		hipWorldTransform.matWorld_.m[3][2],
+	};
 	//ワールド→ビュー座標変換
 	Vector3 positionView = Mathf::Transform(positionWorld, camera->matView_);
 
@@ -131,8 +139,14 @@ Vector2 LockOn::WorldToScreenPosition(const Vector3& worldPosition, const Camera
 
 void LockOn::SetLockOnMarkPosition(const Camera* camera)
 {
-	TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
-	Vector3 positionWorld = transformComponent->GetWorldPosition() + targetOffset_;
+	//敵のロックオン座標取得
+	ModelComponent* modelComponent = target_->GetComponent<ModelComponent>();
+	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
+	Vector3 positionWorld = {
+		hipWorldTransform.matWorld_.m[3][0],
+		hipWorldTransform.matWorld_.m[3][1],
+		hipWorldTransform.matWorld_.m[3][2],
+	};
 	Vector2 positionScreenV2 = WorldToScreenPosition(positionWorld, camera);
 	lockOnMark_->SetPosition(positionScreenV2);
 }

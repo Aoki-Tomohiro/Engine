@@ -12,23 +12,17 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
-	enum TackleState
-	{
-		kCharge,
-		kWarning,
-		kAttacking,
-		kRecovery,
-	};
+
 
 private:
 	//警告オブジェクト
 	Warning* warning_ = nullptr;
 
 	//現在の状態
-	TackleState currentTackleState_ = kCharge;
+	AttackState currentTackleState_ = kCharge;
 
 	//前のフレームの状態
-	TackleState preTackleState_ = kCharge;
+	AttackState preTackleState_ = kCharge;
 
 	//始点座標
 	Vector3 startPosition_{};
