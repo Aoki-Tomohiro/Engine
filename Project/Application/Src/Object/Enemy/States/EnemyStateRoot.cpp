@@ -6,8 +6,10 @@
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateTackle.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateMissile.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateLaserAttack.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateDash.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateJumpAttack.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateComboAttack.h"
 #include "Application/Src/Object/Player/Player.h"
 
 void EnemyStateRoot::Initialize()
@@ -87,11 +89,13 @@ void EnemyStateRoot::Update()
 			switch (nextAction)
 			{
 			case kTackle:
-				//enemy_->ChangeState(new EnemyStateTackle());
-				enemy_->ChangeState(new EnemyStateJumpAttack());
+				enemy_->ChangeState(new EnemyStateTackle());
 				break;
 			case kJumpAttack:
 				enemy_->ChangeState(new EnemyStateJumpAttack());
+				break;
+			case kComboAttack:
+				enemy_->ChangeState(new EnemyStateComboAttack());
 				break;
 			}
 		}
@@ -101,10 +105,11 @@ void EnemyStateRoot::Update()
 			switch (nextAction)
 			{
 			case kDash:
-				enemy_->ChangeState(new EnemyStateDash());
+				//enemy_->ChangeState(new EnemyStateDash());
+				enemy_->ChangeState(new EnemyStateLaserAttack());
 				break;
 			case kMagicAttack:
-				enemy_->ChangeState(new EnemyStateMissile());
+				enemy_->ChangeState(new EnemyStateLaserAttack());
 				break;
 			}
 		}

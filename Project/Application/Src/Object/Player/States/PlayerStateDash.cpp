@@ -17,13 +17,14 @@ void PlayerStateDash::Initialize()
 	if (player_->lockOn_->ExistTarget())
 	{
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>()->GetWorldPosition();
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
 
 		//プレイヤーの座標を取得
 		Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
 
 		//差分ベクトルを計算
 		Vector3 sub = enemyPosition - playerPosition;
+		sub.y = 0.0f;
 
 		//速度を計算
 		player_->velocity = Mathf::Normalize(sub) * player_->dashParameters_.dashSpeed_;
@@ -139,11 +140,10 @@ void PlayerStateDash::Update()
 		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
 
 		//敵のTransformを取得
-		Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-		TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
 
 		//敵と一定距離近づいたら速度を0にする
-		if (Mathf::Length(enemyTransformComponent->GetWorldPosition() - transformComponent->GetWorldPosition()) < player_->dashParameters_.proximityThreshold)
+		if (Mathf::Length(enemyPosition - transformComponent->GetWorldPosition()) < player_->dashParameters_.proximityThreshold)
 		{
 			player_->velocity = { 0.0f,0.0f,0.0f };
 		}

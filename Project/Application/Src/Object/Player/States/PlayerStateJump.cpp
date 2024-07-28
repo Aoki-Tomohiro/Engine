@@ -25,7 +25,11 @@ void PlayerStateJump::Initialize()
 	}
 
 	//速度にジャンプの初速度を設定
-	player_->velocity.y = player_->jumpParameters_.firstSpeed;
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	if (transformComponent->worldTransform_.translation_.y == 0.0f)
+	{
+		player_->velocity.y = player_->jumpParameters_.firstSpeed;
+	}
 }
 
 void PlayerStateJump::Update()

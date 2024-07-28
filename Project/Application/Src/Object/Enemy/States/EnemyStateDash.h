@@ -11,5 +11,8 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
+	Vector3 currentCenter_{};
+
+	Vector3 offset_{};
 };
 

@@ -12,9 +12,6 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
-
-
-private:
 	//警告オブジェクト
 	Warning* warning_ = nullptr;
 

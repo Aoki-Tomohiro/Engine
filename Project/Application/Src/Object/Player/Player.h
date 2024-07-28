@@ -66,6 +66,7 @@ private:
 		float justDodgeSuccessDuration = 1.0f;  // ジャスト回避の成功可能時間
 		float justDodgeDuration = 1.2f;         // ジャスト回避の時間
 		float justDodgeTargetDistance = 20.0f;  // ジャスト回避成功時の移動距離
+		float frontThreshold = 0.8f;            // 敵の前方にいるかを判定する閾値
 	};
 
 	//ジャンプの構造体

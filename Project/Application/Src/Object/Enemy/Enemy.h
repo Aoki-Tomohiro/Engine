@@ -35,7 +35,19 @@ public:
 
 	void SetDestinationQuaternion(const Quaternion& quaternion) { destinationQuaternion_ = quaternion; };
 
+	const Vector3 GetHipLocalPosition();
+
+	const Vector3 GetHipWorldPosition();
+
 private:
+	//攻撃のパラメーター
+	struct AttackParameters
+	{
+		float chargeDuration = 0.0f;  // 溜め時間
+		float warningDuration = 0.0f; // 攻撃予告時間
+		float attackDuration = 0.0f;  // 攻撃時間
+	};
+
 	//通常状態のパラメーター
 	struct RootParameters
 	{
@@ -49,18 +61,15 @@ private:
 	//タックル状態のパラメーター
 	struct TackleParameters
 	{
-		float chargeDuration_ = 0.8f;  // 溜め時間
-		float warningDuration_ = 1.0f; // 攻撃予告時間
-		float attackDuration_ = 1.7f;  // 攻撃時間
-		float targetDistance = 20.0f;
+		AttackParameters attackParameters = { 0.8f,1.0f,1.7f }; // 攻撃用のパラメーター
+		float targetDistance = 20.0f;                           // 目標までの距離
 	};
 
 	//ミサイル攻撃状態のパラメーター
 	struct MissleAttackParameters
 	{
-		float chargeDuration_ = 1.1f;                             // 溜め時間
-		float attackDuration_ = 3.3f;                             // 攻撃時間
-		int32_t maxFireCount = 6;                                // 弾の最大発射数
+		AttackParameters attackParameters = { 0.8f,0.0f,3.3f };   // 攻撃用のパラメーター
+		int32_t maxFireCount = 6;                                 // 弾の最大発射数
 		std::vector<Missile::MissileParameters> missileParameters //ミサイルのパラメーター
 		{
 			{ 1.0f,0.06f,4.0f,26.0f},
@@ -69,6 +78,47 @@ private:
 			{ 1.0f,0.06f,4.0f,26.0f},
 			{ 1.0f,0.06f,4.0f,26.0f},
 			{ 1.0f,0.06f,4.0f,26.0f},
+		};
+	};
+
+	//レーザー攻撃状態のパラメーター
+	struct LaserAttackParameters
+	{
+		AttackParameters attackParameters = { 0.78f,1.2f,3.3f };   // 攻撃用のパラメーター
+		float laserRange = 30.0f;                                 // レーザーの長さ
+		float easingSpeed = 10.0f;                                // イージングの速度
+	};
+
+	//ダッシュ状態のパラメーター
+	struct DashParameters
+	{
+		float dashSpeed = 26.0f;      // ダッシュスピード
+		float attackDistance = 14.0f; // 攻撃状態に遷移する距離
+	};
+
+	//ジャンプ攻撃用のパラメーター
+	struct JumpAttackParameters
+	{
+		AttackParameters attackParameters = { 0.96f,1.1f,1.8f }; // 攻撃用のパラメーター
+		float trackingDistance = 14.0f;                          // 追尾する距離
+	};
+
+	//コンボ攻撃のパラメーター
+	struct ComboAttackParameters
+	{
+		int32_t maxComboIndex = 3;                       // コンボ数
+		float moveDistance = 16.0f;                      // 移動させる距離
+		std::vector<Vector3> attackVelocity =            // 攻撃時の移動速度
+		{
+			{0.0f,0.0f,28.0f},
+			{0.0f,0.0f,28.0f},
+			{0.0f,0.0f,28.0f},
+		};
+		std::vector<AttackParameters> attackParameters = // 攻撃用のパラメーター
+		{
+			{0.68f,0.9f,1.1f},
+			{1.1f,1.2f,1.7f},
+			{1.7f,2.4f,2.7f},
 		};
 	};
 
@@ -88,6 +138,9 @@ private:
 	//Quaternion
 	Quaternion destinationQuaternion_{ 0.0f,0.0f,0.0f,1.0f };
 
+	//回転の保管速度
+	float quaternionInterpolationSpeed_ = 0.4f;
+
 	//TimeScale
 	float timeScale_ = 1.0f;
 
@@ -99,6 +152,18 @@ private:
 
 	//ミサイル攻撃のパラメーター
 	MissleAttackParameters missileAttackParameters_{};
+
+	//レーザー攻撃のパラメーター
+	LaserAttackParameters laserAttackParameters_{};
+
+	//ダッシュのパラメーター
+	DashParameters dashParameters_{};
+
+	//ジャンプ攻撃用のパラメーター
+	JumpAttackParameters jumpAttackParameters_{};
+
+	//コンボ攻撃用のパラメーター
+	ComboAttackParameters comboAttackParameters_{};
 
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;
@@ -124,5 +189,7 @@ private:
 	friend class EnemyStateTackle;
 	friend class EnemyStateMissile;
 	friend class EnemyStateJumpAttack;
+	friend class EnemyStateComboAttack;
+	friend class EnemyStateLaserAttack;
 };
 

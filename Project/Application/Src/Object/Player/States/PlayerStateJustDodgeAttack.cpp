@@ -19,8 +19,10 @@ void PlayerStateJustDodgeAttack::Initialize()
 
 	//敵の方向に回転させる
 	TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-	TransformComponent* enemyTransformComponent = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>();
-	Vector3 direction = Mathf::Normalize(enemyTransformComponent->GetWorldPosition() - playerTransformComponent->GetWorldPosition());
+	//敵の座標を取得
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	Vector3 targetPosition = enemy->GetHipWorldPosition();
+	Vector3 direction = Mathf::Normalize(targetPosition - playerTransformComponent->GetWorldPosition());
 	direction.y = 0.0f;
 	Vector3 cross = Mathf::Cross({ 0.0f,0.0f,1.0f }, direction);
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, direction);
@@ -31,7 +33,15 @@ void PlayerStateJustDodgeAttack::Initialize()
 	justDodgeAttackWork_.startPosition = playerTransformComponent->GetWorldPosition();
 
 	//終点座標を決める
-	justDodgeAttackWork_.targetPosition = enemyTransformComponent->GetWorldPosition() + direction * player_->justDodgeAttackParameters_.targetDistance;
+	if (targetPosition.y > 4.0f)
+	{
+		justDodgeAttackWork_.targetPosition = targetPosition + direction * player_->justDodgeAttackParameters_.targetDistance;
+	}
+	else
+	{
+		targetPosition.y = 0.0f;
+		justDodgeAttackWork_.targetPosition = targetPosition + direction * player_->justDodgeAttackParameters_.targetDistance;
+	}
 }
 
 void PlayerStateJustDodgeAttack::Update()

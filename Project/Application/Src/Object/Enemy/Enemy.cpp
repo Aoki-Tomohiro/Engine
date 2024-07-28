@@ -59,11 +59,11 @@ void Enemy::Update()
 
 	//回転処理
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, 0.4f));
+	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
 
 	//Colliderを設定
 	AABBCollider* collider = GetComponent<AABBCollider>();
-	collider->SetDebugDrawEnabled(isDebug_);
+	collider->SetDebugDrawEnabled(false);
 
 	//GameObjectの更新
 	GameObject::Update();
@@ -101,6 +101,27 @@ void Enemy::OnCollisionExit(GameObject* gameObject)
 
 }
 
+const Vector3 Enemy::GetHipWorldPosition()
+{
+	//腰のJointの座標を取得
+	ModelComponent* modelComponent = GetComponent<ModelComponent>();
+	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
+	Vector3 hipWorldPosition = {
+		hipWorldTransform.matWorld_.m[3][0],
+		hipWorldTransform.matWorld_.m[3][1],
+		hipWorldTransform.matWorld_.m[3][2],
+	};
+	return hipWorldPosition;
+}
+
+const Vector3 Enemy::GetHipLocalPosition()
+{
+	//ローカルの腰の座標を取得
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+	Vector3 hipLocalPosition = GetHipWorldPosition() - transformComponent->GetWorldPosition();
+	return hipLocalPosition;
+}
+
 void Enemy::ChangeState(IEnemyState* state)
 {
 	state->SetEnemy(this);
@@ -115,7 +136,6 @@ void Enemy::CreateWarningParticle()
 	{
 		//速度を決める
 		TransformComponent* transformComponent = GetComponent<TransformComponent>();
-		const Vector3 offset = { 0.0f,4.0f,0.0f };
 		const float kParticleVelocity = 0.1f;
 		const float distance = 1.2f;
 		Quaternion rotate = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, i * (3.14f / 180.0f));
@@ -131,7 +151,7 @@ void Enemy::CreateWarningParticle()
 			.SetLifeTime(0.4f, 0.4f)
 			.SetRadius(0.1f)
 			.SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
-			.SetTranslation(transformComponent->GetWorldPosition() + offset + direction * distance)
+			.SetTranslation(GetHipWorldPosition() + direction * distance)
 			.SetVelocity(direction * kParticleVelocity, direction * kParticleVelocity)
 			.Build();
 		particleSystem_->AddParticleEmitter(emitter);

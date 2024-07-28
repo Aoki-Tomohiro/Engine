@@ -198,7 +198,7 @@ void Player::AddMagicProjectile(const MagicProjectile::MagicType magicType)
 	};
 
 	//敵のTransformを取得
-	TransformComponent* enemyTransformComponent = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
 
 	//速度ベクトル
 	Vector3 velocity = { 0.0f,0.0f,1.0f };
@@ -208,7 +208,7 @@ void Player::AddMagicProjectile(const MagicProjectile::MagicType magicType)
 	if (lockOn_->ExistTarget())
 	{
 		//敵の方向へのベクトルを計算して速度を掛ける
-		velocity = Mathf::Normalize(enemyTransformComponent->GetWorldPosition() + enemyOffset - leftHandWorldPosition);
+		velocity = Mathf::Normalize(enemyPosition + enemyOffset - leftHandWorldPosition);
 	}
 	else
 	{

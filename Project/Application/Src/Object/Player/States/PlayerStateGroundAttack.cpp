@@ -182,11 +182,11 @@ void PlayerStateGroundAttack::Update()
 
 	//敵の座標を取得
 	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
+	Vector3 targetPosition = enemy->GetHipWorldPosition();
 
 	//差分ベクトルを計算
 	TransformComponent* playerTransformConponent = player_->GetComponent<TransformComponent>();
-	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
+	Vector3 sub = targetPosition - playerTransformConponent->GetWorldPosition();
 
 	//距離を計算
 	float distance = Mathf::Length(sub);
@@ -195,6 +195,7 @@ void PlayerStateGroundAttack::Update()
 	if (distance < player_->groundAttackParameters_.attackDistance || player_->lockOn_->ExistTarget())
 	{
 		//回転
+		sub.y = 0.0f;
 		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub)));
 		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(sub));
 		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));

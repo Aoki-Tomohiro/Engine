@@ -54,6 +54,9 @@ void PlayerStateRoot::Update()
 	//警告範囲に入っているかのフラグのリセット
 	justDodgeWork_.isInWarningRange = false;
 
+	//Transformを取得
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+
 	//回避状態に遷移
 	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER) && !player_->isJustDodgeSuccess_)
 	{
@@ -65,7 +68,7 @@ void PlayerStateRoot::Update()
 		player_->ChangeState(new PlayerStateJustDodge());
 	}
 	//ジャンプ状態に遷移
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A) || transformComponent->GetWorldPosition().y > 0.0f)
 	{
 		player_->ChangeState(new PlayerStateJump());
 	}
@@ -309,14 +312,20 @@ void PlayerStateRoot::UpdateJustDodge()
 	//プレイヤーの座標を取得
 	TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
 
-	//敵とプレイヤーの距離を計算
+	//敵からプレイヤーへのベクトルを計算
 	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemyTransformComponent->GetWorldPosition();
 
-	//敵の攻撃範囲に入っている場合
-	if (justDodgeWork_.isInWarningRange)
+	//敵の前方ベクトルを計算
+	Vector3 enemyForwardVector = Mathf::RotateVector({ 0.0f,0.0f,1.0f }, enemyTransformComponent->worldTransform_.quaternion_);
+
+	//外積を計算
+	float dot = Mathf::Dot(enemyForwardVector, Mathf::Normalize(sub));
+
+	//外積が一定値を超えていたら
+	if (dot > player_->dodgeParameters_.frontThreshold)
 	{
 		//敵とプレイヤーの距離がジャスト回避が成功できる距離より近かった場合
-		if (Mathf::Length(sub) < player_->dodgeParameters_.justDodgeSuccessDistance)
+		if (Mathf::Length(sub) < player_->dodgeParameters_.justDodgeSuccessDistance || justDodgeWork_.isInWarningRange)
 		{
 			//敵の攻撃が終了していたら
 			if (!enemy->GetIsWarning())

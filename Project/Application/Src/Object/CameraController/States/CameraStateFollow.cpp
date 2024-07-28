@@ -12,7 +12,7 @@ void CameraStateFollow::Initialize()
 	input_ = Input::GetInstance();
 
 	//オフセット値の初期化
-	cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+	cameraController_->destinationOffset_ = { 0.0f, 6.0f, -24.0f };
 
 	//Quaternionの初期化
 	if (cameraController_->target_)
@@ -43,11 +43,11 @@ void CameraStateFollow::Update()
 	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
 	if (player->GetIsAirAttack())
 	{
-		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -28.0f };
+		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
 	}
 	else
 	{
-		cameraController_->destinationOffset_ = { 0.0f, 2.0f, -24.0f };
+		cameraController_->destinationOffset_ = { 0.0f, 6.0f, -24.0f };
 	}
 
 	//追従対象からのオフセットを取得してカメラ座標を計算する
@@ -65,17 +65,25 @@ void CameraStateFollow::Update()
 	};
 
 	//カメラの制限を付ける
-	const float kMinHeight = 0.1f;
+	const float kMinHeight = 1.0f;
 	const float kMaxHeight = 20.0f;
 	if (cameraController_->camera_.translation_.y <= kMinHeight)
 	{
-		//カメラの高さを固定にする
-		cameraController_->camera_.translation_.y = kMinHeight;
+		//オフセット値をカメラがめり込んだ量だけ引く
+		cameraController_->destinationOffset_.z -= cameraController_->camera_.translation_.y;
+		cameraController_->offset_.z -= cameraController_->camera_.translation_.y;
+		
+		//オフセット値を再計算
+		offset = cameraController_->Offset();
+		cameraController_->camera_.translation_ = cameraController_->interTarget_ + offset;
 
 		//回転させないようにする
-		if (inputValue.x >= 0.0f)
+		if (cameraController_->offset_.z > -10.0f)
 		{
-			inputValue.x = 0.0f;
+			if (inputValue.x >= 0.0f)
+			{
+				inputValue.x = 0.0f;
+			}
 		}
 	}
 	else if (cameraController_->camera_.translation_.y >= kMaxHeight)

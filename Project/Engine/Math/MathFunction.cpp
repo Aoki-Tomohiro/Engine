@@ -55,6 +55,10 @@ namespace Mathf
 		return 1.0f - std::cos((x * std::numbers::pi_v<float>) / 2.0f);
 	}
 
+	float EaseInCubic(float x)
+	{
+		return x * x * x;
+	}
 
 	float EaseInOutSine(float x)
 	{

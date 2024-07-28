@@ -60,8 +60,14 @@ Vector3 LockOn::GetTargetPosition() const
 {
 	if (target_)
 	{
-		TransformComponent* transformComponent = target_->GetComponent<TransformComponent>();
-		return transformComponent->GetWorldPosition();
+		ModelComponent* modelComponent = target_->GetComponent<ModelComponent>();
+		WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
+		Vector3 targetPosition = {
+			hipWorldTransform.matWorld_.m[3][0],
+			hipWorldTransform.matWorld_.m[3][1],
+			hipWorldTransform.matWorld_.m[3][2],
+		};
+		return targetPosition;
 	}
 	return Vector3();
 }

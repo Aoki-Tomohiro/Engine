@@ -18,6 +18,8 @@ namespace Mathf
 
 	float EaseInSine(float x);
 
+	float EaseInCubic(float x);
+
 	float EaseInOutSine(float x);
 
 	float EaseOutExpo(float x);

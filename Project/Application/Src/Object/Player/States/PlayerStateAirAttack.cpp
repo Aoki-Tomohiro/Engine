@@ -178,12 +178,10 @@ void PlayerStateAirAttack::Update()
 		}
 	}
 
-	//敵の座標を取得
-	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-	TransformComponent* enemyTransformConponent = enemy->GetComponent<TransformComponent>();
-
 	//差分ベクトルを計算
-	Vector3 sub = enemyTransformConponent->GetWorldPosition() - playerTransformConponent->GetWorldPosition();
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	Vector3 targetPosition = enemy->GetHipWorldPosition();
+	Vector3 sub = targetPosition - playerTransformConponent->GetWorldPosition();
 
 	//距離を計算
 	float distance = Mathf::Length(sub);
@@ -419,7 +417,7 @@ void PlayerStateAirAttack::UpdateEnhancedMagic()
 				//エミッターの生成
 				ParticleEmitter* emitter = EmitterBuilder()
 					.SetEmitterName("EnhancedMagicSuccess")
-					.SetColor({ 0.6f,0.5f,0.0f,1.0f }, { 1.0f,0.5f,0.0f,1.0f })
+					.SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f })
 					.SetEmitterLifeTime(0.1f)
 					.SetCount(1)
 					.SetFrequency(0.2f)

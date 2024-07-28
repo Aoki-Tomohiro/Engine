@@ -16,18 +16,17 @@ void EnemyStateTackle::Initialize()
     Warning::BoxWarningObjectSettings warningObjectSettings{};
     TransformComponent* transformComponent = enemy_->GetComponent<TransformComponent>();
     warningObjectSettings.warningPrimitive = Warning::kBox;
-    warningObjectSettings.position = transformComponent->GetWorldPosition();
+    warningObjectSettings.position = transformComponent->worldTransform_.translation_;
     warningObjectSettings.quaternion = enemy_->destinationQuaternion_;
     warningObjectSettings.scale = { 5.0f,0.01f,14.0f };
     warningObjectSettings.offset = { 0.0f, 0.0f, 11.87f };
     warningObjectSettings.colliderCenter = { 0.0f,4.0f,0.0f };
     warningObjectSettings.colliderSize = { 5.0f,4.0f,14.0f };
-
     //警告用のオブジェクトを作成
     warning_ = enemy_->CreateBoxWarningObject(warningObjectSettings);
 
     //開始地点を設定
-    startPosition_ = transformComponent->GetWorldPosition();
+    startPosition_ = transformComponent->worldTransform_.translation_;
     //目標座標を設定
     Vector3 offset = { 0.0f,0.0f,enemy_->tackleParameters_.targetDistance };
     targetPosition_ = startPosition_ + Mathf::RotateVector(offset, enemy_->destinationQuaternion_);
@@ -49,27 +48,27 @@ void EnemyStateTackle::Update()
     float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 
     //現在のアニメーションに時間に応じて状態を変える
-    if (currentAnimationTime <= enemy_->tackleParameters_.chargeDuration_)
+    if (currentAnimationTime <= enemy_->tackleParameters_.attackParameters.chargeDuration)
     {
         currentTackleState_ = kCharge;
     }
-    else if (currentAnimationTime <= enemy_->tackleParameters_.warningDuration_)
+    else if (currentAnimationTime <= enemy_->tackleParameters_.attackParameters.warningDuration)
     {
         currentTackleState_ = kWarning;
     }
-    else if (currentAnimationTime <= enemy_->tackleParameters_.attackDuration_)
+    else if (currentAnimationTime <= enemy_->tackleParameters_.attackParameters.attackDuration)
     {
         currentTackleState_ = kAttacking;
     }
-    else if (currentAnimationTime > enemy_->tackleParameters_.attackDuration_)
+    else if (currentAnimationTime > enemy_->tackleParameters_.attackParameters.attackDuration)
     {
         currentTackleState_ = kRecovery;
     }
 
     //TransformComponentを取得
     TransformComponent* transformComponent = enemy_->GetComponent<TransformComponent>();
-    float attackDuration = enemy_->tackleParameters_.attackDuration_ - enemy_->tackleParameters_.warningDuration_;
-    float attackTime = currentAnimationTime - enemy_->tackleParameters_.warningDuration_;
+    float attackDuration = enemy_->tackleParameters_.attackParameters.attackDuration - enemy_->tackleParameters_.attackParameters.warningDuration;
+    float attackTime = currentAnimationTime - enemy_->tackleParameters_.attackParameters.warningDuration;
     //現在の状態の処理
     switch (currentTackleState_)
     {

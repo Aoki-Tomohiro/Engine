@@ -11,7 +11,7 @@ void EnemyStateMissile::Initialize()
 {
 	//アニメーションの設定
 	ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
-	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
+	modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
 	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
 	modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
 }
@@ -29,23 +29,23 @@ void EnemyStateMissile::Update()
 	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 
 	//現在のアニメーションの時間が溜め時間を超えていなかったらチャージ状態にする
-	if (currentAnimationTime <= enemy_->missileAttackParameters_.chargeDuration_)
+	if (currentAnimationTime <= enemy_->missileAttackParameters_.attackParameters.chargeDuration)
 	{
 		attackState_ = kCharge;
 	}
 	//現在のアニメーションの時間が攻撃時間を超えていなかったら攻撃状態にする
-	else if (currentAnimationTime <= enemy_->missileAttackParameters_.attackDuration_)
+	else if (currentAnimationTime <= enemy_->missileAttackParameters_.attackParameters.attackDuration)
 	{
 		attackState_ = kAttacking;
 	}
 	//現在のアニメーションの時間が溜め時間を超えていたら硬直状態にする
-	else if (currentAnimationTime > enemy_->missileAttackParameters_.attackDuration_)
+	else if (currentAnimationTime > enemy_->missileAttackParameters_.attackParameters.attackDuration)
 	{
 		attackState_ = kRecovery;
 	}
 
 	//攻撃状態ごとの処理
-	float totalFiringTime = enemy_->missileAttackParameters_.attackDuration_ - enemy_->missileAttackParameters_.chargeDuration_;
+	float totalFiringTime = enemy_->missileAttackParameters_.attackParameters.attackDuration - enemy_->missileAttackParameters_.attackParameters.chargeDuration;
 	float fireInterval = totalFiringTime / enemy_->missileAttackParameters_.maxFireCount;
 	switch (attackState_)
 	{
@@ -124,7 +124,7 @@ void EnemyStateMissile::CreateMissile(const Missile::MissileParameters& missileP
 
 	//ModelComponentを追加
 	ModelComponent* modelComponent = missile->AddComponent<ModelComponent>();
-	modelComponent->Initialize("Sphere", Transparent);
+	modelComponent->Initialize("Fire", Transparent);
 	modelComponent->SetTransformComponent(transformComponent);
 	modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.2f, 0.2f, 1.0f });
 
