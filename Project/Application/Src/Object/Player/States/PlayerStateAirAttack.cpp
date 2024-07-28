@@ -287,7 +287,21 @@ void PlayerStateAirAttack::Update()
 			//タイマーがパリィ成功時間を超えていない場合パリィを有効にする
 			if (workAirAttack_.parryTimer < player_->airAttackParameters_.parryDuration)
 			{
-				weapon->SetisParryable(true);
+				//敵からプレイヤーへのベクトルを計算
+				sub = Mathf::Normalize(playerTransformConponent->GetWorldPosition() - enemy->GetHipWorldPosition());
+
+				//敵の前方ベクトルを計算
+				TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
+				Vector3 enemyForwardVector = Mathf::RotateVector({ 0.0f,0.0f,1.0f }, enemyTransformComponent->worldTransform_.quaternion_);
+
+				//外積を計算
+				float dot = Mathf::Dot(enemyForwardVector, Mathf::Normalize(sub));
+
+				//敵の正面にいる場合
+				if (dot > player_->groundAttackParameters_.frontThreshold)
+				{
+					weapon->SetisParryable(true);
+				}
 			}
 			else
 			{

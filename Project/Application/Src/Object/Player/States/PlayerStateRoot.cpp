@@ -313,7 +313,7 @@ void PlayerStateRoot::UpdateJustDodge()
 	TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
 
 	//敵からプレイヤーへのベクトルを計算
-	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemyTransformComponent->GetWorldPosition();
+	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemy->GetHipWorldPosition();
 
 	//敵の前方ベクトルを計算
 	Vector3 enemyForwardVector = Mathf::RotateVector({ 0.0f,0.0f,1.0f }, enemyTransformComponent->worldTransform_.quaternion_);

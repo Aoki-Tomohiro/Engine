@@ -105,8 +105,7 @@ void EnemyStateRoot::Update()
 			switch (nextAction)
 			{
 			case kDash:
-				//enemy_->ChangeState(new EnemyStateDash());
-				enemy_->ChangeState(new EnemyStateLaserAttack());
+				enemy_->ChangeState(new EnemyStateDash());
 				break;
 			case kMagicAttack:
 				enemy_->ChangeState(new EnemyStateLaserAttack());

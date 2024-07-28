@@ -81,6 +81,7 @@ private:
 	{
 		float attackDistance = 9.0f;   // 攻撃の補正を掛ける距離
 		float parryDuration = 0.1f;    // パリィの成功時間
+		float frontThreshold = 0.5f;   // 敵の前方にいるかを判定する閾値
 	};
 
 	//空中攻撃用の構造体
@@ -88,6 +89,7 @@ private:
 	{
 		float attackDistance = 11.0f;            // 攻撃の補正を掛ける距離
 		float parryDuration = 0.1f;              // パリィの成功時間
+		float frontThreshold = 0.5f;             // 敵の前方にいるかを判定する閾値
 		float gravityAcceleration = 2.8f;        // 重力加速度
 		float attackGravityAcceleration_ = 0.1f; // 攻撃中の重力加速度
 		float verticalKnockback = 10.0f;         // 攻撃が当たった時の上昇力

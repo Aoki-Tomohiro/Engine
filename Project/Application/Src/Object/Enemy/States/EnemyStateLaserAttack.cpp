@@ -89,9 +89,6 @@ void EnemyStateLaserAttack::Update()
 		isWarning_ = true;
 		break;
 	case kAttacking:
-		//攻撃フラグを立てる
-		isAttack_ = true;
-
 		//状態が切り替わったとき
 		if (preAttackState_ != currentAttackState_)
 		{
@@ -132,7 +129,6 @@ void EnemyStateLaserAttack::Update()
 	case kRecovery:
 		//フラグの初期化
 		isWarning_ = false;
-		isAttack_ = false;
 
 		//状態が切り替わったとき
 		if (preAttackState_ != currentAttackState_)
