@@ -2,6 +2,8 @@
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Particle/ParticleManager.h"
+#include "Engine/Components/Audio/Audio.h"
+#include "Engine/2D/Sprite.h"
 #include "Application/Src/Object/Enemy/States/IEnemyState.h"
 #include "Application/Src/Object/Warning/Warning.h"
 #include "Application/Src/Object/Missile/Missile.h"
@@ -39,13 +41,23 @@ public:
 
 	const Vector3 GetHipWorldPosition();
 
+	const bool GetIsDead() const { return isDead_; };
+
+	const float GetDamage() const { return damage_; };
+
+	const float GetKnockbackSpeed() const { return knockbackSpeed_; };
+
+	void SetIsParrying(const bool isParrying) { isParrying_ = isParrying; };
+
 private:
 	//攻撃のパラメーター
 	struct AttackParameters
 	{
-		float chargeDuration = 0.0f;  // 溜め時間
-		float warningDuration = 0.0f; // 攻撃予告時間
-		float attackDuration = 0.0f;  // 攻撃時間
+		float chargeDuration = 0.0f;   // 溜め時間
+		float warningDuration = 0.0f;  // 攻撃予告時間
+		float attackDuration = 0.0f;   // 攻撃時間
+		float knockbackSpeed = -1.0f;  // ノックバックさせる速度
+		float damage = 1.0f;           // ダメージ
 	};
 
 	//通常状態のパラメーター
@@ -61,8 +73,8 @@ private:
 	//タックル状態のパラメーター
 	struct TackleParameters
 	{
-		AttackParameters attackParameters = { 0.8f,1.0f,1.7f }; // 攻撃用のパラメーター
-		float targetDistance = 20.0f;                           // 目標までの距離
+		AttackParameters attackParameters = { 1.1f,1.2f,1.7f,-96.0f,10.0f }; // 攻撃用のパラメーター
+		float targetDistance = 20.0f;                                        // 目標までの距離
 	};
 
 	//ミサイル攻撃状態のパラメーター
@@ -84,9 +96,10 @@ private:
 	//レーザー攻撃状態のパラメーター
 	struct LaserAttackParameters
 	{
-		AttackParameters attackParameters = { 0.78f,1.2f,3.3f };   // 攻撃用のパラメーター
-		float laserRange = 30.0f;                                 // レーザーの長さ
-		float easingSpeed = 10.0f;                                // イージングの速度
+		AttackParameters attackParameters = { 0.78f,1.2f,3.3f,-6.0f,6.0f }; // 攻撃用のパラメーター
+		float laserRange = 30.0f;                                            // レーザーの長さ
+		float easingSpeed = 10.0f;                                           // イージングの速度
+		float damage = 1.0f;                                                 // ダメージ
 	};
 
 	//ダッシュ状態のパラメーター
@@ -99,8 +112,8 @@ private:
 	//ジャンプ攻撃用のパラメーター
 	struct JumpAttackParameters
 	{
-		AttackParameters attackParameters = { 0.96f,1.1f,1.8f }; // 攻撃用のパラメーター
-		float trackingDistance = 14.0f;                          // 追尾する距離
+		AttackParameters attackParameters = { 0.96f,1.1f,1.8f,-96.0f,20.0f }; // 攻撃用のパラメーター
+		float trackingDistance = 14.0f;                                       // 追尾する距離
 	};
 
 	//コンボ攻撃のパラメーター
@@ -116,19 +129,31 @@ private:
 		};
 		std::vector<AttackParameters> attackParameters = // 攻撃用のパラメーター
 		{
-			{0.68f,0.9f,1.1f},
-			{1.1f,1.2f,1.7f},
-			{1.7f,2.4f,2.7f},
+			{0.68f,0.9f, 1.1f,-28.0f,10.0f},
+			{1.1f, 1.48f,1.7f,-28.0f,10.0f},
+			{1.7f, 2.4f, 2.7f,-68.0f,20.0f},
 		};
+	};
+
+	//死亡状態のパラメーター
+	struct DeadParameters
+	{
+		float deathTime = 1.0f; // 死亡までの時間
+		float edgeWidth = 0.1f; // DissolveのEdgeWidth
 	};
 
 	void ChangeState(IEnemyState* state);
 
 	void CreateWarningParticle();
 
+	void UpdateHP();
+
 	Warning* CreateBoxWarningObject(const Warning::BoxWarningObjectSettings& warningObjectSettings);
 
 private:
+	//Audio
+	Audio* audio_ = nullptr;
+
 	//敵の状態
 	std::unique_ptr<IEnemyState> state_ = nullptr;
 
@@ -165,8 +190,43 @@ private:
 	//コンボ攻撃用のパラメーター
 	ComboAttackParameters comboAttackParameters_{};
 
+	//死亡状態のパラメーター
+	DeadParameters deadParameters_{};
+
+	//ダメージ
+	float damage_ = 1.0f;
+
+	//ノックバックさせる速度
+	float knockbackSpeed_ = 1.0f;
+
+	//パリィ状態かどうか
+	bool isParrying_ = false;
+
+	//死亡フラグ
+	bool isDead_ = false;
+
+	//体力
+	const float kMaxHP = 800.0f;
+	float hp_ = kMaxHP;
+
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;
+
+	//体力のスプライト
+	std::unique_ptr<Sprite> hpSprite_ = nullptr;
+	std::unique_ptr<Sprite> hpFrameSprite_ = nullptr;
+	Vector2 hpSpritePosition_ = { 720.0f,32.0f };
+	Vector2 hpSpriteSize_{ 480.0f,16.0f };
+	Vector2 hpFrameSpritePosition_ = { 719.0f,31.0f };
+
+	//オーディオハンドル
+	uint32_t tackleAudioHandle_ = 0;
+	uint32_t comboAudioHandle1_ = 0;
+	uint32_t comboAudioHandle2_ = 0;
+	uint32_t comboAudioHandle3_ = 0;
+	uint32_t jumpAttackAudioHandle_ = 0;
+	uint32_t chargeAudioHandle_ = 0;
+	uint32_t laserAudioHandle_ = 0;
 
 	//アクティブ状態かどうか
 	bool isMove_ = false;
@@ -191,5 +251,6 @@ private:
 	friend class EnemyStateJumpAttack;
 	friend class EnemyStateComboAttack;
 	friend class EnemyStateLaserAttack;
+	friend class EnemyStateDead;
 };
 

@@ -23,6 +23,7 @@ void GameTitleScene::Initialize()
 
 	//カメラを取得
 	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	camera_->rotationType_ = RotationType::Euler;
 	//GameObjectManagerにカメラを設定
 	gameObjectManager_->SetCamera(camera_);
 	//ParticleManagerにカメラを設定
@@ -34,6 +35,14 @@ void GameTitleScene::Initialize()
 	//ModelComponent
 	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
 	playerModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	playerModelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+	playerModelComponent->GetModel()->GetMaterial(0)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(1)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(2)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(3)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(4)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(5)->SetDissolveThreshold(0.0f);
+	playerModelComponent->GetModel()->GetMaterial(6)->SetDissolveThreshold(0.0f);
 
 	//敵の初期化
 	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
@@ -41,6 +50,9 @@ void GameTitleScene::Initialize()
 	//ModelComponentの初期化
 	ModelComponent* enemyModelComponent = enemy->GetComponent<ModelComponent>();
 	enemyModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	enemyModelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+	enemyModelComponent->GetModel()->GetMaterial(0)->SetDissolveThreshold(0.0f);
+	enemyModelComponent->GetModel()->GetMaterial(1)->SetDissolveThreshold(0.0f);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -54,6 +66,10 @@ void GameTitleScene::Initialize()
 	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
 	TextureManager::Load("PressA.png");
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
+
+	//音声データの読み込みと再生
+	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
+	audio_->PlayAudio(audioHandle_, true, 0.2f);
 }
 
 void GameTitleScene::Finalize()
@@ -174,6 +190,7 @@ void GameTitleScene::HandleTransition()
 	//シーン遷移
 	if (transition_->GetFadeInComplete())
 	{
+		audio_->StopAudio(audioHandle_);
 		sceneManager_->ChangeScene("GamePlayScene");
 	}
 }

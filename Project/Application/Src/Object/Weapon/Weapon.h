@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/Component/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
@@ -33,7 +34,12 @@ public:
 
 	const bool GetIsHit() const { return isHit_; };
 
+	void SetIsJustDodgeAttack(const bool isJustDodgeAttack) { isJustDodgeAttack_ = isJustDodgeAttack; };
+
 private:
+	//Audio
+	Audio* audio_ = nullptr;
+
 	//Particle
 	ParticleSystem* particleSystem_ = nullptr;
 
@@ -55,5 +61,12 @@ private:
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
+
+	//ジャスト回避の攻撃かどうか
+	bool isJustDodgeAttack_ = false;
+
+	//オーディオハンドル
+	uint32_t attackAudioHandle_ = 0;
+	uint32_t justDodgeAttackAudioHandle_ = 0;
 };
 

@@ -2,9 +2,13 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
@@ -12,9 +16,9 @@
 const std::array<PlayerStateAirAttack::ConstAirAttack, PlayerStateAirAttack::kComboNum> PlayerStateAirAttack::kConstAttacks_ =
 {
 	{
-		{0.6f,  0.96f, 2.33f, 6.0f, 0.26f, 1},
-		{0.38f, 0.7f,  2.56f, 6.0f, 0.06f, 1},
-		{0.7f,  0.88f, 2.4f,  6.0f, 0.13f, 1},
+		{0.6f,  0.96f, 2.33f, 6.0f, 0.26f, 1, 10.0f},
+		{0.38f, 0.7f,  2.56f, 6.0f, 0.06f, 1, 10.0f},
+		{0.7f,  0.88f, 2.4f,  6.0f, 0.13f, 1, 10.0f},
 	}
 };
 
@@ -46,10 +50,20 @@ void PlayerStateAirAttack::Initialize()
 		//ダッシュ攻撃のフラグをリセット
 		player_->isDashAttack_ = false;
 	}
+
+	//ダメージを設定
+	player_->damage_ = kConstAttacks_[workAirAttack_.comboIndex].damage;
 }
 
 void PlayerStateAirAttack::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//コンボ上限に達していない
 	if (workAirAttack_.comboIndex < kComboNum - 1)
 	{
@@ -70,6 +84,27 @@ void PlayerStateAirAttack::Update()
 	//現在のアニメーションの時間を取得
 	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
 
+	//前のフレームでダメージを食らっていてパリィに成功していなかった場合
+	if (wasDamagedLastFrame_)
+	{
+		if (!weapon->GetIsParrySuccessful())
+		{
+			Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+			player_->hp_ -= enemy->GetDamage();
+			player_->isDamaged_ = true;
+			player_->isAirAttack_ = false;
+			//武器をリセット
+			weapon->SetIsAttack(false);
+			weapon->SetisParryable(false);
+			player_->ChangeState(new PlayerStateKnockback());
+			return;
+		}
+		else
+		{
+			wasDamagedLastFrame_ = false;
+		}
+	}
+
 	//攻撃が終わっていた場合
 	if (currentAnimationTime > kConstAttacks_[workAirAttack_.comboIndex].swingTime)
 	{
@@ -86,6 +121,7 @@ void PlayerStateAirAttack::Update()
 			workAirAttack_.isMovementFinished = false;
 			workAirAttack_.parryTimer = 0.0f;
 			workAirAttack_.hasUsedEnhancedMagic = false;
+			player_->damage_ = kConstAttacks_[workAirAttack_.comboIndex].damage;
 			player_->velocity.y = 0.0f;
 
 			//コンボ切り替わりの瞬間だけ、スティック入力による方向転換を受け受ける
@@ -285,7 +321,7 @@ void PlayerStateAirAttack::Update()
 			workAirAttack_.parryTimer += GameTimer::GetDeltaTime();
 
 			//タイマーがパリィ成功時間を超えていない場合パリィを有効にする
-			if (workAirAttack_.parryTimer < player_->airAttackParameters_.parryDuration)
+			if (workAirAttack_.parryTimer < player_->airAttackParameters_.parryDuration && !player_->isParrying_)
 			{
 				//敵からプレイヤーへのベクトルを計算
 				sub = Mathf::Normalize(playerTransformConponent->GetWorldPosition() - enemy->GetHipWorldPosition());
@@ -338,6 +374,23 @@ void PlayerStateAirAttack::Draw(const Camera& camera)
 
 void PlayerStateAirAttack::OnCollision(GameObject* other)
 {
+	//パリィ状態でなければ
+	if (!player_->isParrying_)
+	{
+		//衝突相手が敵だった場合
+		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
+		{
+			if (enemy->GetIsAttack())
+			{
+				wasDamagedLastFrame_ = true;
+			}
+		}
+		//衝突相手がレーザーだった場合
+		else if (Laser* laser = dynamic_cast<Laser*>(other))
+		{
+			wasDamagedLastFrame_ = true;
+		}
+	}
 }
 
 void PlayerStateAirAttack::OnCollisionEnter(GameObject* other)

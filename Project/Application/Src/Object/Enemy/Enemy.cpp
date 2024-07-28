@@ -11,10 +11,14 @@
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 
 void Enemy::Initialize()
 {
+	//Audioのインスタンスを取得
+	audio_ = Audio::GetInstance();
+
 	//GameObjectの初期化
 	GameObject::Initialize();
 
@@ -23,6 +27,23 @@ void Enemy::Initialize()
 
 	//パーティクルを生成
 	particleSystem_ = ParticleManager::Create("Enemy");
+
+	//体力のスプライトの生成
+	TextureManager::Load("HpBar.png");
+	hpSprite_.reset(Sprite::Create("HpBar.png", hpSpritePosition_));
+	hpSprite_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
+	TextureManager::Load("HpBarFrame.png");
+	hpFrameSprite_.reset(Sprite::Create("HpBarFrame.png", hpFrameSpritePosition_));
+	hpFrameSprite_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
+
+	//音声データの読み込み
+	tackleAudioHandle_ = audio_->LoadAudioFile("Tackle.mp3");
+	comboAudioHandle1_ = audio_->LoadAudioFile("EnemyComboAttack1.mp3");
+	comboAudioHandle2_ = audio_->LoadAudioFile("EnemyComboAttack2.mp3");
+	comboAudioHandle3_ = audio_->LoadAudioFile("EnemyComboAttack3.mp3");
+	jumpAttackAudioHandle_ = audio_->LoadAudioFile("JumpAttack.mp3");
+	chargeAudioHandle_ = audio_->LoadAudioFile("Charge.mp3");
+	laserAudioHandle_ = audio_->LoadAudioFile("Laser.mp3");
 }
 
 void Enemy::Update()
@@ -65,6 +86,9 @@ void Enemy::Update()
 	AABBCollider* collider = GetComponent<AABBCollider>();
 	collider->SetDebugDrawEnabled(false);
 
+	//HPの更新
+	UpdateHP();
+
 	//GameObjectの更新
 	GameObject::Update();
 
@@ -83,12 +107,41 @@ void Enemy::Draw(const Camera& camera)
 
 void Enemy::DrawUI()
 {
-
+	//HPの描画
+	hpSprite_->Draw();
+	hpFrameSprite_->Draw();
 }
 
 void Enemy::OnCollision(GameObject* gameObject)
 {
+	//ダメージ倍率
+	float damageRate = 1.0f;
+	//パリィ中の場合は倍率を上げる
+	if (isParrying_)
+	{
+		const float kParryingDamageRate = 1.2f;
+		damageRate = kParryingDamageRate;
+	}
 
+	//衝突相手がプレイヤーだった場合
+	if (Player* player = dynamic_cast<Player*>(gameObject))
+	{
+		if (!player->GetIsKnockback())
+		{
+			state_->SetIsAttack(false);
+		}
+	}
+	//衝突相手が武器だった場合
+	else if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
+	{
+		Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
+		hp_ -= player->GetDamage() * damageRate;
+	}
+	//衝突相手が魔法だった場合
+	else if (MagicProjectile* magicProjectile = dynamic_cast<MagicProjectile*>(gameObject))
+	{
+		hp_ -= magicProjectile->GetDamage() * damageRate;
+	}
 }
 
 void Enemy::OnCollisionEnter(GameObject* gameObject)
@@ -156,6 +209,14 @@ void Enemy::CreateWarningParticle()
 			.Build();
 		particleSystem_->AddParticleEmitter(emitter);
 	}
+}
+
+void Enemy::UpdateHP()
+{
+	//HPバーの処理
+	hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
+	Vector2 currentHPSize = { hpSpriteSize_.x * (hp_ / kMaxHP), hpSpriteSize_.y };
+	hpSprite_->SetSize(currentHPSize);
 }
 
 Warning* Enemy::CreateBoxWarningObject(const Warning::BoxWarningObjectSettings& warningObjectSettings)

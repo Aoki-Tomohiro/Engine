@@ -69,6 +69,17 @@ void CameraController::UpdateCameraShake()
 			cameraShakeSettings_.duration = cameraShakeParameters_.justDodgeDuration;
 		}
 	}
+	//プレイヤーがダメージを食らっていたら
+	if (gameObjectManager->GetGameObject<Player>()->GetIsDamaged())
+	{
+		//カメラシェイクを有効にする
+		cameraShakeSettings_.isShaking = true;
+		//カメラシェイクのタイマーをリセット
+		cameraShakeSettings_.timer = 0.0f;
+		//カメラシェイクの強度とシェイク間隔を決める
+		cameraShakeSettings_.intensity = cameraShakeParameters_.damagedIntensity;
+		cameraShakeSettings_.duration = cameraShakeParameters_.damagedDuration;
+	}
 	//魔法弾を取得
 	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager->GetGameObjects<MagicProjectile>();
 	for (MagicProjectile* magicProjectile : magicProjectiles)

@@ -38,6 +38,7 @@ private:
 		float moveSpeed;      // 移動速度
 		float attackInterval; // ヒット間隔
 		int32_t maxHitCount;  // ヒット回数
+		float damage;         // ダメージ
 	};
 
 	//攻撃用ワーク
@@ -68,5 +69,8 @@ private:
 
 	//空中攻撃用ワーク
 	WorkAirAttack workAirAttack_{};
+
+	//前のフレームでダメージを食らったか
+	bool wasDamagedLastFrame_ = false;
 };
 

@@ -6,6 +6,7 @@
 #include "Application/Src/Object/Ground/Ground.h"
 #include "Application/Src/Object/Warning/Warning.h"
 #include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
+#include "Application/Src/Object/BackGroundObject/BackGroundObject.h"
 
 class GameObjectFactory : public AbstractGameObjectFactory
 {

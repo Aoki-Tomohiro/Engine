@@ -25,6 +25,10 @@ public:
 
 	void SetEasingSpeed(const float easingSpeed) { easingSpeed_ = easingSpeed; };
 
+	const float GetDamage() const { return damage_; };
+
+	void SetDamage(const float damage) { damage_ = damage; }
+
 private:
 	Vector3 targetScale_ = { 1.0f,1.0f,50.0f };
 
@@ -37,5 +41,7 @@ private:
 	float easingParameter_ = 0.0f;
 
 	float easingSpeed_ = 1.0f;
+
+	float damage_ = 1.0f;
 };
 

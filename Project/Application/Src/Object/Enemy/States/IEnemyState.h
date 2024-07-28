@@ -18,6 +18,8 @@ public:
 
 	const bool GetIsAttack() const { return isAttack_; };
 
+	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
+
 	void SetEnemy(Enemy* enemy) { enemy_ = enemy; };
 
 protected:

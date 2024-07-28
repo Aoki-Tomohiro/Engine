@@ -9,8 +9,11 @@
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Warning/Warning.h"
+#include "Application/Src/Object/Laser/Laser.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -87,6 +90,11 @@ void PlayerStateRoot::Update()
 	{
 		player_->ChangeState(new PlayerStateChargedMagicAttack());
 	}
+	//死亡状態に遷移
+	else if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+	}
 }
 
 void PlayerStateRoot::Draw(const Camera& camera)
@@ -99,6 +107,28 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 	if (dynamic_cast<Warning*>(other))
 	{
 		justDodgeWork_.isInWarningRange = true;
+	}
+
+	//パリィ状態でなければ
+	if (!player_->isParrying_)
+	{
+		//衝突相手が敵だった場合
+		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
+		{
+			if (enemy->GetIsAttack())
+			{
+				player_->hp_ -= enemy->GetDamage();
+				player_->isDamaged_ = true;
+				player_->ChangeState(new PlayerStateKnockback());
+			}
+		}
+		//衝突相手がレーザーだった場合
+		else if (Laser* laser = dynamic_cast<Laser*>(other))
+		{
+			player_->hp_ -= laser->GetDamage();
+			player_->isDamaged_ = true;
+			player_->ChangeState(new PlayerStateKnockback());
+		}
 	}
 }
 
@@ -171,8 +201,8 @@ void PlayerStateRoot::UpdateRotation()
 	{
 		//差分ベクトルを計算
 		TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-		TransformComponent* enemyTransformConponent = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetComponent<TransformComponent>();
-		rotateVector = Mathf::Normalize(enemyTransformConponent->GetWorldPosition() - playerTransformComponent->GetWorldPosition());
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
+		rotateVector = Mathf::Normalize(enemyPosition - playerTransformComponent->GetWorldPosition());
 		rotateVector.y = 0.0f;
 	}
 	//ロックオン中ではない場合は進行方向に向ける
@@ -314,6 +344,7 @@ void PlayerStateRoot::UpdateJustDodge()
 
 	//敵からプレイヤーへのベクトルを計算
 	Vector3 sub = playerTransformComponent->GetWorldPosition() - enemy->GetHipWorldPosition();
+	sub.y = 0.0f;
 
 	//敵の前方ベクトルを計算
 	Vector3 enemyForwardVector = Mathf::RotateVector({ 0.0f,0.0f,1.0f }, enemyTransformComponent->worldTransform_.quaternion_);

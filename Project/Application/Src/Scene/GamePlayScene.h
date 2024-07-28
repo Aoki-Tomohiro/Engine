@@ -18,6 +18,7 @@
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 #include "Application/Src/Object/Warning/Warning.h"
+#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/CameraController/CameraController.h"
 #include "Application/Src/Object/Transition/Transition.h"
 
@@ -109,9 +110,8 @@ private:
 	std::unique_ptr<Sprite> gameClearSprite_ = nullptr;
 	bool isGameClear_ = false;
 
-	//HSV
-	float hue_ = 0.0f;
-	float saturation_ = 0.0f;
-	float value_ = 0.0f;
+	//オーディオハンドル
+	uint32_t audioHandle_ = 0;
+	uint32_t parryAudioHandle_ = 0;
 };
 

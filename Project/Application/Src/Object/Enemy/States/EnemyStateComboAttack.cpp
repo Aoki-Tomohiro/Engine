@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 
 void EnemyStateComboAttack::Initialize()
 {
@@ -65,12 +66,12 @@ void EnemyStateComboAttack::Update()
 	case kCharge:
 		break;
 	case kWarning:
-		//攻撃警告のフラグを立てる
-		isWarning_ = true;
-
-		//前のフレームがチャージ状態の場合
+		//前のフレームと状態が変わっていた場合
 		if (preAttackState_ != currentAttackState_)
 		{
+			//攻撃警告のフラグを立てる
+			isWarning_ = true;
+
 			//プレイヤーとの距離が近ければ
 			if (distance <= enemy_->comboAttackParameters_.moveDistance)
 			{
@@ -86,23 +87,40 @@ void EnemyStateComboAttack::Update()
 
 			//速度を計算
 			enemy_->velocity = Mathf::RotateVector(enemy_->comboAttackParameters_.attackVelocity[comboIndex_], enemy_->destinationQuaternion_);
+
+			//ノックバック速度を設定
+			enemy_->knockbackSpeed_ = enemy_->comboAttackParameters_.attackParameters[comboIndex_].knockbackSpeed;
+
+			//ダメージを設定
+			enemy_->damage_ = enemy_->comboAttackParameters_.attackParameters[comboIndex_].damage;
 		}
 		break;
 	case kAttacking:
 
-		//攻撃フラグを立てる
-		isAttack_ = true;
+		//前のフレームと状態が変わっていた場合
+		if (preAttackState_ != currentAttackState_)
+		{
+			//攻撃フラグを立てる
+			isAttack_ = true;
+
+			//音声を鳴らす
+			switch (comboIndex_)
+			{
+			case 0:
+				enemy_->audio_->PlayAudio(enemy_->comboAudioHandle1_, false, 0.4f);
+				break;
+			case 1:
+				enemy_->audio_->PlayAudio(enemy_->comboAudioHandle2_, false, 0.4f);
+				break;
+			}
+		}
 
 		//移動させる
 		enemyTransformComponent->worldTransform_.translation_ += enemy_->velocity * GameTimer::GetDeltaTime() * enemy_->timeScale_;
 		break;
 	case kRecovery:
 
-		//フラグの初期化
-		isWarning_ = false;
-		isAttack_ = false;
-
-		//状態が切り替わったとき
+		//前のフレームと状態が変わっていた場合
 		if (preAttackState_ != currentAttackState_)
 		{
 			//現在のコンボが最後のコンボではない場合
@@ -110,6 +128,15 @@ void EnemyStateComboAttack::Update()
 			{
 				comboIndex_++;
 			}
+			//最後のコンボの時に音を鳴らす
+			else
+			{
+				enemy_->audio_->PlayAudio(enemy_->comboAudioHandle3_, false, 0.6f);
+			}
+
+			//フラグの初期化
+			isWarning_ = false;
+			isAttack_ = false;
 		}
 		break;
 	}
@@ -119,6 +146,12 @@ void EnemyStateComboAttack::Update()
 	{
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
 		enemy_->ChangeState(new EnemyStateRoot());
+	}
+	//HPが0を下回ったら
+	else if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
 	}
 }
 

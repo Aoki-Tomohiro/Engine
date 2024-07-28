@@ -5,6 +5,7 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 #include "Application/Src/Object/Laser/Laser.h"
 
 void EnemyStateLaserAttack::Initialize()
@@ -19,18 +20,26 @@ void EnemyStateLaserAttack::Initialize()
 	WorldTransform rightHandWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand");
 	Vector3 laserPosition = (Vector3{ leftHandWorldTransform.matWorld_.m[3][0],leftHandWorldTransform.matWorld_.m[3][1] ,leftHandWorldTransform.matWorld_.m[3][2] } +
 		Vector3{ rightHandWorldTransform.matWorld_.m[3][0],rightHandWorldTransform.matWorld_.m[3][1] ,rightHandWorldTransform.matWorld_.m[3][2] }) / 2.0f;
-	Vector3 offset = { 0.0f,0.0f,enemy_->laserAttackParameters_.laserRange };
+	Vector3 offset = { 0.0f,0.0f,enemy_->laserAttackParameters_.laserRange + 6.0f };
 	laserPosition += Mathf::RotateVector(offset, enemy_->destinationQuaternion_);
 	//警告用のオブジェクトの設定
 	Warning::BoxWarningObjectSettings warningObjectSettings{};
 	warningObjectSettings.warningPrimitive = Warning::kBox;
 	warningObjectSettings.position = { laserPosition.x,0.0f,laserPosition.z };
 	warningObjectSettings.quaternion = enemy_->destinationQuaternion_;
-	warningObjectSettings.scale = { 5.0f,0.01f,enemy_->laserAttackParameters_.laserRange };
+	warningObjectSettings.scale = { 2.0f,0.01f,enemy_->laserAttackParameters_.laserRange };
 	warningObjectSettings.colliderCenter = { 0.0f,laserPosition.y,0.0f };
-	warningObjectSettings.colliderSize = { 5.0f,5.0f,enemy_->laserAttackParameters_.laserRange };
+	warningObjectSettings.colliderSize = { 2.0f,2.0f,enemy_->laserAttackParameters_.laserRange };
 	//警告用のオブジェクトを作成
 	warning_ = enemy_->CreateBoxWarningObject(warningObjectSettings);
+
+	//ノックバック速度を設定
+	enemy_->knockbackSpeed_ = enemy_->laserAttackParameters_.attackParameters.knockbackSpeed;
+	//ダメージを設定
+	enemy_->damage_ = enemy_->laserAttackParameters_.attackParameters.damage;
+
+	//音声を鳴らす
+	enemy_->audio_->PlayAudio(enemy_->chargeAudioHandle_, false, 0.2f);
 }
 
 void EnemyStateLaserAttack::Update()
@@ -84,19 +93,20 @@ void EnemyStateLaserAttack::Update()
 			//パーティクルを出す
 			enemy_->CreateWarningParticle();
 		}
-
-		//攻撃警告のフラグを立てる
-		isWarning_ = true;
 		break;
 	case kAttacking:
 		//状態が切り替わったとき
 		if (preAttackState_ != currentAttackState_)
 		{
+			//音声を鳴らす
+			enemy_->audio_->PlayAudio(enemy_->laserAudioHandle_, false, 0.4f);
+
 			//レーザーを生成する
 			Laser* laser = GameObjectManager::GetInstance()->CreateGameObject<Laser>();
-			laser->SetTargetScale({ 5.0f,5.0f,enemy_->laserAttackParameters_.laserRange });
+			laser->SetTargetScale({ 2.0f,2.0f,enemy_->laserAttackParameters_.laserRange });
 			laser->SetLifeTime(enemy_->laserAttackParameters_.attackParameters.attackDuration - enemy_->laserAttackParameters_.attackParameters.chargeDuration);
 			laser->SetEasingSpeed(enemy_->laserAttackParameters_.easingSpeed);
+			laser->SetDamage(enemy_->laserAttackParameters_.damage);
 
 			//Transformを追加
 			TransformComponent* transformComponent = laser->AddComponent<TransformComponent>();
@@ -124,12 +134,12 @@ void EnemyStateLaserAttack::Update()
 			collider->SetTransformComponent(transformComponent);
 			collider->SetCollisionAttribute(CollisionAttributeManager::GetInstance()->GetAttribute("Laser"));
 			collider->SetCollisionMask(CollisionAttributeManager::GetInstance()->GetMask("Laser"));
+
+			//フラグの初期化
+			isWarning_ = false;
 		}
 		break;
 	case kRecovery:
-		//フラグの初期化
-		isWarning_ = false;
-
 		//状態が切り替わったとき
 		if (preAttackState_ != currentAttackState_)
 		{
@@ -143,6 +153,12 @@ void EnemyStateLaserAttack::Update()
 	{
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
 		enemy_->ChangeState(new EnemyStateRoot());
+	}
+	//HPが0になったら
+	else if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
 	}
 }
 

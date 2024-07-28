@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateJustDodgeAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include <numbers>
 
@@ -59,10 +60,20 @@ void PlayerStateJustDodge::Initialize()
 	//敵をゆっくりにする
 	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
 	enemy->SetTimeScale(0.01f);
+
+	//音声を鳴らす
+	player_->audio_->PlayAudio(player_->justDodgeAudioHandle_, false, 0.4f);
 }
 
 void PlayerStateJustDodge::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//移動処理
 	justDodgeTimer_ += GameTimer::GetDeltaTime();
 

@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 
 void EnemyStateJumpAttack::Initialize()
 {
@@ -32,18 +33,24 @@ void EnemyStateJumpAttack::Initialize()
 		//追尾フラグを設定
 		isTracking_ = true;
 
-		//開始座標を設定
-		startPosition_ = enemy_->GetComponent<TransformComponent>()->GetWorldPosition();
-
-		//目標座標を設定
-		targetPosition_ = playerTransformComponent->GetWorldPosition();
-
 		//回転させる
 		sub = Mathf::Normalize(sub);
 		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, sub));
 		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, sub);
 		enemy_->destinationQuaternion_ = Mathf::Normalize(Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot)));
+
+		//開始座標を設定
+		startPosition_ = enemy_->GetComponent<TransformComponent>()->GetWorldPosition();
+
+		//目標座標を設定
+		targetPosition_ = playerTransformComponent->GetWorldPosition() + Mathf::RotateVector({ 0.0f,0.0f,-8.0f }, enemy_->destinationQuaternion_);
+		targetPosition_.y = 0.0f;
 	}
+
+	//ノックバック速度を設定
+	enemy_->knockbackSpeed_ = enemy_->jumpAttackParameters_.attackParameters.knockbackSpeed;
+	//ダメージを設定
+	enemy_->damage_ = enemy_->jumpAttackParameters_.attackParameters.damage;
 }
 
 void EnemyStateJumpAttack::Update()
@@ -104,19 +111,30 @@ void EnemyStateJumpAttack::Update()
 		if (preTackleState_ != currentTackleState_)
 		{
 			enemy_->CreateWarningParticle();
-		}
 
-		//攻撃警告のフラグを立てる
-		isWarning_ = true;
+			//攻撃警告のフラグを立てる
+			isWarning_ = true;
+		}
 		break;
 	case kAttacking:
-		//攻撃フラグを立てる
-		isAttack_ = true;
+		//前のフレームがチャージ状態の場合パーティクルを出す
+		if (preTackleState_ != currentTackleState_)
+		{
+			//攻撃フラグを立てる
+			isAttack_ = true;
+		}
 		break;
 	case kRecovery:
-		//フラグの初期化
-		isWarning_ = false;
-		isAttack_ = false;
+		//前のフレームがチャージ状態の場合パーティクルを出す
+		if (preTackleState_ != currentTackleState_)
+		{
+			//音声を鳴らす
+			enemy_->audio_->PlayAudio(enemy_->jumpAttackAudioHandle_, false, 0.6f);
+
+			//フラグの初期化
+			isWarning_ = false;
+			isAttack_ = false;
+		}
 		break;
 	}
 
@@ -142,6 +160,12 @@ void EnemyStateJumpAttack::Update()
 
 		//通常状態に遷移
 		enemy_->ChangeState(new EnemyStateRoot());
+	}
+	//HPが0になったら
+	else if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
 	}
 }
 

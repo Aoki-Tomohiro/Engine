@@ -4,6 +4,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
@@ -42,10 +43,24 @@ void PlayerStateJustDodgeAttack::Initialize()
 		targetPosition.y = 0.0f;
 		justDodgeAttackWork_.targetPosition = targetPosition + direction * player_->justDodgeAttackParameters_.targetDistance;
 	}
+
+	//ダメージを設定
+	player_->damage_ = player_->justDodgeAttackParameters_.damage;
+
+	//武器にジャスト回避の攻撃のフラグを設定
+	Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+	weapon->SetIsJustDodgeAttack(true);
 }
 
 void PlayerStateJustDodgeAttack::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//移動が終了していない場合
 	if (!justDodgeAttackWork_.isMovementFinished)
 	{
@@ -107,6 +122,7 @@ void PlayerStateJustDodgeAttack::Update()
 
 			//武器の攻撃判定をなくす
 			weapon->SetIsAttack(false);
+			weapon->SetIsJustDodgeAttack(false);
 
 			//敵の速度をもとに戻す
 			Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();

@@ -1,10 +1,14 @@
 #include "PlayerStateJump.h"
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Utilities/GameTimer.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
 #include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -34,6 +38,13 @@ void PlayerStateJump::Initialize()
 
 void PlayerStateJump::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//TransformComponentを取得
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
 
@@ -80,6 +91,31 @@ void PlayerStateJump::Draw(const Camera& camera)
 
 void PlayerStateJump::OnCollision(GameObject* other)
 {
+	//パリィ状態でなければ
+	if (!player_->isParrying_)
+	{
+		//衝突相手が敵だった場合
+		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
+		{
+			if (enemy->GetIsAttack())
+			{
+				//速度の初期化
+				player_->velocity.y = 0.0f;
+				player_->hp_ -= enemy->GetDamage();
+				player_->isDamaged_ = true;
+				player_->ChangeState(new PlayerStateKnockback());
+			}
+		}
+		//衝突相手がレーザーだった場合
+		else if (Laser* laser = dynamic_cast<Laser*>(other))
+		{
+			//速度の初期化
+			player_->velocity.y = 0.0f;
+			player_->hp_ -= laser->GetDamage();
+			player_->isDamaged_ = true;
+			player_->ChangeState(new PlayerStateKnockback());
+		}
+	}
 }
 
 void PlayerStateJump::OnCollisionEnter(GameObject* other)

@@ -10,6 +10,7 @@ public:
 		kTackle,
 		kJumpAttack,
 		kComboAttack,
+		kLaserAttack,
 		kMaxCloseRangeActions
 	};
 
@@ -17,7 +18,6 @@ public:
 	enum LongRangeAction
 	{
 		kDash,
-		kMagicAttack,
 		kMaxLongRangeActions
 	};
 

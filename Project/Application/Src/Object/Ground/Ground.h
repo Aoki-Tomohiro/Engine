@@ -20,6 +20,10 @@ public:
 	void OnCollisionExit(GameObject* gameObject) override;
 
 private:
-	Vector3 specularColor_ = { 0.588f,0.588f,0.588f };
+	//色
+	Vector4 color_ = { 0.118f,0.118f,0.118f,1.0f };
+
+	//鏡面反射の色
+	Vector3 specularColor_ = { 0.0f,0.0f,0.0f };
 };
 

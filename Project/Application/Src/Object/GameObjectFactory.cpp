@@ -32,6 +32,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		MagicProjectile* magicProjectile = new MagicProjectile;
 		return magicProjectile;
 	}
+	else if (objectName.find("BackGround") != std::string::npos)
+	{
+ 		BackgroundObject* backGroundObject = new BackgroundObject();
+		return backGroundObject;
+	}
 
 	return nullptr;
 }

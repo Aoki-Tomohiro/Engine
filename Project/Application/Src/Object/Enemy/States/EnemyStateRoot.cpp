@@ -10,6 +10,7 @@
 #include "Application/Src/Object/Enemy/States/EnemyStateDash.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateJumpAttack.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateComboAttack.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 #include "Application/Src/Object/Player/Player.h"
 
 void EnemyStateRoot::Initialize()
@@ -76,6 +77,14 @@ void EnemyStateRoot::Update()
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, sub);
 	enemy_->destinationQuaternion_ = Mathf::Normalize(Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot)));
 
+	//HPが0になったら
+	if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
+		return;
+	}
+
 	//アクションタイマーを進める
 	actionTimer_ += GameTimer::GetDeltaTime() * enemy_->timeScale_;
 
@@ -97,6 +106,9 @@ void EnemyStateRoot::Update()
 			case kComboAttack:
 				enemy_->ChangeState(new EnemyStateComboAttack());
 				break;
+			case kLaserAttack:
+				enemy_->ChangeState(new EnemyStateLaserAttack());
+				break;
 			}
 		}
 		else
@@ -106,9 +118,6 @@ void EnemyStateRoot::Update()
 			{
 			case kDash:
 				enemy_->ChangeState(new EnemyStateDash());
-				break;
-			case kMagicAttack:
-				enemy_->ChangeState(new EnemyStateLaserAttack());
 				break;
 			}
 		}

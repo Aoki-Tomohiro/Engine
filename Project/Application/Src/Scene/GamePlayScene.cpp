@@ -90,6 +90,11 @@ void GamePlayScene::Initialize()
 	TextureManager::Load("GameClear.png");
 	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
 
+	//音声データの読み込みと再生
+	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
+	parryAudioHandle_ = audio_->LoadAudioFile("Parry.mp3");
+	audio_->PlayAudio(audioHandle_, true, 0.2f);
+
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "GameScene";
@@ -152,6 +157,14 @@ void GamePlayScene::Update()
 			collisionManager_->SetColliderList(collider);
 		}
 	}
+	std::vector<Laser*> lasers = gameObjectManager_->GetGameObjects<Laser>();
+	for (Laser* laser : lasers)
+	{
+		if (Collider* collider = laser->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
 	collisionManager_->CheckAllCollisions();
 
 	//CameraControllerの更新
@@ -167,19 +180,10 @@ void GamePlayScene::Update()
 	//グローバル変数の適用
 	ApplyGlobalVariables();
 
-	////HSV
-	//PostEffects* postEffects = PostEffects::GetInstance();
-	//postEffects->GetHSV()->SetHue(hue_);
-	//postEffects->GetHSV()->SetSaturation(saturation_);
-	//postEffects->GetHSV()->SetValue(value_);
-
 	//ImGui
 	ImGui::Begin("GamePlayScene");
 	ImGui::Text("K : GameClearScene");
 	ImGui::Text("L : GameOverScene");
-	ImGui::DragFloat("Hue", &hue_, 0.02f, -0.5f, 0.5f);
-	ImGui::DragFloat("Saturation", &saturation_, 0.02f, -0.5f, 0.5f);
-	ImGui::DragFloat("Value", &value_, 0.02f, -0.5f, 0.5f);
 	ImGui::End();
 }
 
@@ -248,45 +252,46 @@ void GamePlayScene::DrawUI()
 
 void GamePlayScene::HandleTransition()
 {
-	////FadeInしていないとき
-	//if (transition_->GetFadeState() != transition_->FadeState::In)
-	//{
-	//	Player* player = gameObjectManager_->GetGameObject<Player>();
-	//	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	//	//Kキーを押したらGameClearSceneに遷移
-	//	if (input_->IsPushKeyEnter(DIK_K) || enemy->GetHP() <= 0.0f)
-	//	{
-	//		isGameClear_ = true;
-	//		player->SetIsInTitleScene(true);
-	//		enemy->SetIsInTitleScene(true);
-	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-	//		modelComponent->SetAnimationName("Idle");
-	//	}
-	//	//Lキーを押したらGameOverSceneに遷移
-	//	else if (input_->IsPushKeyEnter(DIK_L) || player->GetHP() <= 0.0f)
-	//	{
-	//		isGameOver_ = true;
-	//		player->SetIsInTitleScene(true);
-	//		enemy->SetIsInTitleScene(true);
-	//		ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-	//		modelComponent->SetAnimationName("Idle");
-	//	}
-	//}
+	//FadeInしていないとき
+	if (transition_->GetFadeState() != transition_->FadeState::In)
+	{
+		Player* player = gameObjectManager_->GetGameObject<Player>();
+		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
+		//Kキーを押したらGameClearSceneに遷移
+		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetIsDead())
+		{
+			isGameClear_ = true;
+			player->SetIsInTitleScene(true);
+			enemy->SetIsInTitleScene(true);
+			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+			modelComponent->SetAnimationName("Idle");
+		}
+		//Lキーを押したらGameOverSceneに遷移
+		else if (input_->IsPushKeyEnter(DIK_L) || player->GetIsDead())
+		{
+			isGameOver_ = true;
+			player->SetIsInTitleScene(true);
+			enemy->SetIsInTitleScene(true);
+			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
+			modelComponent->SetAnimationName("Idle");
+		}
+	}
 
-	////ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
-	//if (isGameClear_ || isGameOver_)
-	//{
-	//	if (input_->IsPressButton(XINPUT_GAMEPAD_A))
-	//	{
-	//		transition_->SetFadeState(Transition::FadeState::In);
-	//	}
-	//}
+	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
+	if (isGameClear_ || isGameOver_)
+	{
+		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
+		{
+			transition_->SetFadeState(Transition::FadeState::In);
+		}
+	}
 
-	////シーン遷移
-	//if (transition_->GetFadeInComplete())
-	//{
-	//	sceneManager_->ChangeScene("GameTitleScene");
-	//}
+	//シーン遷移
+	if (transition_->GetFadeInComplete())
+	{
+		audio_->StopAudio(audioHandle_);
+		sceneManager_->ChangeScene("GameTitleScene");
+	}
 }
 
 void GamePlayScene::UpdateHitStop()
@@ -325,6 +330,9 @@ void GamePlayScene::UpdateParry()
 	//プレイヤーがパリィに成功していた場合
 	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsParrySuccessful())
 	{
+		//音声を再生する
+		audio_->PlayAudio(parryAudioHandle_, false, 0.6f);
+
 		//パリィのフラグを立てる
 		parrySettings_.isActive = true;
 
@@ -369,7 +377,6 @@ void GamePlayScene::UpdateParry()
 			//フラグのリセット
 			parrySettings_.isActive = false;
 
-
 			//敵の行動をもとに戻す
 			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
 		}
@@ -395,6 +402,14 @@ void GamePlayScene::UpdateParry()
 			parrySettings_.grayTimer = 0.0f;
 		}
 	}
+
+	//プレイヤーにパリィのフラグを設定
+	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
+	player->SetIsParrying(parrySettings_.isActive);
+
+	//敵にパリィのフラグを設定
+	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
+	enemy->SetIsParrying(parrySettings_.isActive);
 }
 
 void GamePlayScene::ApplyGlobalVariables()

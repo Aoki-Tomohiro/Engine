@@ -52,8 +52,8 @@ private:
 
 	Matrix4x4 projectionInverse_{};
 
-	float scale_ = 0.5f;
+	float scale_ = 2.0f;
 
-	float attenuationRate_ = 2.0f;
+	float attenuationRate_ = 0.0006f;
 };
 

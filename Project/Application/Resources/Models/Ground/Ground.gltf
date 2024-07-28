@@ -15,13 +15,13 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Cube.001"
+            "name" : "\u5186\u9310"
         }
     ],
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "Material.001",
+            "name" : "Material",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0
@@ -33,7 +33,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Cube.001",
+            "name" : "\u5186\u9310",
             "primitives" : [
                 {
                     "attributes" : {
@@ -56,69 +56,69 @@
     "images" : [
         {
             "mimeType" : "image/png",
-            "name" : "Ground",
-            "uri" : "Ground.png"
+            "name" : "pattern_57",
+            "uri" : "pattern_57.png"
         }
     ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 24,
+            "count" : 128,
             "max" : [
-                80,
-                2.384185791015625e-07,
-                80.00000762939453
+                1,
+                5.245366310191457e-07,
+                1
             ],
             "min" : [
-                -80,
-                -4,
-                -80.00000762939453
+                -1,
+                -2,
+                -1
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 24,
+            "count" : 128,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 24,
+            "count" : 128,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 36,
+            "count" : 186,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 288,
+            "byteLength" : 1536,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 288,
-            "byteOffset" : 288,
+            "byteLength" : 1536,
+            "byteOffset" : 1536,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 192,
-            "byteOffset" : 576,
+            "byteLength" : 1024,
+            "byteOffset" : 3072,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 72,
-            "byteOffset" : 768,
+            "byteLength" : 372,
+            "byteOffset" : 4096,
             "target" : 34963
         }
     ],
@@ -130,7 +130,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 840,
+            "byteLength" : 4468,
             "uri" : "Ground.bin"
         }
     ]

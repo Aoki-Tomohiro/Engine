@@ -8,6 +8,10 @@
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateTackle.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateJumpAttack.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateComboAttack.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateLaserAttack.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 
 void EnemyStateDash::Initialize()
 {
@@ -72,7 +76,22 @@ void EnemyStateDash::Update()
 		enemy_->destinationQuaternion_ = Mathf::Normalize(Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot)));
 
 		//攻撃状態に遷移
-		enemy_->ChangeState(new EnemyStateTackle());
+		int nextAction = RandomGenerator::GetRandomInt(0, EnemyStateRoot::kMaxCloseRangeActions);
+		switch (nextAction)
+		{
+		case EnemyStateRoot::kTackle:
+			enemy_->ChangeState(new EnemyStateTackle());
+			break;
+		case EnemyStateRoot::kJumpAttack:
+			enemy_->ChangeState(new EnemyStateJumpAttack());
+			break;
+		case EnemyStateRoot::kComboAttack:
+			enemy_->ChangeState(new EnemyStateComboAttack());
+			break;
+		case EnemyStateRoot::kLaserAttack:
+			enemy_->ChangeState(new EnemyStateLaserAttack());
+			break;
+		}
 	}
 	//アニメーションの再生が終了していたら
 	else if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
@@ -88,6 +107,12 @@ void EnemyStateDash::Update()
 
 		//通常状態に遷移
 		enemy_->ChangeState(new EnemyStateRoot());
+	}
+	//HPが0になったら
+	else if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
 	}
 }
 

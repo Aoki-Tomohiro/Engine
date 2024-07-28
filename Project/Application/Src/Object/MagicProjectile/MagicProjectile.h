@@ -39,6 +39,10 @@ public:
 
 	const bool GetIsHit() const { return isHit_; };
 
+	void SetDamage(const float damage) { damage_ = damage; };
+
+	const float GetDamage() const { return damage_; };
+
 private:
 	void DeleteMagicProjectile();
 
@@ -57,5 +61,8 @@ private:
 
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;
+
+	//ダメージ
+	float damage_ = 1.0f;
 };
 

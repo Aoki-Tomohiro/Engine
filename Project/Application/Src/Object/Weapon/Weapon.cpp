@@ -8,8 +8,15 @@ void Weapon::Initialize()
 	//GameObjectの初期化
 	GameObject::Initialize();
 
+	//Audioのインスタンスを取得
+	audio_ = Audio::GetInstance();
+
 	//パーティクルシステムの作成
 	particleSystem_ = ParticleManager::Create("Weapon");
+
+	//音声データの読み込み
+	attackAudioHandle_ = audio_->LoadAudioFile("Attack.mp3");
+	justDodgeAttackAudioHandle_ = audio_->LoadAudioFile("JustDodgeAttack.mp3");
 }
 
 void Weapon::Update()
@@ -68,7 +75,7 @@ void Weapon::OnCollision(GameObject* gameObject)
 	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
 	{
 		//パリィを成功させる
-		if (enemy->GetIsAttack())
+		if (enemy->GetIsWarning())
 		{
 			if (isParryable_)
 			{
@@ -93,6 +100,19 @@ void Weapon::OnCollision(GameObject* gameObject)
 		newEmitter->SetVelocityMin({ -0.6f,-0.6f,-0.6f });
 		newEmitter->SetVelocityMax({ 0.6f,0.6f,0.6f });
 		particleSystem_->AddParticleEmitter(newEmitter);
+
+		//音声を再生する
+		if (!isParrySuccessful_)
+		{
+			if (isJustDodgeAttack_)
+			{
+				audio_->PlayAudio(justDodgeAttackAudioHandle_, false, 0.6f);
+			}
+			else
+			{
+				audio_->PlayAudio(attackAudioHandle_, false, 0.4f);
+			}
+		}
 	}
 }
 

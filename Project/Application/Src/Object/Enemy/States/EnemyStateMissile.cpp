@@ -6,6 +6,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 
 void EnemyStateMissile::Initialize()
 {
@@ -81,6 +82,12 @@ void EnemyStateMissile::Update()
 	{
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
 		enemy_->ChangeState(new EnemyStateRoot());
+	}
+	//HPが0になったら
+	else if (enemy_->hp_ <= 0.0f)
+	{
+		//死亡状態にする
+		enemy_->ChangeState(new EnemyStateDead());
 	}
 }
 

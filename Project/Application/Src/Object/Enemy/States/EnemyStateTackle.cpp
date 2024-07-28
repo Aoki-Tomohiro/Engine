@@ -2,6 +2,7 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 #include <algorithm>
 
 void EnemyStateTackle::Initialize()
@@ -30,6 +31,11 @@ void EnemyStateTackle::Initialize()
     //目標座標を設定
     Vector3 offset = { 0.0f,0.0f,enemy_->tackleParameters_.targetDistance };
     targetPosition_ = startPosition_ + Mathf::RotateVector(offset, enemy_->destinationQuaternion_);
+
+    //ノックバック速度を設定
+    enemy_->knockbackSpeed_ = enemy_->tackleParameters_.attackParameters.knockbackSpeed;
+    //ダメージを設定
+    enemy_->damage_ = enemy_->tackleParameters_.attackParameters.damage;
 }
 
 void EnemyStateTackle::Update()
@@ -81,16 +87,23 @@ void EnemyStateTackle::Update()
         if (preTackleState_ != currentTackleState_)
         {
             enemy_->CreateWarningParticle();
-        }
 
-        //攻撃警告のフラグを立てる
-        isWarning_ = true;
+            //攻撃警告のフラグを立てる
+            isWarning_ = true;
+        }
 
         break;
     case kAttacking:
 
-        //攻撃フラグを立てる
-        isAttack_ = true;
+        //前のフレームがチャージ状態の場合パーティクルを出す
+        if (preTackleState_ != currentTackleState_)
+        {
+            //攻撃フラグを立てる
+            isAttack_ = true;
+
+            //音声を鳴らす
+            enemy_->audio_->PlayAudio(enemy_->tackleAudioHandle_, false, 0.6f);
+        }
 
         //イージングさせる
         transformComponent->worldTransform_.translation_ = startPosition_ + (targetPosition_ - startPosition_) * Mathf::EaseOutExpo(1.0f * (attackTime / attackDuration));
@@ -102,11 +115,11 @@ void EnemyStateTackle::Update()
         if (preTackleState_ != currentTackleState_)
         {
             warning_->SetIsDestroy(true);
-        }
 
-        //フラグの初期化
-        isWarning_ = false;
-        isAttack_ = false;
+            //フラグの初期化
+            isWarning_ = false;
+            isAttack_ = false;
+        }
 
         break;
     }
@@ -116,6 +129,12 @@ void EnemyStateTackle::Update()
     {
         modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
         enemy_->ChangeState(new EnemyStateRoot());
+    }
+    //HPが0を下回ったら
+    else if (enemy_->hp_ <= 0.0f)
+    {
+        //死亡状態にする
+        enemy_->ChangeState(new EnemyStateDead());
     }
 }
 

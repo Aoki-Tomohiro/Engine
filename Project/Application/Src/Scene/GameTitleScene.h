@@ -59,5 +59,8 @@ private:
 	//タイトルのスプライト
 	std::unique_ptr<Sprite> titleSprite_ = nullptr;
 	std::unique_ptr<Sprite> pressASprite_ = nullptr;
+
+	//オーディオハンドル
+	uint32_t audioHandle_ = 0;
 };
 

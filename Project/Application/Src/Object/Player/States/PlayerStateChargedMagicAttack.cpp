@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
 #include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 
 void PlayerStateChargedMagicAttack::Initialize()
 {
@@ -41,6 +42,13 @@ void PlayerStateChargedMagicAttack::Initialize()
 
 void PlayerStateChargedMagicAttack::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//アニメーションが終了したら
 	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
 	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();

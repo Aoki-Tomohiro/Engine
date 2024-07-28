@@ -3,9 +3,13 @@
 #include "Engine/Components/Component/ModelComponent.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Utilities/GameTimer.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateDash::Initialize()
@@ -59,6 +63,13 @@ void PlayerStateDash::Initialize()
 
 void PlayerStateDash::Update()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//チャージが終わっていない場合
 	if (!dashWork_.isChargingFinished)
 	{
@@ -68,6 +79,9 @@ void PlayerStateDash::Update()
 		//チャージタイマーが一定値を超えた場合
 		if (dashWork_.chargeTimer > player_->dashParameters_.chargeDuration)
 		{
+			//音声を鳴らす
+			player_->audio_->PlayAudio(player_->dashAudioHandle_, false, 0.4f);
+
 			//チャージ終了フラグを立てる
 			dashWork_.isChargingFinished = true;
 
@@ -181,6 +195,29 @@ void PlayerStateDash::Draw(const Camera& camera)
 
 void PlayerStateDash::OnCollision(GameObject* other)
 {
+	//パリィ状態でなければ
+	if (!player_->isParrying_)
+	{
+		//衝突相手が敵だった場合
+		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
+		{
+			if (enemy->GetIsAttack())
+			{
+				player_->isDashAttack_ = false;
+				player_->hp_ -= enemy->GetDamage();
+				player_->isDamaged_ = true;
+				player_->ChangeState(new PlayerStateKnockback());
+			}
+		}
+		//衝突相手がレーザーだった場合
+		else if (Laser* laser = dynamic_cast<Laser*>(other))
+		{
+			player_->isDashAttack_ = false;
+			player_->hp_ -= laser->GetDamage();
+			player_->isDamaged_ = true;
+			player_->ChangeState(new PlayerStateKnockback());
+		}
+	}
 }
 
 void PlayerStateDash::OnCollisionEnter(GameObject* other)

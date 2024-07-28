@@ -26,7 +26,7 @@ void MagicProjectile::Initialize()
 		.SetEmitterName("MagicProjectileMove" + std::to_string(id_))
 		.SetFrequency(0.01f)
 		.SetLifeTime(0.3f, 0.6f)
-		.SetRadius(0.1f)
+		.SetRadius(0.4f)
 		.SetScale({ 0.2f,0.2f,0.2f }, { 0.2f,0.2f,0.2f })
 		.SetTranslation({ 0.0f,0.0f,0.0f })
 		.SetVelocity({ -1.0f,-1.0f,-1.0f }, { 1.0f,1.0f,-1.0f })
@@ -83,19 +83,12 @@ void MagicProjectile::Update()
 	}
 
 	//フィールド外に出たら破壊フラグを立てる
-	const float kFieldMinX = -80;
-	const float kFieldMaxX = 80;
-	const float kFieldMinZ = -80;
-	const float kFieldMaxZ = 80;
-	if (transformComponent->worldTransform_.translation_.x < kFieldMinX || transformComponent->worldTransform_.translation_.x > kFieldMaxX)
+	const float moveLimit = 300.0f;
+	float distance = Mathf::Length(transformComponent->worldTransform_.translation_);
+	if (distance > moveLimit)
 	{
 		DeleteMagicProjectile();
 	}
-	else if (transformComponent->worldTransform_.translation_.z < kFieldMinZ || transformComponent->worldTransform_.translation_.z > kFieldMaxZ)
-	{
-		DeleteMagicProjectile();
-	}
-
 	//基底クラスの更新
 	GameObject::Update();
 }

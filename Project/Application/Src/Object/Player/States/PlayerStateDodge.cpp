@@ -3,6 +3,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateDead.h"
 
 const std::array<PlayerStateDodge::DodgeDurations, PlayerStateDodge::DodgeDirection::NumDirections> PlayerStateDodge::kDodgeDurations_ =
 {
@@ -16,6 +17,13 @@ const std::array<PlayerStateDodge::DodgeDurations, PlayerStateDodge::DodgeDirect
 
 void PlayerStateDodge::Initialize()
 {
+	//死亡状態に遷移
+	if (player_->hp_ <= 0.0f)
+	{
+		player_->ChangeState(new PlayerStateDead());
+		return;
+	}
+
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
