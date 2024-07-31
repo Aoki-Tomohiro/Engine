@@ -36,5 +36,8 @@ private:
 
 	//アクションタイマー
 	float actionTimer_ = 0.0f;
+
+	//現在の選択中のState
+	int currentItem_ = kMaxCloseRangeActions;
 };
 

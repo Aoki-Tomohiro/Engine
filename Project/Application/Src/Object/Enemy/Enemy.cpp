@@ -74,6 +74,15 @@ void Enemy::Update()
 	//タイトルシーンにいる場合は移動処理をスキップ
 	if (!isInTitleScene_)
 	{
+		//ImGui
+		if (isMove_)
+		{
+			ImGui::Begin("Enemy");
+			ImGui::Checkbox("IsDebug", &isDebug_);
+			ImGui::Checkbox("IsAnimationPlaying", &isAnimationStop_);
+			ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f);
+			ImGui::End();
+		}
 		//Stateの更新
 		state_->Update();
 	}
@@ -84,19 +93,13 @@ void Enemy::Update()
 
 	//Colliderを設定
 	AABBCollider* collider = GetComponent<AABBCollider>();
-	collider->SetDebugDrawEnabled(false);
+	collider->SetDebugDrawEnabled(isDebug_);
 
 	//HPの更新
 	UpdateHP();
 
 	//GameObjectの更新
 	GameObject::Update();
-
-	//ImGui
-	ImGui::Begin("Enemy");
-	ImGui::Checkbox("IsDebug", &isDebug_);
-	ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f);
-	ImGui::End();
 }
 
 void Enemy::Draw(const Camera& camera)

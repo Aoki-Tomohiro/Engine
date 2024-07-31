@@ -59,11 +59,38 @@ void EnemyStateJumpAttack::Update()
 	ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
 	if (enemy_->isDebug_)
 	{
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+		//アニメーションを再生するかを決める
+		modelComponent->GetModel()->GetAnimation()->SetIsStop(enemy_->isAnimationStop_);
+		//アニメーションが再生されていなければアニメーションの時間を設定
+		if (enemy_->isAnimationStop_)
+		{
+			//アニメーションが再生されていなければアニメーションの時間を設定
+			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+		}
+		//現在の状態ごとに色を変える
+		switch (currentAttackState_)
+		{
+		case kCharge:
+			modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
+			break;
+		case kWarning:
+			modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+			break;
+		case kAttacking:
+			modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.5f, 0.0f, 1.0f });
+			break;
+		case kRecovery:
+			modelComponent->GetModel()->GetMaterial(0)->SetColor({ 0.0f, 0.0f, 1.0f, 1.0f });
+			break;
+		}
+	}
+	else
+	{
+		modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 
 	//前のフレームの状態を更新
-	preTackleState_ = currentTackleState_;
+	preAttackState_ = currentAttackState_;
 
 	//現在のアニメーションの時間を取得
 	float currentAnimationTime = modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
@@ -71,24 +98,24 @@ void EnemyStateJumpAttack::Update()
 	//現在のアニメーションに時間に応じて状態を変える
 	if (currentAnimationTime <= enemy_->jumpAttackParameters_.attackParameters.chargeDuration)
 	{
-		currentTackleState_ = kCharge;
+		currentAttackState_ = kCharge;
 	}
 	else if (currentAnimationTime <= enemy_->jumpAttackParameters_.attackParameters.warningDuration)
 	{
-		currentTackleState_ = kWarning;
+		currentAttackState_ = kWarning;
 	}
 	else if (currentAnimationTime <= enemy_->jumpAttackParameters_.attackParameters.attackDuration)
 	{
-		currentTackleState_ = kAttacking;
+		currentAttackState_ = kAttacking;
 	}
 	else if (currentAnimationTime >= enemy_->jumpAttackParameters_.attackParameters.attackDuration)
 	{
-		currentTackleState_ = kRecovery;
+		currentAttackState_ = kRecovery;
 	}
 
 	//現在の状態の処理
 	TransformComponent* transformComponent = enemy_->GetComponent<TransformComponent>();
-	switch (currentTackleState_)
+	switch (currentAttackState_)
 	{
 	case kCharge:
 		//追尾フラグが立っている場合
@@ -108,7 +135,7 @@ void EnemyStateJumpAttack::Update()
 		}
 
 		//前のフレームがチャージ状態の場合パーティクルを出す
-		if (preTackleState_ != currentTackleState_)
+		if (preAttackState_ != currentAttackState_)
 		{
 			enemy_->CreateWarningParticle();
 
@@ -118,7 +145,7 @@ void EnemyStateJumpAttack::Update()
 		break;
 	case kAttacking:
 		//前のフレームがチャージ状態の場合パーティクルを出す
-		if (preTackleState_ != currentTackleState_)
+		if (preAttackState_ != currentAttackState_)
 		{
 			//攻撃フラグを立てる
 			isAttack_ = true;
@@ -126,7 +153,7 @@ void EnemyStateJumpAttack::Update()
 		break;
 	case kRecovery:
 		//前のフレームがチャージ状態の場合パーティクルを出す
-		if (preTackleState_ != currentTackleState_)
+		if (preAttackState_ != currentAttackState_)
 		{
 			//音声を鳴らす
 			enemy_->audio_->PlayAudio(enemy_->jumpAttackAudioHandle_, false, 0.6f);
@@ -150,6 +177,7 @@ void EnemyStateJumpAttack::Update()
 	{
 		//アニメーションのループフラグをfalseにする
 		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+		modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
 		//アニメーション後の座標を代入
 		Vector3 postAnimationPosition = enemy_->GetHipWorldPosition();
@@ -164,6 +192,7 @@ void EnemyStateJumpAttack::Update()
 	//HPが0になったら
 	else if (enemy_->hp_ <= 0.0f)
 	{
+		modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 		//死亡状態にする
 		enemy_->ChangeState(new EnemyStateDead());
 	}

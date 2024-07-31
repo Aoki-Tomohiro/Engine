@@ -44,7 +44,33 @@ void EnemyStateTackle::Update()
     ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
     if (enemy_->isDebug_)
     {
-        modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+        //アニメーションを再生するかを決める
+        modelComponent->GetModel()->GetAnimation()->SetIsStop(enemy_->isAnimationStop_);
+        if (enemy_->isAnimationStop_)
+        {
+            //アニメーションが再生されていなければアニメーションの時間を設定
+            modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+        }
+        //現在の状態ごとに色を変える
+        switch (currentTackleState_)
+        {
+        case kCharge:
+            modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
+            break;
+        case kWarning:
+            modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+            break;
+        case kAttacking:
+            modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 0.5f, 0.0f, 1.0f });
+            break;
+        case kRecovery:
+            modelComponent->GetModel()->GetMaterial(0)->SetColor({ 0.0f, 0.0f, 1.0f, 1.0f });
+            break;
+        }
+    }
+    else
+    {
+        modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
     }
 
     //前のフレームの状態を更新
@@ -125,15 +151,17 @@ void EnemyStateTackle::Update()
     }
 
     // アニメーションが終わっていたら通常状態に戻す
-    if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd() && !enemy_->isDebug_)
+    if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
     {
         modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
+        modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
         enemy_->ChangeState(new EnemyStateRoot());
     }
     //HPが0を下回ったら
     else if (enemy_->hp_ <= 0.0f)
     {
         //死亡状態にする
+        modelComponent->GetModel()->GetMaterial(0)->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
         enemy_->ChangeState(new EnemyStateDead());
     }
 }

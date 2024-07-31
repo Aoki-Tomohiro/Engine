@@ -13,7 +13,7 @@
 #include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 #include "Application/Src/Object/Player/Player.h"
 
-int EnemyStateRoot::preAction_ = 0;
+int EnemyStateRoot::preAction_ = kMaxCloseRangeActions;
 
 void EnemyStateRoot::Initialize()
 {
@@ -31,17 +31,48 @@ void EnemyStateRoot::Update()
 {
 	//デバッグのフラグが立っているとき
 	ModelComponent* modelComponent = enemy_->GetComponent<ModelComponent>();
-	if (enemy_->isDebug_)
-	{
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
-		return;
-	}
 
 	//動いている状態でなければ処理を飛ばす
 	if (!enemy_->isMove_)
 	{
 		return;
 	}
+
+	//ImGui
+	ImGui::Begin("Enemy");
+	if (enemy_->isDebug_)
+	{
+		//アニメーションを再生するかを決める
+		modelComponent->GetModel()->GetAnimation()->SetIsStop(enemy_->isAnimationStop_);
+		//アニメーションが再生されていなければアニメーションの時間を設定
+		if (enemy_->isAnimationStop_)
+		{
+			//アニメーションが再生されていなければアニメーションの時間を設定
+			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(enemy_->animationTime_);
+		}
+		const char* items[] = { "TackleAttack", "JumpAttack", "ComboAttack", "LaserAttack", "Root" };
+		if (ImGui::Combo("State", &currentItem_, items, IM_ARRAYSIZE(items)))
+		{
+			switch (currentItem_)
+			{
+			case kTackle:
+				enemy_->ChangeState(new EnemyStateTackle());
+				break;
+			case kJumpAttack:
+				enemy_->ChangeState(new EnemyStateJumpAttack());
+				break;
+			case kComboAttack:
+				enemy_->ChangeState(new EnemyStateComboAttack());
+				break;
+			case kLaserAttack:
+				enemy_->ChangeState(new EnemyStateLaserAttack());
+				break;
+			}
+		}
+		ImGui::End();
+		return;
+	}
+	ImGui::End();
 
 	//プレイヤーのトランスフォームを取得
 	TransformComponent* playerTransformComponent = GameObjectManager::GetInstance()->GetGameObject<Player>()->GetComponent<TransformComponent>();

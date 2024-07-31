@@ -18,10 +18,10 @@ private:
 	Vector3 offset_{};
 
 	//現在の状態
-	AttackState currentTackleState_ = kCharge;
+	AttackState currentAttackState_ = kCharge;
 
 	//前のフレームの状態
-	AttackState preTackleState_ = kCharge;
+	AttackState preAttackState_ = kCharge;
 
 	//開始座標
 	Vector3 startPosition_{};

@@ -236,13 +236,6 @@ void Player::Update()
 	}
 	ImGui::End();
 
-	//デバッグ用の処理
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	if (isDebug_)
-	{
-		modelComponent->SetAnimationName(currentAnimationName_);
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(animationTime_);
-	}
 
 	//Gameobjectの更新
 	GameObject::Update();

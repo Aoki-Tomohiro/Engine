@@ -237,6 +237,9 @@ private:
 	//Debugモードなのか
 	bool isDebug_ = false;
 
+	//アニメーションの再生フラグ
+	bool isAnimationStop_ = false;
+
 	//アニメーションの時間
 	float animationTime_ = 0.0f;
 
