@@ -69,7 +69,7 @@ void GameTitleScene::Initialize()
 
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
-	//audio_->PlayAudio(audioHandle_, true, 0.2f);
+	audio_->PlayAudio(audioHandle_, true, 0.2f);
 }
 
 void GameTitleScene::Finalize()
