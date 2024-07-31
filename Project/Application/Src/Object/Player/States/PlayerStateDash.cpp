@@ -5,12 +5,12 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
 #include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateDead.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateDash::Initialize()
 {
@@ -88,6 +88,10 @@ void PlayerStateDash::Update()
 			//プレイヤーを消す
 			player_->SetIsVisible(false);
 
+			//武器を消す
+			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+			weapon->SetIsVisible(false);
+
 			//パーティクルを出す
 			TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
 			Vector3 minVelocity = { 0.0f,0.0f,-0.4f };
@@ -132,6 +136,10 @@ void PlayerStateDash::Update()
 
 			//プレイヤーを描画させる
 			player_->SetIsVisible(true);
+
+			//武器を描画させる
+			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
+			weapon->SetIsVisible(true);
 
 			//エミッターを削除
 			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))

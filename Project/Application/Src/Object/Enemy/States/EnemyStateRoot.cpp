@@ -13,6 +13,8 @@
 #include "Application/Src/Object/Enemy/States/EnemyStateDead.h"
 #include "Application/Src/Object/Player/Player.h"
 
+int EnemyStateRoot::preAction_ = 0;
+
 void EnemyStateRoot::Initialize()
 {
 	//次の行動の間隔を決める
@@ -94,7 +96,15 @@ void EnemyStateRoot::Update()
 		//プレイヤーとの距離が近距離行動の距離より近かった場合
 		if (distance < enemy_->rootParameters_.closeRangeDistance)
 		{
-			int nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
+			int nextAction = kTackle;
+			while (true)
+			{
+				nextAction = RandomGenerator::GetRandomInt(0, kMaxCloseRangeActions);
+				if (nextAction != preAction_)
+				{
+					break;
+				}
+			}
 			switch (nextAction)
 			{
 			case kTackle:
@@ -110,6 +120,8 @@ void EnemyStateRoot::Update()
 				enemy_->ChangeState(new EnemyStateLaserAttack());
 				break;
 			}
+			//次のアクション状態を保存
+			preAction_ = nextAction;
 		}
 		else
 		{

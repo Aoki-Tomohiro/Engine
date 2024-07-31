@@ -28,6 +28,9 @@ public:
 	void Draw(const Camera& camera) override;
 
 private:
+	//前のアクション状態
+	static int preAction_;
+
 	//現在の次の行動の間隔
 	float currentActionInterval_ = 1.0f;
 

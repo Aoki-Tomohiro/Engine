@@ -93,7 +93,7 @@ void GamePlayScene::Initialize()
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
 	parryAudioHandle_ = audio_->LoadAudioFile("Parry.mp3");
-	audio_->PlayAudio(audioHandle_, true, 0.2f);
+	//audio_->PlayAudio(audioHandle_, true, 0.2f);
 
 	//環境変数の設定
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();

@@ -22,7 +22,7 @@ void PlayerStateJustDodge::Initialize()
 
 	//最初の座標を取得
 	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-	startPosition_ = transformComponent->GetWorldPosition();
+	startPosition_ = transformComponent->worldTransform_.translation_;
 
 	//スティックの入力を取得
 	Vector3 stickValue = {
