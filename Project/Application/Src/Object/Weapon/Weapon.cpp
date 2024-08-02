@@ -13,6 +13,12 @@ void Weapon::Initialize()
 
 	//パーティクルシステムの作成
 	particleSystem_ = ParticleManager::Create("Weapon");
+	AccelerationField* accelerationField = new AccelerationField();
+	accelerationField->Initialize("Weapon", 600.0f);
+	accelerationField->SetAcceleration({ 0.0f,-3.8f,0.0f });
+	accelerationField->SetMin({ -50.0f,-50.0f,-50.0f });
+	accelerationField->SetMax({ 50.0f,50.0f,50.0f });
+	particleSystem_->AddAccelerationField(accelerationField);
 
 	//音声データの読み込み
 	attackAudioHandle_ = audio_->LoadAudioFile("Attack.mp3");
@@ -38,6 +44,12 @@ void Weapon::Update()
 		{ transformComponent->worldTransform_.matWorld_.m[2][0], transformComponent->worldTransform_.matWorld_.m[2][1], transformComponent->worldTransform_.matWorld_.m[2][2] }
 	);
 	collider->SetSize(size_);
+
+	//加速フィールドの更新
+	if (AccelerationField* accelerationField = particleSystem_->GetAccelerationField("Weapon"))
+	{
+		accelerationField->SetTranslate(center);
+	}
 
 	//Gameobjectの更新
 	GameObject::Update();

@@ -115,7 +115,7 @@ private:
 
 	Vector3 specularColor_ = { 1.0f,1.0f,1.0f };
 
-	float environmentCoefficient_ = 0.1f;
+	float environmentCoefficient_ = 0.2f;
 
 	float dissolveThreshold_ = 0.0f;
 

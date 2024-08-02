@@ -450,6 +450,18 @@ void Player::UpdateChargeMagicProjectile()
 				emitter->SetIsDead(true);
 			}
 		}
+
+		//Emitterを削除
+		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Charge"))
+		{
+			emitter->SetIsDead(true);
+		}
+
+		//GravityFieldを削除
+		if (GravityField* gravityField = particleSystem_->GetGravityField("Charge"))
+		{
+			gravityField->SetIsDead(true);
+		}
 	}
 
 	//Yボタンを押しているとき
@@ -458,6 +470,19 @@ void Player::UpdateChargeMagicProjectile()
 		//チャージが終了していない場合
 		if (!chargeMagicAttackWork_.isChargeMagicComplete_)
 		{
+			//プレイヤーのモデル
+			ModelComponent* modelComponent = GetComponent<ModelComponent>();
+
+			//左手のWorldTransformを取得
+			WorldTransform worldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:LeftHand");
+
+			//プレイヤーの左手のワールド座標を取得
+			Vector3 leftHandWorldPosition = {
+				worldTransform.matWorld_.m[3][0],
+				worldTransform.matWorld_.m[3][1],
+				worldTransform.matWorld_.m[3][2],
+			};
+
 			//チャージタイマーを進める
 			chargeMagicAttackWork_.chargeMagicTimer_ += GameTimer::GetDeltaTime();
 
@@ -470,19 +495,69 @@ void Player::UpdateChargeMagicProjectile()
 				//タイマーをリセット
 				chargeMagicAttackWork_.chargeMagicTimer_ = 0.0f;
 
+				//Emitterを削除
+				if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Charge"))
+				{
+					emitter->SetIsDead(true);
+				}
+				//GravityFieldを削除
+				if (GravityField* gravityField = particleSystem_->GetGravityField("Charge"))
+				{
+					gravityField->SetIsDead(true);
+				}
+
 				//左手にパーティクルを出す
 				ParticleEmitter* emitter = EmitterBuilder()
 					.SetEmitterName("ChargeMagicFinished")
-					.SetRadius(0.2f)
+					.SetRadius(0.6f)
 					.SetEmitterLifeTime(100.0f)
 					.SetCount(20)
 					.SetFrequency(0.01f)
 					.SetScale({ 0.1f,0.1f,0.1f }, { 0.14f,0.14f,0.14f })
 					.SetColor({ 0.6f,0.0f,0.0f,1.0f }, { 1.0f,0.0f,0.0f,1.0f })
 					.SetVelocity({ -0.02f,0.02f,-0.02f }, { 0.02f,0.06f,0.02f })
-					.SetLifeTime(0.06f, 0.12f)
+					.SetLifeTime(0.24f, 0.3f)
 					.Build();
 				particleSystem_->AddParticleEmitter(emitter);
+			}
+			else
+			{
+				if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Charge"))
+				{
+					//座標を設定する
+					emitter->SetTranslate(leftHandWorldPosition);
+				}
+				else
+				{
+					//左手にパーティクルを出す
+					ParticleEmitter* newEmitter = EmitterBuilder()
+						.SetEmitterName("Charge")
+						.SetRadius(1.0f)
+						.SetEmitterLifeTime(600.0f)
+						.SetCount(10)
+						.SetFrequency(0.01f)
+						.SetScale({ 0.1f,0.1f,0.1f }, { 0.14f,0.14f,0.14f })
+						.SetColor({ 0.6f,0.0f,0.0f,1.0f }, { 1.0f,0.0f,0.0f,1.0f })
+						.SetVelocity({ -0.0002f,0.0002f,-0.0002f }, { 0.0002f,0.0002f,0.0002f })
+						.SetLifeTime(2.0f, 4.0f)
+						.Build();
+					particleSystem_->AddParticleEmitter(newEmitter);
+				}
+
+				if (GravityField* gravityField = particleSystem_->GetGravityField("Charge"))
+				{
+					gravityField->SetTranslate(leftHandWorldPosition);
+				}
+				else
+				{
+					GravityField* newGravityField = new GravityField();
+					newGravityField->Initialize("Charge", 600.0f);
+					newGravityField->SetStopDistance(0.2f);
+					newGravityField->SetStrength(0.08f);
+					newGravityField->SetMin({ -50.0f,-50.0f,-50.0f });
+					newGravityField->SetMax({ 50.0f,50.0f,50.0f });
+					particleSystem_->AddGravityField(newGravityField);
+				}
 			}
 		}
 	}
