@@ -53,6 +53,7 @@ void Material::Update()
 	materialData->dissolveThreshold = dissolveThreshold_;
 	materialData->edgeWidth = edgeWidth_;
 	materialData->edgeColor = edgeColor_;
+	materialData->receiveShadows = receiveShadows_;
 	materialConstBuffer_->Unmap();
 }
 

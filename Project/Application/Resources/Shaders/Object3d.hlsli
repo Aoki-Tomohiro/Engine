@@ -6,4 +6,5 @@ struct VertexShaderOutput
     float32_t3 worldPosition : POSITION0;
     float32_t3 toEye : POSITION1;
     float32_t3 cameraToPosition : POSITION2;
+    float32_t4 positionSM : POSITION3;
 };

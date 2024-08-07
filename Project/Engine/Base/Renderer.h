@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/3D/Lights/LightManager.h"
+#include "Engine/3D/Camera/CameraManager.h"
 #include "RWStructuredBuffer.h"
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
@@ -51,6 +52,10 @@ public:
 		kMaskTexture,
 		//環境テクスチャ
 		kEnvironmentTexture,
+		//ライトのカメラ
+		kLightCamera,
+		//影テクスチャ
+		kShadowTexture,
 	};
 
 	enum ComputeRootBindings
@@ -85,6 +90,11 @@ public:
 		RWStructuredBuffer* outpuVerticesBuffer,
 		UINT vertexCount);
 
+	void AddShadowObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+		D3D12_INDEX_BUFFER_VIEW indexBufferView,
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
+		UINT indexCount);
+
 	void AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
@@ -99,6 +109,10 @@ public:
 	void PreDraw();
 
 	void PostDraw();
+
+	void PreDrawShadow();
+
+	void PostDrawShadow();
 
 	void PreDrawSprites(BlendMode blendMode);
 
@@ -128,7 +142,6 @@ private:
 		D3D12_GPU_DESCRIPTOR_HANDLE maskTextureSRV;
 		UINT indexCount;
 		DrawPass type;
-		bool hasSkinCluster;
 	};
 
 	struct SkinningObject
@@ -139,6 +152,14 @@ private:
 		D3D12_GPU_VIRTUAL_ADDRESS skinningInformationCBV;
 		RWStructuredBuffer* outpuVerticesBuffer;
 		UINT vertexCount;
+	};
+
+	struct ShadowObject
+	{
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		D3D12_INDEX_BUFFER_VIEW indexBufferView;
+		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV;
+		UINT indexCount;
 	};
 
 	struct Bone
@@ -159,6 +180,8 @@ private:
 
 	void CreateSkyboxPipelineState();
 
+	void CreateShadowPipelineState();
+
 	void Sort();
 
 private:
@@ -168,11 +191,15 @@ private:
 
 	std::vector<SkinningObject> skinningObjects_{};
 
+	std::vector<ShadowObject> shadowObjects_{};
+
 	std::vector<Bone> bones_{};
 
 	std::unique_ptr<ColorBuffer> sceneColorBuffer_ = nullptr;
 
 	std::unique_ptr<DepthBuffer> sceneDepthBuffer_ = nullptr;
+
+	std::unique_ptr<DepthBuffer> shadowDepthBuffer_ = nullptr;
 
 	LightManager* lightManager_ = nullptr;
 
@@ -186,6 +213,8 @@ private:
 
 	RootSignature skyboxRootSignature_{};
 
+	RootSignature shadowRootSignature_{};
+
 	std::vector<GraphicsPSO> modelPipelineStates_{};
 
 	std::vector<ComputePSO> skinningModelPipelineStates_{};
@@ -195,5 +224,9 @@ private:
 	std::vector<GraphicsPSO> spritePipelineStates_{};
 
 	std::vector<GraphicsPSO> skyboxPipelineStates_{};
+
+	std::vector<GraphicsPSO> shadowPipelineStates_{};
+
+	Camera* shadowCamera_ = nullptr;
 };
 

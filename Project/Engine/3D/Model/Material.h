@@ -84,6 +84,10 @@ public:
 
 	void SetEdgeColor(const Vector3& edgeColor) { edgeColor_ = edgeColor; };
 
+	const bool GetReceiveShadows() const { return receiveShadows_; };
+
+	void SetReceiveShadows(const bool receiveShadows) { receiveShadows_ = receiveShadows; };
+
 	const Texture* GetTexture() const { return texture_; };
 
 	void SetTexture(const std::string& textureName);
@@ -122,6 +126,8 @@ private:
 	float edgeWidth_ = 0.03f;
 
 	Vector3 edgeColor_ = { 1.0f,0.4f,0.3f };
+
+	bool receiveShadows_ = true;
 
 	const Texture* texture_ = nullptr;
 

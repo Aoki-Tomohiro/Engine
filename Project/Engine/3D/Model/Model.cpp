@@ -102,6 +102,17 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 		}
 	}
 
+	//影を描画する場合
+	if (castShadows_)
+	{
+		for (uint32_t i = 0; i < meshes_.size(); ++i)
+		{
+			//ShadowObjectの追加
+			renderer_->AddShadowObject(meshes_[i]->GetVertexBufferView(), meshes_[i]->GetIndexBufferView(),
+				worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(meshes_[i]->GetIndicesSize()));
+		}
+	}
+
 	//SkinClusterを持っている場合
 	if (hasSkinCluster_)
 	{

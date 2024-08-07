@@ -15,6 +15,7 @@ struct Camera
 
 ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
 ConstantBuffer<Camera> gCamera : register(b1);
+ConstantBuffer<Camera> gLightCamera : register(b2);
 
 struct VertexShaderInput
 {
@@ -32,6 +33,14 @@ VertexShaderOutput main(VertexShaderInput input)
     output.worldPosition = mul(input.position, gWorldTransform.world).xyz;
     output.toEye = normalize(gCamera.worldPosition - output.worldPosition);
     output.cameraToPosition = normalize(output.worldPosition - gCamera.worldPosition);
+    
+    
+    float32_t4x4 lightWorldViewProjection = mul(gWorldTransform.world, mul(gLightCamera.view, gLightCamera.projection));
+    float32_t4 lightToPosition = mul(input.position, lightWorldViewProjection);
+    lightToPosition.xyz /= lightToPosition.w;
+    output.positionSM.x = (lightToPosition.x * 0.5f) + 0.5f;
+    output.positionSM.y = (-lightToPosition.y * 0.5f) + 0.5f;
+    output.positionSM.z = lightToPosition.z;
 
     return output;
 }

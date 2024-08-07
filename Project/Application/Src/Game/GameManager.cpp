@@ -24,7 +24,7 @@ void GameManager::Initialize()
 
 	//PostEffectsの有効化
 	postEffects_->SetIsEnable(true);
-	//postEffects_->GetFog()->SetIsEnable(true);
+	postEffects_->GetFog()->SetIsEnable(true);
 	postEffects_->GetBloom()->SetIsEnable(true);
 	postEffects_->GetBloom()->SetBlurCount(4);
 	postEffects_->GetBloom()->SetTextureWeight(1.0f);

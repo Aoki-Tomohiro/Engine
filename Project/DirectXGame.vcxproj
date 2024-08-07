@@ -51,6 +51,7 @@
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp" />
     <ClCompile Include="Application\Src\Object\Warning\Warning.cpp" />
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackgroundObject.cpp" />
+    <ClCompile Include="Application\Src\Scene\SampleScene.cpp" />
     <ClCompile Include="Engine\3D\Camera\CameraManager.cpp" />
     <ClCompile Include="Engine\3D\Camera\LockOn.cpp" />
     <ClCompile Include="Application\Src\Object\Player\Player.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h" />
     <ClInclude Include="Application\Src\Object\Warning\Warning.h" />
     <ClInclude Include="Application\Src\Object\BackGroundObject\BackgroundObject.h" />
+    <ClInclude Include="Application\Src\Scene\SampleScene.h" />
     <ClInclude Include="Engine\3D\Camera\CameraManager.h" />
     <ClInclude Include="Engine\3D\Camera\LockOn.h" />
     <ClInclude Include="Application\Src\Object\Player\Player.h" />
@@ -559,6 +561,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Application\Resources\Shaders\RadialBlur.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\ShadowMap.VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>

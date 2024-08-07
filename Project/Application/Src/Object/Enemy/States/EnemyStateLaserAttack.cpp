@@ -153,6 +153,8 @@ void EnemyStateLaserAttack::Update()
 			ModelComponent* modelComponent = laser->AddComponent<ModelComponent>();
 			modelComponent->Initialize("Laser", Opaque);
 			modelComponent->GetModel()->GetMaterial(0)->SetEnableLighting(false);
+			modelComponent->GetModel()->GetMaterial(0)->SetReceiveShadows(false);
+			modelComponent->GetModel()->SetCastShadows(false);
 			modelComponent->SetTransformComponent(transformComponent);
 
 			//Colliderを追加

@@ -1,8 +1,10 @@
 #include "Renderer.h"
 #include "GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"
+#include "Engine/Math/MathFunction.h"
 #include <algorithm>
 #include <cassert>
+#include <numbers>
 
 //実体定義
 Renderer* Renderer::instance_ = nullptr;
@@ -35,8 +37,17 @@ void Renderer::Initialize()
 	sceneDepthBuffer_ = std::make_unique<DepthBuffer>();
 	sceneDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, true);
 
+	//ShadowMap用の震度バッファの作成
+	shadowDepthBuffer_ = std::make_unique<DepthBuffer>();
+	shadowDepthBuffer_->Create(Application::kClientWidth, Application::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT, true);
+
 	//LightManagerを作成
 	lightManager_ = LightManager::GetInstance();
+
+	//ShadowMap用のカメラの作成
+	shadowCamera_ = CameraManager::CreateCamera("ShadowCamera");
+	shadowCamera_->translation_ = { 0.0f,100.0f,0.0f };
+	shadowCamera_->rotation_ = { std::numbers::pi_v<float> / 2.0f ,0.0f, 0.0f };
 
 	//モデル用のPSOの作成
 	CreateModelPipelineState();
@@ -52,6 +63,9 @@ void Renderer::Initialize()
 
 	//Skybox用のPSOの作成
 	CreateSkyboxPipelineState();
+
+	//ShadowMap用のPSOの作成
+	CreateShadowPipelineState();
 }
 
 void Renderer::AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS materialCBV, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
@@ -80,6 +94,16 @@ void Renderer::AddSkinningObject(D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV, D
 	skinningObject.skinningInformationCBV = skinningInformationCBV;
 	skinningObject.vertexCount = vertexCount;
 	skinningObjects_.push_back(skinningObject);
+}
+
+void Renderer::AddShadowObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_INDEX_BUFFER_VIEW indexBufferView, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, UINT indexCount)
+{
+	ShadowObject shadowObject{};
+	shadowObject.vertexBufferView = vertexBufferView;
+	shadowObject.indexBufferView = indexBufferView;
+	shadowObject.worldTransformCBV = worldTransformCBV;
+	shadowObject.indexCount = indexCount;
+	shadowObjects_.push_back(shadowObject);
 }
 
 void Renderer::AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV, D3D12_GPU_VIRTUAL_ADDRESS cameraCBV, UINT vertexCount)
@@ -125,6 +149,29 @@ void Renderer::Render()
 	//SkinningObjectをクリア
 	skinningObjects_.clear();
 
+	//影の描画前処理
+	PreDrawShadow();
+
+	//オブジェクトの描画
+	for (const ShadowObject& shadowObject : shadowObjects_) {
+		//VertexBufferViewを設定
+		commandContext->SetVertexBuffer(shadowObject.vertexBufferView);
+		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		//IndexBufferViewを設定
+		commandContext->SetIndexBuffer(shadowObject.indexBufferView);
+		//WorldTransformを設定
+		commandContext->SetConstantBuffer(0, shadowObject.worldTransformCBV);
+		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
+		commandContext->DrawIndexedInstanced(shadowObject.indexCount, 1);
+	}
+
+	//ShadowObjectをクリア
+	shadowObjects_.clear();
+
+	//影の描画後処理
+	PostDrawShadow();
+
 	//RootSignatureを設定
 	commandContext->SetRootSignature(modelRootSignature_);
 
@@ -136,6 +183,12 @@ void Renderer::Render()
 
 	//環境テクスチャを設定
 	commandContext->SetDescriptorTable(kEnvironmentTexture, lightManager_->GetEnvironmentTexture()->GetSRVHandle());
+
+	//Lightのカメラを設定
+	commandContext->SetConstantBuffer(kLightCamera, shadowCamera_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//影のテクスチャを設定
+	commandContext->SetDescriptorTable(kShadowTexture, shadowDepthBuffer_->GetSRVHandle());
 
 	//オブジェクトの描画
 	for (const SortObject& sortObject : sortObjects_) {
@@ -245,6 +298,64 @@ void Renderer::PostDraw()
 	commandContext->TransitionResource(*sceneDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
+void Renderer::PreDrawShadow()
+{
+	//ShadowMap用のカメラの更新
+	shadowCamera_->UpdateViewMatrix();
+	float left = -100.0f, right = 100.0f, bottom = -100.0f, top = 100.0f, nearZ = 0.1f, farZ = 100.0f;
+	shadowCamera_->matProjection_ = Mathf::MakeOrthographicMatrix(left, top, right, bottom, nearZ, farZ);
+	shadowCamera_->TransferMatrix();
+
+	//コマンドリストを取得
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+
+	//デプスバッファを設定
+	commandContext->TransitionResource(*shadowDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+	//デプスバッファを設定
+	commandContext->SetRenderTargets(0, nullptr, shadowDepthBuffer_->GetDSVHandle());
+
+	//デプスバッファをクリア
+	commandContext->ClearDepth(*shadowDepthBuffer_);
+
+	//ビューポート
+	D3D12_VIEWPORT viewport{};
+	viewport.Width = Application::kClientWidth;
+	viewport.Height = Application::kClientHeight;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	commandContext->SetViewport(viewport);
+
+	//シザー矩形
+	D3D12_RECT scissorRect{};
+	scissorRect.left = 0;
+	scissorRect.right = Application::kClientWidth;
+	scissorRect.top = 0;
+	scissorRect.bottom = Application::kClientHeight;
+	commandContext->SetScissor(scissorRect);
+
+	//DescriptorHeapを設定
+	commandContext->SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+
+	//RootSignatureを設定
+	commandContext->SetRootSignature(shadowRootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(shadowPipelineStates_[0]);
+
+	//LightCameraを設定
+	commandContext->SetConstantBuffer(1, shadowCamera_->GetConstantBuffer()->GetGpuVirtualAddress());
+}
+
+void Renderer::PostDrawShadow()
+{
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+	commandContext->TransitionResource(*shadowDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	PreDraw();
+}
+
 void Renderer::ClearRenderTarget()
 {
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
@@ -290,7 +401,7 @@ void Renderer::PostDrawSkybox()
 void Renderer::CreateModelPipelineState()
 {
 	//RootSignatureの作成
-	modelRootSignature_.Create(7, 1);
+	modelRootSignature_.Create(9, 1);
 
 	//RootParameterを設定
 	modelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -300,6 +411,8 @@ void Renderer::CreateModelPipelineState()
 	modelRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_[5].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_[6].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	modelRootSignature_[7].InitAsConstantBuffer(2, D3D12_SHADER_VISIBILITY_VERTEX);
+	modelRootSignature_[8].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
@@ -605,6 +718,60 @@ void Renderer::CreateSkyboxPipelineState()
 	newPipelineState.SetDepthStencilState(depthStencilDesc);
 	newPipelineState.Finalize();
 	skyboxPipelineStates_.push_back(newPipelineState);
+}
+
+void Renderer::CreateShadowPipelineState()
+{
+	shadowRootSignature_.Create(2, 0);
+	shadowRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
+	shadowRootSignature_[1].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
+	shadowRootSignature_.Finalize();
+
+	//InputLayout
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1]{};
+	inputElementDescs[0].SemanticName = "POSITION";
+	inputElementDescs[0].SemanticIndex = 0;
+	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+	//BlendStateの設定
+	D3D12_BLEND_DESC blendDesc{};
+	//ブレンドなし
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	//RasterizerStateの設定
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
+	//裏面(時計回り)を表示しない
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	//三角形の中を塗りつぶす
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+
+	//Shaderをコンパイルする
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = ShaderCompiler::CompileShader(L"ShadowMap.VS.hlsl", L"vs_6_0");
+	assert(vertexShaderBlob != nullptr);
+
+	//DepthStencilStateの設定
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	//比較はするのでDepth自体は有効
+	depthStencilDesc.DepthEnable = true;
+	//書き込みします
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	//比較関数はLessEqual。つまり、近ければ描画される
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
+	//PipelineStateの作成
+	GraphicsPSO pipelineState;
+	pipelineState.SetRootSignature(&shadowRootSignature_);
+	pipelineState.SetInputLayout(1, inputElementDescs);
+	pipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
+	pipelineState.SetBlendState(blendDesc);
+	pipelineState.SetRasterizerState(rasterizerDesc);
+	pipelineState.SetRenderTargetFormats(0, nullptr , DXGI_FORMAT_D24_UNORM_S8_UINT);
+	pipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	pipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
+	pipelineState.SetDepthStencilState(depthStencilDesc);
+	pipelineState.Finalize();
+	shadowPipelineStates_.push_back(pipelineState);
 }
 
 void Renderer::CreateBonePipelineState()

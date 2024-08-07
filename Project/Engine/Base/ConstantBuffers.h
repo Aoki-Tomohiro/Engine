@@ -33,6 +33,7 @@ struct ConstBuffDataMaterial
 	float edgeWidth;
 	float padding[2];
 	Vector3 edgeColor;
+	int32_t receiveShadows;
 };
 
 enum class RotationType

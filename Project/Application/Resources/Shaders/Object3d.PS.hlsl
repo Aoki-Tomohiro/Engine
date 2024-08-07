@@ -13,6 +13,7 @@ struct Material
     float32_t dissolveThreshold;
     float32_t edgeWidth;
     float32_t3 edgeColor;
+    int32_t receiveShadows;
 };
 
 struct DirectionLight
@@ -59,6 +60,7 @@ struct LightGroup
 Texture2D<float32_t4> gTexture : register(t0);
 Texture2D<float32_t> gMaskTexture : register(t1);
 TextureCube<float32_t4> gEnvironmentTexture : register(t2);
+Texture2D<float32_t> gShadowTexture : register(t3);
 SamplerState gSampler : register(s0);
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<LightGroup> gLightGroup : register(b1);
@@ -249,6 +251,14 @@ PixelShaderOutput main(VertexShaderOutput input)
     //Edgeっぽさを算出
     float32_t edge = 1.0f - smoothstep(gMaterial.dissolveThreshold, gMaterial.dissolveThreshold + gMaterial.edgeWidth, mask);
     output.color.rgb += edge * gMaterial.edgeColor;
+    
+    //影の計算
+    if (gMaterial.receiveShadows)
+    {
+        float32_t sm = gShadowTexture.Sample(gSampler, input.positionSM.xy);
+        float32_t sma = (input.positionSM.z - 0.005f < sm) ? 1.0f : 0.5f;
+        output.color *= sma;
+    }
     
     //output.colorのa値が0のときにPixelを棄却
     if (output.color.a == 0.0f)

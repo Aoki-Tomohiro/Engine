@@ -25,6 +25,10 @@ public:
 
 	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
 
+	const bool GetCastShadows() const { return castShadows_; };
+
+	void SetCastShadows(const bool castShadows) { castShadows_ = castShadows; };
+
 	Mesh* GetMesh(size_t index) { return meshes_[index].get(); };
 
 	Material* GetMaterial(size_t index) { return materials_[index].get(); };
@@ -56,6 +60,8 @@ private:
 	std::vector<Vector4> boneVertices_{};
 
 	bool isBoneVisible_ = false;
+
+	bool castShadows_ = true;
 
 	bool hasSkinCluster_ = false;
 
