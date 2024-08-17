@@ -1,35 +1,32 @@
-#include "BackgroundObject.h"
+#include "BackGroundObject.h"
+#include "Engine/Components/Component/ModelComponent.h"
 
-void BackgroundObject::Initialize()
+void BackGroundObject::Initialize()
 {
 	//基底クラスの初期化
 	GameObject::Initialize();
 }
 
-void BackgroundObject::Update()
+void BackGroundObject::Update()
 {
-	//基底クラスの初期化
+	//基底クラスの更新
 	GameObject::Update();
 }
 
-void BackgroundObject::Draw(const Camera& camera)
+void BackGroundObject::Draw(const Camera& camera)
 {
 	//基底クラスの描画
 	GameObject::Draw(camera);
 }
 
-void BackgroundObject::DrawUI()
+void BackGroundObject::OnCollision(GameObject* gameObject)
 {
 }
 
-void BackgroundObject::OnCollision(GameObject* gameObject)
+void BackGroundObject::OnCollisionEnter(GameObject* gameObject)
 {
 }
 
-void BackgroundObject::OnCollisionEnter(GameObject* gameObject)
-{
-}
-
-void BackgroundObject::OnCollisionExit(GameObject* gameObject)
+void BackGroundObject::OnCollisionExit(GameObject* gameObject)
 {
 }

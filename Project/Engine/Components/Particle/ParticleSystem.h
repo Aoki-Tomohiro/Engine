@@ -49,6 +49,8 @@ public:
 
 	void SetModel(Model* model) { model_ = model; };
 
+	void SetTexture(const std::string& name);
+
 	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
 
 	RWStructuredBuffer* GetParticleResource() const { return particleResource_.get(); };

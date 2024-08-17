@@ -36,7 +36,7 @@ enum BlendMode
 class Renderer
 {
 public:
-	enum RootBindings 
+	enum RootBindings
 	{
 		//マテリアル
 		kMaterial,
@@ -65,6 +65,14 @@ public:
 		kInfluences,
 		kOutputVertices,
 		kSkinningInformation,
+	};
+
+	struct ShadowCameraParameters
+	{
+		float width = 60.0f;
+		float height = 60.0f;
+		float nearZ = 0.1f;
+		float farZ = 100.0f;
 	};
 
 	static Renderer* GetInstance();
@@ -125,6 +133,10 @@ public:
 	const DescriptorHandle& GetSceneColorDescriptorHandle() const { return sceneColorBuffer_->GetSRVHandle(); };
 
 	const DescriptorHandle& GetSceneDepthDescriptorHandle() const { return sceneDepthBuffer_->GetSRVHandle(); };
+
+	void SetShadowCameraParameters(const ShadowCameraParameters& shadowCameraParameters) { shadowCameraParameters_ = shadowCameraParameters; };
+
+	Camera* GetShadowCamera() const { return shadowCamera_; };
 
 private:
 	Renderer() = default;
@@ -228,5 +240,7 @@ private:
 	std::vector<GraphicsPSO> shadowPipelineStates_{};
 
 	Camera* shadowCamera_ = nullptr;
+
+	ShadowCameraParameters shadowCameraParameters_{};
 };
 

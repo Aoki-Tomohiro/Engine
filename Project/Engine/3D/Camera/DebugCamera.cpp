@@ -8,6 +8,8 @@ void DebugCamera::Initialize()
 	input_ = Input::GetInstance();
 	//ワールドトランスフォームの初期設定
 	worldTransform_.translation_ = { 0.0f,0.0f,-50.0f };
+	//回転行列の初期化
+	matRot_ = Mathf::MakeIdentity4x4();
 }
 
 void DebugCamera::Update() {
@@ -31,9 +33,9 @@ void DebugCamera::Update() {
 	//ワールド行列を計算
 	worldTransform_.matWorld_ = matRot_ * translateMatrix;
 	//ビュー行列の計算
-	viewProjection_.matView_ = Mathf::Inverse(translateMatrix) * Mathf::Inverse(matRot_);
+	camera_.matView_ = Mathf::Inverse(translateMatrix) * Mathf::Inverse(matRot_);
 	//プロジェクション行列の計算
-	viewProjection_.matProjection_ = Mathf::MakePerspectiveFovMatrix(viewProjection_.fov_, viewProjection_.aspectRatio_, viewProjection_.nearClip_, viewProjection_.farClip_);
+	camera_.matProjection_ = Mathf::MakePerspectiveFovMatrix(camera_.fov_, camera_.aspectRatio_, camera_.nearClip_, camera_.farClip_);
 
 	//前後移動
 	if (input_->GetWheel() > 0) {

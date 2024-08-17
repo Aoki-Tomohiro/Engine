@@ -331,6 +331,18 @@ std::vector<GravityField*> ParticleSystem::GetGravityFields(const std::string& n
 	return gravityFields;
 }
 
+void ParticleSystem::SetTexture(const std::string& name)
+{
+	defaultModel_->GetMaterial(0)->SetTexture(name);
+	if (model_)
+	{
+		for (uint32_t i = 0; i < model_->GetNumMaterials(); ++i)
+		{
+			model_->GetMaterial(i)->SetTexture(name);
+		}
+	}
+}
+
 void ParticleSystem::UpdateEmitterResource()
 {
 	//エミッターの削除
@@ -358,6 +370,8 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].radius = particleEmitters_[i]->GetRadius();
 		emitterSphereData[i].count = particleEmitters_[i]->GetCount();
 		emitterSphereData[i].emit = particleEmitters_[i]->GetEmit();
+		emitterSphereData[i].rotateMin = particleEmitters_[i]->GetRotateMin();
+		emitterSphereData[i].rotateMax = particleEmitters_[i]->GetRotateMax();
 		emitterSphereData[i].scaleMin = particleEmitters_[i]->GetScaleMin();
 		emitterSphereData[i].scaleMax = particleEmitters_[i]->GetScaleMax();
 		emitterSphereData[i].velocityMin = particleEmitters_[i]->GetVelocityMin();

@@ -1,0 +1,93 @@
+{
+    "name": "scene",
+    "objects": [
+        {
+            "type": "LIGHT",
+            "name": "Light",
+            "transform": {
+                "translation": [
+                    4.076245307922363,
+                    1.0054539442062378,
+                    5.903861999511719
+                ],
+                "rotation": [
+                    0.6503279209136963,
+                    0.055217109620571136,
+                    1.8663907051086426
+                ],
+                "scaling": [
+                    1.0,
+                    0.9999999403953552,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "CAMERA",
+            "name": "Camera",
+            "transform": {
+                "translation": [
+                    0.0,
+                    30.0,
+                    20.0
+                ],
+                "rotation": [
+                    1.0468661785125732,
+                    -3.186864432791481e-06,
+                    3.1415927410125732
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "BackGroundObject",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            },
+            "file_name": "terrain",
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BackGroundObject.001",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "MonsterBall",
+            "visible": true
+        }
+    ]
+}

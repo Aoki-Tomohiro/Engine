@@ -51,6 +51,10 @@ public:
 
 	float GetRightStickY();
 
+	float GetLeftTriggerValue();
+
+	float GetRightTriggerValue();
+
 private:
 	Input() = default;
 	~Input() = default;

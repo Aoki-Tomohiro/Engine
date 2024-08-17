@@ -200,3 +200,15 @@ float Input::GetRightStickY()
 	float rightStickYValue = static_cast<float>(state_.Gamepad.sThumbRY) / SHRT_MAX;
 	return rightStickYValue;
 }
+
+float Input::GetLeftTriggerValue()
+{
+	float leftTriggerValue = state_.Gamepad.bLeftTrigger;
+	return leftTriggerValue;
+}
+
+float Input::GetRightTriggerValue()
+{
+	float leftTriggerValue = state_.Gamepad.bRightTrigger;
+	return leftTriggerValue;
+}

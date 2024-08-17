@@ -1,12 +1,7 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
-#include "Engine/Base/TextureManager.h"
-#include "Engine/Base/ImGuiManager.h"
-#include "Engine/LevelLoader/LevelLoader.h"
-#include "Engine/Utilities/GameTimer.h"
-#include "Engine/Utilities/RandomGenerator.h"
-#include "Engine/Utilities/GlobalVariables.h"
-#include <numbers>
+#include "Engine/Components/Collision/OBBCollider.h"
+#include "Engine/Components/Collision/CollisionAttributeManager.h"
 
 void GamePlayScene::Initialize()
 {
@@ -16,7 +11,7 @@ void GamePlayScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//GameObjectManagerの初期化
+	//GameObjectの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
@@ -28,78 +23,58 @@ void GamePlayScene::Initialize()
 	LevelLoader::Load("GameScene");
 
 	//カメラを取得
-	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
-	//GameObjectManagerにカメラを設定
+	camera_ = CameraManager::GetCamera("Camera");
+	//カメラを設定
 	gameObjectManager_->SetCamera(camera_);
-	//ParticleManagerにカメラを設定
 	particleManager_->SetCamera(camera_);
 
+	//AnimationPhaseManagerの作成
+	animationStateManager_ = std::make_unique<AnimationStateManager>();
+	animationStateManager_->Initialize();
+
 	//LockOnの生成
-	lockOn_ = std::make_unique<LockOn>();
-	lockOn_->Initialize();
+	lockon_ = std::make_unique<Lockon>();
+	lockon_->Initialize();
 
 	//プレイヤーの初期化
-	Player* player = gameObjectManager_->GetGameObject<Player>();
-	//TransformComponentの初期化
-	TransformComponent* playerTransformComponent = player->GetComponent<TransformComponent>();
-	playerTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	//ModelComponentの初期化
-	ModelComponent* playerModelComponent = player->GetComponent<ModelComponent>();
-	playerModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
 	//カメラとロックオンを設定
 	player->SetCamera(camera_);
-	player->SetLockOn(lockOn_.get());
-
-	//敵の初期化
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	enemy->SetCamera(camera_);
-	//TransformComponentの初期化
-	TransformComponent* enemyTransformComponent = enemy->GetComponent<TransformComponent>();
-	enemyTransformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	enemy->SetDestinationQuaternion(enemyTransformComponent->worldTransform_.quaternion_);
-	//ModelComponentの初期化
-	ModelComponent* enemyModelComponent = enemy->GetComponent<ModelComponent>();
-	enemyModelComponent->SetAnimationName("Armature|mixamo.com|Layer0");
+	player->SetLockon(lockon_.get());
+	player->SetAnimationStateManager(animationStateManager_.get());
 
 	//武器の生成
-	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
-	//プレイヤーを親に設定
-	weapon->SetParent(&playerModelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand"));
+	Weapon* weapon = GameObjectManager::CreateGameObject<Weapon>();
+	//トランスフォームを追加
+	TransformComponent* weaponTransformComponent = weapon->AddComponent<TransformComponent>();
+	weaponTransformComponent->worldTransform_.translation_ = { 0.5f, -0.2f, 0.1f };
+	weaponTransformComponent->worldTransform_.rotation_ = { 0.0f, 0.0f, 1.0f };
+	weaponTransformComponent->worldTransform_.scale_ = { 4.0f, 4.0f, 4.0f };
+	weaponTransformComponent->worldTransform_.parent_ = &player->GetComponent<ModelComponent>()->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:RightHand");
+	//モデルを追加
+	ModelComponent* weaponModelComponent = weapon->AddComponent<ModelComponent>();
+	weaponModelComponent->SetTransformComponent(weaponTransformComponent);
+	weaponModelComponent->SetModel(ModelManager::CreateFromModelFile("PlayerWeapon", Opaque));
+	//コライダーを追加
+	CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
+	OBBCollider* obbCollider = weapon->AddComponent<OBBCollider>();
+	obbCollider->SetTransformComponent(player->GetComponent<TransformComponent>());
+	obbCollider->SetCollisionAttribute(collisionAttributeManager->GetAttribute("PlayerWeapon"));
+	obbCollider->SetCollisionMask(collisionAttributeManager->GetMask("PlayerWeapon"));
 
-	//FollowCameraの作成
+	//CameraPathManagerの作成
+	cameraPathManager_ = std::make_unique<CameraPathManager>();
+	cameraPathManager_->Initialize();
+
+	//CameraControllerの作成
 	cameraController_ = std::make_unique<CameraController>();
 	cameraController_->Initialize();
-	cameraController_->SetTarget(&playerTransformComponent->worldTransform_);
-	cameraController_->SetLockOn(lockOn_.get());
-
-	//トランジションの生成
-	transition_ = std::make_unique<Transition>();
-	transition_->Initialize();
-
-	//Skyboxの初期化
-	skybox_.reset(Skybox::Create());
+	cameraController_->SetCameraPathManager(cameraPathManager_.get());
+	cameraController_->SetLockon(lockon_.get());
+	cameraController_->SetTarget(&player->GetComponent<ModelComponent>()->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips"));
 
 	//CollisionManagerの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
-
-	//ゲームオーバーのスプライトの生成
-	TextureManager::Load("GameOver.png");
-	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
-
-	//ゲームクリアのスプライトの生成
-	TextureManager::Load("GameClear.png");
-	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
-
-	//音声データの読み込みと再生
-	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
-	parryAudioHandle_ = audio_->LoadAudioFile("Parry.mp3");
-	audio_->PlayAudio(audioHandle_, true, 0.2f);
-
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "GameScene";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "HitStopDuration", hitStopSettings_.duration);
 }
 
 void GamePlayScene::Finalize()
@@ -118,73 +93,53 @@ void GamePlayScene::Update()
 	//GameObjectManagerの更新
 	gameObjectManager_->Update();
 
-	//トランジションの更新
-	transition_->Update();
-
 	//ロックオンの処理
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-	lockOn_->Update(enemy, camera_);
+	lockon_->Update(camera_);
 
 	//衝突判定
 	collisionManager_->ClearColliderList();
-	Player* player = gameObjectManager_->GetGameObject<Player>();
-	if (Collider* collider = player->GetComponent<Collider>())
+	//プレイヤーを衝突マネージャーに追加
+	if (Player* player = gameObjectManager_->GetMutableGameObject<Player>(""))
 	{
-		collisionManager_->SetColliderList(collider);
-	}
-	if (Collider* collider = enemy->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>();
-	if (Collider* collider = weapon->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager_->GetGameObjects<MagicProjectile>();
-	for (MagicProjectile* magicProjectil : magicProjectiles)
-	{
-		if (Collider* collider = magicProjectil->GetComponent<Collider>())
+		if (Collider* collider = player->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}
 	}
-	std::vector<Warning*> warnings = gameObjectManager_->GetGameObjects<Warning>();
-	for (Warning* warning : warnings)
+	//敵を衝突マネージャーに追加
+	if (Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>(""))
 	{
-		if (Collider* collider = warning->GetComponent<Collider>())
+		if (Collider* collider = enemy->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}
 	}
-	std::vector<Laser*> lasers = gameObjectManager_->GetGameObjects<Laser>();
-	for (Laser* laser : lasers)
+	//武器を衝突マネージャーに追加
+	if (Weapon* weapon = gameObjectManager_->GetMutableGameObject<Weapon>("PlayerWeapon"))
 	{
-		if (Collider* collider = laser->GetComponent<Collider>())
+		if (Collider* collider = weapon->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}
 	}
 	collisionManager_->CheckAllCollisions();
 
+	//CameraPathManagerの更新
+	cameraPathManager_->Update();
+
 	//CameraControllerの更新
 	cameraController_->Update();
+
+	//シャドウマップ用のカメラを移動させる
+	Camera* shadowCamera = CameraManager::GetCamera("ShadowCamera");
+	shadowCamera->translation_ = { camera_->translation_.x,shadowCamera->translation_.y,camera_->translation_.z };
 
 	//カメラの更新
 	*camera_ = cameraController_->GetCamera();
 	camera_->TransferMatrix();
 
-	//フェードイン処理
-	HandleTransition();
-
-	//グローバル変数の適用
-	ApplyGlobalVariables();
-
-	//ImGui
-	ImGui::Begin("GamePlayScene");
-	ImGui::Text("K : GameClearScene");
-	ImGui::Text("L : GameOverScene");
-	ImGui::End();
+	//AnimationPhaseManagerの更新
+	animationStateManager_->Update();
 }
 
 void GamePlayScene::Draw()
@@ -192,9 +147,6 @@ void GamePlayScene::Draw()
 #pragma region Skybox描画
 	//Skybox描画前処理
 	renderer_->PreDrawSkybox();
-
-	//Skyboxの描画
-	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();
@@ -226,72 +178,9 @@ void GamePlayScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
-	//GameObjectManagerのUIを描画
-	gameObjectManager_->DrawUI();
-
-	//ロックオンの描画
-	lockOn_->Draw();
-
-	//ゲームオーバーの表示
-	if (isGameClear_)
-	{
-		gameClearSprite_->Draw();
-	}
-	else if (isGameOver_)
-	{
-		gameOverSprite_->Draw();
-	}
-
-	//トランジションの描画
-	transition_->Draw();
-
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();
 #pragma endregion
-}
-
-void GamePlayScene::HandleTransition()
-{
-	//FadeInしていないとき
-	if (transition_->GetFadeState() != transition_->FadeState::In)
-	{
-		Player* player = gameObjectManager_->GetGameObject<Player>();
-		Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>();
-		//Kキーを押したらGameClearSceneに遷移
-		if (input_->IsPushKeyEnter(DIK_K) || enemy->GetIsDead())
-		{
-			isGameClear_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-		//Lキーを押したらGameOverSceneに遷移
-		else if (input_->IsPushKeyEnter(DIK_L) || player->GetIsDead())
-		{
-			isGameOver_ = true;
-			player->SetIsInTitleScene(true);
-			enemy->SetIsInTitleScene(true);
-			ModelComponent* modelComponent = enemy->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Idle");
-		}
-	}
-
-	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
-	if (isGameClear_ || isGameOver_)
-	{
-		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
-		{
-			transition_->SetFadeState(Transition::FadeState::In);
-		}
-	}
-
-	//シーン遷移
-	if (transition_->GetFadeInComplete())
-	{
-		audio_->StopAudio(audioHandle_);
-		sceneManager_->ChangeScene("GameTitleScene");
-	}
 }
 
 void GamePlayScene::UpdateHitStop()
@@ -300,11 +189,14 @@ void GamePlayScene::UpdateHitStop()
 	if (!hitStopSettings_.isActive && !parrySettings_.isSlow)
 	{
 		//プレイヤーの攻撃がヒットしていたらヒットストップを有効化する
-		if (gameObjectManager_->GetGameObject<Weapon>()->GetIsHit())
+		if (const Weapon* weapon = gameObjectManager_->GetConstGameObject<Weapon>("PlayerWeapon"))
 		{
-			//ヒットストップを有効にする
-			hitStopSettings_.isActive = true;
-			GameTimer::SetTimeScale(0.0f);
+			if (weapon->GetIsHit())
+			{
+				//ヒットストップを有効にする
+				hitStopSettings_.isActive = true;
+				GameTimer::SetTimeScale(0.0f);
+			}
 		}
 	}
 
@@ -327,94 +219,4 @@ void GamePlayScene::UpdateHitStop()
 
 void GamePlayScene::UpdateParry()
 {
-	//プレイヤーがパリィに成功していた場合
-	if (gameObjectManager_->GetGameObject<Weapon>()->GetIsParrySuccessful())
-	{
-		//音声を再生する
-		audio_->PlayAudio(parryAudioHandle_, false, 0.6f);
-
-		//パリィのフラグを立てる
-		parrySettings_.isActive = true;
-
-		//スロウモーションのフラグを立てる
-		parrySettings_.isSlow = true;
-
-		//敵の行動を遅くする
-		gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(0.2f);
-
-		//ゲーム全体の時間の流れを遅くする
-		GameTimer::SetTimeScale(0.2f);
-	}
-
-	//パリィ状態の時
-	if (parrySettings_.isActive)
-	{
-		//タイマーを進める
-		const float kParryDeltaTime = 1.0f / 60.0f;
-		parrySettings_.timer += kParryDeltaTime;
-
-		//スロウモーション状態の時
-		if (parrySettings_.isSlow)
-		{
-			//停止時間を超えていたら
-			if (parrySettings_.timer > parrySettings_.stopDuration)
-			{
-				//スロウモーションのフラグを折る
-				parrySettings_.isSlow = false;
-
-				//ゲーム全体の時間の流れをもとに戻す
-				GameTimer::SetTimeScale(1.0f);
-			}
-		}
-
-		//パリィのタイマーが一定間隔を超えたら
-		if (parrySettings_.timer > parrySettings_.duration)
-		{
-			//タイマーのリセット
-			parrySettings_.timer = 0.0f;
-			parrySettings_.grayTimer = 0.0f;
-
-			//フラグのリセット
-			parrySettings_.isActive = false;
-
-			//敵の行動をもとに戻す
-			gameObjectManager_->GetGameObject<Enemy>()->SetTimeScale(1.0f);
-		}
-
-		//GreeScaleにする
-		PostEffects* postEffects = PostEffects::GetInstance();
-		if (parrySettings_.timer < parrySettings_.grayDuration)
-		{
-			parrySettings_.grayTimer += kParryDeltaTime;
-			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
-			float currentSaturation = 0.0f + (parrySettings_.graySaturation - 0.0f) * Mathf::EaseInSine(easingParameter);
-			postEffects->GetHSV()->SetSaturation(currentSaturation);
-		}
-		else if (parrySettings_.timer > parrySettings_.duration - parrySettings_.grayDuration)
-		{
-			parrySettings_.grayTimer += kParryDeltaTime;
-			float easingParameter = 1.0f * (parrySettings_.grayTimer / parrySettings_.grayDuration);
-			float currentSaturation = parrySettings_.graySaturation + (0.0f - parrySettings_.graySaturation) * Mathf::EaseInSine(easingParameter);
-			postEffects->GetHSV()->SetSaturation(currentSaturation);
-		}
-		else
-		{
-			parrySettings_.grayTimer = 0.0f;
-		}
-	}
-
-	//プレイヤーにパリィのフラグを設定
-	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>();
-	player->SetIsParrying(parrySettings_.isActive);
-
-	//敵にパリィのフラグを設定
-	Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>();
-	enemy->SetIsParrying(parrySettings_.isActive);
-}
-
-void GamePlayScene::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "GameScene";
-	hitStopSettings_.duration = globalVariables->GetFloatValue(groupName, "HitStopDuration");
 }

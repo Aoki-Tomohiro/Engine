@@ -12,7 +12,7 @@ public:
 
 	static Camera* CreateCamera(const std::string& cameraName);
 
-	Camera* GetCamera(const std::string& cameraName);
+	static Camera* GetCamera(const std::string& cameraName);
 
 private:
 	CameraManager() = default;
@@ -21,6 +21,8 @@ private:
 	const CameraManager& operator=(const CameraManager&) = delete;
 
 	Camera* CreateCameraInternal(const std::string& cameraName);
+
+	Camera* GetCameraInternal(const std::string& cameraName);
 
 private:
 	static CameraManager* instance_;

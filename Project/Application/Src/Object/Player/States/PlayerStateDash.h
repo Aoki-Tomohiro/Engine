@@ -1,37 +1,39 @@
 #pragma once
 #include "IPlayerState.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Particle/ParticleManager.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
+#include "Engine/Math/MathFunction.h"
+#include "Application/Src/Object/AnimationStateManager/AnimationStateManager.h"
 
 class PlayerStateDash : public IPlayerState
 {
 public:
-	void Initialize();
+	void Initialize() override;
 
-	void Update();
-
-	void Draw(const Camera& camera);
-
-	void OnCollision(GameObject* other);
-
-	void OnCollisionEnter(GameObject* other);
-
-	void OnCollisionExit(GameObject* other);
+	void Update() override;
 
 private:
-	struct WorkDash
-	{
-		float dashTimer = 0.0f;          // ダッシュ用タイマー
-		bool isDashFinished = false;     // ダッシュが終了したか
-		float chargeTimer = 0.0f;        // チャージ用タイマー
-		bool isChargingFinished = false; // チャージが終了したか
-	};
-
-private:
+	//Input
 	Input* input_ = nullptr;
 
-	WorkDash dashWork_{};
+	//速度
+	Vector3 velocity_{};
 
+	//アニメーションの状態
+	AnimationState state_{};
+
+	//前のフレームのフェーズの名前
+	std::string prePhaseName_{};
+
+	//フェーズの名前
+	std::string phaseName_{};
+
+	//アニメーションタイマー
+	float animationTime_ = 0.0f;
+
+	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;
 };
 

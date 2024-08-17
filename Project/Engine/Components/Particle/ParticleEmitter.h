@@ -26,6 +26,14 @@ public:
 
 	void SetCount(const uint32_t count) { count_ = count; };
 
+	const Vector3& GetRotateMin() const { return rotateMin_; };
+
+	void SetRotateMin(const Vector3& rotateMin) { rotateMin_ = rotateMin; };
+
+	const Vector3& GetRotateMax() const { return rotateMax_; };
+
+	void SetRotateMax(const Vector3& rotateMax) { rotateMax_ = rotateMax; };
+
 	const Vector3& GetScaleMin() const { return scaleMin_; };
 
 	void SetScaleMin(const Vector3& scaleMin) { scaleMin_ = scaleMin; };
@@ -83,6 +91,10 @@ private:
 
 	//射出許可
 	uint32_t emit_ = 0;
+
+	//回転角
+	Vector3 rotateMin_ = { 0.0f,0.0f,0.0f };
+	Vector3 rotateMax_ = { 0.0f,0.0f,0.0f };
 
 	//スケール
 	Vector3 scaleMin_ = { 0.2f,0.2f,0.2f };

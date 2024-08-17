@@ -29,12 +29,8 @@ Camera* CameraManager::CreateCamera(const std::string& cameraName)
 
 Camera* CameraManager::GetCamera(const std::string& cameraName)
 {
-	auto it = cameras_.find(cameraName);
-	if (it != cameras_.end())
-	{
-		return it->second.get();
-	}
-	return nullptr;
+	Camera* camera = CameraManager::GetInstance()->GetCameraInternal(cameraName);
+	return camera;
 }
 
 Camera* CameraManager::CreateCameraInternal(const std::string& cameraName)
@@ -50,4 +46,14 @@ Camera* CameraManager::CreateCameraInternal(const std::string& cameraName)
 	newCamera->Initialize();
 	cameras_[cameraName] = std::move(newCamera);
 	return cameras_[cameraName].get();
+}
+
+Camera* CameraManager::GetCameraInternal(const std::string& cameraName)
+{
+	auto it = cameras_.find(cameraName);
+	if (it != cameras_.end())
+	{
+		return it->second.get();
+	}
+	return nullptr;
 }

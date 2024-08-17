@@ -1,0 +1,14 @@
+{
+    "PlayerWeapon": {
+        "ColliderOffset": [
+            0.0,
+            0.0,
+            -3.0
+        ],
+        "ColliderSize": [
+            2.0,
+            2.0,
+            2.0
+        ]
+    }
+}

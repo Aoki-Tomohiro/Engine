@@ -45,6 +45,13 @@ EmitterBuilder& EmitterBuilder::SetRadius(const float radius)
 	return *this;
 }
 
+EmitterBuilder& EmitterBuilder::SetRotate(const Vector3& min, const Vector3& max)
+{
+	particleEmitter_->rotateMin_ = min;
+	particleEmitter_->rotateMax_ = max;
+	return *this;
+}
+
 EmitterBuilder& EmitterBuilder::SetScale(const Vector3& min, const Vector3& max)
 {
 	particleEmitter_->scaleMin_ = min;

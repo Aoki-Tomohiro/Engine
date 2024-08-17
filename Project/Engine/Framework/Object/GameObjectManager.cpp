@@ -32,7 +32,11 @@ void GameObjectManager::Update()
 		});
 	gameObjects_.erase(it, gameObjects_.end());
 
-	//バッファ内のGameObjectを実際のコンテナに追加
+	//全てのゲームオブジェクトの初期化
+	for (const std::unique_ptr<GameObject>& newGameObject : newGameObjectsBuffer_)
+	{
+		newGameObject->Initialize();
+	}
 	gameObjects_.insert(gameObjects_.end(), std::make_move_iterator(newGameObjectsBuffer_.begin()), std::make_move_iterator(newGameObjectsBuffer_.end()));
 	newGameObjectsBuffer_.clear();
 
@@ -86,7 +90,6 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 {
 	assert(gameObjectFactory_);
 	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
-	newGameObject->Initialize();
 	newGameObject->SetGameObjectManager(this);
 	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;

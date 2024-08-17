@@ -8,19 +8,18 @@ void SampleScene::Initialize()
 
 	audio_ = Audio::GetInstance();
 
-	//カメラの作成
-	camera_ = CameraManager::CreateCamera("SampleCamera");
-	camera_->translation_ = { 0.0f,8.3f,-20.0f };
-	camera_->rotation_ = { 0.3f,0.0f,0.0f };
+	//GameObjectの初期化
+	gameObjectManager_ = GameObjectManager::GetInstance();
+	gameObjectManager_->Clear();
 
-	//Terrainの作成
-	terrainModel_ = ModelManager::CreateFromModelFile("terrain", Opaque);
-	terrainWorldTransform_.Initialize();
+	//LevelDataの読み込み
+	LevelLoader::Load("SampleScene");
 
-	//MonsterBallの作成
-	monsterballModel_ = ModelManager::CreateFromModelFile("Player", Opaque);
-	monsterballWorldTransform_.Initialize();
-	monsterballWorldTransform_.translation_ = { 0.0f,1.0f,0.0f };
+	//カメラを取得
+	camera_ = CameraManager::GetCamera("Camera");
+
+	//カメラを設定
+	gameObjectManager_->SetCamera(camera_);
 }
 
 void SampleScene::Finalize()
@@ -29,12 +28,8 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
-	//TerrainWorldTransformの更新
-	terrainWorldTransform_.UpdateMatrix();
-
-	//MonsterBallWorldTransformの更新
-	monsterballWorldTransform_.UpdateMatrix();
-	monsterballModel_->Update(monsterballWorldTransform_, "Armature|mixamo.com|Layer0");
+	//GameObjectの更新
+	gameObjectManager_->Update();
 
 	//カメラの更新
 	camera_->UpdateMatrix();
@@ -43,12 +38,6 @@ void SampleScene::Update()
 	ImGui::Begin("SampleScene");
 	ImGui::DragFloat3("CameraTranslation", &camera_->translation_.x, 0.01f);
 	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x, 0.01f);
-	ImGui::DragFloat3("TerrainTranslation", &terrainWorldTransform_.translation_.x, 0.01f);
-	ImGui::DragFloat3("TerrainRotation", &terrainWorldTransform_.rotation_.x, 0.01f);
-	ImGui::DragFloat3("TerrainScale", &terrainWorldTransform_.scale_.x, 0.01f);
-	ImGui::DragFloat3("MonsterBallTranslation", &monsterballWorldTransform_.translation_.x, 0.01f);
-	ImGui::DragFloat3("MonsterBallRotation", &monsterballWorldTransform_.rotation_.x, 0.01f);
-	ImGui::DragFloat3("MonsterBallScale", &monsterballWorldTransform_.scale_.x, 0.01f);
 	ImGui::End();
 }
 
@@ -74,11 +63,8 @@ void SampleScene::Draw()
 	renderer_->ClearDepthBuffer();
 
 #pragma region 3Dオブジェクト描画
-	//Terrainの描画
-	terrainModel_->Draw(terrainWorldTransform_, *camera_);
-
-	//Monsterballの描画
-	monsterballModel_->Draw(monsterballWorldTransform_, *camera_);
+	//GameObjectの描画
+	gameObjectManager_->Draw();
 
 	//3Dオブジェクト描画
 	renderer_->Render();

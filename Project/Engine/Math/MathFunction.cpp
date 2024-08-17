@@ -680,6 +680,85 @@ namespace Mathf
 		return result;
 	}
 
+
+	Quaternion GetRotation(const Matrix4x4& m)
+	{
+		float elem[4];
+		elem[0] = m.m[0][0] - m.m[1][1] - m.m[2][2] + 1.0f;
+		elem[1] = -m.m[0][0] + m.m[1][1] - m.m[2][2] + 1.0f;
+		elem[2] = -m.m[0][0] - m.m[1][1] + m.m[2][2] + 1.0f;
+		elem[3] = m.m[0][0] + m.m[1][1] + m.m[2][2] + 1.0f;
+
+		int biggestIdx = 0;
+		for (int i = 0; i < 4; i++)
+		{
+			if (elem[i] > elem[biggestIdx])
+			{
+				biggestIdx = i;
+			}
+		}
+
+		if (elem[biggestIdx] < 0)
+		{
+			return IdentityQuaternion();
+		}
+
+		float q[4];
+		float v = std::sqrtf(elem[biggestIdx]) * 0.5f;
+		q[biggestIdx] = v;
+		float mult = 0.25f / v;
+
+		switch (biggestIdx)
+		{
+		case 0:
+			q[1] = (m.m[1][0] + m.m[0][1]) * mult;
+			q[2] = (m.m[0][2] + m.m[2][0]) * mult;
+			q[3] = (m.m[2][1] - m.m[1][2]) * mult;
+			break;
+		case 1:
+			q[0] = (m.m[1][0] + m.m[0][1]) * mult;
+			q[2] = (m.m[2][1] + m.m[1][2]) * mult;
+			q[3] = (m.m[0][2] - m.m[2][0]) * mult;
+			break;
+		case 2:
+			q[0] = (m.m[0][2] + m.m[2][0]) * mult;
+			q[1] = (m.m[2][1] + m.m[1][2]) * mult;
+			q[3] = (m.m[1][0] - m.m[0][1]) * mult;
+			break;
+		case 3:
+			q[0] = (m.m[2][1] - m.m[1][2]) * mult;
+			q[1] = (m.m[0][2] - m.m[2][0]) * mult;
+			q[2] = (m.m[1][0] - m.m[0][1]) * mult;
+			break;
+		}
+
+		return Quaternion(q[0], q[1], q[2], q[3]);
+	}
+
+
+	Quaternion LootAt(const Vector3& position, const Vector3& target)
+	{
+		Vector3 z = Normalize(target - position);
+		Vector3 x = Normalize(Cross({ 0.0f,1.0f,0.0f }, z));
+		Vector3 y = Normalize(Cross(z, x));
+
+		Matrix4x4 m = MakeIdentity4x4();
+		m.m[0][0] = x.x;
+		m.m[0][1] = y.x;
+		m.m[0][2] = z.x;
+		m.m[1][0] = x.y;
+		m.m[1][1] = y.y;
+		m.m[1][2] = z.y;
+		m.m[2][0] = x.z;
+		m.m[2][1] = y.z;
+		m.m[2][2] = z.z;
+
+		Quaternion rot = GetRotation(m);
+
+		return rot;
+	}
+
+
 	Quaternion LookRotation(const Vector3& forward, const Vector3& up)
 	{
 		Vector3 f = Normalize(forward);

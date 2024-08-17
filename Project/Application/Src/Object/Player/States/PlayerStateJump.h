@@ -1,23 +1,20 @@
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Math/MathFunction.h"
 
 class PlayerStateJump : public IPlayerState
 {
 public:
-	void Initialize();
+	void Initialize() override;
 
-	void Update();
-
-	void Draw(const Camera& camera);
-
-	void OnCollision(GameObject* other);
-
-	void OnCollisionEnter(GameObject* other);
-
-	void OnCollisionExit(GameObject* other);
+	void Update() override;
 
 private:
+	//Input
 	Input* input_ = nullptr;
+
+	//速度
+	Vector3 velocity_{};
 };
 

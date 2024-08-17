@@ -28,10 +28,16 @@ public:
 	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
 	template <typename Type>
-	Type* GetGameObject() const;
+	const Type* GetConstGameObject(const std::string& name) const;
 
 	template <typename Type>
-	std::vector<Type*> GetGameObjects() const;
+	const std::vector<Type*> GetConstGameObjects(const std::string& name) const;
+
+	template <typename Type>
+	Type* GetMutableGameObject(const std::string& name) const;
+
+	template <typename Type>
+	std::vector<Type*> GetMutableGameObjects(const std::string& name) const;
 
 private:
 	GameObjectManager() = default;
@@ -68,48 +74,112 @@ template<typename Type>
 Type* GameObjectManager::CreateGameObjectInternal()
 {
 	Type* newObject = new Type();
-	newObject->Initialize();
 	newObject->SetGameObjectManager(this);
 	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newObject));
 	return newObject;
 }
 
 template <typename Type>
-Type* GameObjectManager::GetGameObject() const
+const Type* GameObjectManager::GetConstGameObject(const std::string& name) const
 {
 	for (const auto& gameObject : newGameObjectsBuffer_)
 	{
-		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		if (gameObject->GetName() == name)
 		{
-			return castedObject;
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
 		}
 	}
 	for (const auto& gameObject : gameObjects_)
 	{
-		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		if (gameObject->GetName() == name)
 		{
-			return castedObject;
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
 		}
 	}
 	return nullptr;
 }
 
 template <typename Type>
-std::vector<Type*> GameObjectManager::GetGameObjects() const
+const std::vector<Type*> GameObjectManager::GetConstGameObjects(const std::string& name) const
 {
 	std::vector<Type*> gameObjects;
 	for (const auto& gameObject : newGameObjectsBuffer_)
 	{
-		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		if (gameObject->GetName() == name)
 		{
-			gameObjects.push_back(castedObject);
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				gameObjects.push_back(castedObject);
+			}
 		}
 	}
 	for (const auto& gameObject : gameObjects_)
 	{
-		if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+		if (gameObject->GetName() == name)
 		{
-			gameObjects.push_back(castedObject);
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				gameObjects.push_back(castedObject);
+			}
+		}
+	}
+	return gameObjects;
+}
+
+template <typename Type>
+Type* GameObjectManager::GetMutableGameObject(const std::string& name) const
+{
+	for (const auto& gameObject : newGameObjectsBuffer_)
+	{
+		if (gameObject->GetName() == name)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
+		}
+	}
+	for (const auto& gameObject : gameObjects_)
+	{
+		if (gameObject->GetName() == name)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
+		}
+	}
+	return nullptr;
+}
+
+template <typename Type>
+std::vector<Type*> GameObjectManager::GetMutableGameObjects(const std::string& name) const
+{
+	std::vector<Type*> gameObjects;
+	for (const auto& gameObject : newGameObjectsBuffer_)
+	{
+		if (gameObject->GetName() == name)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				gameObjects.push_back(castedObject);
+			}
+		}
+	}
+	for (const auto& gameObject : gameObjects_)
+	{
+		if (gameObject->GetName() == name)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				gameObjects.push_back(castedObject);
+			}
 		}
 	}
 	return gameObjects;

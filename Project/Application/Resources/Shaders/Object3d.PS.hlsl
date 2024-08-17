@@ -62,6 +62,7 @@ Texture2D<float32_t> gMaskTexture : register(t1);
 TextureCube<float32_t4> gEnvironmentTexture : register(t2);
 Texture2D<float32_t> gShadowTexture : register(t3);
 SamplerState gSampler : register(s0);
+SamplerComparisonState gShadowSmp : register(s1);
 ConstantBuffer<Material> gMaterial : register(b0);
 ConstantBuffer<LightGroup> gLightGroup : register(b1);
 
@@ -255,9 +256,12 @@ PixelShaderOutput main(VertexShaderOutput input)
     //影の計算
     if (gMaterial.receiveShadows)
     {
-        float32_t sm = gShadowTexture.Sample(gSampler, input.positionSM.xy);
-        float32_t sma = (input.positionSM.z - 0.005f < sm) ? 1.0f : 0.5f;
-        output.color *= sma;
+        float32_t3 posFromLightVP = input.tpos.xyz / input.tpos.w;
+        float32_t2 shadowUV = (posFromLightVP.xy + float32_t2(1.0f, -1.0f)) * float32_t2(0.5f, -0.5f);
+        float32_t depthFromLight = gShadowTexture.SampleCmp(gShadowSmp, shadowUV, posFromLightVP.z - 0.005f);
+        float32_t shadowWeight = 1.0f;
+        shadowWeight = lerp(0.5f, 1.0f, depthFromLight);
+        output.color.rgb *= shadowWeight;
     }
     
     //output.colorのa値が0のときにPixelを棄却

@@ -20,6 +20,8 @@ public:
 
 	EmitterBuilder& SetRadius(const float radius);
 
+	EmitterBuilder& SetRotate(const Vector3& min, const Vector3& max);
+
 	EmitterBuilder& SetScale(const Vector3& min, const Vector3& max);
 
 	EmitterBuilder& SetVelocity(const Vector3& min, const Vector3& max);

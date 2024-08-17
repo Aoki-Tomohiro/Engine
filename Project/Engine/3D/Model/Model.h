@@ -29,6 +29,10 @@ public:
 
 	void SetCastShadows(const bool castShadows) { castShadows_ = castShadows; };
 
+	const size_t GetNumMeshes() { return meshes_.size(); };
+
+	const size_t GetNumMaterials() { return materials_.size(); };
+
 	Mesh* GetMesh(size_t index) { return meshes_[index].get(); };
 
 	Material* GetMaterial(size_t index) { return materials_[index].get(); };

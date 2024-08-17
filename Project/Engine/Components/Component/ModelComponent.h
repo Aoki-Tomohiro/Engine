@@ -9,8 +9,6 @@ class ModelComponent : public RenderComponent
 public:
 	void Initialize() override;
 
-	void Initialize(const std::string& modelName, const DrawPass drawPass);
-
 	void Update() override;
 
 	void Draw(const Camera& camera) override;

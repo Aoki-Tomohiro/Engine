@@ -1,11 +1,12 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
+#include "Engine/3D/Camera/CameraManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
-#include "Engine/3D/Model/ModelManager.h"
-#include "Engine/3D/Camera/CameraManager.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/LevelLoader/LevelLoader.h"
 
 class SampleScene : public IScene
 {
@@ -29,12 +30,6 @@ private:
 
 	Camera* camera_ = nullptr;
 
-	Model* terrainModel_ = nullptr;
-
-	WorldTransform terrainWorldTransform_{};
-
-	Model* monsterballModel_ = nullptr;
-
-	WorldTransform monsterballWorldTransform_{};
+	GameObjectManager* gameObjectManager_ = nullptr;
 };
 

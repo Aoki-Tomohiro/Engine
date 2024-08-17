@@ -1,14 +1,7 @@
 #include "PlayerStateJump.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Utilities/GameTimer.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
-#include "Application/Src/Object/Player/States/PlayerStateAirAttack.h"
-#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
-#include "Application/Src/Object/Player/States/PlayerStateChargedMagicAttack.h"
-#include "Application/Src/Object/Player/States/PlayerStateDead.h"
+#include "Application/Src/Object/Player/States/PlayerStateAttack.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -16,112 +9,81 @@ void PlayerStateJump::Initialize()
 	input_ = Input::GetInstance();
 
 	//アニメーションの初期化
-	ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-	if (player_->velocity == Vector3{ 0.0f,0.0f,0.0f } || player_->lockOn_->ExistTarget())
+	player_->SetIsAnimationLoop(false);
+
+	//スティックの入力を取得
+	Vector3 inputValue = {
+		input_->GetLeftStickX(),
+		0.0f,
+		input_->GetLeftStickY(),
+	};
+
+	//スティックの入力があれば
+	float length = Mathf::Length(inputValue);
+	if (length > player_->GetRootParameters().walkThreshold)
 	{
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.008");
-		modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.18f);
+		//走りジャンプのアニメーションを設定
+		player_->SetAnimationName("Armature.001|mixamo.com|Layer0.013");
+
+		//アニメーションの時間を設定
+		player_->SetAnimationTime(0.0f);
+
+		//走りの閾値を超えていた場合
+		if (length > player_->GetRootParameters().runThreshold)
+		{
+			//速度を設定
+			velocity_ = Mathf::Normalize(inputValue) * player_->GetRootParameters().runSpeed;
+		}
+		else
+		{
+			//速度を設定
+			velocity_ = Mathf::Normalize(inputValue) * player_->GetRootParameters().walkSpeed;
+		}
+
+		//移動ベクトルをカメラの角度だけ回転させる
+		velocity_ = Mathf::RotateVector(velocity_, player_->GetCamera()->quaternion_);
+
+		//ジャンプの初速度を設定
+		velocity_.y = player_->GetJumpParameters().jumpFirstSpeed;
 	}
 	else
 	{
-		modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.009");
-	}
+		//その場でジャンプするアニメーションを設定
+		player_->SetAnimationName("Armature.001|mixamo.com|Layer0.012");
 
-	//速度にジャンプの初速度を設定
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-	if (transformComponent->worldTransform_.translation_.y == 0.0f)
-	{
-		player_->velocity.y = player_->jumpParameters_.firstSpeed;
+		//アニメーションの時間を設定
+		player_->SetAnimationTime(0.1f);
+
+		//ジャンプの初速度を設定
+		velocity_.y = player_->GetJumpParameters().jumpFirstSpeed;
 	}
 }
 
 void PlayerStateJump::Update()
 {
-	//死亡状態に遷移
-	if (player_->hp_ <= 0.0f)
-	{
-		player_->ChangeState(new PlayerStateDead());
-		return;
-	}
-
-	//TransformComponentを取得
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-
 	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f,-player_->jumpParameters_.gravityAcceleration,0.0f };
+	Vector3 accelerationVector = { 0.0f,player_->GetJumpParameters().gravityAcceleration,0.0f };
 
 	//速度に重力加速度を加算
-	player_->velocity += accelerationVector;
+	velocity_ += accelerationVector;
 
-	//速度を加算
-	transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
+	//移動処理
+	player_->Move(velocity_);
 
-	//通常状態に変更
-	if (transformComponent->worldTransform_.translation_.y <= 0.0f)
+	//地面についたら
+	if (player_->GetPosition().y <= 0.0f)
 	{
-		//プレイヤーを地面の座標に設定
-		transformComponent->worldTransform_.translation_.y = 0.0f;
+		//地面のめり込まないようにする
+		Vector3 position = player_->GetPosition();
+		position.y = 0.0f;
+		player_->SetPosition(position);
 
-		//速度の初期化
-		player_->velocity.y = 0.0f;
-
-		//通常状態に遷移
+		//通常状態に変更
 		player_->ChangeState(new PlayerStateRoot());
 	}
 	//攻撃状態に遷移
 	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 	{
-		//速度の初期化
-		player_->velocity.y = 0.0f;
-
-		//空中攻撃状態に遷移
-		player_->ChangeState(new PlayerStateAirAttack());
+		player_->ChangeState(new PlayerStateAttack());
 	}
-	//チャージ魔法状態に遷移
-	else if (player_->chargeMagicAttackWork_.isChargeMagicAttack_)
-	{
-		player_->ChangeState(new PlayerStateChargedMagicAttack());
-	}
-}
-
-void PlayerStateJump::Draw(const Camera& camera)
-{
-}
-
-void PlayerStateJump::OnCollision(GameObject* other)
-{
-	//パリィ状態でなければ
-	if (!player_->isParrying_)
-	{
-		//衝突相手が敵だった場合
-		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
-		{
-			if (enemy->GetIsAttack())
-			{
-				//速度の初期化
-				player_->velocity.y = 0.0f;
-				player_->hp_ -= enemy->GetDamage();
-				player_->isDamaged_ = true;
-				player_->ChangeState(new PlayerStateKnockback());
-			}
-		}
-		//衝突相手がレーザーだった場合
-		else if (Laser* laser = dynamic_cast<Laser*>(other))
-		{
-			//速度の初期化
-			player_->velocity.y = 0.0f;
-			player_->hp_ -= laser->GetDamage();
-			player_->isDamaged_ = true;
-			player_->ChangeState(new PlayerStateKnockback());
-		}
-	}
-}
-
-void PlayerStateJump::OnCollisionEnter(GameObject* other)
-{
-}
-
-void PlayerStateJump::OnCollisionExit(GameObject* other)
-{
 }

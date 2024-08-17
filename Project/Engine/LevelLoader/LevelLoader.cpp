@@ -159,9 +159,13 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		//トランスフォーム
 		nlohmann::json transform = object["transform"];
 		//平行移動
-		cameraData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,(float)transform["translation"][1] };
+		cameraData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,-(float)transform["translation"][1] };
 		//回転角
-		cameraData.rotation = { std::numbers::pi_v<float> / 2.0f - (float)transform["rotation"][0] ,(float)transform["rotation"][2] ,(float)transform["rotation"][1] };
+		cameraData.rotation = {
+			std::numbers::pi_v<float> / 2.0f - (float)transform["rotation"][0] ,
+			(float)transform["rotation"][2] >= 0.0f ? (float)transform["rotation"][2] - std::numbers::pi_v<float> : (float)transform["rotation"][2] + std::numbers::pi_v<float>,
+			(float)transform["rotation"][1]
+		};
 	}
 
 	//オブジェクト捜査を再起関数にまとめ、再起呼び出しで枝を捜査する
@@ -185,7 +189,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 
 		//トランスフォームの追加
 		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
-		transformComponent->Initialize();
 		transformComponent->worldTransform_.translation_ = objectData.translation;
 		transformComponent->worldTransform_.rotation_ = objectData.rotation;
 		transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(
@@ -196,7 +199,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 
 		//モデルの追加
 		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
-		modelComponent->Initialize(objectData.modelName, Opaque);
+		modelComponent->SetModel(ModelManager::CreateFromModelFile(objectData.modelName, Opaque));
 		modelComponent->SetTransformComponent(transformComponent);
 
 		//Typeが無かったらColliderがないとみなす

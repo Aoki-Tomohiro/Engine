@@ -8,19 +8,20 @@ void GameManager::Initialize()
 	//シーンの生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	sceneManager_->SetSceneFactory(sceneFactory_.get());
-	sceneManager_->ChangeScene("GameTitleScene");
+	sceneManager_->ChangeScene("GamePlayScene");
 
 	//ゲームオブジェクトファクトリーを生成
 	gameObjectFactory_ = std::make_unique<GameObjectFactory>();
 	gameObjectManager_->SetGameObjectFactory(gameObjectFactory_.get());
 
 	//衝突属性の追加
-	collisionAttributeManager_->AddAttribute("Player",  0b000001, 0b111010);
-	collisionAttributeManager_->AddAttribute("Enemy",   0b000010, 0b000101);
-	collisionAttributeManager_->AddAttribute("Weapon",  0b000100, 0b001010);
-	collisionAttributeManager_->AddAttribute("Missile", 0b001000, 0b000101);
-	collisionAttributeManager_->AddAttribute("Laser",   0b010000, 0b000001);
-	collisionAttributeManager_->AddAttribute("Warning", 0b100000, 0b000001);
+	collisionAttributeManager_->AddAttribute("Player",       0b0000001, 0b1111100);
+	collisionAttributeManager_->AddAttribute("PlayerWeapon", 0b0000010, 0b0000100);
+	collisionAttributeManager_->AddAttribute("Enemy",        0b0000100, 0b0000011);
+	collisionAttributeManager_->AddAttribute("EnemyWeapon",  0b0001000, 0b0000001);
+	collisionAttributeManager_->AddAttribute("Missile",      0b0010000, 0b0000011);
+	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
+	collisionAttributeManager_->AddAttribute("Warning",      0b1000000, 0b0000001);
 
 	//PostEffectsの有効化
 	postEffects_->SetIsEnable(true);

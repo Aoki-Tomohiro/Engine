@@ -1,145 +1,162 @@
 #include "PlayerStateDash.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Components/PostEffects/PostEffects.h"
-#include "Engine/Utilities/GameTimer.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
-#include "Application/Src/Object/Player/States/PlayerStateKnockback.h"
-#include "Application/Src/Object/Player/States/PlayerStateGroundAttack.h"
-#include "Application/Src/Object/Player/States/PlayerStateDead.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateDash::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//ダッシュのフラグを設定
+	player_->SetActionFlag(Player::ActionFlag::kDashing, true);
+
+	//アニメーションの初期化
+	player_->SetAnimationName("Armature.001|mixamo.com|Layer0.014");
+	player_->SetAnimationTime(0.0f);
+	player_->SetIsAnimationStop(true);
+
 	//ロックオン中なら
-	if (player_->lockOn_->ExistTarget())
+	if (player_->GetLockon()->ExistTarget())
 	{
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("")->GetHipWorldPosition();
 
 		//プレイヤーの座標を取得
-		Vector3 playerPosition = player_->GetComponent<TransformComponent>()->worldTransform_.translation_;
+		Vector3 playerPosition = player_->GetHipWorldPosition();
 
 		//差分ベクトルを計算
-		Vector3 sub = enemyPosition - playerPosition;
+		Vector3 sub = Mathf::Normalize(enemyPosition - playerPosition);
+
+		//水平方向に移動させるので速度のY成分を0にする
 		sub.y = 0.0f;
 
 		//速度を計算
-		player_->velocity = Mathf::Normalize(sub) * player_->dashParameters_.dashSpeed_;
-
-		//差分ベクトルのY成分を0にする
-		sub.y = 0.0f;
-
-		//差分ベクトルを正規化
-		sub = Mathf::Normalize(sub);
+		velocity_ = sub * player_->GetDashParameters().dashSpeed;
 
 		//回転処理
-		Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, sub));
-		float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, sub);
-		player_->destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+		player_->Rotate(sub);
 	}
+	//ロックオン中ではない場合
 	else
 	{
-		//速度ベクトルにプレイヤーの回転を適用
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		player_->velocity = Mathf::TransformNormal({ 0.0f,0.0f,1.0f }, transformComponent->worldTransform_.matWorld_);
+		//速度を計算
+		velocity_ = Mathf::RotateVector({ 0.0f,0.0f,-1.0f }, player_->GetDestinationQuaternion());
 
 		//速度を掛ける
-		player_->velocity = Mathf::Normalize(player_->velocity) * player_->dashParameters_.dashSpeed_;
+		velocity_ = Mathf::Normalize(velocity_) * player_->GetDashParameters().dashSpeed;
 	}
 
-	//RadialBlurをかける
+	//状態の取得
+	state_ = player_->GetAnimationStateManager()->GetAnimationState("Dash");
+
+	//最初のフェーズの名前を設定
+	phaseName_ = state_.phases[0].name;
+
+	//前のフレームのフェーズ名の初期化
+	prePhaseName_ = phaseName_;
+
+	//RadialBlurを掛ける
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
 
-	//パーティクルの初期化
+	//テクスチャの読み込み
+	TextureManager::Load("smoke_01.png");
+
+	//パーティクルの作成
 	particleSystem_ = ParticleManager::Create("Dash");
+	particleSystem_->SetTexture("smoke_01.png");
+
+	//加速フィールドを作成
+	AccelerationField* accelerationField = new AccelerationField();
+	accelerationField->Initialize("Dash", 100.0f);
+	accelerationField->SetAcceleration({ 0.0f,0.8f,0.0f });
+	accelerationField->SetMin({ -200.0f,-200.0f,-200.0f });
+	accelerationField->SetMax({ 200.0f,200.0f,200.0f });
+	particleSystem_->AddAccelerationField(accelerationField);
 }
 
 void PlayerStateDash::Update()
 {
-	//死亡状態に遷移
-	if (player_->hp_ <= 0.0f)
+	//前のフレームのフェーズ名を代入
+	prePhaseName_ = phaseName_;
+
+	//アニメーションの時間を進める
+	animationTime_ += GameTimer::GetDeltaTime();
+
+	//状態の更新
+	for (uint32_t i = 0; i < state_.phases.size() - 1; ++i)
 	{
-		player_->ChangeState(new PlayerStateDead());
-		return;
+		if (phaseName_ == state_.phases[i].name)
+		{
+			if (animationTime_ >= state_.phases[i].animationTime)
+			{
+				phaseName_ = state_.phases[i + 1].name;
+			}
+		}
 	}
 
-	//チャージが終わっていない場合
-	if (!dashWork_.isChargingFinished)
+	//状態ごとの処理
+	if (phaseName_ == "Dash")
 	{
-		//チャージタイマーを進める
-		dashWork_.chargeTimer += GameTimer::GetDeltaTime();
-
-		//チャージタイマーが一定値を超えた場合
-		if (dashWork_.chargeTimer > player_->dashParameters_.chargeDuration)
+		//フェーズが変わったとき
+		if (prePhaseName_ != phaseName_)
 		{
-			//音声を鳴らす
-			player_->audio_->PlayAudio(player_->dashAudioHandle_, false, 0.4f);
-
-			//チャージ終了フラグを立てる
-			dashWork_.isChargingFinished = true;
-
 			//プレイヤーを消す
 			player_->SetIsVisible(false);
 
-			//武器を消す
-			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-			weapon->SetIsVisible(false);
-
 			//パーティクルを出す
-			TransformComponent* playerTransformComponent = player_->GetComponent<TransformComponent>();
-			Vector3 minVelocity = { 0.0f,0.0f,-0.4f };
-			minVelocity = Mathf::TransformNormal(minVelocity, playerTransformComponent->worldTransform_.matWorld_);
-			Vector3 maxVelocity = { 0.0f,0.0f,-0.6f };
-			maxVelocity = Mathf::TransformNormal(maxVelocity, playerTransformComponent->worldTransform_.matWorld_);
+			Vector3 minVelocity = Mathf::RotateVector({ 0.0f, 0.0f, 0.4f }, player_->GetDestinationQuaternion());
+			Vector3 maxVelocity = Mathf::RotateVector({ 0.0f, 0.0f, 0.6f }, player_->GetDestinationQuaternion());
 			ParticleEmitter* newEmitter = new ParticleEmitter();
 			newEmitter->Initialize("Dash", 100.0f);
-			newEmitter->SetTranslate(playerTransformComponent->GetWorldPosition());
+			newEmitter->SetTranslate(player_->GetHipWorldPosition());
 			newEmitter->SetCount(40);
 			newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
 			newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
 			newEmitter->SetFrequency(0.001f);
-			newEmitter->SetLifeTimeMin(0.2f);
-			newEmitter->SetLifeTimeMax(0.4f);
+			newEmitter->SetLifeTimeMin(0.4f);
+			newEmitter->SetLifeTimeMax(0.8f);
 			newEmitter->SetRadius(1.0f);
-			newEmitter->SetScaleMin({ 0.2f,0.2f,0.2f });
-			newEmitter->SetScaleMax({ 0.3f,0.3f,0.3f });
+			newEmitter->SetScaleMin({ 0.8f,0.8f,0.8f });
+			newEmitter->SetScaleMax({ 1.2f,1.2f,1.2f });
+			newEmitter->SetRotateMin({ 0.0f,0.0f,0.0f });
+			newEmitter->SetRotateMax({ 0.0f,0.0f,6.28f });
 			newEmitter->SetVelocityMin(minVelocity);
 			newEmitter->SetVelocityMax(maxVelocity);
 			particleSystem_->AddParticleEmitter(newEmitter);
 		}
-	}
 
-	//チャージが終わっていてダッシュが終了していない場合
-	if (dashWork_.isChargingFinished && !dashWork_.isDashFinished)
-	{
-		//Xボタンを押した場合攻撃状態に派生
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		//移動処理
+		player_->Move(velocity_);
+
+		//敵の座標を取得
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("")->GetHipWorldPosition();
+
+		//プレイヤーの座標を取得
+		Vector3 playerPosition = player_->GetHipWorldPosition();
+
+		//敵と一定距離近づいたら速度を0にする
+		if (Mathf::Length(enemyPosition - playerPosition) < player_->GetDashParameters().proximityDistance)
 		{
-			player_->isDashAttack_ = true;
+			velocity_ = { 0.0f,0.0f,0.0f };
 		}
 
-		//ダッシュタイマーを進める
-		dashWork_.dashTimer += GameTimer::GetDeltaTime();
-
-		//ダッシュタイマーが一定値を超えていたら
-		if (dashWork_.dashTimer > player_->dashParameters_.dashDuration)
+		//エミッターを移動させる
+		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
 		{
-			//ダッシュ終了フラグを立てる
-			dashWork_.isDashFinished = true;
+			emitter->SetTranslate(player_->GetHipWorldPosition());
+		}
+	}
+	else if (phaseName_ == "Recovery")
+	{
+		//フェーズが変わったとき
+		if (prePhaseName_ != phaseName_)
+		{
+			//ダッシュのフラグを折る
+			player_->SetActionFlag(Player::ActionFlag::kDashing, false);
 
 			//プレイヤーを描画させる
 			player_->SetIsVisible(true);
-
-			//武器を描画させる
-			Weapon* weapon = GameObjectManager::GetInstance()->GetGameObject<Weapon>();
-			weapon->SetIsVisible(true);
 
 			//エミッターを削除
 			if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
@@ -147,91 +164,30 @@ void PlayerStateDash::Update()
 				emitter->SetIsDead(true);
 			}
 
+			//加速フィールドを削除
+			if (AccelerationField* accelerationField = particleSystem_->GetAccelerationField("Dash"))
+			{
+				accelerationField->SetIsDead(true);
+			}
+
 			//アニメーションを変更
-			ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-			modelComponent->SetAnimationName("Armature.001|mixamo.com|Layer0.018");
-			modelComponent->GetModel()->GetAnimation()->SetAnimationTime(0.0f);
-			modelComponent->GetModel()->GetAnimation()->SetIsLoop(false);
+			player_->SetAnimationName("Armature.001|mixamo.com|Layer0.015");
+			player_->SetIsAnimationStop(false);
 
 			//RadialBlurを切る
 			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 		}
 
-		//速度を加算
-		TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-		transformComponent->worldTransform_.translation_ += player_->velocity * GameTimer::GetDeltaTime();
-
-		//敵のTransformを取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>()->GetHipWorldPosition();
-
-		//敵と一定距離近づいたら速度を0にする
-		if (Mathf::Length(enemyPosition - transformComponent->GetWorldPosition()) < player_->dashParameters_.proximityThreshold)
+		//アニメーションが終了していたら
+		if (player_->GetIsAnimationEnd())
 		{
-			player_->velocity = { 0.0f,0.0f,0.0f };
-		}
+			//アニメーション後の座標を代入
+			Vector3 hipPosition = player_->GetHipWorldPosition();
+			hipPosition.y = 0.0f;
+			player_->SetPosition(hipPosition);
 
-		//エミッターの座標を移動させる
-		if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
-		{
-			emitter->SetTranslate(transformComponent->worldTransform_.translation_);
-		}
-	}
-
-	//ダッシュが終わっていたら
-	if (dashWork_.isDashFinished)
-	{
-		//アニメーションの設定を戻す
-		ModelComponent* modelComponent = player_->GetComponent<ModelComponent>();
-		modelComponent->GetModel()->GetAnimation()->SetIsLoop(true);
-
-		//アニメーションが終了したら通常状態に戻す
-		if (modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd())
-		{
+			//通常状態に戻す
 			player_->ChangeState(new PlayerStateRoot());
 		}
-		//ダッシュ攻撃が有効なら攻撃状態に派生
-		else if (player_->isDashAttack_)
-		{
-			player_->ChangeState(new PlayerStateGroundAttack());
-		}
 	}
-}
-
-void PlayerStateDash::Draw(const Camera& camera)
-{
-}
-
-void PlayerStateDash::OnCollision(GameObject* other)
-{
-	//パリィ状態でなければ
-	if (!player_->isParrying_)
-	{
-		//衝突相手が敵だった場合
-		if (Enemy* enemy = dynamic_cast<Enemy*>(other))
-		{
-			if (enemy->GetIsAttack())
-			{
-				player_->isDashAttack_ = false;
-				player_->hp_ -= enemy->GetDamage();
-				player_->isDamaged_ = true;
-				player_->ChangeState(new PlayerStateKnockback());
-			}
-		}
-		//衝突相手がレーザーだった場合
-		else if (Laser* laser = dynamic_cast<Laser*>(other))
-		{
-			player_->isDashAttack_ = false;
-			player_->hp_ -= laser->GetDamage();
-			player_->isDamaged_ = true;
-			player_->ChangeState(new PlayerStateKnockback());
-		}
-	}
-}
-
-void PlayerStateDash::OnCollisionEnter(GameObject* other)
-{
-}
-
-void PlayerStateDash::OnCollisionExit(GameObject* other)
-{
 }

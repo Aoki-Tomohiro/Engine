@@ -301,9 +301,9 @@ void Renderer::PostDraw()
 void Renderer::PreDrawShadow()
 {
 	//ShadowMap用のカメラの更新
+	shadowCamera_->matProjection_ = Mathf::MakeOrthographicMatrix(-shadowCameraParameters_.width, shadowCameraParameters_.height,
+		shadowCameraParameters_.width, -shadowCameraParameters_.height, shadowCameraParameters_.nearZ, shadowCameraParameters_.farZ);
 	shadowCamera_->UpdateViewMatrix();
-	float left = -100.0f, right = 100.0f, bottom = -100.0f, top = 100.0f, nearZ = 0.1f, farZ = 100.0f;
-	shadowCamera_->matProjection_ = Mathf::MakeOrthographicMatrix(left, top, right, bottom, nearZ, farZ);
 	shadowCamera_->TransferMatrix();
 
 	//コマンドリストを取得
@@ -401,7 +401,7 @@ void Renderer::PostDrawSkybox()
 void Renderer::CreateModelPipelineState()
 {
 	//RootSignatureの作成
-	modelRootSignature_.Create(9, 1);
+	modelRootSignature_.Create(9, 2);
 
 	//RootParameterを設定
 	modelRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -415,7 +415,7 @@ void Renderer::CreateModelPipelineState()
 	modelRootSignature_[8].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[2]{};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイリニアフィルタ
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;//0~1の範囲外をリピート
 	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -423,6 +423,14 @@ void Renderer::CreateModelPipelineState()
 	staticSamplers[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;//比較しない
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
 	modelRootSignature_.InitStaticSampler(0, staticSamplers[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	staticSamplers[1].Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;//比較結果をバイリニア補間
+	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;//0~1の範囲外をクランプ
+	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	staticSamplers[1].ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;//<=であればtrue(1.0f),そうでなければ(0.0f)
+	staticSamplers[1].MaxLOD = D3D12_FLOAT32_MAX;//ありったけのMipmapを使う
+	staticSamplers[1].MaxAnisotropy = 1;//深度傾斜を有効に
+	modelRootSignature_.InitStaticSampler(1, staticSamplers[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	modelRootSignature_.Finalize();
 
 	//InputLayout

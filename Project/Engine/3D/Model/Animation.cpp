@@ -60,7 +60,7 @@ void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string
 		}
 
 		//アニメーションが終わったら
-		if (animationTime_ > animationData.duration)
+		if (animationTime_ >= animationData.duration)
 		{
 			if (!isStop_)
 			{
