@@ -736,7 +736,7 @@ namespace Mathf
 	}
 
 
-	Quaternion LootAt(const Vector3& position, const Vector3& target)
+	Quaternion LookAt(const Vector3& position, const Vector3& target)
 	{
 		Vector3 z = Normalize(target - position);
 		Vector3 x = Normalize(Cross({ 0.0f,1.0f,0.0f }, z));

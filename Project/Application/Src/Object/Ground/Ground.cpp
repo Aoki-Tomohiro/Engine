@@ -9,15 +9,12 @@ void Ground::Initialize()
 
 void Ground::Update()
 {
-	//Modelを取得
-	ModelComponent* groundModelComponent = GetComponent<ModelComponent>();
-	//色を設定
-	groundModelComponent->GetModel()->GetMaterial(0)->SetColor(color_);
-	//SpecularColorを設定
-	groundModelComponent->GetModel()->GetMaterial(0)->SetSpecularColor(specularColor_);
-	//UVScaleを設定
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	groundModelComponent->GetModel()->GetMaterial(0)->SetUVScale({ transformComponent->worldTransform_.scale_.x,transformComponent->worldTransform_.scale_.z });
+	//モデルを取得
+	ModelComponent* modelComponent = GetComponent<ModelComponent>();
+	//マテリアルの更新
+	modelComponent->GetModel()->GetMaterial(0)->SetColor(color_);
+	modelComponent->GetModel()->GetMaterial(0)->SetSpecularColor(specularColor_);
+	modelComponent->GetModel()->GetMaterial(0)->SetUVScale(uvScale_);
 
 	//GameObjectの更新
 	GameObject::Update();
@@ -26,6 +23,7 @@ void Ground::Update()
 	ImGui::Begin("Ground");
 	ImGui::ColorEdit3("Color", &color_.x);
 	ImGui::ColorEdit3("SpecularColor", &specularColor_.x);
+	ImGui::DragFloat2("UVScale", &uvScale_.x);
 	ImGui::End();
 }
 

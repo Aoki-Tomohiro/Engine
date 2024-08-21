@@ -4,8 +4,6 @@
 #include "Engine/Base/Application.h"
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
@@ -23,15 +21,17 @@ public:
 	bool ExistTarget() const { return target_ ? true : false; };
 
 private:
+	void UpdateTargeting();
+
 	Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera);
 
-	void SetLockOnMarkPosition(const Camera* camera);
+	void SetLockonMarkPosition(const Camera* camera);
 
 private:
 	Input* input_ = nullptr;
 
-	std::unique_ptr<Sprite> lockOnMark_ = nullptr;
+	std::unique_ptr<Sprite> lockonMark_ = nullptr;
 
-	const Enemy* target_ = nullptr;
+	Enemy* target_ = nullptr;
 };
 

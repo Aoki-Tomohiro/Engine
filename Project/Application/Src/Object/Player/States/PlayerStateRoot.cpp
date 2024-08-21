@@ -1,12 +1,5 @@
 #include "PlayerStateRoot.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Player/States/PlayerStateJump.h"
-#include "Application/Src/Object/Player/States/PlayerStateDodge.h"
-#include "Application/Src/Object/Player/States/PlayerStateDash.h"
-#include "Application/Src/Object/Player/States/PlayerStateAttack.h"
-#include "Application/Src/Object/Player/States/PlayerStateAttackBackhand.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -14,185 +7,130 @@ void PlayerStateRoot::Initialize()
 	input_ = Input::GetInstance();
 
 	//アニメーションの初期化
-	player_->SetAnimationSpeed(1.0f);
 	player_->SetIsAnimationLoop(true);
+	player_->SetAnimationSpeed(1.0f);
 }
 
 void PlayerStateRoot::Update()
 {
 	//スティックの入力を取得
-	Vector3 velocity = {
+	Vector3 inputValue = {
 		input_->GetLeftStickX(),
 		0.0f,
 		input_->GetLeftStickY(),
 	};
 
-	//スティックの入力が閾値を超えていた場合移動させる
-	float length = Mathf::Length(velocity);
-	if (length > player_->GetRootParameters().walkThreshold)
+	//入力ベクトルの長さを計算
+	float inputLength = Mathf::Length(inputValue);
+
+	//入力値が歩行の閾値を超えている場合
+	if (inputLength > player_->GetRootParameters().walkThreshold)
 	{
-		//スティックの入力が走りの閾値を超えていた場合
-		if (length > player_->GetRootParameters().runThreshold)
-		{
-			//アニメーションの切り替え
-			UpdateRunningAnimation(velocity);
-
-			//速度を計算
-			velocity = Mathf::Normalize(velocity) * player_->GetRootParameters().runSpeed;
-		}
-		else
-		{
-			//アニメーションの切り替え
-			UpdateWalkingAnimation(velocity);
-
-			//速度を計算
-			velocity = Mathf::Normalize(velocity) * player_->GetRootParameters().walkSpeed;
-		}
-
-		//移動ベクトルをカメラの角度だけ回転させる
-		velocity = Mathf::RotateVector(velocity, player_->GetCamera()->quaternion_);
-
-		//水平方向に移動させるので速度のY成分を0にする
-		velocity.y = 0.0f;
-
 		//移動処理
-		player_->Move(velocity);
-
-		//ロックオン中の場合
-		if (player_->GetLockon()->ExistTarget())
-		{
-			//敵の方向に回転させる
-			player_->LookAtEnemy();
-		}
-		else
-		{
-			//速度ベクトルを適用
-			Vector3 rotateVector = Mathf::Normalize(velocity);
-
-			//回転処理
-			player_->Rotate(Mathf::Normalize(rotateVector));
-		}
+		Move(inputValue, inputLength);
 	}
-	//移動していなかった場合
 	else
 	{
+		//歩きの閾値を超えていない場合は待機アニメーションを設定
 		player_->SetAnimationName("Armature|mixamo.com|Layer0");
 	}
+}
 
-	//LTを押している場合
-	if (input_->GetLeftTriggerValue() < 0.7f)
+void PlayerStateRoot::Move(const Vector3& inputValue, const float inputLength)
+{
+	//入力値が走りの閾値を超えているかチェック
+	bool isRunning = inputLength > player_->GetRootParameters().runThreshold;
+
+	//アニメーションの更新
+	UpdateAnimation(inputValue, isRunning);
+
+	//移動速度を設定
+	float moveSpeed = isRunning ? player_->GetRootParameters().runSpeed : player_->GetRootParameters().walkSpeed;
+	//入力ベクトルを正規化し速度を掛ける
+	Vector3 velocity = Mathf::Normalize(inputValue) * moveSpeed;
+
+	//移動ベクトルにカメラの回転を適用
+	velocity = Mathf::RotateVector(velocity, player_->GetCamera()->quaternion_);
+	//水平方向に移動させるのでY成分を0にする
+	velocity.y = 0.0f;
+
+	//プレイヤーを移動させる
+	player_->Move(velocity);
+
+	//プレイヤーの回転を更新
+	UpdateRotation(velocity);
+}
+
+void PlayerStateRoot::UpdateRotation(const Vector3& velocity)
+{
+	//ロックオン中の場合は敵の方向に向かせる
+	if (player_->GetLockon()->ExistTarget())
 	{
-		//ジャンプ状態に遷移
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
-		{
-			player_->ChangeState(new PlayerStateJump());
-		}
-		//回避状態に遷移
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
-		{
-			player_->ChangeState(new PlayerStateDodge());
-		}
-		//ダッシュ状態に遷移
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-		{
-			player_->ChangeState(new PlayerStateDash());
-		}
-		//攻撃状態に遷移
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-		{
-			player_->ChangeState(new PlayerStateAttack());
-		}
+		player_->LookAtEnemy();
 	}
+	//ロックオンしていない場合は速度ベクトルの方向に回転
 	else
 	{
-		//バックハンド攻撃状態にする
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
-		{
-			player_->ChangeState(new PlayerStateAttackBackhand());
-		}
+		player_->Rotate(Mathf::Normalize(velocity));
 	}
 }
 
-void PlayerStateRoot::UpdateWalkingAnimation(const Vector3& inputValue)
+void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 {
+	//アニメーション名を格納するための変数
+	std::string animationName;
+
+	//ロックオン中のアニメーション決定
 	if (player_->GetLockon()->ExistTarget())
 	{
-		//スティックの横入力の絶対値を取得
-		float horizontalValue = std::abs(inputValue.x);
-
-		//スティックの縦入力の絶対値を取得
-		float verticalValue = std::abs(inputValue.z);
-
-		//横入力値よりも縦入力値のほうが多い場合
-		if (verticalValue > horizontalValue)
+		//ロックオン中で、プレイヤーが走っているかどうかでアニメーションを決定
+		if (isRunning)
 		{
-			//前後の入力がある場合
-			if (inputValue.z > 0.0f)
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0");
-			}
-			else
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.001");
-			}
+			//走行中の場合、入力ベクトルに基づいた走りアニメーションを選択
+			animationName = DetermineRunningAnimation(inputValue);
 		}
 		else
 		{
-			//左右の入力がある場合
-			if (inputValue.x < 0.0f)
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.002");
-			}
-			else
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.003");
-			}
+			//歩行中の場合、入力ベクトルに基づいた歩きアニメーションを選択
+			animationName = DetermineWalkingAnimation(inputValue);
 		}
 	}
 	else
 	{
-		player_->SetAnimationName("Armature.001|mixamo.com|Layer0");
+		//ロックオンしていない場合、走行または歩行に応じたデフォルトアニメーションを選択
+		animationName = isRunning ? "Armature.001|mixamo.com|Layer0.004" : "Armature.001|mixamo.com|Layer0";
+	}
+
+	//決定したアニメーションをプレイヤーに設定
+	player_->SetAnimationName(animationName);
+}
+
+const std::string PlayerStateRoot::DetermineWalkingAnimation(const Vector3& inputValue) const
+{
+	//入力ベクトルの方向に応じて歩行アニメーションを決定
+	if (std::abs(inputValue.z) > std::abs(inputValue.x))
+	{
+		//前進または後退のアニメーション
+		return (inputValue.z > 0.0f) ? "Armature.001|mixamo.com|Layer0" : "Armature.001|mixamo.com|Layer0.001";
+	}
+	else
+	{
+		//左右移動のアニメーション
+		return (inputValue.x < 0.0f) ? "Armature.001|mixamo.com|Layer0.002" : "Armature.001|mixamo.com|Layer0.003";
 	}
 }
 
-void PlayerStateRoot::UpdateRunningAnimation(const Vector3& inputValue)
+const std::string PlayerStateRoot::DetermineRunningAnimation(const Vector3& inputValue) const
 {
-	if (player_->GetLockon()->ExistTarget())
+	//入力ベクトルの方向に応じて走行アニメーションを決定
+	if (std::abs(inputValue.z) > std::abs(inputValue.x))
 	{
-		//スティックの横入力の絶対値を取得
-		float horizontalValue = std::abs(inputValue.x);
-
-		//スティックの縦入力の絶対値を取得
-		float verticalValue = std::abs(inputValue.z);
-
-		//横入力値よりも縦入力値のほうが多い場合
-		if (verticalValue > horizontalValue)
-		{
-			//前後の入力がある場合
-			if (inputValue.z > 0.0f)
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
-			}
-			else
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.005");
-			}
-		}
-		else
-		{
-			//左右の入力がある場合
-			if (inputValue.x < 0.0f)
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.006");
-			}
-			else
-			{
-				player_->SetAnimationName("Armature.001|mixamo.com|Layer0.007");
-			}
-		}
+		//前進または後退のアニメーション
+		return (inputValue.z > 0.0f) ? "Armature.001|mixamo.com|Layer0.004" : "Armature.001|mixamo.com|Layer0.005";
 	}
 	else
 	{
-		player_->SetAnimationName("Armature.001|mixamo.com|Layer0.004");
+		//左右移動のアニメーション
+		return (inputValue.x < 0.0f) ? "Armature.001|mixamo.com|Layer0.006" : "Armature.001|mixamo.com|Layer0.007";
 	}
 }

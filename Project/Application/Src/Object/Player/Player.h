@@ -1,76 +1,25 @@
 #pragma once
+#include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
-#include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Player/States/IPlayerState.h"
-#include "Application/Src/Object/AnimationStateManager/AnimationStateManager.h"
 #include <numbers>
 
 class Player : public GameObject
 {
 public:
-	//アクションフラグ
-	enum class ActionFlag
-	{
-		kDashing,
-		kFallingAttack,
-		kBackhandAttack,
-	};
-
 	//通常状態のパラメーター
 	struct RootParameters
 	{
 		float walkThreshold = 0.3f; //歩きの閾値
-		float runThreshold = 0.6f;  //走りの閾値
 		float walkSpeed = 9.0f;     //歩きの移動速度
+		float runThreshold = 0.6f;  //走りの閾値
 		float runSpeed = 18.0f;     //走りの移動速度
-	};
-
-	//ジャンプ状態のパラメーター
-	struct JumpParameters
-	{
-		float jumpFirstSpeed = 35.0f;      //初速度
-		float gravityAcceleration = -2.8f; //重力加速度
-	};
-
-	//回避用のパラメーター
-	struct DodgeParameters
-	{
-		float dodgeSpeed = 21.0f; //回避速度
-	};
-
-	//ダッシュ用のパラメーター
-	struct DashParameters
-	{
-		float dashSpeed = 105.0f;       //ダッシュ速度
-		float proximityDistance = 8.0f; //移動を止める距離
-	};
-
-	//地上攻撃用のパラメーター
-	struct AttackParameters
-	{
-		int32_t comboNum = 3;                                    //コンボの数
-		float attackDistance = 6.0f;                             //攻撃の補正を掛ける距離
-		std::vector<float> moveSpeeds = { 9.0f,9.0f,9.0f };      //移動速度
-		float gravityAcceleration = -2.8f;                       //攻撃中の重力加速度
-	};
-
-	//落下攻撃用のパラメーター
-	struct FallingAttackParameters
-	{
-		float fallingSpeed = -25.0f;       //落下速度
-		float fallingAcceleration = -2.8f; //落下加速度
-	};
-
-	//バックハンド攻撃用のパラメーター
-	struct BackhandAttackParameters
-	{
-		int32_t kMaxHitCount = 5;
-		float hitInterval = 0.02f;
 	};
 
 	void Initialize() override;
@@ -78,6 +27,8 @@ public:
 	void Update() override;
 
 	void Draw(const Camera& camera) override;
+
+	void DrawUI() override;
 
 	void OnCollision(GameObject* gameObject) override;
 
@@ -87,49 +38,33 @@ public:
 
 	void ChangeState(IPlayerState* newState);
 
-	void DebugUpdate();
-
 	void Move(const Vector3& velocity);
 
 	void Rotate(const Vector3& vector);
 
-	void CorrectAnimationOffset();
-
 	void LookAtEnemy();
 
-	const bool GetIsAnimationEnd();
-
-	const float GetAnimationTime();
-
-	const float GetAnimationSpeed();
-
-	void SetAnimationSpeed(const float animationSpeed);
-
-	void SetAnimationTime(const float animationTime);
-
 	void SetAnimationName(const std::string& animationName);
+
+	const bool GetIsAnimationEnd();
 
 	void SetIsAnimationLoop(const bool isAnimationLoop);
 
 	void SetIsAnimationStop(const bool isAnimationStop);
 
-	const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
+	const float GetAnimationTime();
 
-	const Vector3 GetPosition();
+	void SetAnimationTime(const float animationTime);
 
-	void SetPosition(const Vector3& position);
+	const float GetAnimationSpeed();
+
+	void SetAnimationSpeed(const float animationSpeed);
 
 	const Vector3 GetHipLocalPosition();
 
 	const Vector3 GetHipWorldPosition();
 
-	bool GetActionFlag(const ActionFlag& flag) const
-	{
-		auto it = flags_.find(flag);
-		return it != flags_.end() && it->second;
-	}
-
-	void SetActionFlag(const ActionFlag& flag, bool value) { flags_[flag] = value; };
+	const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
 
 	const Camera* GetCamera() const { return camera_; };
 
@@ -137,34 +72,24 @@ public:
 
 	const Lockon* GetLockon() const { return lockon_; };
 
-	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; }
-
-	const AnimationStateManager* GetAnimationStateManager() const { return animationStateManager_; };
-
-	void SetAnimationStateManager(const AnimationStateManager* animationStateManager) { animationStateManager_ = animationStateManager; };
+	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; };
 
 	const RootParameters& GetRootParameters() const { return rootParameters_; };
 
-	const JumpParameters& GetJumpParameters() const { return jumpParameters_; };
-
-	const DodgeParameters& GetDodgeParameters() const { return dodgeParameters_; };
-
-	const DashParameters& GetDashParameters() const { return dashParameters_; };
-
-	const AttackParameters& GetAttackParameters() const { return attackParameters_; };
-
-	const FallingAttackParameters& GetFallingAttackParameters() const { return fallingAttackParameters_; };
-
-	const BackhandAttackParameters& GetBackhandAttackParameters() const { return backhandAttackParameters_; };
-
 private:
+	void UpdateRotation();
+
+	void UpdateCollider();
+
 	void ApplyGlobalVariables();
 
+	void UpdateImGui();
+
 private:
-	//Input
+	//インプット
 	Input* input_ = nullptr;
 
-	//Audio
+	//オーディオ
 	Audio* audio_ = nullptr;
 
 	//状態
@@ -176,23 +101,20 @@ private:
 	//回転の補間速度
 	float quaternionInterpolationSpeed_ = 0.4f;
 
-	//アニメーション後の座標
+	//前のフレームのアニメーション後の座標
 	Vector3 preAnimationHipPosition_{};
 
 	//コライダーのオフセット値
 	Vector3 colliderOffset_{};
 
-	//アクションフラグ
-	std::unordered_map<ActionFlag, bool> flags_;
-
-	//Camera
+	//カメラ
 	const Camera* camera_ = nullptr;
 
-	//LockOn
+	//ロックオン
 	const Lockon* lockon_ = nullptr;
 
-	//AnimationPhaseManager
-	const AnimationStateManager* animationStateManager_ = nullptr;
+	//通常状態のパラメーター
+	RootParameters rootParameters_{};
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
@@ -200,26 +122,8 @@ private:
 	//アニメーション時間
 	float animationTime_ = 0.0f;
 
-	//通常状態のパラメーター
-	RootParameters rootParameters_{};
-
-	//ジャンプ状態のパラメーター
-	JumpParameters jumpParameters_{};
-
-	//回避状態のパラメーター
-	DodgeParameters dodgeParameters_{};
-
-	//ダッシュ用のパラメーター
-	DashParameters dashParameters_{};
-
-	//地上攻撃用のパラメーター
-	AttackParameters attackParameters_{};
-
-	//落下攻撃用のパラメーター
-	FallingAttackParameters fallingAttackParameters_{};
-
-	//バックハンド攻撃用のパラメーター
-	BackhandAttackParameters backhandAttackParameters_{};
+	//現在のアニメーション
+	std::string currentAnimationName_ = "Armature|mixamo.com|Layer0";
 
 	//アニメーション一覧
 	std::vector<std::string> animationName_ = {
@@ -249,8 +153,5 @@ private:
 		{"Armature.001|mixamo.com|Layer0.022"},
 		{"Armature.001|mixamo.com|Layer0.023"},
 	};
-
-	//現在のアニメーション
-	std::string currentAnimationName_ = animationName_[0];
 };
 

@@ -1,13 +1,15 @@
 #pragma once
-#include "ICameraState.h"
 #include "Engine/Math/MathFunction.h"
+#include "Application/Src/Object/Camera/States/ICameraState.h"
 
-
-class CameraStateLockOn : public ICameraState
+class CameraStateLockon : public ICameraState
 {
 public:
 	void Initialize() override;
 
 	void Update() override;
+
+private:
+	void UpdateCameraRotation();
 };
 

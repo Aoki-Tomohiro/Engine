@@ -2,6 +2,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
+#include <numbers>
 
 class CameraStateFollow : public ICameraState
 {
@@ -11,14 +12,18 @@ public:
 	void Update() override;
 
 private:
-	void Reset();
+	void UpdateCameraRotation();
+
+	Vector3 GetRightStickInput() const;
 
 private:
 	//Input
 	Input* input_ = nullptr;
 
-	//累積用のQuaternion
-	Quaternion quaternionX = { 0.0f,0.0f,0.0f,1.0f };
-	Quaternion quaternionY = { 0.0f,0.0f,0.0f,1.0f };
+	//X軸のQuaternion
+	Quaternion quaternionX = Mathf::IdentityQuaternion();
+
+	//Y軸のQuaternion
+	Quaternion quaternionY = Mathf::IdentityQuaternion();
 };
 

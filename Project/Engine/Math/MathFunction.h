@@ -84,7 +84,7 @@ namespace Mathf
 
 	Quaternion GetRotation(const Matrix4x4& m);
 
-	Quaternion LootAt(const Vector3& position, const Vector3& target);
+	Quaternion LookAt(const Vector3& position, const Vector3& target);
 
 	Quaternion LookRotation(const Vector3& forward, const Vector3& up);
 

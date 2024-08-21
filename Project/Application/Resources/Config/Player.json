@@ -1,6 +1,9 @@
 {
     "Player": {
-        "RunSpeed": 18.0,
-        "WalkSpeed": 9.0
+        "ColliderOffset": [
+            0.0,
+            1.600000023841858,
+            0.0
+        ]
     }
 }

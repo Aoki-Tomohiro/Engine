@@ -8,7 +8,7 @@
                 "translation": [
                     0.0,
                     0.0,
-                    0.0
+                    -10.0
                 ],
                 "rotation": [
                     0.0,
@@ -16,86 +16,12 @@
                     0.0
                 ],
                 "scaling": [
-                    200.0,
-                    200.0,
-                    100.0
+                    300.0,
+                    300.0,
+                    10.0
                 ]
             },
             "file_name": "Ground",
-            "visible": true
-        },
-        {
-            "type": "MESH",
-            "name": "Enemy",
-            "transform": {
-                "translation": [
-                    0.0,
-                    20.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    -0.0,
-                    -3.141592502593994
-                ],
-                "scaling": [
-                    5.0,
-                    5.0,
-                    5.0
-                ]
-            },
-            "file_name": "Enemy",
-            "collider": {
-                "type": "AABB",
-                "attribute": "Enemy",
-                "center": [
-                    0.0,
-                    -0.4000000059604645,
-                    3.75
-                ],
-                "size": [
-                    4.5,
-                    4.5,
-                    7.5
-                ]
-            },
-            "visible": true
-        },
-        {
-            "type": "MESH",
-            "name": "Player",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    -0.0,
-                    0.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Player",
-            "collider": {
-                "type": "AABB",
-                "attribute": "Player",
-                "center": [
-                    0.0,
-                    0.0,
-                    1.600000023841858
-                ],
-                "size": [
-                    1.600000023841858,
-                    1.600000023841858,
-                    3.200000047683716
-                ]
-            },
             "visible": true
         },
         {
@@ -124,14 +50,14 @@
             "name": "Camera",
             "transform": {
                 "translation": [
-                    7.358891487121582,
-                    -6.925790786743164,
-                    4.958309173583984
+                    0.0,
+                    80.0,
+                    30.0
                 ],
                 "rotation": [
-                    1.1093190908432007,
-                    -4.6507988571420356e-08,
-                    0.8149282336235046
+                    1.260008454322815,
+                    -5.642599489874556e-07,
+                    3.141592502593994
                 ],
                 "scaling": [
                     1.0,
@@ -139,6 +65,43 @@
                     1.0
                 ]
             }
+        },
+        {
+            "type": "MESH",
+            "name": "Player",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Player",
+            "collider": {
+                "type": "AABB",
+                "attribute": "Player",
+                "center": [
+                    0.0,
+                    0.0,
+                    1.5999999046325684
+                ],
+                "size": [
+                    1.600000023841858,
+                    1.600000023841858,
+                    3.200000047683716
+                ]
+            },
+            "visible": true
         }
     ]
 }
