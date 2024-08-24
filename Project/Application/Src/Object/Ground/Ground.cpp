@@ -1,5 +1,5 @@
 #include "Ground.h"
-#include "Engine/Components/Component/ModelComponent.h"
+#include "Engine/Components/Model/ModelComponent.h"
 
 void Ground::Initialize()
 {

@@ -1,5 +1,6 @@
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
+#include "Engine/Components/Animator/AnimatorComponent.h"
 
 void GameTitleScene::Initialize()
 {
@@ -20,11 +21,20 @@ void GameTitleScene::Initialize()
 	//レベルデータの読み込み
 	LevelLoader::Load("TitleScene");
 
-	//カメラを設定
+	//カメラを取得
 	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
 	camera_->rotationType_ = RotationType::Euler;
+	//ゲームオブジェクトマネージャーにカメラを設定
 	gameObjectManager_->SetCamera(camera_);
+	//パーティクルマネージャーにカメラを設定
 	particleManager_->SetCamera(camera_);
+
+	//プレイヤーを取得
+	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
+	////アニメーターコンポーネントを追加
+	//AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
+	//animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
+	//animatorComponent->PlayAnimation("Idle", 1.0f, true);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();

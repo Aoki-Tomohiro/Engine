@@ -1,6 +1,5 @@
 #include "ModelManager.h"
 #include "Engine/Math/MathFunction.h"
-#include <cassert>
 
 ModelManager* ModelManager::instance_ = nullptr;
 const std::string ModelManager::kBaseDirectory = "Application/Resources/Models";
@@ -31,11 +30,13 @@ Model* ModelManager::CreateFromModelFile(const std::string& modelName, DrawPass 
 
 Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawPass)
 {
-	auto it = models_.find(modelName);
-
-	if (it != models_.end())
+	//同じモデルデータがないかチェック
+	auto it = modelDatas_.find(modelName);
+	if (it != modelDatas_.end())
 	{
-		return it->second.get();
+		Model* model = new Model();
+		model->Initialize(it->second, drawPass);
+		return model;
 	}
 
 	//ファイルパスを設定
@@ -52,14 +53,12 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 
 	//モデルデータの読み込み
 	Model::ModelData modelData = LoadModelFile(directoryPath, fileName);
-	std::vector<Animation::AnimationData> animationData = LoadAnimationFile(directoryPath, fileName);
+	//モデルデータを保存
+	modelDatas_[fileName] = modelData;
 
 	//モデルの生成
 	Model* model = new Model();
-	model->Initialize(modelData, animationData, drawPass);
-
-	//モデルデータとアニメーションデータを保存
-	models_[modelName] = std::unique_ptr<Model>(model);
+	model->Initialize(modelData, drawPass);
 
 	return model;
 }
@@ -111,7 +110,7 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 			//Jointごとに格納領域を作る
 			aiBone* bone = mesh->mBones[boneIndex];
 			std::string jointName = bone->mName.C_Str();
-			Mesh::JointWeightData& jointWeightData = modelData.skinClusterData[meshIndex][jointName];
+			Model::JointWeightData& jointWeightData = modelData.skinClusterData[meshIndex][jointName];
 
 			//InverseBindPoseMatrixの抽出
 			aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();//BindPoseMatrixに戻す
@@ -155,9 +154,9 @@ Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, c
 	return modelData;
 }
 
-Animation::Node ModelManager::ReadNode(aiNode* node)
+Model::Node ModelManager::ReadNode(aiNode* node)
 {
-	Animation::Node result{};
+	Model::Node result{};
 	aiVector3D scale, translate;
 	aiQuaternion rotate;
 	node->mTransformation.Decompose(scale, rotate, translate);//assimpの行列からSRTを抽出する関数を利用
@@ -173,56 +172,4 @@ Animation::Node ModelManager::ReadNode(aiNode* node)
 		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
 	}
 	return result;
-}
-
-std::vector<Animation::AnimationData> ModelManager::LoadAnimationFile(const std::string& directoryPath, const std::string& filename)
-{
-	std::vector<Animation::AnimationData> animation{};//今回作るアニメーション
-	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
-	if (scene->mAnimations == 0) return animation;//アニメーションがない
-	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++)
-	{
-		Animation::AnimationData currentAnimationData{};
-		aiAnimation* animationAssimp = scene->mAnimations[animationIndex];//最初のアニメーションだけ採用。もちろん複数対応することに越したことはない
-		currentAnimationData.name = animationAssimp->mName.C_Str();
-		currentAnimationData.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間の単位を秒に変換
-		//assimpでは個々のNodeのAnimationをchannelと読んでいるのでchannelを回してNodeAnimationの情報を取ってくる
-		for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex)
-		{
-			aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-			Animation::NodeAnimation& nodeAnimation = currentAnimationData.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
-			//Translate
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex)
-			{
-				aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-				Animation::KeyframeVector3 keyframe;
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);//ここも秒に変換
-				keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };//右手->左手
-				nodeAnimation.translate.keyframes.push_back(keyframe);
-			}
-			//Rotate
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex)
-			{
-				aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
-				Animation::KeyframeQuaternion keyframe;
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
-				keyframe.value = { keyAssimp.mValue.x,-keyAssimp.mValue.y,-keyAssimp.mValue.z,keyAssimp.mValue.w };
-				nodeAnimation.rotate.keyframes.push_back(keyframe);
-			}
-			//Scale
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex)
-			{
-				aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-				Animation::KeyframeVector3 keyframe;
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
-				keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
-				nodeAnimation.scale.keyframes.push_back(keyframe);
-			}
-		}
-		animation.push_back(currentAnimationData);
-	}
-	//解析完了
-	return animation;
 }

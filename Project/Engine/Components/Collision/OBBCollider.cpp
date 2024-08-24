@@ -1,5 +1,7 @@
 #include "OBBCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
+#include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
 
 void OBBCollider::Initialize()
@@ -9,15 +11,13 @@ void OBBCollider::Initialize()
 
 void OBBCollider::Update()
 {
-	if (transformComponent_)
-	{
-		worldCenter_ = transformComponent_->GetWorldPosition() + center_;
-	}
-	else
-	{
-		worldCenter_ = center_;
-	}
+	//トランスフォームコンポーネントを取得
+	TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
 
+	//ワールド座標系の中心座標を計算
+	worldCenter_ = transformComponent->GetWorldPosition() + center_;
+
+	//OBBの軸を正規化
 	orientations_[0] = Mathf::Normalize(orientations_[0]);
 	orientations_[1] = Mathf::Normalize(orientations_[1]);
 	orientations_[2] = Mathf::Normalize(orientations_[2]);

@@ -1,11 +1,9 @@
 #pragma once
 #include "Model.h"
-#include <filesystem>
-#include <fstream>
-#include <sstream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <filesystem>
 
 class ModelManager
 {
@@ -28,13 +26,11 @@ private:
 
 	Model::ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
-	std::vector<Animation::AnimationData> LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
-
-	Animation::Node ReadNode(aiNode* node);
+	Model::Node ReadNode(aiNode* node);
 
 private:
 	static ModelManager* instance_;
 
-	std::map<std::string, std::unique_ptr<Model>> models_{};
+	std::map<std::string, Model::ModelData> modelDatas_{};
 };
 

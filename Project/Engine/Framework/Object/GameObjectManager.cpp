@@ -91,6 +91,7 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 	assert(gameObjectFactory_);
 	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
 	newGameObject->SetGameObjectManager(this);
+	newGameObject->AddComponent<TransformComponent>();
 	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;
 }

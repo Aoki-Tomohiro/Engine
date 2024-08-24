@@ -2,227 +2,291 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include <cassert>
+#include <algorithm>
 
-void Animation::Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode)
+void Animation::Initialize(const std::vector<AnimationData>& animationData)
 {
-	//アニメーションデータの初期化
-	animationData_ = animationData;
+    //アニメーションデータの初期化
+    animationDatas_ = animationData;
 
-	//スケルトンを作成
-	skeletonData_ = CreateSkeleton(rootNode);
-
-	//JointのWorldTransformを作成
-	jointWorldTransforms_.resize(skeletonData_.joints.size());
-	for (uint32_t i = 0; i < skeletonData_.joints.size(); ++i)
-	{
-		jointWorldTransforms_[i].rotationType_ = RotationType::Quaternion;
-	}
+    //最初のアニメーションを設定
+    animationName_ = animationDatas_.empty() ? "" : animationDatas_[0].name;
 }
 
-void Animation::Update(const WorldTransform& worldTransform)
+void Animation::UpdateAnimationTime()
 {
-	//全てのJointの更新。親が若いので通常ループで処理可能になっている
-	for (Joint& joint : skeletonData_.joints)
-	{
-		joint.localMatrix = Mathf::MakeAffineMatrix(joint.scale, joint.rotate, joint.translate);
-		if (joint.parent)//親がいれば親の行列を掛ける
-		{
-			joint.skeletonSpaceMatrix = joint.localMatrix * skeletonData_.joints[*joint.parent].skeletonSpaceMatrix;
-		}
-		else//親がいないのでlocalMatrixとskeletonSpaceMatrixは一致する
-		{
-			joint.skeletonSpaceMatrix = joint.localMatrix;
-		}
-		//Scale成分を取り除く
-		Matrix4x4 jointWorldTransform = joint.skeletonSpaceMatrix;
-		for (int i = 0; i < 3; ++i)
-		{
-			float scale = std::sqrt(jointWorldTransform.m[i][0] * jointWorldTransform.m[i][0] +
-				jointWorldTransform.m[i][1] * jointWorldTransform.m[i][1] +
-				jointWorldTransform.m[i][2] * jointWorldTransform.m[i][2]);
-			for (int j = 0; j < 3; ++j)
-			{
-				jointWorldTransform.m[i][j] /= scale;
-			}
-		}
-		//ワールド行列を掛ける
-		jointWorldTransforms_[joint.index].matWorld_ = jointWorldTransform * worldTransform.matWorld_;
-	}
+    //現在のアニメーションデータを取得
+    const AnimationData* animationData = GetCurrentAnimationData();
+    //現在のアニメーションデータがない場合は何もしない
+    if (!animationData) return;
+
+    //アニメーション時間を進める
+    animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
+
+    //アニメーションの終了時間を超えた場合
+    if (animationTime_ > animationData->duration)
+    {
+        //ループフラグが立っている場合アニメーションをループさせる
+        if (loop_)
+        {
+            animationTime_ = std::fmod(animationTime_, animationData->duration);
+        }
+        //ループフラグが立っていない場合アニメーションを停止し終了フラグをセット
+        else
+        {
+            StopAnimation();
+            isAnimationFinished_ = true;
+        }
+    }
+    //アニメーションが終了していない場合、終了フラグをリセット
+    else
+    {
+        isAnimationFinished_ = false;
+    }
 }
 
-void Animation::ApplyAnimation(WorldTransform& worldTransform, const std::string& rootNodeName, const std::string& animationName)
+void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform)
 {
-	for (AnimationData& animationData : animationData_)
-	{
-		if (animationData.name != animationName)
-		{
-			continue;
-		}
+    //アニメーションデータを取得
+    const AnimationData* animationData = GetCurrentAnimationData();
+    //現在のアニメーションデータがない場合は何もしない
+    if (!animationData) return;
 
-		//アニメーションが終わったら
-		if (animationTime_ >= animationData.duration)
-		{
-			if (!isStop_)
-			{
-				//アニメーションの終了フラグを立てる
-				isAnimationEnd_ = true;
-			}
-			else
-			{
-				isAnimationEnd_ = false;
-			}
+    //アニメーション時間を更新する
+    UpdateAnimationTime();
 
-			//ループフラグが立っていたらanimationTimeをリセット
-			if (isLoop_)
-			{
-				animationTime_ = std::fmod(animationTime_, animationData.duration);
-			}
-			//ループフラグが立っていなかったらanimationTimeを固定
-			else
-			{
-				animationTime_ = animationData.duration;
-			}
-		}
-		else
-		{
-			if (!isStop_)
-			{
-				//時刻を進める。1/60で固定してあるが、計測した時間を使って可変フレーム対応する方が望ましい
-				animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
-				//アニメーションが終わっていなかったらアニメーションの終了フラグを折る
-				isAnimationEnd_ = false;
-			}
-		}
+    //ノードレベルのアニメーションを適用する
+    ApplyNodeAnimation(model, worldTransform, *animationData);
 
-		//RigidAnimation
-		if (auto it = animationData.nodeAnimations.find(rootNodeName); it != animationData.nodeAnimations.end())
-		{
-			NodeAnimation& rootNodeAnimation = (*it).second;
-			Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-			Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-			Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-			Matrix4x4 localMatrix = Mathf::MakeAffineMatrix(scale, rotate, translate);
-			worldTransform.matWorld_ = localMatrix * worldTransform.matWorld_;
-		}
-
-		//SkeletonAnimation
-		for (Joint& joint : skeletonData_.joints)
-		{
-			//対象のJointのAnimationがあれば、値の適用を行う。下記のif文はc++17から可能になった初期化付きif文。
-			if (auto it = animationData.nodeAnimations.find(joint.name); it != animationData.nodeAnimations.end())
-			{
-				const NodeAnimation& rootNodeAnimation = (*it).second;
-				joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
-				joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
-				joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
-			}
-		}
-	}
+    //スケルトンレベルのアニメーションを適用する
+    ApplySkeletonAnimation(model, *animationData);
 }
 
-const float Animation::GetAnimationDuration(const std::string& name)
+void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* blendAnimation, float blendFactor)
 {
-	for (AnimationData& animationData : animationData_)
-	{
-		if (animationData.name == name)
-		{
-			return animationData.duration;
-		}
-	}
-	return 0.0f;
-};
+    //現在のアニメーションデータを取得
+    const AnimationData* currentAnimationData = GetCurrentAnimationData();
+    //現在のアニメーションデータがない場合は何もしない
+    if (!currentAnimationData) return;
 
-const WorldTransform& Animation::GetJointWorldTransform(const std::string& name) const
+    //アニメーション時間を更新する
+    UpdateAnimationTime();
+    //ブレンドするアニメーションの時間を更新する
+    blendAnimation->UpdateAnimationTime();
+
+    //ノードのブレンドアニメーションを適用する
+    ApplyBlendedNodeAnimation(model, worldTransform, *currentAnimationData, blendAnimation, blendFactor);
+
+    //スケルトンのブレンドアニメーションを適用する
+    ApplyBlendedSkeletonAnimation(model, *currentAnimationData, blendAnimation, blendFactor);
+}
+
+void Animation::PlayAnimation(const std::string& animationName, float speed, bool loop)
 {
-	for (const Joint& joint : skeletonData_.joints)
-	{
-		if (joint.name == name)
-		{
-			return jointWorldTransforms_[joint.index];
-		}
-	}
-	static WorldTransform emptyWorldTransform{};
-	return emptyWorldTransform;
+    //アニメーション名を設定
+    animationName_ = animationName; 
+    //ループフラグを設定
+    loop_ = loop; 
+    //アニメーション時間をリセット
+    animationTime_ = 0.0f; 
+    //アニメーション速度を設定
+    animationSpeed_ = speed;
+}
+
+void Animation::StopAnimation()
+{
+    //アニメーション名をクリア
+    animationName_.clear();
+    //アニメーション時間をリセット
+    animationTime_ = 0.0f;
+}
+
+const Animation::AnimationData* Animation::GetCurrentAnimationData() const
+{
+    auto it = std::find_if(animationDatas_.begin(), animationDatas_.end(),
+        [this](const AnimationData& data) { return data.name == animationName_; });
+    return it != animationDatas_.end() ? &(*it) : nullptr;
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)
 {
-	assert(!keyframes.empty());//キーがないものは返す値が分からないのでダメ
-	//キーが2つか、時刻がキーフレーム前なら最初の値とする
-	if (keyframes.size() == 1 || time <= keyframes[0].time)
-	{
-		return keyframes[0].value;
-	}
+    assert(!keyframes.empty());//キーがないものは返す値が分からないのでダメ
+    //キーが2つか、時刻がキーフレーム前なら最初の値とする
+    if (keyframes.size() == 1 || time <= keyframes[0].time)
+    {
+        return keyframes[0].value;
+    }
 
-	for (size_t index = 0; index < keyframes.size() - 1; ++index)
-	{
-		size_t nextIndex = index + 1;
-		//indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判定
-		if (keyframes[index].time <= time && time <= keyframes[nextIndex].time)
-		{
-			//範囲内を補間する
-			float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-			return Mathf::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
-		}
-	}
-	return (*keyframes.rbegin()).value;
+    for (size_t index = 0; index < keyframes.size() - 1; ++index)
+    {
+        size_t nextIndex = index + 1;
+        //indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判定
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time)
+        {
+            //範囲内を補間する
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
+            return Mathf::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+        }
+    }
+    return (*keyframes.rbegin()).value;
 }
 
 Quaternion Animation::CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time)
 {
-	assert(!keyframes.empty());//キーがないものは返す値が分からないのでダメ
-	//キーが2つか、時刻がキーフレーム前なら最初の値とする
-	if (keyframes.size() == 1 || time <= keyframes[0].time)
-	{
-		return keyframes[0].value;
-	}
+    assert(!keyframes.empty());//キーがないものは返す値が分からないのでダメ
+    //キーが2つか、時刻がキーフレーム前なら最初の値とする
+    if (keyframes.size() == 1 || time <= keyframes[0].time)
+    {
+        return keyframes[0].value;
+    }
 
-	for (size_t index = 0; index < keyframes.size() - 1; ++index)
-	{
-		size_t nextIndex = index + 1;
-		//indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判定
-		if (keyframes[index].time <= time && time <= keyframes[nextIndex].time)
-		{
-			//範囲内を補間する
-			float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-			return Mathf::Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
-		}
-	}
-	return (*keyframes.rbegin()).value;
+    for (size_t index = 0; index < keyframes.size() - 1; ++index)
+    {
+        size_t nextIndex = index + 1;
+        //indexとnextIndexの2つのkeyframeを取得して範囲内に時刻があるかを判定
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time)
+        {
+            //範囲内を補間する
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
+            return Mathf::Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
+        }
+    }
+    return (*keyframes.rbegin()).value;
 }
 
-Animation::Skeleton Animation::CreateSkeleton(const Node& rootNode)
+void Animation::ApplyNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& animationData)
 {
-	Skeleton skeleton;
-	skeleton.root = CreateJoint(rootNode, {}, skeleton.joints);
-
-	//名前とindexのマッピングを行いアクセスしやすくする
-	for (const Joint& joint : skeleton.joints)
-	{
-		skeleton.jointMap.emplace(joint.name, joint.index);
-	}
-
-	return skeleton;
+    //ノードアニメーションを適用する
+    if (auto it = animationData.nodeAnimations.find(model->GetRootNode().name); it != animationData.nodeAnimations.end())
+    {
+        //ノードアニメーションを取得
+        const NodeAnimation& rootNodeAnimation = it->second;
+        //現在のアニメーション時間に基づいて、変換、回転、スケーリングを計算
+        Vector3 translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+        Quaternion rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+        Vector3 scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+        //計算した変換、回転、スケーリングからローカル行列を作成
+        Matrix4x4 localMatrix = Mathf::MakeAffineMatrix(scale, rotate, translate);
+        //ワールド行列にローカル行列を適用
+        worldTransform.matWorld_ = localMatrix * worldTransform.matWorld_;
+    }
 }
 
-int32_t Animation::CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints)
+void Animation::ApplySkeletonAnimation(Model* model, const AnimationData& animationData)
 {
-	Joint joint;
-	joint.name = node.name;
-	joint.localMatrix = node.localMatrix;
-	joint.skeletonSpaceMatrix = Mathf::MakeIdentity4x4();
-	joint.scale = node.scale;
-	joint.rotate = node.rotate;
-	joint.translate = node.translate;
-	joint.index = int32_t(joints.size());//現在登録されている数をIndexに
-	joint.parent = parent;
-	joints.push_back(joint);//SkeletonのJoint列に追加
-	for (const Node& child : node.children)
-	{
-		//子Jointを作成し、そのIndexを登録
-		int32_t childIndex = CreateJoint(child, joint.index, joints);
-		joints[joint.index].children.push_back(childIndex);
-	}
-	//自身のIndexを返す
-	return joint.index;
+    //スケルトンを取得
+    Model::Skeleton& skeleton = model->GetSkeleton();
+
+    //スケルトン内の全ジョイントに対してアニメーションを適用
+    for (Model::Joint& joint : skeleton.joints)
+    {
+        //ジョイントの名前でアニメーションデータを検索
+        if (auto it = animationData.nodeAnimations.find(joint.name); it != animationData.nodeAnimations.end())
+        {
+            //ノードアニメーションを取得
+            const NodeAnimation& rootNodeAnimation = it->second;
+            //現在のアニメーション時間に基づいて、変換、回転、スケーリングを計算
+            joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+            joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+            joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+        }
+    }
+}
+
+void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor)
+{
+    //モデルのルートノードの名前で現在のアニメーションデータを検索
+    if (auto it = currentAnimationData.nodeAnimations.find(model->GetRootNode().name); it != currentAnimationData.nodeAnimations.end())
+    {
+        //ノードアニメーションを取得
+        const NodeAnimation& rootNodeAnimation = it->second;
+        //現在のアニメーション時間に基づいて、変換、回転、スケーリングを計算
+        Vector3 currentTranslate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+        Quaternion currentRotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+        Vector3 currentScale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+
+        //ブレンドアニメーションが存在する場合
+        if (blendAnimation)
+        {
+            //アニメーションデータを取得
+            const AnimationData* blendAnimationData = blendAnimation->GetCurrentAnimationData();
+            //アニメーションデータが存在する場合
+            if (blendAnimationData)
+            {
+                //モデルのルートノードの名前で現在のアニメーションデータを検索
+                if (auto blendIt = blendAnimationData->nodeAnimations.find(model->GetRootNode().name); blendIt != blendAnimationData->nodeAnimations.end())
+                {
+                    //ノードアニメーションを取得
+                    const NodeAnimation& blendNodeAnimation = blendIt->second;
+                    //ブレンドアニメーションに基づいて、変換、回転、スケーリングを計算
+                    Vector3 blendTranslate = CalculateValue(blendNodeAnimation.translate.keyframes, blendAnimation->GetAnimationTime());
+                    Quaternion blendRotate = CalculateValue(blendNodeAnimation.rotate.keyframes, blendAnimation->GetAnimationTime());
+                    Vector3 blendScale = CalculateValue(blendNodeAnimation.scale.keyframes, blendAnimation->GetAnimationTime());
+
+                    //現在のアニメーションとブレンドアニメーションを補間する
+                    currentTranslate = Mathf::Lerp(currentTranslate, blendTranslate, blendFactor);
+                    currentRotate = Mathf::Slerp(currentRotate, blendRotate, blendFactor);
+                    currentScale = Mathf::Lerp(currentScale, blendScale, blendFactor);
+                }
+            }
+        }
+
+        //計算した変換、回転、スケーリングからローカル行列を作成
+        Matrix4x4 localMatrix = Mathf::MakeAffineMatrix(currentScale, currentRotate, currentTranslate);
+
+        //ワールド行列にローカル行列を適用
+        worldTransform.matWorld_ = localMatrix * worldTransform.matWorld_;
+    }
+}
+
+void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor)
+{
+    //スケルトンを取得
+    Model::Skeleton& skeleton = model->GetSkeleton();
+
+    //スケルトン内の全ジョイントに対してアニメーションを適用
+    for (Model::Joint& joint : skeleton.joints)
+    {
+        //ジョイントの名前で現在のアニメーションデータを検索
+        if (auto it = currentAnimationData.nodeAnimations.find(joint.name); it != currentAnimationData.nodeAnimations.end())
+        {
+            //ノードアニメーションを取得
+            const NodeAnimation& rootNodeAnimation = it->second;
+            //現在のアニメーション時間に基づいて、変換、回転、スケーリングを計算
+            Vector3 currentTranslate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
+            Quaternion currentRotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
+            Vector3 currentScale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+
+            //ブレンドアニメーションが存在する場合
+            if (blendAnimation)
+            {
+                //アニメーションデータを取得
+                const AnimationData* blendAnimationData = blendAnimation->GetCurrentAnimationData();
+                //アニメーションデータが存在する場合
+                if (blendAnimationData)
+                {
+                    //モデルのルートノードの名前で現在のアニメーションデータを検索
+                    if (auto blendIt = blendAnimationData->nodeAnimations.find(joint.name); blendIt != blendAnimationData->nodeAnimations.end())
+                    {
+                        //ノードアニメーションを取得
+                        const NodeAnimation& blendNodeAnimation = blendIt->second;
+                        //ブレンドアニメーションに基づいて、変換、回転、スケーリングを計算
+                        Vector3 blendTranslate = CalculateValue(blendNodeAnimation.translate.keyframes, blendAnimation->GetAnimationTime());
+                        Quaternion blendRotate = CalculateValue(blendNodeAnimation.rotate.keyframes, blendAnimation->GetAnimationTime());
+                        Vector3 blendScale = CalculateValue(blendNodeAnimation.scale.keyframes, blendAnimation->GetAnimationTime());
+
+                        //現在のアニメーションとブレンドアニメーションを補間する
+                        currentTranslate = Mathf::Lerp(currentTranslate, blendTranslate, blendFactor);
+                        currentRotate = Mathf::Slerp(currentRotate, blendRotate, blendFactor);
+                        currentScale = Mathf::Lerp(currentScale, blendScale, blendFactor);
+                    }
+                }
+            }
+
+            //ジョイントの変換を更新する
+            joint.translate = currentTranslate;
+            joint.rotate = currentRotate;
+            joint.scale = currentScale;
+        }
+    }
 }

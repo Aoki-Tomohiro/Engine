@@ -1,6 +1,6 @@
 #pragma once
-#include "Engine/Components/Component/Component.h"
-#include "Engine/Components/Component/RenderComponent.h"
+#include "Engine/Components/Base/Component.h"
+#include "Engine/Components/Base/RenderComponent.h"
 #include <list>
 #include <memory>
 #include <string>

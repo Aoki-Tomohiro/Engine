@@ -1,6 +1,5 @@
 #pragma once
-#include "Engine/Components/Component/RenderComponent.h"
-#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Base/RenderComponent.h"
 #include <cstdint>
 #include <set>
 
@@ -18,8 +17,6 @@ public:
 	void OnCollisionEnter(GameObject* other);
 
 	void OnCollisionExit(GameObject* other);
-
-	void SetTransformComponent(TransformComponent* transformComponent) { transformComponent_ = transformComponent; };
 
 	const uint32_t GetCollisionAttribute() const { return collisionAttribute_; };
 
@@ -43,8 +40,6 @@ public:
 
 protected:
 	std::set<Collider*> currentCollisions_;
-
-	TransformComponent* transformComponent_ = nullptr;
 
 	uint32_t collisionAttribute_ = 0xffffffff;
 

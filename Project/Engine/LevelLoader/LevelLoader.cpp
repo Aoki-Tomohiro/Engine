@@ -2,8 +2,8 @@
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Camera/CameraManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Components/Component/TransformComponent.h"
+#include "Engine/Components/Model/ModelComponent.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/Components/Collision/OBBCollider.h"
 #include "Engine/Components/Collision/SphereCollider.h"
@@ -188,7 +188,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		newObject->SetIsVisible(objectData.isVisible);
 
 		//トランスフォームの追加
-		TransformComponent* transformComponent = newObject->AddComponent<TransformComponent>();
+		TransformComponent* transformComponent = newObject->GetComponent<TransformComponent>();
 		transformComponent->worldTransform_.translation_ = objectData.translation;
 		transformComponent->worldTransform_.rotation_ = objectData.rotation;
 		transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(
@@ -200,7 +200,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		//モデルの追加
 		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
 		modelComponent->SetModel(ModelManager::CreateFromModelFile(objectData.modelName, Opaque));
-		modelComponent->SetTransformComponent(transformComponent);
 
 		//Typeが無かったらColliderがないとみなす
 		if (objectData.colliderData.type != "")
@@ -209,7 +208,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			if (objectData.colliderData.type == "AABB")
 			{
 				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
-				collider->SetTransformComponent(transformComponent);
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
@@ -219,7 +217,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			else if (objectData.colliderData.type == "OBB")
 			{
 				OBBCollider* collider = newObject->AddComponent<OBBCollider>();
-				collider->SetTransformComponent(transformComponent);
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
@@ -229,7 +226,6 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			else if (objectData.colliderData.type == "SPHERE")
 			{
 				SphereCollider* collider = newObject->AddComponent<SphereCollider>();
-				collider->SetTransformComponent(transformComponent);
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);

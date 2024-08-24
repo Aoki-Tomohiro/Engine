@@ -1,326 +1,39 @@
 #include "Player.h"
-#include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Components/Component/ModelComponent.h"
-#include "Engine/Components/Collision/AABBCollider.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 
 void Player::Initialize()
 {
-	//GameObjectの初期化
+	//基底クラスの初期化
 	GameObject::Initialize();
-
-	//状態の初期化
-	ChangeState(new PlayerStateRoot());
-
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	//回転の種類をQuaternionに設定
-	transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションの名前の初期化
-	modelComponent->SetAnimationName(currentAnimationName_);
-	//全てのマテリアルの環境マップの映り込みの係数を設定
-	for (size_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
-	{
-		modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
-	}
-
-	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
 }
 
 void Player::Update()
 {
-	//状態の更新
-	state_->Update();
-
-	//回転処理
-	UpdateRotation();
-
-	//コライダーの更新
-	UpdateCollider();
-
-	//GameObjectの更新
+	//基底クラスの更新
 	GameObject::Update();
 
-	//環境変数の適用
-	ApplyGlobalVariables();
-
-	//ImGuiの更新
-	UpdateImGui();
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+	ImGui::Begin("Player");
+	ImGui::DragFloat3("Translate", &transformComponent->worldTransform_.translation_.x, 0.01f);
+	ImGui::DragFloat3("Rotation", &transformComponent->worldTransform_.rotation_.x, 0.01f);
+	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
+	ImGui::End();
 }
 
 void Player::Draw(const Camera& camera)
 {
-	//GameObjectの描画
+	//基底クラスの描画
 	GameObject::Draw(camera);
 }
 
-void Player::DrawUI()
+void Player::OnCollision(GameObject* other)
 {
-
 }
 
-void Player::OnCollision(GameObject* gameObject)
+void Player::OnCollisionEnter(GameObject* other)
 {
-	//衝突相手が敵の場合
-	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
-	{
-		//プレイヤーと敵のAABBコライダーを取得
-		AABBCollider* AABB1 = gameObject->GetComponent<AABBCollider>();
-		AABBCollider* AABB2 = GetComponent<AABBCollider>();
-
-		//2つのAABBコライダー間のオーバーラップ軸を計算
-		Vector3 overlapAxis = {
-			std::min<float>(AABB2->GetWorldCenter().x + AABB2->GetMax().x, AABB1->GetWorldCenter().x + AABB1->GetMax().x) -
-			std::max<float>(AABB2->GetWorldCenter().x + AABB2->GetMin().x, AABB1->GetWorldCenter().x + AABB1->GetMin().x),
-			std::min<float>(AABB2->GetWorldCenter().y + AABB2->GetMax().y, AABB1->GetWorldCenter().y + AABB1->GetMax().y) -
-			std::max<float>(AABB2->GetWorldCenter().y + AABB2->GetMin().y, AABB1->GetWorldCenter().y + AABB1->GetMin().y),
-			std::min<float>(AABB2->GetWorldCenter().z + AABB2->GetMax().z, AABB1->GetWorldCenter().z + AABB1->GetMax().z) -
-			std::max<float>(AABB2->GetWorldCenter().z + AABB2->GetMin().z, AABB1->GetWorldCenter().z + AABB1->GetMin().z),
-		};
-
-		//プレイヤーと敵のTransformComponentを取得
-		TransformComponent* transform1 = GetComponent<TransformComponent>();
-		TransformComponent* transform2 = gameObject->GetComponent<TransformComponent>();
-
-		//最小のオーバーラップ軸に基づいて衝突方向を決定
-		Vector3 directionAxis{};
-		if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
-			//X軸方向で最小の重なりが発生している場合
-			directionAxis.x = (transform1->worldTransform_.translation_.x < transform2->worldTransform_.translation_.x) ? -1.0f : 1.0f;
-			directionAxis.y = 0.0f;
-		}
-		else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
-			////Y軸方向で最小の重なりが発生している場合
-			//directionAxis.y = (transform1->worldTransform_.translation_.y < transform2->worldTransform_.translation_.y) ? -1.0f : 1.0f;
-			//directionAxis.x = 0.0f;
-		}
-		else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
-		{
-			//Z軸方向で最小の重なりが発生している場合
-			directionAxis.z = (transform1->worldTransform_.translation_.z < transform2->worldTransform_.translation_.z) ? -1.0f : 1.0f;
-			directionAxis.x = 0.0f;
-			directionAxis.y = 0.0f;
-		}
-
-		//衝突方向に基づいてプレイヤーの位置を修正
-		transform1->worldTransform_.translation_ += overlapAxis * directionAxis;
-	}
 }
 
-void Player::OnCollisionEnter(GameObject* gameObject)
+void Player::OnCollisionExit(GameObject* other)
 {
-
-}
-
-void Player::OnCollisionExit(GameObject* gameObject)
-{
-
-}
-
-void Player::ChangeState(IPlayerState* newState)
-{
-	//新しい状態の設定
-	newState->SetPlayer(this);
-
-	//新しい状態の初期化
-	newState->Initialize();
-
-	//現在の状態を新しい状態に更新
-	state_.reset(newState);
-}
-
-void Player::Move(const Vector3& velocity)
-{
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
-}
-
-void Player::Rotate(const Vector3& vector)
-{
-	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
-	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
-	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>) * Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
-}
-
-void Player::LookAtEnemy()
-{
-	//プレイヤーの腰のジョイントのワールド座標を取得
-	Vector3 playerPosition = GetHipWorldPosition();
-
-	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
-
-	//敵の方向へのベクトルを計算
-	Vector3 rotateVector = Mathf::Normalize(enemyPosition - playerPosition);
-
-	//Y軸にだけ回転させたいのでY成分を0にする
-	rotateVector.y = 0.0f;
-
-	//回転処理
-	Rotate(Mathf::Normalize(rotateVector));
-}
-
-void Player::SetAnimationName(const std::string& animationName)
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションの名前を設定
-	modelComponent->SetAnimationName(animationName);
-}
-
-const bool Player::GetIsAnimationEnd()
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションが終了しているかを返す
-	return modelComponent->GetModel()->GetAnimation()->GetIsAnimationEnd();
-}
-
-void Player::SetIsAnimationLoop(const bool isAnimationLoop)
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションのループフラグを設定
-	modelComponent->GetModel()->GetAnimation()->SetIsLoop(isAnimationLoop);
-}
-
-void Player::SetIsAnimationStop(const bool isAnimationStop)
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションの停止フラグを設定
-	modelComponent->GetModel()->GetAnimation()->SetIsStop(isAnimationStop);
-}
-
-const float Player::GetAnimationTime()
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//現在のアニメーション時間を返す
-	return modelComponent->GetModel()->GetAnimation()->GetAnimationTime();
-}
-
-void Player::SetAnimationTime(const float animationTime)
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションの時間を設定
-	modelComponent->GetModel()->GetAnimation()->SetAnimationTime(animationTime);
-}
-
-const float Player::GetAnimationSpeed()
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//現在のアニメーション速度を返す
-	return modelComponent->GetModel()->GetAnimation()->GetAnimationSpeed();
-}
-
-void Player::SetAnimationSpeed(const float animationSpeed)
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//アニメーションの速度を設定
-	modelComponent->GetModel()->GetAnimation()->SetAnimationSpeed(animationSpeed);
-}
-
-const Vector3 Player::GetHipLocalPosition()
-{
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
-	//腰のジョイントのローカル座標を計算
-	Vector3 hipLocalPosition = GetHipWorldPosition() - transformComponent->GetWorldPosition();
-
-	//腰のジョイントのローカル座標を返す
-	return hipLocalPosition;
-}
-
-const Vector3 Player::GetHipWorldPosition()
-{
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-
-	//腰のジョイントのワールドトランスフォームを取得
-	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetAnimation()->GetJointWorldTransform("mixamorig:Hips");
-
-	//ワールド座標を取得しVector3に変換して返す
-	return Vector3{
-		hipWorldTransform.matWorld_.m[3][0],
-		hipWorldTransform.matWorld_.m[3][1],
-		hipWorldTransform.matWorld_.m[3][2],
-	};
-}
-
-void Player::UpdateRotation()
-{
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
-	//現在のクォータニオンと目的のクォータニオンを補間
-	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
-}
-
-void Player::UpdateCollider()
-{
-	//AABBColliderを取得
-	AABBCollider* collider = GetComponent<AABBCollider>();
-
-	//コライダーの中心を更新
-	collider->SetCenter(GetHipLocalPosition() + colliderOffset_);
-}
-
-void Player::ApplyGlobalVariables()
-{
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	colliderOffset_ = globalVariables->GetVector3Value(groupName, "ColliderOffset");
-}
-
-void Player::UpdateImGui()
-{
-	//ImGuiのウィンドウを開始
-	ImGui::Begin("Player");
-
-	//デバッグモードのチェックボックス
-	ImGui::Checkbox("IsDebug", &isDebug_);
-
-	//アニメーション時間のスライダー
-	ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f);
-
-	//アニメーション名のコンボボックス
-	if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
-	{
-		//アニメーション名のリストを表示
-		for (const auto& animation : animationName_)
-		{
-			//現在のアニメーション名とリストのアニメーションが一致するか確認
-			bool isSelected = (currentAnimationName_ == animation);
-
-			//アニメーション名を選択できる項目として表示
-			if (ImGui::Selectable(animation.c_str(), isSelected))
-			{
-				//選択されたアニメーション名を現在のアニメーション名として設定
-				currentAnimationName_ = animation;
-			}
-
-			//選択された項目にフォーカスを設定
-			if (isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndCombo();
-	}
-
-	//ImGuiのウィンドウを終了
-	ImGui::End();
 }

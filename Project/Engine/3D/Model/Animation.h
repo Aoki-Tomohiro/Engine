@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/3D/Transform/WorldTransform.h"
+#include "Model.h"
 #include <map>
 #include <optional>
 #include <string>
@@ -8,19 +8,10 @@
 class Animation
 {
 public:
-	struct Node
-	{
-		Vector3 scale;
-		Quaternion rotate;
-		Vector3 translate;
-		Matrix4x4 localMatrix{};
-		std::string name;
-		std::vector<Node> children;
-	};
-
 	//Keyframe構造体
 	template <typename tValue>
-	struct Keyframe {
+	struct Keyframe 
+	{
 		float time;
 		tValue value;
 	};
@@ -29,53 +20,41 @@ public:
 
 	//AnimationCurve構造体
 	template <typename tValue>
-	struct AnimationCurve {
+	struct AnimationCurve
+	{
 		std::vector<Keyframe<tValue>> keyframes;
 	};
 
 	//NodeAnimation構造体
-	struct NodeAnimation {
+	struct NodeAnimation 
+	{
 		AnimationCurve<Vector3> translate;
 		AnimationCurve<Quaternion> rotate;
 		AnimationCurve<Vector3> scale;
 	};
 
 	//Animation構造体
-	struct AnimationData {
-		float duration;//アニメーション全体の尺(単位は秒)
+	struct AnimationData 
+	{
+		//アニメーションの名前
+		std::string name;
+		//アニメーション全体の尺(単位は秒)
+		float duration;
 		//NodeAnimationの集合。Node名でひけるようにしておく
 		std::map<std::string, NodeAnimation> nodeAnimations;
-		//Animationの名前
-		std::string name;
 	};
 
-	//Joint構造体
-	struct Joint
-	{
-		Vector3 scale;//scale
-		Quaternion rotate;//rotate
-		Vector3 translate;//translate
-		Matrix4x4 localMatrix;//localMatrix
-		Matrix4x4 skeletonSpaceMatrix;//SkeletonSpaceでの変換行列
-		std::string name;//名前
-		std::vector<int32_t> children;//子JointのIndexのリスト。いなければ空
-		int32_t index;//自身のIndex
-		std::optional<int32_t> parent;//親JointのIndex。いなければnull
-	};
+	void Initialize(const std::vector<AnimationData>& animationData);
 
-	//スケルトン構造体
-	struct Skeleton
-	{
-		int32_t root;//RootJointのIndex
-		std::map<std::string, int32_t> jointMap;//Joint名とIndexとの辞書
-		std::vector<Joint> joints;//所属しているジョイント
-	};
+	void UpdateAnimationTime();
 
-	void Initialize(const std::vector<AnimationData>& animationData, const Node& rootNode);
+	void ApplyAnimation(Model* model, WorldTransform& worldTransform);
 
-	void Update(const WorldTransform& worldTransform);
+	void ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* animation, const float blendFactor);
 
-	void ApplyAnimation(WorldTransform& worldTransform, const std::string& name, const std::string& animationName);
+	void PlayAnimation(const std::string& animationName, const float speed, const bool loop);
+
+	void StopAnimation();
 
 	const float GetAnimationTime() const { return animationTime_; };
 
@@ -85,44 +64,44 @@ public:
 
 	void SetAnimationSpeed(const float animationSpeed) { animationSpeed_ = animationSpeed; };
 
-	void SetIsLoop(const bool isLoop) { isLoop_ = isLoop; };
+	const bool GetLoop() const { return loop_; };
 
-	void SetIsStop(const bool isStop) { isStop_ = isStop; };
+	void SetLoop(const bool loop) { loop_ = loop; };
 
-	const float GetAnimationDuration(const std::string& name);
+	const bool GetIsAnimationFinished() const { return isAnimationFinished_; };
 
-	const bool GetIsAnimationEnd() const { return isAnimationEnd_; };
-
-	const WorldTransform& GetJointWorldTransform(const std::string& name) const;
-
-	const std::vector<WorldTransform>& GetJointWorldTransforms() const { return jointWorldTransforms_; };
-
-	const Skeleton& GetSkeleton() const { return skeletonData_; };
+	const AnimationData* GetCurrentAnimationData() const;
 
 private:
 	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);
 
 	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes, float time);
 
-	Skeleton CreateSkeleton(const Node& rootNode);
+	void ApplyNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& animationData);
 
-	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
+	void ApplySkeletonAnimation(Model* model, const AnimationData& animationData);
+
+	void ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor);
+
+	void ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor);
 
 private:
-	std::vector<AnimationData> animationData_{};
+	//アニメーションデータ
+	std::vector<AnimationData> animationDatas_{};
 
-	Skeleton skeletonData_{};
+	//アニメーションの名前
+	std::string animationName_{};
 
-	std::vector<WorldTransform> jointWorldTransforms_{};
+	//ループさせるかどうか
+	bool loop_ = true;
+	
+	//アニメーションが終了したかどうか
+	bool isAnimationFinished_ = false;
 
+	//アニメーションの時間
 	float animationTime_ = 0.0f;
 
+	//アニメーションの速度
 	float animationSpeed_ = 1.0f;
-
-	bool isLoop_ = true;
-
-	bool isStop_ = false;
-
-	bool isAnimationEnd_ = false;
 };
 

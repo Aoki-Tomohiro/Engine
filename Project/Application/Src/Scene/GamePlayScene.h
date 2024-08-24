@@ -8,12 +8,6 @@
 #include "Engine/Components/Collision/CollisionManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
 #include "Application/Src/Object/Transition/Transition.h"
-#include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/Camera/CameraController.h"
-#include "Application/Src/Object/Camera/CameraPathManager.h"
-#include "Application/Src/Object/Lockon/Lockon.h"
 
 class GamePlayScene : public IScene
 {
@@ -45,15 +39,6 @@ private:
 
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
-
-	//カメラコントローラー
-	std::unique_ptr<CameraController> cameraController_ = nullptr;
-
-	//カメラパスマネージャー
-	std::unique_ptr<CameraPathManager> cameraPathManager_ = nullptr;
-
-	//ロックオン
-	std::unique_ptr<Lockon> lockon_ = nullptr;
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;

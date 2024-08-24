@@ -1,5 +1,7 @@
 #include "SphereCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
+#include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include <numbers>
 
 void SphereCollider::Initialize()
@@ -9,14 +11,11 @@ void SphereCollider::Initialize()
 
 void SphereCollider::Update()
 {
-    if (transformComponent_)
-    {
-        worldCenter_ = transformComponent_->GetWorldPosition() + center_;
-    }
-    else
-    {
-        worldCenter_ = center_;
-    }
+    //トランスフォームコンポーネントを取得
+    TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
+
+    //ワールド座標系の中心座標を計算
+    worldCenter_ = transformComponent->GetWorldPosition() + center_;
 }
 
 void SphereCollider::Draw(const Camera& camera)

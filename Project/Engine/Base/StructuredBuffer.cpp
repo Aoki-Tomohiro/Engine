@@ -34,6 +34,9 @@ void StructuredBuffer::Create(uint32_t numElements, uint32_t elementSize)
 		IID_PPV_ARGS(&resource_));
 	assert(SUCCEEDED(hr));
 
+	//GpuVirtualAddressの初期化
+	gpuVirtualAddress_ = resource_->GetGPUVirtualAddress();
+
 	CreateDerivedViews(device, numElements, elementSize);
 }
 

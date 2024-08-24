@@ -1,11 +1,13 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/LevelLoader/LevelLoader.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Transition/Transition.h"
 #include <numbers>
 

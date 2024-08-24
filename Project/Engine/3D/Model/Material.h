@@ -2,9 +2,6 @@
 #include "Engine/Base/Texture.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
-#include "Engine/Math/Vector2.h"
-#include "Engine/Math/Vector3.h"
-#include "Engine/Math/Vector4.h"
 
 class Material
 {
@@ -26,7 +23,7 @@ public:
 		PhongReflectionModel,
 		BlinnPhongReflectionModel,
 		NoSpecularReflection,
-	};
+	};	
 
 	void Initialize(const MaterialData& materialData);
 

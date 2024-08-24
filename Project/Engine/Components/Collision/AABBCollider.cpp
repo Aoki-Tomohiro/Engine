@@ -1,5 +1,7 @@
 #include "AABBCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
+#include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 
 void AABBCollider::Initialize()
 {
@@ -8,14 +10,11 @@ void AABBCollider::Initialize()
 
 void AABBCollider::Update()
 {
-	if (transformComponent_)
-	{
-		worldCenter_ = transformComponent_->GetWorldPosition() + center_;
-	}
-	else
-	{
-		worldCenter_ = center_;
-	}
+	//トランスフォームコンポーネントを取得
+	TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
+
+	//ワールド座標系の中心座標を計算
+	worldCenter_ = transformComponent->GetWorldPosition() + center_;
 }
 
 void AABBCollider::Draw(const Camera& camera)

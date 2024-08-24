@@ -1,6 +1,7 @@
 #pragma once
 #include "AbstractGameObjectFactory.h"
 #include "GameObject.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include <vector>
 
 class GameObjectManager
@@ -75,6 +76,7 @@ Type* GameObjectManager::CreateGameObjectInternal()
 {
 	Type* newObject = new Type();
 	newObject->SetGameObjectManager(this);
+	newObject->AddComponent<TransformComponent>();
 	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newObject));
 	return newObject;
 }
