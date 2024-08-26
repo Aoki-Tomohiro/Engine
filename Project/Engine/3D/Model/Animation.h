@@ -54,6 +54,8 @@ public:
 
 	void PlayAnimation(const std::string& animationName, const float speed, const bool loop);
 
+	void PlayAnimation(const float speed, const bool loop);
+
 	void StopAnimation();
 
 	const float GetAnimationTime() const { return animationTime_; };
@@ -70,7 +72,9 @@ public:
 
 	const bool GetIsAnimationFinished() const { return isAnimationFinished_; };
 
-	const AnimationData* GetCurrentAnimationData() const;
+	const float GetDuration() const;
+
+	const AnimationData* GetAnimationData() const;
 
 private:
 	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time);
@@ -81,9 +85,9 @@ private:
 
 	void ApplySkeletonAnimation(Model* model, const AnimationData& animationData);
 
-	void ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor);
+	void ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor);
 
-	void ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor);
+	void ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor);
 
 private:
 	//アニメーションデータ
@@ -91,6 +95,9 @@ private:
 
 	//アニメーションの名前
 	std::string animationName_{};
+
+	//アニメーションを停止させるかどうか
+	bool stop_ = false;
 
 	//ループさせるかどうか
 	bool loop_ = true;

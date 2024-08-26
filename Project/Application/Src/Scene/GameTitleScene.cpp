@@ -31,10 +31,10 @@ void GameTitleScene::Initialize()
 
 	//プレイヤーを取得
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
-	////アニメーターコンポーネントを追加
-	//AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
-	//animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
-	//animatorComponent->PlayAnimation("Idle", 1.0f, true);
+	//アニメーターコンポーネントを追加
+	AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
+	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
+	animatorComponent->PlayAnimation("Idle", 1.0f, true);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -118,7 +118,7 @@ void GameTitleScene::UpdateCamera()
 	Matrix4x4 rotateYMatrix = Mathf::MakeRotateYMatrix(camera_->rotation_.y);
 
 	//Offsetに回転行列を適用
-	Vector3 offset = { 0.0f,30.0f ,-80.0f };
+	Vector3 offset = { 0.0f,10.0f ,-20.0f };
 	offset = Mathf::TransformNormal(offset, rotateYMatrix);
 
 	//カメラの座標を設定

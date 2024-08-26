@@ -306,7 +306,7 @@ void Model::UpdateSkinClusters()
 	//スキンクラスターの更新
 	for (int32_t i = 0; i < meshes_.size(); ++i)
 	{
-		if (!skinClusters_.empty())
+		if (modelData_.skinClusterData[i].empty())
 		{
 			continue;
 		}
@@ -345,7 +345,7 @@ const WorldTransform& Model::GetJointWorldTransform(const std::string& name) con
 void Model::ApplyRootTransform(WorldTransform& worldTransform)
 {
 	//スキンクラスターを持っていない場合にルートのローカル行列をワールド行列に適用
-	if (!boneVertices_.empty())
+	if (boneVertices_.empty())
 	{
 		worldTransform.matWorld_ = modelData_.rootNode.localMatrix * worldTransform.matWorld_;
 		worldTransform.TransferMatrix();

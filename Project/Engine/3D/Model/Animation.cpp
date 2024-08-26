@@ -15,8 +15,11 @@ void Animation::Initialize(const std::vector<AnimationData>& animationData)
 
 void Animation::UpdateAnimationTime()
 {
+    //アニメーションの停止フラグが立っている場合は何もしない
+    if (stop_) return;
+
     //現在のアニメーションデータを取得
-    const AnimationData* animationData = GetCurrentAnimationData();
+    const AnimationData* animationData = GetAnimationData();
     //現在のアニメーションデータがない場合は何もしない
     if (!animationData) return;
 
@@ -24,7 +27,7 @@ void Animation::UpdateAnimationTime()
     animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
 
     //アニメーションの終了時間を超えた場合
-    if (animationTime_ > animationData->duration)
+    if (animationTime_ >= animationData->duration)
     {
         //ループフラグが立っている場合アニメーションをループさせる
         if (loop_)
@@ -34,7 +37,7 @@ void Animation::UpdateAnimationTime()
         //ループフラグが立っていない場合アニメーションを停止し終了フラグをセット
         else
         {
-            StopAnimation();
+            animationTime_ = animationData->duration;
             isAnimationFinished_ = true;
         }
     }
@@ -48,7 +51,7 @@ void Animation::UpdateAnimationTime()
 void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform)
 {
     //アニメーションデータを取得
-    const AnimationData* animationData = GetCurrentAnimationData();
+    const AnimationData* animationData = GetAnimationData();
     //現在のアニメーションデータがない場合は何もしない
     if (!animationData) return;
 
@@ -62,10 +65,10 @@ void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform)
     ApplySkeletonAnimation(model, *animationData);
 }
 
-void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* blendAnimation, float blendFactor)
+void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* blendAnimation, const float blendFactor)
 {
     //現在のアニメーションデータを取得
-    const AnimationData* currentAnimationData = GetCurrentAnimationData();
+    const AnimationData* currentAnimationData = GetAnimationData();
     //現在のアニメーションデータがない場合は何もしない
     if (!currentAnimationData) return;
 
@@ -93,15 +96,33 @@ void Animation::PlayAnimation(const std::string& animationName, float speed, boo
     animationSpeed_ = speed;
 }
 
+void Animation::PlayAnimation(const float speed, const bool loop)
+{
+    //ループフラグを設定
+    loop_ = loop;
+    //停止フラグを設定
+    stop_ = false;
+    //アニメーション時間をリセット
+    animationTime_ = 0.0f;
+    //アニメーション速度を設定
+    animationSpeed_ = speed;
+}
+
 void Animation::StopAnimation()
 {
-    //アニメーション名をクリア
-    animationName_.clear();
+    //停止フラグを設定
+    stop_ = true;
     //アニメーション時間をリセット
     animationTime_ = 0.0f;
 }
 
-const Animation::AnimationData* Animation::GetCurrentAnimationData() const
+const float Animation::GetDuration() const
+{
+    const AnimationData* currentData = GetAnimationData();
+    return currentData ? currentData->duration : 0.0f;
+}
+
+const Animation::AnimationData* Animation::GetAnimationData() const
 {
     auto it = std::find_if(animationDatas_.begin(), animationDatas_.end(),
         [this](const AnimationData& data) { return data.name == animationName_; });
@@ -193,7 +214,7 @@ void Animation::ApplySkeletonAnimation(Model* model, const AnimationData& animat
     }
 }
 
-void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor)
+void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor)
 {
     //モデルのルートノードの名前で現在のアニメーションデータを検索
     if (auto it = currentAnimationData.nodeAnimations.find(model->GetRootNode().name); it != currentAnimationData.nodeAnimations.end())
@@ -209,7 +230,7 @@ void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTra
         if (blendAnimation)
         {
             //アニメーションデータを取得
-            const AnimationData* blendAnimationData = blendAnimation->GetCurrentAnimationData();
+            const AnimationData* blendAnimationData = blendAnimation->GetAnimationData();
             //アニメーションデータが存在する場合
             if (blendAnimationData)
             {
@@ -239,7 +260,7 @@ void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTra
     }
 }
 
-void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, float blendFactor)
+void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor)
 {
     //スケルトンを取得
     Model::Skeleton& skeleton = model->GetSkeleton();
@@ -261,7 +282,7 @@ void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData&
             if (blendAnimation)
             {
                 //アニメーションデータを取得
-                const AnimationData* blendAnimationData = blendAnimation->GetCurrentAnimationData();
+                const AnimationData* blendAnimationData = blendAnimation->GetAnimationData();
                 //アニメーションデータが存在する場合
                 if (blendAnimationData)
                 {
