@@ -11,6 +11,21 @@ public:
 	void Update() override;
 
 private:
+	void PlayDodgeAnimation(const Vector3& inputValue);
+
+	void PlayDirectionalDodgeAnimation(const Vector3& inputValue);
+
+	Vector3 CalculateDodgeDistance(const Vector3& inputValue) const;
+
+	Vector3 CalculateFallbackDistance() const;
+
+	float CalculateEasingParameter() const;
+
+	Vector3 InterpolatePosition(float easingParameter) const;
+
+	void FinalizeDodge();
+
+private:
 	//インプット
 	Input* input_ = nullptr;
 

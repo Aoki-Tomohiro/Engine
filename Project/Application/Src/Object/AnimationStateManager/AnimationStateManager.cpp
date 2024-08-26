@@ -128,7 +128,7 @@ void AnimationStateManager::Update()
     ImGui::End();
 }
 
-const AnimationState AnimationStateManager::GetAnimationState(const std::string& name) const
+const AnimationState& AnimationStateManager::GetAnimationState(const std::string& name) const
 {
     for (size_t i = 0; i < phaseDatas_.size(); ++i)
     {
@@ -139,99 +139,6 @@ const AnimationState AnimationStateManager::GetAnimationState(const std::string&
     }
     return AnimationState();
 }
-
-//void AnimationPhaseManager::Update()
-//{
-//    if (ImGui::Begin("Phase Editor"))
-//    {
-//        // Phaseデータの表示・編集
-//        for (auto it = phaseDatas_.begin(); it != phaseDatas_.end();)
-//        {
-//            auto& [phaseName, phase] = *it;
-//            if (ImGui::CollapsingHeader(phaseName.c_str()))
-//            {
-//                // Phase内の項目の表示・編集
-//                for (auto itemIt = phase.phase_.begin(); itemIt != phase.phase_.end();)
-//                {
-//                    auto& [key, value] = *itemIt;
-//
-//                    ImGui::PushID(&key); // ユニークIDを生成
-//
-//                    static char keyBuffer[128];
-//                    // strncpy_sの使用
-//                    strncpy_s(keyBuffer, key.c_str(), _countof(keyBuffer) - 1);
-//                    keyBuffer[_countof(keyBuffer) - 1] = '\0'; // 確実にnull終端
-//                    if (ImGui::InputText("Phase Name", keyBuffer, _countof(keyBuffer)))
-//                    {
-//                        std::string newKey = keyBuffer;
-//                        if (newKey != key)
-//                        {
-//                            // キーが変更された場合、一旦削除して再追加
-//                            float valueCopy = value;
-//                            itemIt = phase.phase_.erase(itemIt); // 現在の要素を削除
-//                            phase.phase_[newKey] = valueCopy; // 新しいキーで再追加
-//                            continue; // itemItはeraseで次の要素に移動済み
-//                        }
-//                    }
-//                    ++itemIt;
-//
-//                    ImGui::InputFloat("Value", &value);
-//                    ImGui::PopID();
-//                }
-//
-//                // 新しい項目を追加するためのUI
-//                static char newKey[128] = "";
-//                static float newValue = 0.0f;
-//
-//                ImGui::InputText("New Phase Name", newKey, _countof(newKey));
-//                ImGui::InputFloat("New Value", &newValue);
-//
-//                if (ImGui::Button("Add Phase Item"))
-//                {
-//                    if (newKey[0] != '\0')
-//                    {
-//                        phase.phase_[newKey] = newValue;
-//                        newKey[0] = '\0'; // フィールドをリセット
-//                        newValue = 0.0f;
-//                    }
-//                }
-//
-//                if (ImGui::Button("Remove Last Phase Item"))
-//                {
-//                    if (!phase.phase_.empty())
-//                    {
-//                        phase.phase_.erase(std::prev(phase.phase_.end())->first);
-//                    }
-//                }
-//            }
-//            ++it;
-//        }
-//
-//        // 新しいPhaseデータを追加するためのUI
-//        static char newPhaseName[128] = "";
-//
-//        ImGui::InputText("New Phase Data Name", newPhaseName, _countof(newPhaseName));
-//
-//        if (ImGui::Button("Add Phase Data"))
-//        {
-//            if (newPhaseName[0] != '\0')
-//            {
-//                phaseDatas_[newPhaseName] = Phase{};
-//                newPhaseName[0] = '\0'; // フィールドをリセット
-//            }
-//        }
-//
-//        if (ImGui::Button("Remove Last Phase Data"))
-//        {
-//            if (!phaseDatas_.empty())
-//            {
-//                phaseDatas_.erase(std::prev(phaseDatas_.end())->first);
-//            }
-//        }
-//
-//        ImGui::End();
-//    }
-//}
 
 void AnimationStateManager::LoadFiles()
 {

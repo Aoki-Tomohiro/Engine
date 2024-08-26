@@ -7,12 +7,21 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
+#include "Application/Src/Object/AnimationStateManager/AnimationStateManager.h"
 #include "Application/Src/Object/Player/States/IPlayerState.h"
 #include <numbers>
 
 class Player : public GameObject
 {
 public:
+	//アクションフラグ
+	enum class ActionFlag
+	{
+		kDashing,
+		kFallingAttack,
+		kBackhandAttack,
+	};
+
 	//通常状態のパラメーター
 	struct RootParameters
 	{
@@ -33,6 +42,13 @@ public:
 	struct DodgeParameters
 	{
 		float dodgeDistance = 10.0f; //回避速度
+	};
+
+	//ダッシュ用のパラメーター
+	struct DashParameters
+	{
+		float dashSpeed = 105.0f;       //ダッシュ速度
+		float proximityDistance = 8.0f; //移動を止める距離
 	};
 
 	void Initialize() override;
@@ -83,6 +99,16 @@ public:
 
 	void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
+	bool GetActionFlag(const ActionFlag& flag) const
+	{
+		auto it = flags_.find(flag);
+		return it != flags_.end() && it->second;
+	}
+
+	void SetActionFlag(const ActionFlag& flag, bool value) { flags_[flag] = value; };
+	
+	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
+
 	const Camera* GetCamera() const { return camera_; };
 
 	void SetCamera(const Camera* camera) { camera_ = camera; };
@@ -91,11 +117,17 @@ public:
 
 	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; };
 
+	const AnimationStateManager* GetAnimationStateManager() const { return animationStateManager_; };
+
+	void SetAnimationStateManager(const AnimationStateManager* animationStateManager) { animationStateManager_ = animationStateManager; };
+
 	const RootParameters& GetRootParameters() const { return rootParameters_; };
 
 	const JumpParameters& GetJumpParameters() const { return jumpParameters_; };
 
 	const DodgeParameters& GetDodgeParameters() const { return dodgeParameters_; };
+
+	const DashParameters& GetDashParameters() const { return dashParameters_; };
 
 private:
 	void UpdateRotation();
@@ -130,11 +162,17 @@ private:
 	//コライダーのオフセット値
 	Vector3 colliderOffset_{};
 
+	//アクションフラグ
+	std::unordered_map<ActionFlag, bool> flags_{};
+
 	//カメラ
 	const Camera* camera_ = nullptr;
 
 	//ロックオン
 	const Lockon* lockon_ = nullptr;
+
+	//AnimationPhaseManager
+	const AnimationStateManager* animationStateManager_ = nullptr;
 
 	//通常状態のパラメーター
 	RootParameters rootParameters_{};
@@ -144,6 +182,12 @@ private:
 
 	//回避状態のパラメーター
 	DodgeParameters dodgeParameters_{};
+
+	//ダッシュ用のパラメーター
+	DashParameters dashParameters_{};
+
+	//タイトルシーンなのか
+	bool isInTitleScene_ = false;
 
 	//デバッグ用のフラグ
 	bool isDebug_ = false;
@@ -171,6 +215,8 @@ private:
 		{"Dodge2"},
 		{"Dodge3"},
 		{"Dodge4"},
+		{"DashStart"},
+		{"DashEnd"},
 	};
 };
 

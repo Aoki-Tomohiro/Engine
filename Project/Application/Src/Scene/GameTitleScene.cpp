@@ -31,6 +31,8 @@ void GameTitleScene::Initialize()
 
 	//プレイヤーを取得
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
+	//タイトルシーンのフラグを設定
+	player->SetIsInTitleScene(true);
 	//アニメーターコンポーネントを追加
 	AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
 	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));

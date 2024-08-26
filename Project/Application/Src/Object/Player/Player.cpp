@@ -43,8 +43,12 @@ void Player::Initialize()
 
 void Player::Update()
 {
-	//状態の更新
-	state_->Update();
+	//タイトルシーンにいない場合
+	if (!isInTitleScene_)
+	{
+		//状態の更新
+		state_->Update();
+	}
 
 	//アニメーション後の座標を代入
 	preAnimationHipPosition_ = GetHipLocalPosition();

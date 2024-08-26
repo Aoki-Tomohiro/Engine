@@ -28,7 +28,7 @@ public:
 
 	void Update();
 
-	const AnimationState GetAnimationState(const std::string& name) const;
+	const AnimationState& GetAnimationState(const std::string& name) const;
 
 private:
 	const std::string kFileName = "Application/Resources/Config/AnimationPhase.json";

@@ -55,6 +55,8 @@ void GamePlayScene::Initialize()
 	animatorComponent->AddAnimation("Dodge2", AnimationManager::Create("Player/Animations/Dodge2.gltf"));
 	animatorComponent->AddAnimation("Dodge3", AnimationManager::Create("Player/Animations/Dodge3.gltf"));
 	animatorComponent->AddAnimation("Dodge4", AnimationManager::Create("Player/Animations/Dodge4.gltf"));
+	animatorComponent->AddAnimation("DashStart", AnimationManager::Create("Player/Animations/DashStart.gltf"));
+	animatorComponent->AddAnimation("DashEnd", AnimationManager::Create("Player/Animations/DashEnd.gltf"));
 
 	//カメラパスマネージャーの生成
 	cameraPathManager_ = std::make_unique<CameraPathManager>();
