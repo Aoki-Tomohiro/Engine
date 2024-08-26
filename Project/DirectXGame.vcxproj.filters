@@ -163,17 +163,11 @@
     <Filter Include="ヘッダー ファイル\Engine\3D\Skybox">
       <UniqueIdentifier>{2577eb0d-f1a1-4a0b-a400-0d42b862b8b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Engine\Components\Component">
-      <UniqueIdentifier>{1a5a3ad6-1cb8-4cd6-9737-90e47250098b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Engine\LevelLoader">
       <UniqueIdentifier>{030bbf98-5c28-4523-9112-b8da8d5270e7}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Engine\3D\Transform">
       <UniqueIdentifier>{bd462a55-1d9e-41aa-8b58-00903022bda9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Engine\Components\Component">
-      <UniqueIdentifier>{e188ebe7-077b-4db2-9446-b14be7f62680}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Engine\LevelLoader">
       <UniqueIdentifier>{e2cc4325-188b-4145-955f-fb773e07a1d1}</UniqueIdentifier>
@@ -217,41 +211,74 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Player\States">
       <UniqueIdentifier>{263438c4-2b14-4867-a282-ddc5f312b00d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\CameraController">
-      <UniqueIdentifier>{43c4d702-311b-4cd7-b2ac-867aefce46e1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\CameraController\States">
-      <UniqueIdentifier>{0e768e63-151d-4c9a-8a52-269aadfbd63a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Enemy\States">
       <UniqueIdentifier>{b022269a-7116-412f-820e-d189dd7eb97c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\MagicProjectile">
-      <UniqueIdentifier>{e661b52c-271b-456e-ba0d-9caedfcfc22c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Warning">
-      <UniqueIdentifier>{4682db8e-89a2-4b4b-b1fe-a6d973c7177a}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Application\Object\Weapon">
       <UniqueIdentifier>{d49fe143-68b8-4f00-bbaa-bad02ebc09d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\CameraController">
-      <UniqueIdentifier>{bb4d1a57-5f62-45e3-be21-aa0b5523e12e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\CameraController\States">
-      <UniqueIdentifier>{d687ff8e-3eb4-43a1-97f9-de825693c749}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Enemy\States">
       <UniqueIdentifier>{cf9d8c5b-71d7-4ca3-a25a-34ba02e5d430}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Warning">
-      <UniqueIdentifier>{037b205e-bc4a-45db-96f8-2f8751ff554f}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Weapon">
       <UniqueIdentifier>{3f6f9d58-4df4-4853-b40d-b23f63bc5635}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\MagicProjectile">
-      <UniqueIdentifier>{da1e54f6-db34-4c68-95e5-585735c1f123}</UniqueIdentifier>
+    <Filter Include="ソース ファイル\Application\Object\Camera">
+      <UniqueIdentifier>{43c4d702-311b-4cd7-b2ac-867aefce46e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Camera\States">
+      <UniqueIdentifier>{0e768e63-151d-4c9a-8a52-269aadfbd63a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\BackGround">
+      <UniqueIdentifier>{2e4bc2b5-8c87-4e3b-88cb-16b3d666dc00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\AnimationStateManager">
+      <UniqueIdentifier>{46d1d3ef-a5ce-4033-b78b-c30ffc3e3bd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Lockon">
+      <UniqueIdentifier>{2da7725f-f5cf-40f0-986d-352b2b7c2099}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Components\UI">
+      <UniqueIdentifier>{b0f21e14-8048-44ca-ac97-781c0fb57c0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Components\Model">
+      <UniqueIdentifier>{7182b41b-bd03-44da-b902-713cf58f6e6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Components\Transform">
+      <UniqueIdentifier>{433dde07-ddd4-42c1-ba62-e19c102ff3ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\Components\Animator">
+      <UniqueIdentifier>{54a02749-c9f4-4949-af81-feb4d01fbed3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Camera">
+      <UniqueIdentifier>{bb4d1a57-5f62-45e3-be21-aa0b5523e12e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Camera\States">
+      <UniqueIdentifier>{d687ff8e-3eb4-43a1-97f9-de825693c749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\AnimationStateManager">
+      <UniqueIdentifier>{e8d04e06-2c22-443d-b0bd-90edab22405e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\BackGround">
+      <UniqueIdentifier>{0af64078-b3c6-467c-b861-bb03a6fe3fc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Lockon">
+      <UniqueIdentifier>{08a86a00-e5a3-4c6b-ae29-a93a452799e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\Animator">
+      <UniqueIdentifier>{241136e5-127f-48d9-a396-46a7f3894331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\UI">
+      <UniqueIdentifier>{86988f9c-a8dd-460a-8382-9e59db329062}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\Transform">
+      <UniqueIdentifier>{33df2330-af09-429e-b9ca-0f61ab86950a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\Model">
+      <UniqueIdentifier>{64c11c79-6868-43e1-bcb6-228823b80d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\Components\Base">
+      <UniqueIdentifier>{e188ebe7-077b-4db2-9446-b14be7f62680}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -447,9 +474,6 @@
     <ClCompile Include="Engine\LevelLoader\LevelLoader.cpp">
       <Filter>ソース ファイル\Engine\LevelLoader</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Components\Model\ModelComponent.cpp">
-      <Filter>ソース ファイル\Engine\Components\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Components\Collision\OBBCollider.cpp">
       <Filter>ソース ファイル\Engine\Components\Collision</Filter>
     </ClCompile>
@@ -461,12 +485,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Base\RWStructuredBuffer.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp">
-      <Filter>ソース ファイル\Engine\Components\Component</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Transform\TransformComponent.cpp">
-      <Filter>ソース ファイル\Engine\Components\Component</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp">
       <Filter>ソース ファイル\Engine\3D\Transform</Filter>
@@ -507,80 +525,89 @@
     <ClCompile Include="Engine\Components\PostEffects\HSV.cpp">
       <Filter>ソース ファイル\Engine\Components\PostEffects</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Scene\SampleScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\Animator\AnimatorComponent.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Components\UI\UIComponent.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Model.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Material.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\Animation.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3D\Model\AnimationManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\Player.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Lockon\Lockon.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Enemy\Enemy.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraPath.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraPathManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockOn.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\AnimationStateManager\AnimationStateManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackgroundObject.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\BackGround</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\AnimationStateManager\AnimationStateManager.cpp">
+      <Filter>ソース ファイル\Application\Object\AnimationStateManager</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Enemy\Enemy.cpp">
+      <Filter>ソース ファイル\Application\Object\Enemy</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Lockon\Lockon.cpp">
+      <Filter>ソース ファイル\Application\Object\Lockon</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\Player.cpp">
+      <Filter>ソース ファイル\Application\Object\Player</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateDodge.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateJump.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Player\States\PlayerStateRoot.cpp">
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
+      <Filter>ソース ファイル\Application\Object\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Application\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
+      <Filter>ソース ファイル\Application\Object\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Animation.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\AnimationManager.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Material.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Mesh.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\Model.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Model\ModelManager.cpp">
+      <Filter>ソース ファイル\Engine\3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Scene\SampleScene.cpp">
+      <Filter>ソース ファイル\Application\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Transform\TransformComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Collision\SphereCollider.cpp">
+      <Filter>ソース ファイル\Engine\Components\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Model\ModelComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\UI\UIComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Animator\AnimatorComponent.cpp">
+      <Filter>ソース ファイル\Engine\Components\Animator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -807,7 +834,7 @@
       <Filter>ヘッダー ファイル\Engine\Framework\Object</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Base\Component.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
+      <Filter>ヘッダー ファイル\Engine\Components\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\ComputePSO.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
@@ -827,9 +854,6 @@
     <ClInclude Include="Engine\LevelLoader\LevelLoader.h">
       <Filter>ヘッダー ファイル\Engine\LevelLoader</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Components\Model\ModelComponent.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Components\Collision\OBBCollider.h">
       <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
     </ClInclude>
@@ -840,16 +864,13 @@
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Base\RenderComponent.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
+      <Filter>ヘッダー ファイル\Engine\Components\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\RWStructuredBuffer.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Components\Collision\SphereCollider.h">
       <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Transform\TransformComponent.h">
-      <Filter>ヘッダー ファイル\Engine\Components\Component</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3D\Transform\WorldTransform.h">
       <Filter>ヘッダー ファイル\Engine\3D\Transform</Filter>
@@ -890,86 +911,92 @@
     <ClInclude Include="Engine\Components\Collision\CollisionAttributeManager.h">
       <Filter>ヘッダー ファイル\Engine\Components\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Scene\SampleScene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Transition\Transition.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\Animator\AnimatorComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Components\UI\UIComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Model.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Mesh.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Material.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\Animation.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\ModelManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3D\Model\AnimationManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\Player.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Lockon\Lockon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Enemy\Enemy.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Camera\CameraPath.h">
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraPathManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraController.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Camera\CameraPath.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFollow.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockOn.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\AnimationStateManager\AnimationStateManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Enemy\Enemy.h">
+      <Filter>ヘッダー ファイル\Application\Object\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\BackGroundObject\BackgroundObject.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル\Application\Object\Ground</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Player\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateJump.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\PlayerStateRoot.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Transition\Transition.h">
+      <Filter>ヘッダー ファイル\Application\Object\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
+      <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\AnimationStateManager\AnimationStateManager.h">
+      <Filter>ヘッダー ファイル\Application\Object\AnimationStateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Animation.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\AnimationManager.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\BackGroundObject\BackgroundObject.h">
+      <Filter>ヘッダー ファイル\Application\Object\BackGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Model.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Mesh.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\Material.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Model\ModelManager.h">
+      <Filter>ヘッダー ファイル\Engine\3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Scene\SampleScene.h">
+      <Filter>ヘッダー ファイル\Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Lockon\Lockon.h">
+      <Filter>ヘッダー ファイル\Application\Object\Lockon</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Player\States\IPlayerState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Animator\AnimatorComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\UI\UIComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Model\ModelComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Transform\TransformComponent.h">
+      <Filter>ヘッダー ファイル\Engine\Components\Transform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1154,6 +1181,8 @@
     <FxCompile Include="Application\Resources\Shaders\EmitParticle.CS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Application\Resources\Shaders\ShadowMap.VS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\ShadowMap.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
