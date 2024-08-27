@@ -2,15 +2,40 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateJump.h"
 #include "Application/Src/Object/Player/States/PlayerStateDodge.h"
+#include "Application/Src/Object/Player/States/PlayerStateDash.h"
 
 void PlayerStateRoot::Initialize()
 {
 	//Inputのインスタンスを取得
 	input_ = Input::GetInstance();
+
 	//アニメーションブレンドを有効化する
 	player_->SetIsAnimationBlending(true);
-	//アニメーションの再生
-	player_->PlayAnimation(currentAnimation_, 1.0f, true);
+
+	//スティックの入力を取得
+	Vector3 inputValue = {
+		input_->GetLeftStickX(),
+		0.0f,
+		input_->GetLeftStickY(),
+	};
+
+	//入力ベクトルの長さを計算
+	float inputLength = Mathf::Length(inputValue);
+
+	//入力値が歩行の閾値を超えている場合
+	if (inputLength > player_->GetRootParameters().walkThreshold)
+	{
+		//入力値が走りの閾値を超えているかチェック
+		bool isRunning = Mathf::Length(inputValue) > player_->GetRootParameters().runThreshold;
+
+		//アニメーションの更新
+		UpdateAnimation(inputValue, isRunning);
+	}
+	else
+	{
+		//歩きの閾値を超えていない場合は待機アニメーションを設定
+		player_->PlayAnimation("Idle", 1.0f, true);
+	}
 }
 
 void PlayerStateRoot::Update()
@@ -54,6 +79,12 @@ void PlayerStateRoot::Update()
 	{
 		//回避状態に遷移
 		player_->ChangeState(new PlayerStateDodge());
+	}
+	//Bボタンを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
 	}
 }
 

@@ -15,6 +15,7 @@
 #include "Application/Src/Object/Camera/CameraPathManager.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Transition/Transition.h"
+#include "Application/Src/Object/AnimationStateManager/AnimationStateManager.h"
 
 class GamePlayScene : public IScene
 {
@@ -46,6 +47,9 @@ private:
 
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
+
+	//アニメーションステートマネージャー
+	std::unique_ptr<AnimationStateManager> animationStateManager_ = nullptr;
 
 	//カメラコントローラー
 	std::unique_ptr<CameraController> cameraController_ = nullptr;

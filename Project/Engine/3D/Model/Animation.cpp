@@ -41,7 +41,7 @@ void Animation::UpdateAnimationTime()
             isAnimationFinished_ = true;
         }
     }
-    //アニメーションが終了していない場合、終了フラグをリセット
+    //アニメーションが終了していない場合終了フラグをリセット
     else
     {
         isAnimationFinished_ = false;
@@ -90,6 +90,10 @@ void Animation::PlayAnimation(const std::string& animationName, float speed, boo
     animationName_ = animationName; 
     //ループフラグを設定
     loop_ = loop; 
+    //停止フラグを設定
+    stop_ = false;
+    //アニメーションの終了フラグを設定
+    isAnimationFinished_ = false;
     //アニメーション時間をリセット
     animationTime_ = 0.0f; 
     //アニメーション速度を設定
@@ -102,6 +106,8 @@ void Animation::PlayAnimation(const float speed, const bool loop)
     loop_ = loop;
     //停止フラグを設定
     stop_ = false;
+    //アニメーションの終了フラグを設定
+    isAnimationFinished_ = false;
     //アニメーション時間をリセット
     animationTime_ = 0.0f;
     //アニメーション速度を設定
@@ -112,6 +118,8 @@ void Animation::StopAnimation()
 {
     //停止フラグを設定
     stop_ = true;
+    //アニメーションの終了フラグを設定
+    isAnimationFinished_ = false;
     //アニメーション時間をリセット
     animationTime_ = 0.0f;
 }

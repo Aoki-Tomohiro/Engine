@@ -70,14 +70,6 @@ void Player::Update()
 
 	//ImGuiの更新
 	UpdateImGui();
-
-	//ImGui
-	ImGui::Begin("Player");
-	Vector3 position = GetPosition();
-	Vector3 hipWorldPosition = GetHipWorldPosition();
-	ImGui::DragFloat3("Position", &position.x);
-	ImGui::DragFloat3("HipWorldPosition", &hipWorldPosition.x);
-	ImGui::End();
 }
 
 void Player::Draw(const Camera& camera)

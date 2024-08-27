@@ -128,7 +128,7 @@ void AnimationStateManager::Update()
     ImGui::End();
 }
 
-const AnimationState& AnimationStateManager::GetAnimationState(const std::string& name) const
+const AnimationState AnimationStateManager::GetAnimationState(const std::string& name) const
 {
     for (size_t i = 0; i < phaseDatas_.size(); ++i)
     {

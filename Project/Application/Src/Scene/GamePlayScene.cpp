@@ -30,6 +30,10 @@ void GamePlayScene::Initialize()
 	gameObjectManager_->SetCamera(camera_);
 	particleManager_->SetCamera(camera_);
 
+	//アニメーションステートマネージャーの作成
+	animationStateManager_ = std::make_unique<AnimationStateManager>();
+	animationStateManager_->Initialize();
+
 	//ロックオンの生成
 	lockon_ = std::make_unique<Lockon>();
 	lockon_->Initialize();
@@ -38,6 +42,7 @@ void GamePlayScene::Initialize()
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
 	player->SetCamera(camera_);
 	player->SetLockon(lockon_.get());
+	player->SetAnimationStateManager(animationStateManager_.get());
 	//アニメーターコンポーネントを追加
 	AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
 	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
@@ -132,6 +137,9 @@ void GamePlayScene::Update()
 	//カメラの更新
 	*camera_ = cameraController_->GetCamera();
 	camera_->TransferMatrix();
+
+	//アニメーションステートマネージャーの更新
+	animationStateManager_->Update();
 }
 
 void GamePlayScene::Draw()
