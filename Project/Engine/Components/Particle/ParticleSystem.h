@@ -31,17 +31,23 @@ public:
 
 	void AddParticleEmitter(ParticleEmitter* particleEmitter);
 
+	void RemoveParticleEmitter(const std::string& name);
+
 	ParticleEmitter* GetParticleEmitter(const std::string& name);
 
 	std::vector<ParticleEmitter*> GetParticleEmitters(const std::string& name);
 
 	void AddAccelerationField(AccelerationField* accelerationField);
 
+	void RemoveAccelerationField(const std::string& name);
+
 	AccelerationField* GetAccelerationField(const std::string& name);
 
 	std::vector<AccelerationField*> GetAccelerationFields(const std::string& name);
 
 	void AddGravityField(GravityField* gravityField);
+
+	void RemoveGravityField(const std::string& name);
 
 	GravityField* GetGravityField(const std::string& name);
 

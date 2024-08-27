@@ -18,6 +18,9 @@ void Player::Initialize()
 	//オーディオのインスタンスを取得
 	audio_ = Audio::GetInstance();
 
+	//パーティクルシステムの初期化
+	InitializeParticleSystems();
+
 	//状態の初期化
 	ChangeState(new PlayerStateRoot());
 
@@ -25,6 +28,8 @@ void Player::Initialize()
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	//回転の種類をQuaternionに設定
 	transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	//Quaternionの初期化
+	destinationQuaternion_ = transformComponent->worldTransform_.quaternion_;
 
 	//モデルコンポーネントを取得
 	ModelComponent* modelComponent = GetComponent<ModelComponent>();
@@ -156,7 +161,7 @@ void Player::Rotate(const Vector3& vector)
 {
 	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
 	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
-	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>) * Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+	destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 }
 
 void Player::LookAtEnemy()
@@ -264,6 +269,85 @@ void Player::SetPosition(const Vector3& position)
 {
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_ = position;
+}
+
+void Player::AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter)
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(name);
+	if (it != particleSystems_.end())
+	{
+		//パーティクルシステムにエミッターを追加する
+		if (it->second != nullptr)
+		{	
+			it->second->AddParticleEmitter(particleEmitter);
+		}
+	}
+}
+
+void Player::RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName)
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(particleName);
+	if (it != particleSystems_.end())
+	{
+		//パーティクルシステムのエミッターを削除する
+		if (it->second)
+		{
+			it->second->RemoveParticleEmitter(emitterName);
+		}
+	}
+}
+
+void Player::AddAccelerationField(const std::string& name, AccelerationField* accelerationField)
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(name);
+	if (it != particleSystems_.end())
+	{
+		//パーティクルシステムに加速フィールドを追加する
+		if (it->second != nullptr)
+		{
+			it->second->AddAccelerationField(accelerationField);
+		}
+	}
+}
+
+void Player::RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName)
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(particleName);
+	if (it != particleSystems_.end())
+	{
+		//パーティクルシステムの加速フィールドを削除する
+		if (it->second)
+		{
+			it->second->RemoveAccelerationField(accelerationFieldName);
+		}
+	}
+}
+
+ParticleSystem* Player::GetParticleSystem(const std::string& name) const
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(name);
+	if (it != particleSystems_.end())
+	{
+		//パーティクルシステムを返す
+		return it->second;
+	}
+	//見つからなかった場合nullptrを返す
+	return nullptr;
+}
+
+void Player::InitializeParticleSystems()
+{
+	//テクスチャの読み込み
+	TextureManager::Load("smoke_01.png");
+
+	//パーティクルシステムの生成
+	particleSystems_["Dash"] = ParticleManager::Create("Dash");
+	particleSystems_["Dash"]->SetTexture("smoke_01.png");
 }
 
 void Player::UpdateRotation()

@@ -19,9 +19,9 @@ public:
 	//ロックオンカメラ時のパラメーター
 	struct LockonCameraParameters
 	{
-		Vector3 offset = { 2.0f, 2.0f, -10.0f }; //オフセット値
-		float rotationRangeMin = std::numbers::pi_v<float> / 4.0f;
-		float rotationRangeMax = std::numbers::pi_v<float> * 3.0f / 4.0f;
+		Vector3 offset = { 0.0f, 2.0f, -10.0f }; //オフセット値
+		float rotationRangeMin = 0.785f;
+		float rotationRangeMax = 2.0f;//2.355f;
 	};
 
 	void Initialize();

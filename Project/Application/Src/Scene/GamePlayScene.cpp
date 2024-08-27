@@ -63,6 +63,12 @@ void GamePlayScene::Initialize()
 	animatorComponent->AddAnimation("DashStart", AnimationManager::Create("Player/Animations/DashStart.gltf"));
 	animatorComponent->AddAnimation("DashEnd", AnimationManager::Create("Player/Animations/DashEnd.gltf"));
 
+	//敵を取得
+	Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>("");
+	animatorComponent = enemy->AddComponent<AnimatorComponent>();
+	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Enemy/Animations/Idle.gltf"));
+	animatorComponent->PlayAnimation("Idle", 1.0f, true);
+
 	//カメラパスマネージャーの生成
 	cameraPathManager_ = std::make_unique<CameraPathManager>();
 	cameraPathManager_->Initialize();

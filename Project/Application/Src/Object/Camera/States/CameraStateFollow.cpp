@@ -15,7 +15,7 @@ void CameraStateFollow::Initialize()
 	//Quaternionの初期化
 	if (const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>(""))
 	{
-		quaternionY = player->GetDestinationQuaternion() * Mathf::Conjugate(Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, std::numbers::pi_v<float>));
+		quaternionY = player->GetDestinationQuaternion();
 		cameraController_->SetDestinationQuaternion(quaternionY);
 	}
 }

@@ -1,7 +1,6 @@
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/AnimationStateManager/AnimationStateManager.h"
@@ -25,8 +24,6 @@ private:
 	void HandleLockon();
 
 	void HandleNonLockon();
-
-	void InitializeParticleSystem();
 
 	void UpdateAnimationPhase();
 
@@ -58,8 +55,5 @@ private:
 
 	//アニメーションタイマー
 	float animationTime_ = 0.0f;
-
-	//パーティクル
-	ParticleSystem* particleSystem_ = nullptr;
 };
 

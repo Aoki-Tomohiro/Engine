@@ -3,6 +3,7 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/GlobalVariables.h"
@@ -34,7 +35,7 @@ public:
 	//ジャンプ状態のパラメーター
 	struct JumpParameters
 	{
-		float jumpFirstSpeed = 55.0f;      //初速度
+		float jumpFirstSpeed = 25.0f;      //初速度
 		float gravityAcceleration = -2.8f; //重力加速度
 	};
 
@@ -48,7 +49,7 @@ public:
 	struct DashParameters
 	{
 		float dashSpeed = 105.0f;       //ダッシュ速度
-		float proximityDistance = 8.0f; //移動を止める距離
+		float proximityDistance = 10.0f; //移動を止める距離
 	};
 
 	void Initialize() override;
@@ -108,6 +109,16 @@ public:
 	void SetActionFlag(const ActionFlag& flag, bool value) { flags_[flag] = value; };
 	
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
+	
+	void AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter);
+
+	void RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName);
+
+	void AddAccelerationField(const std::string& name, AccelerationField* accelerationField);
+
+	void RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName);
+
+	ParticleSystem* GetParticleSystem(const std::string& name) const;
 
 	const Camera* GetCamera() const { return camera_; };
 
@@ -130,6 +141,8 @@ public:
 	const DashParameters& GetDashParameters() const { return dashParameters_; };
 
 private:
+	void InitializeParticleSystems();
+
 	void UpdateRotation();
 
 	void UpdateCollider();
@@ -151,7 +164,7 @@ private:
 	std::unique_ptr<IPlayerState> state_ = nullptr;
 
 	//Quaternion
-	Quaternion destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>);
+	Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
 
 	//回転の補間速度
 	float quaternionInterpolationSpeed_ = 0.4f;
@@ -164,6 +177,9 @@ private:
 
 	//アクションフラグ
 	std::unordered_map<ActionFlag, bool> flags_{};
+
+	//パーティクル
+	std::map<std::string, ParticleSystem*> particleSystems_{};
 
 	//カメラ
 	const Camera* camera_ = nullptr;

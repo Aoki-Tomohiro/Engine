@@ -11,5 +11,16 @@ public:
 
 private:
 	void UpdateCameraRotation();
+
+	float CalculateRotationAngle() const;
+
+	bool IsWithinRotationRange(const float angle) const;
+
+	Quaternion CalculateNewRotation() const;
+
+private:
+	Vector3 previousDirection_{};
+
+	Vector3 currentDirection_{};
 };
 

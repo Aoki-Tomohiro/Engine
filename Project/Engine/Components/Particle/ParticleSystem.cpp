@@ -213,12 +213,25 @@ void ParticleSystem::Clear()
 
 void ParticleSystem::AddParticleEmitter(ParticleEmitter* particleEmitter)
 {
+	//エミッターの最大数を超えていた場合は削除
 	if (particleEmitters_.size() >= kMaxEmitters)
 	{
 		delete particleEmitter;
 		return;
 	}
+	//エミッターを追加
 	particleEmitters_.push_back(std::unique_ptr<ParticleEmitter>(particleEmitter));
+}
+
+void ParticleSystem::RemoveParticleEmitter(const std::string& name)
+{
+	//同じ名前のエミッターをリストの末尾に移動させる
+	auto it = std::remove_if(particleEmitters_.begin(), particleEmitters_.end(),
+		[&name](const std::unique_ptr<ParticleEmitter>& particleEmitter) {
+			return particleEmitter->GetName() == name;
+		});
+	//末尾に移動された要素をリストから削除する
+	particleEmitters_.erase(it, particleEmitters_.end());
 }
 
 ParticleEmitter* ParticleSystem::GetParticleEmitter(const std::string& name)
@@ -252,12 +265,25 @@ std::vector<ParticleEmitter*> ParticleSystem::GetParticleEmitters(const std::str
 
 void ParticleSystem::AddAccelerationField(AccelerationField* accelerationField)
 {
+	//加速フィールドが最大数を超えていた場合は削除
 	if (accelerationFields_.size() >= kMaxAccelerationFields)
 	{
 		delete accelerationField;
 		return;
 	}
+	//加速フィールドを追加
 	accelerationFields_.push_back(std::unique_ptr<AccelerationField>(accelerationField));
+}
+
+void ParticleSystem::RemoveAccelerationField(const std::string& name)
+{
+	//同じ名前の加速フィールドをリストの末尾に移動させる
+	auto it = std::remove_if(accelerationFields_.begin(), accelerationFields_.end(),
+		[&name](const std::unique_ptr<AccelerationField>& accelerationField) {
+			return accelerationField->GetName() == name;
+		});
+	//末尾に移動された要素をリストから削除する
+	accelerationFields_.erase(it, accelerationFields_.end());
 }
 
 AccelerationField* ParticleSystem::GetAccelerationField(const std::string& name)
@@ -291,12 +317,25 @@ std::vector<AccelerationField*> ParticleSystem::GetAccelerationFields(const std:
 
 void ParticleSystem::AddGravityField(GravityField* gravityField)
 {
+	//重力フィールドの最大数を超えていた場合は削除
 	if (gravityFields_.size() >= kMaxGravityFields)
 	{
 		delete gravityField;
 		return;
 	}
+	//重力フィールドの追加
 	gravityFields_.push_back(std::unique_ptr<GravityField>(gravityField));
+}
+
+void ParticleSystem::RemoveGravityField(const std::string& name)
+{
+	//同じ名前の重力フィールドをリストの末尾に移動させる
+	auto it = std::remove_if(gravityFields_.begin(), gravityFields_.end(),
+		[&name](const std::unique_ptr<GravityField>& gravityField) {
+			return gravityField->GetName() == name;
+		});
+	//末尾に移動された要素をリストから削除する
+	gravityFields_.erase(it, gravityFields_.end());
 }
 
 GravityField* ParticleSystem::GetGravityField(const std::string& name)

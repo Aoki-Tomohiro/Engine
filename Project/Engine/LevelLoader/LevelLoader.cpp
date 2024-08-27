@@ -159,13 +159,9 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		//トランスフォーム
 		nlohmann::json transform = object["transform"];
 		//平行移動
-		cameraData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,-(float)transform["translation"][1] };
+		cameraData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,(float)transform["translation"][1] };
 		//回転角
-		cameraData.rotation = {
-			std::numbers::pi_v<float> / 2.0f - (float)transform["rotation"][0] ,
-			(float)transform["rotation"][2] >= 0.0f ? (float)transform["rotation"][2] - std::numbers::pi_v<float> : (float)transform["rotation"][2] + std::numbers::pi_v<float>,
-			(float)transform["rotation"][1]
-		};
+		cameraData.rotation = { std::numbers::pi_v<float> / 2.0f - (float)transform["rotation"][0] ,(float)transform["rotation"][2], (float)transform["rotation"][1] };
 	}
 
 	//オブジェクト捜査を再起関数にまとめ、再起呼び出しで枝を捜査する

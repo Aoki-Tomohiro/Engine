@@ -28,9 +28,6 @@ void PlayerStateDash::Initialize()
 	{
 		HandleNonLockon();
 	}
-
-	//パーティクルシステムの初期化
-	InitializeParticleSystem();
 }
 
 void PlayerStateDash::Update()
@@ -64,35 +61,25 @@ void PlayerStateDash::HandleLockon()
 {
 	//敵の座標を取得
 	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();
 
 	//敵とプレイヤーの方向を計算
 	Vector3 sub = Mathf::Normalize(enemyPosition - playerPosition);
-	//Y軸の影響を排除して水平移動に限定
-	sub.y = 0.0f;
 
 	//計算した方向と速度でダッシュベクトルを設定
 	velocity_ = sub * player_->GetDashParameters().dashSpeed;
+
 	//プレイヤーを敵の方向に向ける
-	player_->Rotate(sub);
+	player_->Rotate({ sub.x, 0.0f, sub.z });
 }
 
 void PlayerStateDash::HandleNonLockon()
 {
 	//プレイヤーの前方にダッシュ
-	velocity_ = Mathf::RotateVector({ 0.0f, 0.0f, -1.0f }, player_->GetDestinationQuaternion());
+	velocity_ = Mathf::RotateVector({ 0.0f, 0.0f, 1.0f }, player_->GetDestinationQuaternion());
 	velocity_ = Mathf::Normalize(velocity_) * player_->GetDashParameters().dashSpeed;
-}
-
-void PlayerStateDash::InitializeParticleSystem()
-{
-	//テクスチャの読み込み
-	TextureManager::Load("smoke_01.png");
-
-	//パーティクルの初期化
-	particleSystem_ = ParticleManager::Create("Dash");
-	particleSystem_->SetTexture("smoke_01.png");
 }
 
 void PlayerStateDash::UpdateAnimationPhase()
@@ -122,17 +109,17 @@ void PlayerStateDash::DashUpdate()
 	//エミッターの座標を更新
 	UpdateEmitterPosition();
 
-	////敵の座標を取得
-	//Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	//敵の座標を取得
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
 
-	////プレイヤーの座標を取得
-	//Vector3 playerPosition = player_->GetHipWorldPosition();
+	//プレイヤーの座標を取得
+	Vector3 playerPosition = player_->GetHipWorldPosition();
 
-	////敵と一定距離近づいたら速度を0にする
-	//if (Mathf::Length(enemyPosition - playerPosition) < player_->GetDashParameters().proximityDistance)
-	//{
-	//	velocity_ = { 0.0f,0.0f,0.0f };
-	//}
+	//敵と一定距離近づいたら速度を0にする
+	if (Mathf::Length(enemyPosition - playerPosition) < player_->GetDashParameters().proximityDistance)
+	{
+		velocity_ = { 0.0f,0.0f,0.0f };
+	}
 }
 
 void PlayerStateDash::RecoveryUpdate()
@@ -160,8 +147,8 @@ void PlayerStateDash::RecoveryUpdate()
 void PlayerStateDash::SpawnDashParticles()
 {
 	//ダッシュパーティクルの生成
-	Vector3 minVelocity = Mathf::RotateVector({ 0.0f, 0.0f, 0.4f }, player_->GetDestinationQuaternion());
-	Vector3 maxVelocity = Mathf::RotateVector({ 0.0f, 0.0f, 0.6f }, player_->GetDestinationQuaternion());
+	Vector3 minVelocity = Mathf::RotateVector({ 0.0f, 0.0f, -0.4f }, player_->GetDestinationQuaternion());
+	Vector3 maxVelocity = Mathf::RotateVector({ 0.0f, 0.0f, -0.6f }, player_->GetDestinationQuaternion());
 	ParticleEmitter* newEmitter = new ParticleEmitter();
 	newEmitter->Initialize("Dash", 100.0f);
 	newEmitter->SetTranslate(player_->GetHipWorldPosition());
@@ -178,16 +165,21 @@ void PlayerStateDash::SpawnDashParticles()
 	newEmitter->SetRotateMax({ 0.0f,0.0f,6.28f });
 	newEmitter->SetVelocityMin(minVelocity);
 	newEmitter->SetVelocityMax(maxVelocity);
-	particleSystem_->AddParticleEmitter(newEmitter);
+	player_->AddParticleEmitter("Dash", newEmitter);
 }
 
 void PlayerStateDash::UpdateEmitterPosition()
 {
+	//パーティクルシステムを取得
+	ParticleSystem* particleSystem = player_->GetParticleSystem("Dash");
 	//エミッターの位置をプレイヤーの位置に更新
-	if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
+	if (particleSystem) 
 	{
-	    emitter->SetTranslate(player_->GetHipWorldPosition());
-	}
+		if (ParticleEmitter* emitter = particleSystem->GetParticleEmitter("Dash"))
+		{
+			emitter->SetTranslate(player_->GetHipWorldPosition());
+		}
+	};
 }
 
 void PlayerStateDash::ResetDashFlags()
@@ -197,13 +189,18 @@ void PlayerStateDash::ResetDashFlags()
 	//ダッシュのフラグを解除
 	player_->SetActionFlag(Player::ActionFlag::kDashing, false);
 
-	// パーティクルエミッターと加速フィールドを削除
-	if (ParticleEmitter* emitter = particleSystem_->GetParticleEmitter("Dash"))
+	//パーティクルシステムを取得
+	ParticleSystem* particleSystem = player_->GetParticleSystem("Dash");
+	if (particleSystem)
 	{
-	    emitter->SetIsDead(true);
-	}
-	if (AccelerationField* accelerationField = particleSystem_->GetAccelerationField("Dash"))
-	{
-	    accelerationField->SetIsDead(true);
+		// パーティクルエミッターと加速フィールドを削除
+		if (ParticleEmitter* emitter = particleSystem->GetParticleEmitter("Dash"))
+		{
+			emitter->SetIsDead(true);
+		}
+		if (AccelerationField* accelerationField = particleSystem->GetAccelerationField("Dash"))
+		{
+			accelerationField->SetIsDead(true);
+		}
 	}
 }

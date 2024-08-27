@@ -1,6 +1,7 @@
 #include "PlayerStateJump.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateDash.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -68,5 +69,11 @@ void PlayerStateJump::Update()
 
 		//通常状態に遷移
 		player_->ChangeState(new PlayerStateRoot());
+	}
+	//Bボタンを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
 	}
 }

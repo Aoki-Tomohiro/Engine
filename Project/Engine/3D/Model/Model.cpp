@@ -211,6 +211,7 @@ void Model::CreateMaterials()
 	{
 		Material* material = new Material();
 		material->Initialize(modelData_.materialData[i]);
+		material->Update();
 		materials_.push_back(std::unique_ptr<Material>(material));
 	}
 }
