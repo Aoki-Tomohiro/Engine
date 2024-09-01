@@ -90,6 +90,8 @@ public:
 
 	const bool GetIsDead() const { return isDead_; };
 
+	const bool GetIsDebug() const { return isDebug_; };
+
 	void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
 	const bool GetIsGameFinished() const { return isGameFinished_; };

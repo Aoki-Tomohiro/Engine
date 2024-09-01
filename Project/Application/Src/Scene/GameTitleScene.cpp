@@ -51,6 +51,9 @@ void GameTitleScene::Initialize()
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
+	//スカイボックスの初期化
+	skybox_.reset(Skybox::Create());
+
 	//タイトルのスプライトの生成
 	TextureManager::Load("GameTitle.png");
 	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
@@ -92,6 +95,9 @@ void GameTitleScene::Draw()
 #pragma region Skybox描画
 	//Skybox描画前処理
 	renderer_->PreDrawSkybox();
+
+	//スカイボックスの描画
+	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();

@@ -3,6 +3,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Model/AnimationManager.h"
+#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
@@ -112,6 +113,9 @@ private:
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
+
+	//スカイボックス
+	std::unique_ptr<Skybox> skybox_ = nullptr;
 
 	//ゲームオーバーのスプライト
 	std::unique_ptr<Sprite> gameOverSprite_ = nullptr;

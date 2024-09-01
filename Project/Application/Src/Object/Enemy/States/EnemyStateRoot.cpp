@@ -24,7 +24,7 @@ void EnemyStateRoot::Initialize()
 void EnemyStateRoot::Update()
 {
 	//ゲームが終了していたら処理を飛ばす
-	if (enemy_->GetIsGameFinished())
+	if (enemy_->GetIsGameFinished() || enemy_->GetIsDebug())
 	{
 		enemy_->PlayAnimation("Idle", 1.0f, true);
 		return;

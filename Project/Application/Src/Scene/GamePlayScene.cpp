@@ -47,6 +47,9 @@ void GamePlayScene::Initialize()
 	//カメラコントローラーの初期化
 	InitializeCameraController();
 
+	//スカイボックスの初期化
+	skybox_.reset(Skybox::Create());
+
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");
 	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
@@ -95,6 +98,9 @@ void GamePlayScene::Draw()
 #pragma region Skybox描画
 	//Skybox描画前処理
 	renderer_->PreDrawSkybox();
+
+	//スカイボックスの描画
+	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();
