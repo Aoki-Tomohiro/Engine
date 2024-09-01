@@ -17,6 +17,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Weapon* weapon = new Weapon();
 		return weapon;
 	}
+	else if (objectName == "Orb")
+	{
+		Orb* orb = new Orb();
+		return orb;
+	}
 	else if (objectName == "Ground")
 	{
 		Ground* ground = new Ground();

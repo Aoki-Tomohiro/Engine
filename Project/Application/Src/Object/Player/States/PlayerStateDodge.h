@@ -10,6 +10,8 @@ public:
 
 	void Update() override;
 
+	void OnCollision(GameObject* other) override;
+
 private:
 	void PlayDodgeAnimation(const Vector3& inputValue);
 

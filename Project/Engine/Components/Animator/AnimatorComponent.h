@@ -15,21 +15,45 @@ public:
 
 	void StopAnimation();
 
+	void PauseAnimation();
+
+	void ResumeAnimation();
+
+	const bool GetIsBlendingCompleted() const;
+
 	const bool GetIsAnimationFinished(const std::string& animationName) const;
 
 	const bool GetIsAnimationFinished();
 
 	const float GetAnimationDuration(const std::string& animationName) const;
 
-	const float GetAnimationDuration();
+	const float GetCurrentAnimationDuration() const;
+
+	const float GetNextAnimationDuration() const;
 
 	const float GetAnimationTime(const std::string& animationName) const;
 
 	void SetAnimationTime(const std::string& animationName, const float animationTime);
 
-	const float GetAnimationTime() const;
+	const float GetCurrentAnimationTime() const;
 
-	void SetAnimationTime(const float animationTime);
+	void SetCurrentAnimationTime(const float animationTime);
+
+	const float GetNextAnimationTime() const;
+
+	void SetNextAnimationTime(const float animationTime);
+
+	const float GetAnimationSpeed(const std::string& animationName) const;
+
+	void SetAnimationSpeed(const std::string& animationName, const float animationSpeed);
+
+	const float GetCurrentAnimationSpeed() const;
+
+	void SetCurrentAnimationSpeed(const float animationSpeed);
+
+	const float GetNextAnimationSpeed() const;
+
+	void SetNextAnimationSpeed(const float animationSpeed);
 
 	const bool GetIsDlending() const { return isBlending_; };
 
@@ -54,6 +78,9 @@ private:
 
 	//次のアニメーションの名前
 	std::string nextAnimation_{};
+
+	//アニメーションブレンドが終了したかどうか
+	bool isBlendingCompleted_ = true;
 
 	//アニメーションをブレンドするかどうか
 	bool isBlending_ = true;

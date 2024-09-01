@@ -4,6 +4,7 @@
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Lockon/LockOn.h"
 #include "Application/Src/Object/Camera/CameraPathManager.h"
+#include "Application/Src/Object/Camera/CameraShake.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
 #include <numbers>
 
@@ -13,15 +14,19 @@ public:
 	//通常カメラ時のパラメーター
 	struct FollowCameraParameters
 	{
-		Vector3 offset = { 0.0f, 2.0f, -10.0f }; //オフセット値
+		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
+		float rotationRangeMin = 1.6f;
+		float rotationRangeMax = 2.0f;
+		float rotationSpeedX = 0.02f;
+		float rotationSpeedY = 0.04f;
 	};
 
 	//ロックオンカメラ時のパラメーター
 	struct LockonCameraParameters
 	{
-		Vector3 offset = { 0.0f, 2.0f, -10.0f }; //オフセット値
-		float rotationRangeMin = 0.785f;
-		float rotationRangeMax = 2.0f;//2.355f;
+		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
+		float rotationRangeMin = 1.4f;
+		float rotationRangeMax = 2.0f;
 	};
 
 	void Initialize();
@@ -30,9 +35,7 @@ public:
 
 	void ChangeState(ICameraState* state);
 
-	void UpdateCameraPosition();
-
-	const Vector3 CalculateOffset() const;
+	void StartCameraShake(const Vector3& intensity, const float duration);
 
 	const Vector3& GetInterTarget() const { return interTarget_; };
 
@@ -47,6 +50,16 @@ public:
 	const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
 
 	void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
+
+	const float GetFov() const { return camera_.fov_; };
+
+	void SetFov(const float fov) { camera_.fov_ = fov; };
+
+	const bool GetIsClearAnimationFinished() const { return isClearAnimationFinished_; };
+
+	void SetIsClearAnimationFinished(const bool isClearAnimationFinished) { isClearAnimationFinished_ = isClearAnimationFinished; };
+
+	CameraPathManager* GetCameraPathManager() const { return cameraPathManager_; };
 
 	void SetCameraPathManager(CameraPathManager* cameraPathManager) { cameraPathManager_ = cameraPathManager; };
 
@@ -65,6 +78,10 @@ public:
 private:
 	void UpdateInterTargetPosition();
 
+	void UpdateCameraPosition();
+
+	const Vector3 CalculateOffset() const;
+
 	void UpdateAnimation();
 
 	void UpdateEditing();
@@ -78,6 +95,9 @@ private:
 private:
 	//カメラの状態
 	std::unique_ptr<ICameraState> state_ = nullptr;
+
+	//カメラシェイク
+	std::unique_ptr<CameraShake> cameraShake_ = nullptr;
 
 	//カメラ
 	Camera camera_{};
@@ -111,6 +131,12 @@ private:
 
 	//Quaternionの補間速度
 	float quaternionInterpolationSpeed_ = 0.2f;
+
+	//クリアアニメーション状態かどうか
+	bool isClearAnimationActive_ = false;
+
+	//クリアアニメーションが終了したかどうか
+	bool isClearAnimationFinished_ = false;
 
 	//追従カメラ時のパラメーター
 	FollowCameraParameters followCameraParameters_{};

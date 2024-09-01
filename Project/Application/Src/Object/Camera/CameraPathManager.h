@@ -25,7 +25,7 @@ public:
 	CameraPath& GetPath(const std::string& name) { return cameraPaths_[name]; };
 
 private:
-	const std::string kFileName = "Application/Resources/Config/CameraPath.json";
+	const std::string kFileName = "Application/Resources/Config/Camera/CameraPath.json";
 
 	void SaveFiles();
 

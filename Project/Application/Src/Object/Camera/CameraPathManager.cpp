@@ -160,7 +160,8 @@ const CameraKeyFrame CameraPathManager::GetCurrentKeyFrame()
     {
         animationTime_ += GameTimer::GetDeltaTime();
         float duration = cameraPaths_[currentPathName].GetDuration();
-        if (animationTime_ <= duration)
+        animationTime_ = std::clamp(animationTime_, 0.0f, duration);
+        if (animationTime_ < duration)
         {
             return cameraPaths_[currentPathName].GetInterpolatedKeyFrame(animationTime_);
         }
@@ -168,6 +169,7 @@ const CameraKeyFrame CameraPathManager::GetCurrentKeyFrame()
         {
             isPlayAnimation_ = false;
             animationTime_ = 0.0f;
+            return cameraPaths_[currentPathName].GetInterpolatedKeyFrame(duration);
         }
     }
     return CameraKeyFrame();

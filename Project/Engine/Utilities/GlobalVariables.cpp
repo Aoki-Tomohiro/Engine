@@ -236,18 +236,18 @@ void GlobalVariables::LoadFile(const std::string& groupName)
 
 void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, int32_t value)
 {
-	// グループの参照を取得
+	//グループの参照を取得
 	Group& group = datas_[groupName];
-	// 新しい項目のデータを設定
+	//新しい項目のデータを設定
 	Item newItem{};
 	newItem = value;
-	// 設定した項目をstd::mapに追加
+	//設定した項目をstd::mapに追加
 	group[key] = newItem;
 }
 
 void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, float value) 
 {
-	// グループの参照を取得
+	//グループの参照を取得
 	Group& group = datas_[groupName];
 	//新しい項目のデータを設定
 	Item newItem{};
@@ -269,12 +269,12 @@ void GlobalVariables::SetValue(const std::string& groupName, const std::string& 
 
 int32_t GlobalVariables::GetIntValue(const std::string& groupName, const std::string& key) const
 {
-	// 未登録グループチェック
+	//未登録グループチェック
 	assert(datas_.find(groupName) != datas_.end());
-	// グループの参照を取得
+	//グループの参照を取得
 	const Group& group = datas_.at(groupName);
 
-	// 未登録キーチェック
+	//未登録キーチェック
 	assert(group.find(key) != group.end());
 
 	return std::get<int32_t>(group.at(key));
@@ -282,12 +282,12 @@ int32_t GlobalVariables::GetIntValue(const std::string& groupName, const std::st
 
 float GlobalVariables::GetFloatValue(const std::string& groupName, const std::string& key) const
 {
-	// 未登録グループチェック
+	//未登録グループチェック
 	assert(datas_.find(groupName) != datas_.end());
-	// グループの参照を取得
+	//グループの参照を取得
 	const Group& group = datas_.at(groupName);
 
-	// 未登録キーチェック
+	//未登録キーチェック
 	assert(group.find(key) != group.end());
 
 	return std::get<float>(group.at(key));
@@ -295,12 +295,12 @@ float GlobalVariables::GetFloatValue(const std::string& groupName, const std::st
 
 Vector3 GlobalVariables::GetVector3Value(const std::string& groupName, const std::string& key) const
 {
-	// 未登録グループチェック
+	//未登録グループチェック
 	assert(datas_.find(groupName) != datas_.end());
-	// グループの参照を取得
+	//グループの参照を取得
 	const Group& group = datas_.at(groupName);
 
-	// 未登録キーチェック
+	//未登録キーチェック
 	assert(group.find(key) != group.end());
 
 	return std::get<Vector3>(group.at(key));

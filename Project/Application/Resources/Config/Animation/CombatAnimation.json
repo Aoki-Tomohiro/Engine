@@ -1,0 +1,1675 @@
+{
+    "AerialAttack1": {
+        "Attack": {
+            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeIntensity": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 1.0,
+            "HitCount": 1,
+            "HitInterval": 0.029999999329447746,
+            "HitStopDuration": 0.07999999821186066,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -2.0
+            ],
+            "KnockbackDuration": 2.0,
+            "KnockbackVelocity": [
+                0.0,
+                8.0,
+                2.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.800000011920929,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.433000087738037,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "AerialAttack2": {
+        "Attack": {
+            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeIntensity": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 0.9200000166893005,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.10000000149011612,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -2.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                10.0,
+                2.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.800000011920929,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.7000000476837158,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "AerialAttack3": {
+        "Attack": {
+            "CameraShakeDuration": 0.07999999821186066,
+            "CameraShakeIntensity": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "Damage": 10.0,
+            "Duration": 1.100000023841858,
+            "HitCount": 1,
+            "HitInterval": 0.029999999329447746,
+            "HitStopDuration": 0.14000000059604645,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                30.0,
+                -50.0
+            ],
+            "KnockbackDuration": 2.0,
+            "KnockbackVelocity": [
+                0.0,
+                -30.0,
+                50.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.9599999785423279,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.5329999923706055,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.5,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "ComboAttack": {
+        "Attack1": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 3.0,
+            "Duration": 1.1200000047683716,
+            "HitCount": 1,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -4.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                4.0
+            ],
+            "MoveSpeed": 60.0
+        },
+        "Attack2": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 3.0,
+            "Duration": 1.7799999713897705,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -4.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                4.0
+            ],
+            "MoveSpeed": 60.0
+        },
+        "Attack3": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 8.0,
+            "Duration": 2.8399999141693115,
+            "HitCount": 1,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -40.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                40.0
+            ],
+            "MoveSpeed": 60.0
+        },
+        "Charge1": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.8399999737739563,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge2": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.4500000476837158,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge3": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.4200000762939453,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 4.232999801635742,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Warning1": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.0,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Warning2": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.6100000143051147,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Warning3": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.5799999237060547,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "Dash": {
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.1599999964237213,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Dash": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.5,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.4299999475479126,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "Falling": {
+        "Falling": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.2800000011920929,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "GroundAttack1": {
+        "Attack": {
+            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeIntensity": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 0.7200000286102295,
+            "HitCount": 1,
+            "HitInterval": 0.029999999329447746,
+            "HitStopDuration": 0.07999999821186066,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -4.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                8.0,
+                4.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.5,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.5329999923706055,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "GroundAttack2": {
+        "Attack": {
+            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeIntensity": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 0.9200000166893005,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.07999999821186066,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -4.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                8.0,
+                4.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.800000011920929,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.7000000476837158,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "GroundAttack3": {
+        "Attack": {
+            "CameraShakeDuration": 0.05999999865889549,
+            "CameraShakeIntensity": [
+                0.0,
+                0.5,
+                0.0
+            ],
+            "Damage": 8.0,
+            "Duration": 0.699999988079071,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.10000000149011612,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -1.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                14.0,
+                1.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.550000011920929,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.3329999446868896,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                14.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "GroundAttack4": {
+        "Attack": {
+            "CameraShakeDuration": 0.07999999821186066,
+            "CameraShakeIntensity": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "Damage": 10.0,
+            "Duration": 1.5,
+            "HitCount": 1,
+            "HitInterval": 0.019999999552965164,
+            "HitStopDuration": 0.14000000059604645,
+            "HitboxCenter": [
+                0.0,
+                1.0,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -50.0
+            ],
+            "KnockbackDuration": 20.0,
+            "KnockbackVelocity": [
+                0.0,
+                10.0,
+                50.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.340000033378601,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.4670000076293945,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "JumpAttack": {
+        "Attack": {
+            "CameraShakeDuration": 2.0,
+            "CameraShakeIntensity": [
+                0.0,
+                6.0,
+                0.0
+            ],
+            "Damage": 16.0,
+            "Duration": 1.7999999523162842,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                4.0,
+                4.0,
+                4.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -50.0
+            ],
+            "KnockbackDuration": 2.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                50.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.399999976158142,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                4.0,
+                4.0,
+                4.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 3.8329999446868896,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                4.0,
+                4.0,
+                4.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "LaunchAttack": {
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 0.8999999761581421,
+            "HitCount": 1,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "FirstAttack": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 20.0,
+            "Duration": 1.2000000476837158,
+            "HitCount": 1,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.4000000059604645,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "NormalAttack": {
+            "CameraShakeDuration": 0.20000000298023224,
+            "CameraShakeIntensity": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 1.600000023841858,
+            "HitCount": 4,
+            "HitInterval": 0.009999999776482582,
+            "HitStopDuration": 0.019999999552965164,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                14.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 3.200000047683716,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "SpinAttack": {
+        "Attack": {
+            "CameraShakeDuration": 0.10000000149011612,
+            "CameraShakeIntensity": [
+                0.0,
+                0.009999999776482582,
+                0.0
+            ],
+            "Damage": 6.0,
+            "Duration": 1.059999942779541,
+            "HitCount": 5,
+            "HitInterval": 0.10000000149011612,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.800000011920929,
+                0.0
+            ],
+            "HitboxSize": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "KnockbackDuration": 2.0,
+            "KnockbackVelocity": [
+                0.0,
+                18.0,
+                -1.0
+            ],
+            "MoveSpeed": 0.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 3.200000047683716,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    },
+    "TackleAttack": {
+        "Attack": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 10.0,
+            "Duration": 1.5399999618530273,
+            "HitCount": 1,
+            "HitInterval": 0.019999999552965164,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                -50.0
+            ],
+            "KnockbackDuration": 1.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                50.0
+            ],
+            "MoveSpeed": 100.0
+        },
+        "Charge": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 1.2999999523162842,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 9.0
+        },
+        "Recovery": {
+            "CameraShakeDuration": 0.0,
+            "CameraShakeIntensity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Damage": 0.0,
+            "Duration": 2.700000047683716,
+            "HitCount": 0,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "HitboxSize": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 0.0,
+            "KnockbackVelocity": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0
+        }
+    }
+}

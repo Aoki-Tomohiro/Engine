@@ -13,6 +13,14 @@ public:
 
 	const Vector3& GetWorldCenter() const { return worldCenter_; };
 
+	void SetWorldCenter(const Vector3& worldCenter)
+	{
+		worldCenter_ = worldCenter; 
+		isWorldCenterSet_ = true;
+	};
+
+	void ClearWorldCenter() { isWorldCenterSet_ = false; };
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };
@@ -33,5 +41,7 @@ private:
 	Vector3 min_{ -1.0f,-1.0f,-1.0f };
 
 	Vector3 max_{ 1.0f,1.0f,1.0f };
+
+	bool isWorldCenterSet_ = false;
 };
 

@@ -50,6 +50,16 @@ void GameTitleScene::Initialize()
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
+
+	//タイトルのスプライトの生成
+	TextureManager::Load("GameTitle.png");
+	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
+	TextureManager::Load("PressA.png");
+	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
+
+	//音声データの読み込みと再生
+	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
+	audio_->PlayAudio(audioHandle_, true, 0.2f);
 }
 
 void GameTitleScene::Finalize()
@@ -113,6 +123,12 @@ void GameTitleScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
+	//タイトルのスプライトの描画
+	titleSprite_->Draw();
+
+	//PressAのスプライトの描画
+	pressASprite_->Draw();
+
 	//トランジションの描画
 	transition_->Draw();
 
@@ -147,7 +163,7 @@ void GameTitleScene::UpdateCamera()
 void GameTitleScene::TriggerFadeInAndChangeScene()
 {
 	//Aボタンかスペースキーを押したらフェードインさせる
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
 	{
 		transition_->SetFadeState(Transition::FadeState::In);
 	}
@@ -159,6 +175,7 @@ void GameTitleScene::TriggerFadeInAndChangeScene()
 	//シーン遷移
 	if (transition_->GetIsFadeInComplete())
 	{
+		audio_->StopAudio(audioHandle_);
 		sceneManager_->ChangeScene("GamePlayScene");
 	}
 }

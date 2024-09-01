@@ -37,6 +37,9 @@ void PlayerStateDodge::Initialize()
 		//後退距離を計算して目標座標を設定
 		targetPosition_ = startPosition_ + CalculateFallbackDistance();
 	}
+
+	// プレイヤーを水平方向に移動させるためY成分を0にして地面に合わせる
+	targetPosition_.y = 0.0f;
 }
 
 void PlayerStateDodge::Update()
@@ -59,6 +62,10 @@ void PlayerStateDodge::Update()
 		//回避動作を完了する
 		FinalizeDodge();
 	}
+}
+
+void PlayerStateDodge::OnCollision(GameObject* other)
+{
 }
 
 void PlayerStateDodge::PlayDodgeAnimation(const Vector3& inputValue)
@@ -101,12 +108,12 @@ Vector3 PlayerStateDodge::CalculateDodgeDistance(const Vector3& inputValue) cons
 
 Vector3 PlayerStateDodge::CalculateFallbackDistance() const
 {
-	return Mathf::RotateVector(Vector3{ 0.0f, 0.0f, player_->GetDodgeParameters().dodgeDistance }, player_->GetDestinationQuaternion());
+	return Mathf::RotateVector(Vector3{ 0.0f, 0.0f, -player_->GetDodgeParameters().dodgeDistance }, player_->GetDestinationQuaternion());
 }
 
 float PlayerStateDodge::CalculateEasingParameter() const
 {
-	return std::min<float>(1.0f, player_->GetAnimationTime() / player_->GetAnimationDuration());
+	return std::min<float>(1.0f, player_->GetCurrentAnimationTime() / player_->GetAnimationDuration());
 }
 
 Vector3 PlayerStateDodge::InterpolatePosition(float easingParameter) const
@@ -116,10 +123,9 @@ Vector3 PlayerStateDodge::InterpolatePosition(float easingParameter) const
 
 void PlayerStateDodge::FinalizeDodge()
 {
-	//アニメーション後の座標を修正
-	Vector3 hipPosition = player_->GetHipWorldPosition();
-	hipPosition.y = 0.0f;
-	player_->SetPosition(hipPosition);
+	//プレイヤーの位置をアニメーション後の位置に補正
+	player_->SetIsAnimationCorrectionActive(true);
+	player_->SetPosition(player_->GetPosition() + Vector3(player_->GetHipLocalPosition().x, 0.0f, player_->GetHipLocalPosition().z));
 
 	//アニメーションを停止
 	player_->StopAnimation();

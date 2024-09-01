@@ -13,6 +13,14 @@ public:
 
     const Vector3& GetWorldCenter() const { return worldCenter_; };
 
+    void SetWorldCenter(const Vector3& worldCenter)
+    {
+        worldCenter_ = worldCenter;
+        isWorldCenterSet_ = true;
+    };
+
+    void ClearWorldCenter() { isWorldCenterSet_ = false; };
+
 	const Vector3& GetCenter() const { return center_; };
 
 	void SetCenter(const Vector3& center) { center_ = center; };
@@ -50,5 +58,8 @@ private:
 
     //座標軸方向の長さの半分。中心から面までの距離
 	Vector3 size_ = { 1.0f,1.0f,1.0f };
+
+    //ワールド座標系の中心座標が設定されているかどうか
+    bool isWorldCenterSet_ = false;
 };
 

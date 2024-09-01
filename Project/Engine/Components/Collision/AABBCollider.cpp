@@ -10,11 +10,12 @@ void AABBCollider::Initialize()
 
 void AABBCollider::Update()
 {
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
-
-	//ワールド座標系の中心座標を計算
-	worldCenter_ = transformComponent->GetWorldPosition() + center_;
+	if (!isWorldCenterSet_)
+	{
+		//トランスフォームコンポーネントからワールド座標を計算
+		TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
+		worldCenter_ = transformComponent->GetWorldPosition() + center_;
+	}
 }
 
 void AABBCollider::Draw(const Camera& camera)

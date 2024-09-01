@@ -2,6 +2,10 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateFalling.h"
+#include "Application/Src/Object/Player/States/PlayerStateAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateStun.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
 void PlayerStateDash::Initialize()
@@ -9,11 +13,17 @@ void PlayerStateDash::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//オーディオのインスタンスを取得
+	audio_ = Audio::GetInstance();
+
+	//音声データの読み込み
+	dashAudioHandle_ = audio_->LoadAudioFile("Dash.mp3");
+
 	//ダッシュのフラグを設定
 	player_->SetActionFlag(Player::ActionFlag::kDashing, true);
 
 	//アニメーションの状態の取得
-	animationState_ = player_->GetAnimationStateManager()->GetAnimationState("Dash");
+	animationState_ = player_->GetCombatAnimationEditor()->GetAnimationState("Dash");
 
 	//ダッシュ開始時のアニメーションを再生
 	player_->PlayAnimation("DashStart", 1.0f, false);
@@ -57,6 +67,31 @@ void PlayerStateDash::Update()
 	}
 }
 
+void PlayerStateDash::OnCollision(GameObject* other)
+{
+	//衝突相手が武器だった場合
+	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
+	{
+		//ダッシュの状態をリセット
+		ResetDashFlags();
+
+		//ラジアルブラーを切る
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+
+		//ノックバックの速度を設定
+		player_->SetKnockbackSettings(weapon->GetKnockbackSettings());
+
+		//HPを減らす
+		player_->SetHP(player_->GetHP() - weapon->GetDamage());
+
+		//ダメージを食らった音を再生
+		player_->PlayDamageSound();
+
+		//スタン状態に遷移
+		player_->ChangeState(new PlayerStateStun());
+	}
+}
+
 void PlayerStateDash::HandleLockon()
 {
 	//敵の座標を取得
@@ -67,6 +102,9 @@ void PlayerStateDash::HandleLockon()
 
 	//敵とプレイヤーの方向を計算
 	Vector3 sub = Mathf::Normalize(enemyPosition - playerPosition);
+
+	//Y軸の差分が閾値を超えていない場合は直線に移動させる
+	sub.y = std::abs(sub.y) < player_->GetDashParameters().verticalAlignmentTolerance ? 0.0f : sub.y;
 
 	//計算した方向と速度でダッシュベクトルを設定
 	velocity_ = sub * player_->GetDashParameters().dashSpeed;
@@ -85,7 +123,7 @@ void PlayerStateDash::HandleNonLockon()
 void PlayerStateDash::UpdateAnimationPhase()
 {
 	//アニメーションのフェーズの更新
-	if (currentPhaseIndex_ < animationState_.phases.size() - 1 && animationTime_ > animationState_.phases[currentPhaseIndex_].animationTime)
+	if (currentPhaseIndex_ < animationState_.phases.size() - 1 && animationTime_ > animationState_.phases[currentPhaseIndex_].duration)
 	{
 		currentPhaseIndex_++;
 	}
@@ -101,13 +139,13 @@ void PlayerStateDash::DashUpdate()
 
 		//ダッシュのパーティクルを生成
 		SpawnDashParticles();
+
+		//ラジアルブラーを有効にする
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
+
+		//音声データの再生
+		audio_->PlayAudio(dashAudioHandle_, false, 0.2f);
 	}
-
-	//移動処理
-	player_->Move(velocity_);
-
-	//エミッターの座標を更新
-	UpdateEmitterPosition();
 
 	//敵の座標を取得
 	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
@@ -120,6 +158,23 @@ void PlayerStateDash::DashUpdate()
 	{
 		velocity_ = { 0.0f,0.0f,0.0f };
 	}
+
+	//移動処理
+	player_->Move(velocity_);
+
+	//地面に埋まらないようにする
+	Vector3 position = player_->GetPosition();
+	position.y = std::max<float>(position.y, 0.0f);
+	player_->SetPosition(position);
+
+	//エミッターの座標を更新
+	UpdateEmitterPosition();
+
+	//Xボタンを押していた場合ダッシュ攻撃のフラグを立てる
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		player_->SetActionFlag(Player::ActionFlag::kDashAttackEnabled, true);
+	}
 }
 
 void PlayerStateDash::RecoveryUpdate()
@@ -127,20 +182,12 @@ void PlayerStateDash::RecoveryUpdate()
 	//フェーズが変わったとき
 	if (prePhaseIndex_ != currentPhaseIndex_)
 	{
-		//ダッシュの状態をリセット
-		ResetDashFlags();
-
-		//ダッシュ終了時のアニメーションを再生
-		player_->StopAnimation();
-		player_->PlayAnimation("DashEnd", 1.0f, false);
-
-		//ラジアルブラーを切る
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+		HandlePhaseChange();
 	}
+	//アニメーションが終了した時
 	else if (player_->GetIsAnimationFinished())
 	{
-		//アニメーションが終了したら通常状態に戻す
-		player_->ChangeState(new PlayerStateRoot());
+		HandleAnimationFinish();
 	}
 }
 
@@ -182,6 +229,25 @@ void PlayerStateDash::UpdateEmitterPosition()
 	};
 }
 
+void PlayerStateDash::HandlePhaseChange()
+{
+	//ダッシュ終了時のアニメーションを再生
+	player_->StopAnimation();
+	player_->PlayAnimation("DashEnd", 1.0f, false);
+
+	//ダッシュの状態をリセット
+	ResetDashFlags();
+
+	//ラジアルブラーを切る
+	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+
+	//ダッシュ攻撃のフラグが立っている場合は攻撃状態に遷移
+	if (player_->GetActionFlag(Player::ActionFlag::kDashAttackEnabled))
+	{
+		player_->ChangeState(new PlayerStateAttack());
+	}
+}
+
 void PlayerStateDash::ResetDashFlags()
 {
 	//プレイヤーを再表示
@@ -202,5 +268,20 @@ void PlayerStateDash::ResetDashFlags()
 		{
 			accelerationField->SetIsDead(true);
 		}
+	}
+}
+
+void PlayerStateDash::HandleAnimationFinish()
+{
+	//プレイヤーが空中にいる場合
+	if (player_->GetPosition().y > 0.0f)
+	{
+		//落下状態に遷移
+		player_->ChangeState(new PlayerStateFalling());
+	}
+	else
+	{
+		//通常状態に戻す
+		player_->ChangeState(new PlayerStateRoot());
 	}
 }

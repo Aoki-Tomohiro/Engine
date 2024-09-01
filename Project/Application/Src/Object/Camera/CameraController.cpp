@@ -2,12 +2,16 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
+#include "Application/Src/Object/Camera/States/CameraStateClear.h"
 
 void CameraController::Initialize()
 {
 	//カメラの初期化
 	camera_.Initialize();
 	camera_.rotationType_ = RotationType::Quaternion;
+
+	//カメラシェイクの生成
+	cameraShake_ = std::make_unique<CameraShake>();
 
 	//状態の初期化
 	ChangeState(new CameraStateFollow());
@@ -47,6 +51,21 @@ void CameraController::Update()
 	//回転処理
 	UpdateCameraRotation();
 
+	//クリアアニメーション状態に遷移するかを確認
+	if (!isClearAnimationActive_)
+	{
+		const Enemy* enemy = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("");
+		if (enemy->GetIsDead())
+		{
+			isClearAnimationActive_ = true;
+			ChangeState(new CameraStateClear());
+		}
+	}
+
+	//カメラシェイクの処理
+	cameraShake_->Update();
+	camera_.translation_ += cameraShake_->GetShakeOffset();
+
 	//カメラの更新
 	camera_.UpdateMatrix();
 }
@@ -61,6 +80,12 @@ void CameraController::ChangeState(ICameraState* state)
 
 	//現在のカメラ状態を新しい状態に置き換える
 	state_.reset(state);
+}
+
+void CameraController::StartCameraShake(const Vector3& intensity, const float duration)
+{
+	//カメラシェイクを開始
+	cameraShake_->Start(intensity, duration);
 }
 
 const Vector3 CameraController::CalculateOffset() const
@@ -124,11 +149,8 @@ void CameraController::UpdateCameraTransform(const Quaternion& rotation, float f
 	//プレイヤーの情報を取得
 	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("");
 
-	//プレイヤーの目標クォータニオンを取得しY軸周りに180度回転させたクォータニオンを作成
-	Quaternion quaternion = player->GetDestinationQuaternion() * Mathf::Conjugate(Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,1.0f,0.0f }, std::numbers::pi_v<float>));
-
 	//プレイヤーのクォータニオンと指定された回転を合成してカメラの目標クォータニオンを設定
-	destinationQuaternion_ = quaternion * rotation;
+	destinationQuaternion_ = player->GetDestinationQuaternion() * rotation;
 
 	//FOVを設定
 	camera_.fov_ = fovDegrees * std::numbers::pi_v<float> / 180.0f;

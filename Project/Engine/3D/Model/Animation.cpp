@@ -16,7 +16,7 @@ void Animation::Initialize(const std::vector<AnimationData>& animationData)
 void Animation::UpdateAnimationTime()
 {
     //アニメーションの停止フラグが立っている場合は何もしない
-    if (stop_) return;
+    if (stop_ || pause_) return;
 
     //現在のアニメーションデータを取得
     const AnimationData* animationData = GetAnimationData();
@@ -90,8 +90,10 @@ void Animation::PlayAnimation(const std::string& animationName, float speed, boo
     animationName_ = animationName; 
     //ループフラグを設定
     loop_ = loop; 
-    //停止フラグを設定
+    //停止フラグを解除
     stop_ = false;
+    //一時停止フラグを解除
+    pause_ = false;
     //アニメーションの終了フラグを設定
     isAnimationFinished_ = false;
     //アニメーション時間をリセット
@@ -104,8 +106,10 @@ void Animation::PlayAnimation(const float speed, const bool loop)
 {
     //ループフラグを設定
     loop_ = loop;
-    //停止フラグを設定
+    //停止フラグを解除
     stop_ = false;
+    //一時停止フラグを解除
+    pause_ = false;
     //アニメーションの終了フラグを設定
     isAnimationFinished_ = false;
     //アニメーション時間をリセット
@@ -118,10 +122,24 @@ void Animation::StopAnimation()
 {
     //停止フラグを設定
     stop_ = true;
+    //一時停止フラグを解除
+    pause_ = false;
     //アニメーションの終了フラグを設定
     isAnimationFinished_ = false;
     //アニメーション時間をリセット
     animationTime_ = 0.0f;
+}
+
+void Animation::PauseAnimation()
+{
+    //一時停止させる
+    pause_ = true;
+}
+
+void Animation::ResumeAnimation()
+{
+    //一時停止を解除
+    pause_ = false;
 }
 
 const float Animation::GetDuration() const

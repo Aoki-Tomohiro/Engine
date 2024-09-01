@@ -10,6 +10,8 @@ public:
 
 	void Update() override;
 
+	void OnCollision(GameObject* other) override;
+
 private:
 	//Input
 	Input* input_ = nullptr;

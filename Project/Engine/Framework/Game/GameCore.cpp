@@ -60,6 +60,9 @@ void GameCore::Initialize()
 
 	//RandomGeneratorの初期化
 	RandomGenerator::Initialize();
+
+	//GlovalVariablesの読み込み
+	GlobalVariables::GetInstance()->LoadFiles();
 }
 
 void GameCore::Finalize()

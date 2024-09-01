@@ -24,7 +24,7 @@ void GameManager::Initialize()
 	collisionAttributeManager_->AddAttribute("Warning",      0b1000000, 0b0000001);
 
 	//PostEffectsの有効化
-	postEffects_->SetIsEnable(false);
+	postEffects_->SetIsEnable(true);
 	postEffects_->GetFog()->SetIsEnable(true);
 	postEffects_->GetBloom()->SetIsEnable(true);
 	postEffects_->GetBloom()->SetBlurCount(4);

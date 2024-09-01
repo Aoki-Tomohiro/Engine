@@ -5,7 +5,7 @@
 
 void ModelComponent::Initialize()
 {
-	model_.reset(ModelManager::CreateFromModelFile("Cube", Opaque));
+	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
 }
 
 void ModelComponent::Update()

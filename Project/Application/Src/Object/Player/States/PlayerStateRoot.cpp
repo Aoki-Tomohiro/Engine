@@ -3,43 +3,36 @@
 #include "Application/Src/Object/Player/States/PlayerStateJump.h"
 #include "Application/Src/Object/Player/States/PlayerStateDodge.h"
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
+#include "Application/Src/Object/Player/States/PlayerStateAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateLaunchAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateSpinAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateStun.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
+
+//現在のアニメーションの名前を保持するための変数
+std::string PlayerStateRoot::currentAnimation_ = "Idle";
 
 void PlayerStateRoot::Initialize()
 {
-	//Inputのインスタンスを取得
+	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
 	//アニメーションブレンドを有効化する
 	player_->SetIsAnimationBlending(true);
 
-	//スティックの入力を取得
-	Vector3 inputValue = {
-		input_->GetLeftStickX(),
-		0.0f,
-		input_->GetLeftStickY(),
-	};
-
-	//入力ベクトルの長さを計算
-	float inputLength = Mathf::Length(inputValue);
-
-	//入力値が歩行の閾値を超えている場合
-	if (inputLength > player_->GetRootParameters().walkThreshold)
-	{
-		//入力値が走りの閾値を超えているかチェック
-		bool isRunning = Mathf::Length(inputValue) > player_->GetRootParameters().runThreshold;
-
-		//アニメーションの更新
-		UpdateAnimation(inputValue, isRunning);
-	}
-	else
-	{
-		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		player_->PlayAnimation("Idle", 1.0f, true);
-	}
+	//アニメーションを再生
+	player_->PlayAnimation(currentAnimation_, 1.0f, true);
 }
 
 void PlayerStateRoot::Update()
 {
+	//ゲームが終了していたら処理を飛ばす
+	if (player_->GetIsGameFinished())
+	{
+		player_->PlayAnimation("Idle", 1.0f, true);
+		return;
+	}
+
 	//スティックの入力を取得
 	Vector3 inputValue = {
 		input_->GetLeftStickX(),
@@ -68,23 +61,26 @@ void PlayerStateRoot::Update()
 		}
 	}
 
-	//Aボタンを押したとき
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	//入力に基づいて状態を遷移
+	ProcessStateTransition();
+}
+
+void PlayerStateRoot::OnCollision(GameObject* other)
+{
+	//衝突相手が武器だった場合
+	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
-		//ジャンプ状態に遷移
-		player_->ChangeState(new PlayerStateJump());
-	}
-	//RBを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
-	{
-		//回避状態に遷移
-		player_->ChangeState(new PlayerStateDodge());
-	}
-	//Bボタンを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-	{
-		//ダッシュ状態に遷移
-		player_->ChangeState(new PlayerStateDash());
+		//ノックバックの速度を設定
+		player_->SetKnockbackSettings(weapon->GetKnockbackSettings());
+
+		//HPを減らす
+		player_->SetHP(player_->GetHP() - weapon->GetDamage());
+
+		//ダメージを食らった音を再生
+		player_->PlayDamageSound();
+
+		//スタン状態に遷移
+		player_->ChangeState(new PlayerStateStun());
 	}
 }
 
@@ -189,5 +185,55 @@ const std::string PlayerStateRoot::DetermineRunningAnimation(const Vector3& inpu
 	{
 		//左右移動のアニメーション
 		return (inputValue.x < 0.0f) ? "Run3" : "Run4";
+	}
+}
+
+void PlayerStateRoot::ProcessStateTransition()
+{
+	//RTの入力の閾値
+	const float kRightTriggerThreshold = 0.7f;
+
+	//RTが押されていない場合
+	if (input_->GetRightTriggerValue() < kRightTriggerThreshold)
+	{
+		//Aボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+		{
+			//ジャンプ状態に遷移
+			player_->ChangeState(new PlayerStateJump());
+		}
+		//RBを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+		{
+			//回避状態に遷移
+			player_->ChangeState(new PlayerStateDodge());
+		}
+		//Bボタンを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+		{
+			//ダッシュ状態に遷移
+			player_->ChangeState(new PlayerStateDash());
+		}
+		//Xボタンを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			//攻撃状態に遷移
+			player_->ChangeState(new PlayerStateAttack());
+		}
+	}
+	else
+	{
+		//Xボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack))
+		{
+			//打ち上げ攻撃状態に遷移
+			player_->ChangeState(new PlayerStateLaunchAttack());
+		}
+		//Yボタンを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+		{
+			//回転攻撃状態に遷移
+			player_->ChangeState(new PlayerStateSpinAttack());
+		}
 	}
 }

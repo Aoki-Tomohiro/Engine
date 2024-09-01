@@ -11,6 +11,8 @@ public:
 
 	void Update() override;
 
+	void OnCollision(GameObject* other) override;
+
 private:
 	void Move(const Vector3& inputValue, const float inputLength);
 
@@ -22,11 +24,13 @@ private:
 
 	const std::string DetermineRunningAnimation(const Vector3& inputValue) const;
 
+	void ProcessStateTransition();
+
 private:
 	//インプット
 	Input* input_ = nullptr;
 
 	//現在のアニメーション
-	std::string currentAnimation_ = "Idle";
+	static std::string currentAnimation_;
 };
 

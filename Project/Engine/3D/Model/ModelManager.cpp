@@ -34,9 +34,7 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 	auto it = modelDatas_.find(modelName);
 	if (it != modelDatas_.end())
 	{
-		Model* model = new Model();
-		model->Initialize(it->second, drawPass);
-		return model;
+		return it->second.get();
 	}
 
 	//ファイルパスを設定
@@ -53,12 +51,13 @@ Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawP
 
 	//モデルデータの読み込み
 	Model::ModelData modelData = LoadModelFile(directoryPath, fileName);
-	//モデルデータを保存
-	modelDatas_[fileName] = modelData;
 
 	//モデルの生成
 	Model* model = new Model();
 	model->Initialize(modelData, drawPass);
+
+	//モデルデータを保存
+	modelDatas_[modelName] = std::unique_ptr<Model>(model);
 
 	return model;
 }

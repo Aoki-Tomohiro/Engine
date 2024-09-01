@@ -58,6 +58,10 @@ public:
 
 	void StopAnimation();
 
+	void PauseAnimation();
+
+	void ResumeAnimation();
+
 	const float GetAnimationTime() const { return animationTime_; };
 
 	void SetAnimationTime(const float animationTime) { animationTime_ = animationTime; };
@@ -98,6 +102,9 @@ private:
 
 	//アニメーションを停止させるかどうか
 	bool stop_ = false;
+
+	//アニメーションを一時停止させるかどうか
+	bool pause_ = false;
 
 	//ループさせるかどうか
 	bool loop_ = true;

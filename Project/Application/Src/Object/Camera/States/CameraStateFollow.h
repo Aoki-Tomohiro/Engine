@@ -14,6 +14,10 @@ public:
 private:
 	void UpdateCameraRotation();
 
+	void ClampVerticalRotation(Vector3& input, const Vector3& direction);
+
+	void ApplyCameraRotation(const Vector3& input);
+
 	Vector3 GetRightStickInput() const;
 
 private:

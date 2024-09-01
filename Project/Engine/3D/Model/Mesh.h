@@ -39,10 +39,22 @@ public:
 private:
 	void CreateVertexBuffer(const bool hasSkinCluster);
 
+	void CreateInputVerticesBuffer();
+
+	void CreateOutputVerticesBuffer();
+
+	void CreateVertexBufferViewForSkinCluster();
+
+	void CreateSkinningInformationBuffer();
+
+	void CreateVertexBufferWithoutSkinCluster();
+
 	void CreateIndexBuffer();
 
 private:
 	MeshData meshData_{};
+
+	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
 	std::unique_ptr<StructuredBuffer> inputVerticesBuffer_ = nullptr;
 

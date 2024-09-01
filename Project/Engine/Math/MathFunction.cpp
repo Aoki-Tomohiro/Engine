@@ -60,6 +60,11 @@ namespace Mathf
 		return x * x * x;
 	}
 
+	float EaseOutCubic(float x)
+	{
+		return 1.0f - std::pow(1.0f - x, 3.0f);
+	}
+
 	float EaseInOutSine(float x)
 	{
 		return -(std::cos(std::numbers::pi_v<float> *x) - 1.0f) / 2.0f;

@@ -2,6 +2,9 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
+#include "Application/Src/Object/Player/States/PlayerStateAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateStun.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -52,7 +55,7 @@ void PlayerStateJump::Update()
 	Vector3 accelerationVector = { 0.0f,player_->GetJumpParameters().gravityAcceleration,0.0f };
 
 	//速度に重力加速度を加算
-	velocity_ += accelerationVector;
+	velocity_ += accelerationVector * GameTimer::GetDeltaTime();
 
 	//移動処理
 	player_->Move(velocity_);
@@ -75,5 +78,30 @@ void PlayerStateJump::Update()
 	{
 		//ダッシュ状態に遷移
 		player_->ChangeState(new PlayerStateDash());
+	}
+	//Xボタンを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	{
+		//攻撃状態に遷移
+		player_->ChangeState(new PlayerStateAttack());
+	}
+}
+
+void PlayerStateJump::OnCollision(GameObject* other)
+{
+	//衝突相手が武器だった場合
+	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
+	{
+		//ノックバックの速度を設定
+		player_->SetKnockbackSettings(weapon->GetKnockbackSettings());
+
+		//HPを減らす
+		player_->SetHP(player_->GetHP() - weapon->GetDamage());
+
+		//ダメージを食らった音を再生
+		player_->PlayDamageSound();
+
+		//スタン状態に遷移
+		player_->ChangeState(new PlayerStateStun());
 	}
 }
