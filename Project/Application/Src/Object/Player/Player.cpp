@@ -5,7 +5,9 @@
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Player/States/PlayerStateDeath.h"
 
 void Player::Initialize()
@@ -13,225 +15,33 @@ void Player::Initialize()
 	//基底クラスの初期化
 	GameObject::Initialize();
 
-	//インプットのインスタンスを取得
-	input_ = Input::GetInstance();
+	//インスタンスの取得
+	InitializeInstances();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
-
-	//スキルクールダウンマネージャーの生成
-	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
-	skillCooldownManager_->AddSkill(Skill::kLaunchAttack, &launchAttackParameters_);
-	skillCooldownManager_->AddSkill(Skill::kSpinAttack, &spinAttackParameters_);
+	//スキルクールダウンマネージャーの設定
+	InitializeSkillCooldownManager();
 
 	//パーティクルシステムの初期化
 	InitializeParticleSystems();
 
 	//状態の初期化
-	ChangeState(new PlayerStateRoot());
+	InitializeState();
 
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	//回転の種類をQuaternionに設定
-	transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	//Quaternionの初期化
-	destinationQuaternion_ = transformComponent->worldTransform_.quaternion_;
+	//コンポーネントの初期化
+	InitializeTransformComponent();
+	InitializeModelComponent();
 
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	//全てのマテリアルの環境マップの映り込みの係数を設定
-	for (size_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
-	{
-		modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
-	}
+	//UIスプライトの生成
+	InitializeUISprites();
 
-	//ダメージエフェクト用のスプライトの生成
-	damagedSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
-	damagedSprite_->SetColor(damagedSpriteColor_);
-	damagedSprite_->SetSize({ 1280.0f,720.0f });
-
-	//体力のスプライトの生成
-	TextureManager::Load("HpBar.png");
-	hpSprite_.reset(Sprite::Create("HpBar.png", hpSpritePosition_));
-	hpSprite_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-	TextureManager::Load("HpBarFrame.png");
-	hpFrameSprite_.reset(Sprite::Create("HpBarFrame.png", hpFrameSpritePosition_));
-	hpFrameSprite_->SetColor({ 0.0f, 1.0f, 0.0f, 1.0f });
-
-	//ボタンのスプライトの生成
-	buttonSprites_.resize(kMaxButtons);
-	for (int32_t i = 0; i < kMaxButtons; i++)
-	{
-		switch (i)
-		{
-		case A:
-			TextureManager::Load("xbox_button_a_outline.png");
-			TextureManager::Load("Jump.png");
-			buttonSprites_[A].buttonPosition = { 1000.0f,630.0f };
-			buttonSprites_[A].buttonSprite.reset(Sprite::Create("xbox_button_a_outline.png", buttonSprites_[A].buttonPosition));
-			buttonSprites_[A].fontPosition = { 1060.0f,644.0f };
-			buttonSprites_[A].fontScale = { 0.3f,0.3f };
-			buttonSprites_[A].fontSprite.reset(Sprite::Create("Jump.png", buttonSprites_[A].fontPosition));
-			buttonSprites_[A].fontSprite->SetScale(buttonSprites_[A].fontScale);
-			break;
-		case B:
-			TextureManager::Load("xbox_button_b_outline.png");
-			TextureManager::Load("Dash.png");
-			buttonSprites_[B].buttonPosition = { 1048.0f,582.0f };
-			buttonSprites_[B].buttonSprite.reset(Sprite::Create("xbox_button_b_outline.png", buttonSprites_[B].buttonPosition));
-			buttonSprites_[B].fontPosition = { 1108.0f,596.0f };
-			buttonSprites_[B].fontScale = { 0.3f,0.3f };
-			buttonSprites_[B].fontSprite.reset(Sprite::Create("Dash.png", buttonSprites_[B].fontPosition));
-			buttonSprites_[B].fontSprite->SetScale(buttonSprites_[B].fontScale);
-			break;
-		case X:
-			TextureManager::Load("xbox_button_x_outline.png");
-			TextureManager::Load("Attack.png");
-			buttonSprites_[X].buttonPosition = { 952.0f, 582.0f };
-			buttonSprites_[X].buttonSprite.reset(Sprite::Create("xbox_button_x_outline.png", buttonSprites_[X].buttonPosition));
-			buttonSprites_[X].fontPosition = { 880.0f,596.0f };
-			buttonSprites_[X].fontScale = { 0.3f,0.3f };
-			buttonSprites_[X].fontSprite.reset(Sprite::Create("Attack.png", buttonSprites_[X].fontPosition));
-			buttonSprites_[X].fontSprite->SetScale(buttonSprites_[X].fontScale);
-			break;
-		case Y:
-			TextureManager::Load("xbox_button_y_outline.png");
-			TextureManager::Load("Fire.png");
-			buttonSprites_[Y].buttonPosition = { 1000.0f,534.0f };
-			buttonSprites_[Y].buttonSprite.reset(Sprite::Create("xbox_button_y_outline.png", buttonSprites_[Y].buttonPosition));
-			buttonSprites_[Y].fontPosition = { 904.0f,544.0f };
-			buttonSprites_[Y].fontScale = { 0.3f,0.3f };
-			buttonSprites_[Y].fontSprite.reset(Sprite::Create("Fire.png", buttonSprites_[Y].fontPosition));
-			buttonSprites_[Y].fontSprite->SetScale(buttonSprites_[Y].fontScale);
-			break;
-		case LB:
-			TextureManager::Load("xbox_lb_outline.png");
-			TextureManager::Load("Lockon.png");
-			buttonSprites_[LB].buttonPosition = { 1070.0f,429.0f };
-			buttonSprites_[LB].buttonSprite.reset(Sprite::Create("xbox_lb_outline.png", buttonSprites_[LB].buttonPosition));
-			buttonSprites_[LB].fontPosition = { 1139.0f,439.0f };
-			buttonSprites_[LB].fontScale = { 0.3f,0.3f };
-			buttonSprites_[LB].fontSprite.reset(Sprite::Create("Lockon.png", buttonSprites_[LB].fontPosition));
-			buttonSprites_[LB].fontSprite->SetScale(buttonSprites_[LB].fontScale);
-			break;
-		case RB:
-			TextureManager::Load("xbox_rb_outline.png");
-			TextureManager::Load("Dodge.png");
-			buttonSprites_[RB].buttonPosition = { 1070.0f,484.0f };
-			buttonSprites_[RB].buttonSprite.reset(Sprite::Create("xbox_rb_outline.png", buttonSprites_[RB].buttonPosition));
-			buttonSprites_[RB].fontPosition = { 1139.0f,496.0f };
-			buttonSprites_[RB].fontScale = { 0.3f,0.3f };
-			buttonSprites_[RB].fontSprite.reset(Sprite::Create("Dodge.png", buttonSprites_[RB].fontPosition));
-			buttonSprites_[RB].fontSprite->SetScale(buttonSprites_[RB].fontScale);
-			break;
-		case RT:
-			TextureManager::Load("xbox_rt_outline.png");
-			TextureManager::Load("Change.png");
-			buttonSprites_[RT].buttonPosition = { 1070.0f,370.0f };
-			buttonSprites_[RT].buttonScale = { 0.5f,0.5f };
-			buttonSprites_[RT].buttonSprite.reset(Sprite::Create("xbox_rt_outline.png", buttonSprites_[RT].buttonPosition));
-			buttonSprites_[RT].buttonSprite->SetScale(buttonSprites_[RT].buttonScale);
-			buttonSprites_[RT].fontPosition = { 1139.0f,382.0f };
-			buttonSprites_[RT].fontScale = { 0.3f,0.3f };
-			buttonSprites_[RT].fontSprite.reset(Sprite::Create("Change.png", buttonSprites_[RT].fontPosition));
-			buttonSprites_[RT].fontSprite->SetScale(buttonSprites_[RT].fontScale);
-			break;
-		}
-	}
-
-	//ボタンのスプライトの生成
-	RTbuttonSprites_.resize(kMaxButtons);
-	for (int32_t i = 0; i < kMaxButtons; i++)
-	{
-		switch (i)
-		{
-		case A:
-			TextureManager::Load("xbox_button_a_outline.png");
-			TextureManager::Load("Jump.png");
-			RTbuttonSprites_[A].buttonPosition = { 1000.0f,630.0f };
-			RTbuttonSprites_[A].buttonSprite.reset(Sprite::Create("xbox_button_a_outline.png", RTbuttonSprites_[A].buttonPosition));
-			RTbuttonSprites_[A].fontPosition = { 1060.0f,644.0f };
-			RTbuttonSprites_[A].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[A].fontSprite.reset(Sprite::Create("Jump.png", RTbuttonSprites_[A].fontPosition));
-			RTbuttonSprites_[A].fontSprite->SetScale(RTbuttonSprites_[A].fontScale);
-			break;
-		case B:
-			TextureManager::Load("xbox_button_b_outline.png");
-			TextureManager::Load("Dash.png");
-			RTbuttonSprites_[B].buttonPosition = { 1048.0f,582.0f };
-			RTbuttonSprites_[B].buttonSprite.reset(Sprite::Create("xbox_button_b_outline.png", RTbuttonSprites_[B].buttonPosition));
-			RTbuttonSprites_[B].fontPosition = { 1108.0f,596.0f };
-			RTbuttonSprites_[B].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[B].fontSprite.reset(Sprite::Create("Dash.png", RTbuttonSprites_[B].fontPosition));
-			RTbuttonSprites_[B].fontSprite->SetScale(RTbuttonSprites_[B].fontScale);
-			break;
-		case X:
-			TextureManager::Load("xbox_button_x_outline.png");
-			TextureManager::Load("LaunchAttack.png");
-			RTbuttonSprites_[X].buttonPosition = { 952.0f, 582.0f };
-			RTbuttonSprites_[X].buttonSprite.reset(Sprite::Create("xbox_button_x_outline.png", RTbuttonSprites_[X].buttonPosition));
-			RTbuttonSprites_[X].fontPosition = { 790.0f,596.0f };
-			RTbuttonSprites_[X].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[X].fontSprite.reset(Sprite::Create("LaunchAttack.png", RTbuttonSprites_[X].fontPosition));
-			RTbuttonSprites_[X].fontSprite->SetScale(RTbuttonSprites_[X].fontScale);
-			break;
-		case Y:
-			TextureManager::Load("xbox_button_y_outline.png");
-			TextureManager::Load("SpinAttack.png");
-			RTbuttonSprites_[Y].buttonPosition = { 1000.0f,534.0f };
-			RTbuttonSprites_[Y].buttonSprite.reset(Sprite::Create("xbox_button_y_outline.png", RTbuttonSprites_[Y].buttonPosition));
-			RTbuttonSprites_[Y].fontPosition = { 880.0f,544.0f };
-			RTbuttonSprites_[Y].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[Y].fontSprite.reset(Sprite::Create("SpinAttack.png", RTbuttonSprites_[Y].fontPosition));
-			RTbuttonSprites_[Y].fontSprite->SetScale(RTbuttonSprites_[Y].fontScale);
-			break;
-		case LB:
-			TextureManager::Load("xbox_lb_outline.png");
-			TextureManager::Load("Lockon.png");
-			RTbuttonSprites_[LB].buttonPosition = { 1070.0f,429.0f };
-			RTbuttonSprites_[LB].buttonSprite.reset(Sprite::Create("xbox_lb_outline.png", RTbuttonSprites_[LB].buttonPosition));
-			RTbuttonSprites_[LB].fontPosition = { 1139.0f,439.0f };
-			RTbuttonSprites_[LB].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[LB].fontSprite.reset(Sprite::Create("Lockon.png", RTbuttonSprites_[LB].fontPosition));
-			RTbuttonSprites_[LB].fontSprite->SetScale(RTbuttonSprites_[LB].fontScale);
-			break;
-		case RB:
-			TextureManager::Load("xbox_rb_outline.png");
-			TextureManager::Load("Dodge.png");
-			RTbuttonSprites_[RB].buttonPosition = { 1070.0f,484.0f };
-			RTbuttonSprites_[RB].buttonSprite.reset(Sprite::Create("xbox_rb_outline.png", RTbuttonSprites_[RB].buttonPosition));
-			RTbuttonSprites_[RB].fontPosition = { 1139.0f,496.0f };
-			RTbuttonSprites_[RB].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[RB].fontSprite.reset(Sprite::Create("Dodge.png", RTbuttonSprites_[RB].fontPosition));
-			RTbuttonSprites_[RB].fontSprite->SetScale(RTbuttonSprites_[RB].fontScale);
-			break;
-		case RT:
-			TextureManager::Load("xbox_rt_outline.png");
-			TextureManager::Load("Change.png");
-			RTbuttonSprites_[RT].buttonPosition = { 1070.0f,370.0f };
-			RTbuttonSprites_[RT].buttonScale = { 0.5f,0.5f };
-			RTbuttonSprites_[RT].buttonSprite.reset(Sprite::Create("xbox_rt_outline.png", RTbuttonSprites_[RT].buttonPosition));
-			RTbuttonSprites_[RT].buttonSprite->SetScale(RTbuttonSprites_[RT].buttonScale);
-			RTbuttonSprites_[RT].fontPosition = { 1139.0f,382.0f };
-			RTbuttonSprites_[RT].fontScale = { 0.3f,0.3f };
-			RTbuttonSprites_[RT].fontSprite.reset(Sprite::Create("Change.png", RTbuttonSprites_[RT].fontPosition));
-			RTbuttonSprites_[RT].fontSprite->SetScale(RTbuttonSprites_[RT].fontScale);
-			break;
-		}
-	}
-
-	skillCoolDownSprites_.resize(2);
-	skillCoolDownSprites_[0].reset(Sprite::Create("white.png", { 955.0f, 580.0f }));
-	skillCoolDownSprites_[1].reset(Sprite::Create("white.png", { 1004.0f,530.0f }));
+	//ダメージエフェクト用のスプライトの初期化
+	InitializeDamageEffect();
 
 	//音声データの読み込み
-	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
+	LoadAudioData();
 
 	//環境変数の設定
-	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	const char* groupName = "Player";
-	globalVariables->CreateGroup(groupName);
-	globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
+	ConfigureGlobalVariables();
 }
 
 void Player::Update()
@@ -246,17 +56,8 @@ void Player::Update()
 	//アニメーション後の座標を代入
 	preAnimationHipPosition_ = GetHipLocalPosition();
 
-	//スキルクールダウンマネージャーの更新
-	skillCooldownManager_->Update();
-
-	//スキルのクールダウンのスプライトのサイズを設定
-	float currentScale = kMaxCoolDownSpriteScale.x * (skillCooldownManager_->GetCooldownTime(Skill::kLaunchAttack) / launchAttackParameters_.cooldownDuration);
-	skillCoolDownSprites_[0]->SetScale({ currentScale , kMaxCoolDownSpriteScale.y });
-	currentScale = kMaxCoolDownSpriteScale.x * (skillCooldownManager_->GetCooldownTime(Skill::kSpinAttack) / spinAttackParameters_.cooldownDuration);
-	skillCoolDownSprites_[1]->SetScale({ currentScale , kMaxCoolDownSpriteScale.y });
-
-	//ダメージのスプライトの色を設定
-	damagedSprite_->SetColor(damagedSpriteColor_);
+	//スキルのクールダウンの更新
+	UpdateSkillCooldowns();
 
 	//回転処理
 	UpdateRotation();
@@ -267,24 +68,17 @@ void Player::Update()
 	//移動制限の処理
 	RestrictPlayerMovement(100.0f);
 
-	//HPの更新
+	//体力の更新
 	UpdateHP();
 
 	//死亡状態かどうかを確認する
 	CheckAndTransitionToDeath();
 
+	//ダメージエフェクトの更新
+	UpdateDamageEffect();
+
 	//デバッグ時の更新処理
 	DebugUpdate();
-
-	//プレイヤーの移動制限を付ける
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	const float moveLimit = 300.0f;
-	float distance = Mathf::Length(transformComponent->worldTransform_.translation_);
-	if (distance > moveLimit)
-	{
-		float scale = moveLimit / distance;
-		transformComponent->worldTransform_.translation_ *= scale;
-	}
 
 	//基底クラスの更新
 	GameObject::Update();
@@ -304,39 +98,33 @@ void Player::Draw(const Camera& camera)
 
 void Player::DrawUI()
 {
-	const float threshold = 0.7f;
+	//右トリガーの値が閾値を超えているかをチェック
+	const float kRightTriggerThreshold = 0.7f;
+	bool shouldDrawSkillUI = input_->GetRightTriggerValue() > kRightTriggerThreshold;
 
-	//ダメージスプライトの描画
-	damagedSprite_->Draw();
+	//ボタン数だけループ
+	for (int32_t i = 0; i < kMaxButtons; ++i) 
+	{
+		//右トリガーの値が閾値を超えていて、かつボタンがXまたはYの場合
+		if (shouldDrawSkillUI && (i == X || i == Y))
+		{
+			//XまたはYボタンに対応するスキルUIを描画
+			int skillIndex = (i == X) ? 0 : 1;
+			DrawSkillUI(skillUISettings_[skillIndex]);
+		}
+		else
+		{
+			//通常のボタンUIを描画
+			DrawButtonUI(buttonUISettings_[i]);
+		}
+	}
 
-	//HPの描画
+	//体力バーの描画
 	hpSprite_->Draw();
 	hpFrameSprite_->Draw();
 
-	//RTを押しているとき
-	if (input_->GetRightTriggerValue() > threshold)
-	{
-		//ボタンのスプライトの描画
-		for (int32_t i = 0; i < RTbuttonSprites_.size(); ++i)
-		{
-			RTbuttonSprites_[i].buttonSprite->Draw();
-			RTbuttonSprites_[i].fontSprite->Draw();
-		}
-	}
-	else
-	{
-		//ボタンのスプライトの描画
-		for (int32_t i = 0; i < buttonSprites_.size(); ++i)
-		{
-			buttonSprites_[i].buttonSprite->Draw();
-			buttonSprites_[i].fontSprite->Draw();
-		}
-	}
-
-	for (int32_t i = 0; i < 2; i++)
-	{
-		skillCoolDownSprites_[i]->Draw();
-	}
+	//ダメージエフェクトのスプライトを描画
+	damageEffectSprite_->Draw();
 }
 
 void Player::OnCollision(GameObject* gameObject)
@@ -478,10 +266,26 @@ void Player::CorrectAnimationOffset()
 	SetPosition(GetPosition() - hipPositionOffset);
 }
 
-void Player::PlayDamageSound()
+void Player::HandleIncomingDamage(const Weapon* weapon, const bool transitionToStun)
 {
+	//ノックバックの速度を設定
+	knockbackSettings_ = weapon->GetKnockbackSettings();
+
+	//HPを減らす
+	hp_ -= weapon->GetDamage();
+
 	//ダメージの音を再生
 	audio_->PlayAudio(damageAudioHandle_, false, 0.2f);
+
+	//ダメージエフェクトのタイマーと色を設定
+	damageEffectTimer_ = 0.0f;
+	damageEffectColor_.w = 0.2f;
+
+	//スタン状態に遷移するかどうかをチェック
+	if (transitionToStun)
+	{
+		ChangeState(new PlayerStateStun());
+	}
 }
 
 void Player::PlayAnimation(const std::string& name, const float speed, const bool loop)
@@ -556,7 +360,7 @@ bool Player::GetIsBlendingCompleted()
 	return animatorComponent->GetIsBlendingCompleted();
 }
 
-float Player::GetAnimationDuration()
+float Player::GetCurrentAnimationDuration()
 {
 	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
 	return animatorComponent->GetCurrentAnimationDuration();
@@ -606,6 +410,12 @@ void Player::SetPosition(const Vector3& position)
 {
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_ = position;
+}
+
+bool Player::GetActionFlag(const ActionFlag& flag) const
+{
+	auto it = flags_.find(flag);
+	return it != flags_.end() && it->second;
 }
 
 const bool Player::GetIsCooldownComplete(const Skill& skill) const
@@ -687,6 +497,19 @@ ParticleSystem* Player::GetParticleSystem(const std::string& name) const
 	return nullptr;
 }
 
+void Player::InitializeInstances()
+{
+	input_ = Input::GetInstance();
+	audio_ = Audio::GetInstance();
+}
+
+void Player::InitializeSkillCooldownManager()
+{
+	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
+	skillCooldownManager_->AddSkill(Skill::kLaunchAttack, &launchAttackParameters_);
+	skillCooldownManager_->AddSkill(Skill::kSpinAttack, &spinAttackParameters_);
+}
+
 void Player::InitializeParticleSystems()
 {
 	//テクスチャの読み込み
@@ -695,6 +518,121 @@ void Player::InitializeParticleSystems()
 	//パーティクルシステムの生成
 	particleSystems_["Dash"] = ParticleManager::Create("Dash");
 	particleSystems_["Dash"]->SetTexture("smoke_01.png");
+}
+
+void Player::InitializeDamageEffect()
+{
+	//ダメージエフェクト用のスプライトの生成
+	damageEffectSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	damageEffectSprite_->SetColor(damageEffectColor_);
+	damageEffectSprite_->SetSize({ 1280.0f,720.0f });
+}
+
+void Player::InitializeState()
+{
+	ChangeState(new PlayerStateRoot());
+}
+
+void Player::InitializeTransformComponent()
+{
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
+	destinationQuaternion_ = transformComponent->worldTransform_.quaternion_;
+}
+
+void Player::InitializeModelComponent()
+{
+	ModelComponent* modelComponent = GetComponent<ModelComponent>();
+	for (size_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
+	{
+		modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
+	}
+}
+
+void Player::InitializeUISprites()
+{
+	LoadAndCreateSprite("HpBar.png", hpSprite_, hpSpritePosition_, { 0.0f, 1.0f, 0.0f, 1.0f });
+	LoadAndCreateSprite("HpBarFrame.png", hpFrameSprite_, hpFrameSpritePosition_, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+	for (int32_t i = 0; i < kMaxButtons; ++i)
+	{
+		SetButtonUISprite(buttonUISettings_[i], buttonConfigs[i]);
+	}
+
+	for (int32_t i = 0; i < kMaxSkillCount; ++i)
+	{
+		SetSkillUISprite(skillUISettings_[i], skillConfigs[i]);
+	}
+}
+
+void Player::LoadAudioData()
+{
+	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
+}
+
+void Player::ConfigureGlobalVariables()
+{
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	globalVariables->CreateGroup(groupName);
+	globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
+}
+
+void Player::LoadAndCreateSprite(const std::string& textureFileName, std::unique_ptr<Sprite>& sprite, const Vector2& position, const Vector4& color)
+{
+	TextureManager::Load(textureFileName);
+	sprite.reset(Sprite::Create(textureFileName, position));
+	sprite->SetColor(color);
+}
+
+void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)
+{
+	//テクスチャの読み込み
+	TextureManager::Load(config.buttonTexture);
+	TextureManager::Load(config.fontTexture);
+
+	//ボタンのスプライトの設定
+	uiSettings.buttonSprite.position = config.buttonPosition;
+	uiSettings.buttonSprite.scale = config.buttonScale;
+	uiSettings.buttonSprite.sprite.reset(Sprite::Create(config.buttonTexture, config.buttonPosition));
+	uiSettings.buttonSprite.sprite->SetScale(config.buttonScale);
+
+	//フォントのスプライトの設定
+	uiSettings.fontSprite.position = config.fontPosition;
+	uiSettings.fontSprite.scale = config.fontScale;
+	uiSettings.fontSprite.sprite.reset(Sprite::Create(config.fontTexture, config.fontPosition));
+	uiSettings.fontSprite.sprite->SetScale(config.fontScale);
+}
+
+void Player::SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config)
+{
+	//ボタンのスプライトの設定
+	SetButtonUISprite(uiSettings.buttonSettings, config.buttonConfig);
+
+	//クールダウンバーの設定
+	uiSettings.cooldownBarSprite.reset(Sprite::Create("white.png", config.skillBarPosition));
+	uiSettings.cooldownBarSprite->SetScale(config.skillBarScale);
+}
+
+void Player::UpdateSkillCooldowns()
+{
+	//スキルクールダウンマネージャーの更新
+	skillCooldownManager_->Update();
+
+	const SkillConfig& config1 = skillConfigs[0];
+	const SkillConfig& config2 = skillConfigs[1];
+
+	float launchAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kLaunchAttack);
+	float spinAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kSpinAttack);
+
+	UpdateCooldownBarScale(skillUISettings_[0], config1, launchAttackCooldownTime, launchAttackParameters_.cooldownDuration);
+	UpdateCooldownBarScale(skillUISettings_[1], config2, spinAttackCooldownTime, spinAttackParameters_.cooldownDuration);
+}
+
+void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)
+{
+	float currentScale = config.skillBarScale.x * (cooldownTime / cooldownDuration);
+	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
 }
 
 void Player::UpdateRotation()
@@ -746,21 +684,65 @@ void Player::RestrictPlayerMovement(float moveLimit)
 
 void Player::UpdateHP()
 {
-	//HPバーの処理
-	hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
+	//HPが0を下回らないようにする
+	hp_ = std::max<float>(hp_, 0.0f);
+
+	//体力バーの更新
+	UpdateHealthBar();
+
+	//ビネットエフェクトの更新
+	UpdateVignetteEffects();
+}
+
+void Player::UpdateHealthBar()
+{
+	//現在の体力バーのサイズを計算して設定
 	Vector2 currentHPSize = { hpSpriteSize_.x * (hp_ / kMaxHP), hpSpriteSize_.y };
 	hpSprite_->SetSize(currentHPSize);
+}
 
+void Player::DrawSkillUI(const SkillUISettings& uiSettings)
+{
+	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
+	uiSettings.buttonSettings.fontSprite.sprite->Draw();
+	uiSettings.cooldownBarSprite->Draw();
+}
+
+void Player::DrawButtonUI(const ButtonUISettings& uiSettings)
+{
+	uiSettings.buttonSprite.sprite->Draw();
+	uiSettings.fontSprite.sprite->Draw();
+}
+
+void Player::UpdateVignetteEffects()
+{
 	//プレイヤーの体力が一定量以下になったらVignetteをかける
-	const float hpRatio = 4.0f;
-	if (hp_ <= kMaxHP / hpRatio)
+	const float lowHealthThresholdRatio = 4.0f;
+	bool shouldEnableVignette = (hp_ <= kMaxHP / lowHealthThresholdRatio);
+	PostEffects::GetInstance()->GetVignette()->SetIsEnable(shouldEnableVignette);
+}
+
+void Player::UpdateDamageEffect()
+{
+	//エフェクトがアクティブな場合のみ処理
+	if (damageEffectColor_.w > 0.0f)
 	{
-		PostEffects::GetInstance()->GetVignette()->SetIsEnable(true);
+		//エフェクトタイマーを更新
+		damageEffectTimer_ += GameTimer::GetDeltaTime();
+
+		//透明度を計算
+		float fadeOutProgress = damageEffectTimer_ / damageEffectDuration_;
+		damageEffectColor_.w = std::max<float>(0.0f, 0.2f * (1.0f - fadeOutProgress));
+
+		//エフェクトが完全に消えた場合、タイマーと色をリセット
+		if (damageEffectColor_.w == 0.0f)
+		{
+			damageEffectTimer_ = 0.0f;
+		}
 	}
-	else
-	{
-		PostEffects::GetInstance()->GetVignette()->SetIsEnable(false);
-	}
+
+	//ダメージのスプライトの色を設定
+	damageEffectSprite_->SetColor(damageEffectColor_);
 }
 
 void Player::CheckAndTransitionToDeath()

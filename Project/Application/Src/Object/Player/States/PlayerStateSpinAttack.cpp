@@ -74,11 +74,8 @@ void PlayerStateSpinAttack::OnCollision(GameObject* other)
 	//衝突相手が武器だった場合
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
-		//HPを減らす
-		player_->SetHP(player_->GetHP() - weapon->GetDamage());
-
-		//ダメージを食らった音を再生
-		player_->PlayDamageSound();
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(weapon, false);
 	}
 }
 

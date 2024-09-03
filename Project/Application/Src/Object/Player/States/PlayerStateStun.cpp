@@ -7,10 +7,6 @@ void PlayerStateStun::Initialize()
 {
 	//アニメーションを再生する
 	player_->PlayAnimation("Impact", 2.0f, false);
-
-	//ダメージのスプライトの色を初期化
-	damagedSpriteColor_ = player_->GetDamagedSpriteColor();
-	damagedSpriteColor_.w = 0.2f;
 }
 
 void PlayerStateStun::Update()
@@ -19,12 +15,7 @@ void PlayerStateStun::Update()
 	float animationTime = player_->GetIsBlendingCompleted() ? player_->GetCurrentAnimationTime() : player_->GetNextAnimationTime();
 
 	//アニメーションの持続時間を取得
-	float animationDuration = player_->GetIsBlendingCompleted() ? player_->GetAnimationDuration() : player_->GetNextAnimationDuration();
-
-	//スプライトの色を徐々に薄くする
-	damagedSpriteColor_.w = 0.2f - (0.2f * (animationTime / animationDuration));
-	damagedSpriteColor_.w = std::max<float>(0.0f, damagedSpriteColor_.w);
-	player_->SetDamagedSpriteColor(damagedSpriteColor_);
+	float animationDuration = player_->GetIsBlendingCompleted() ? player_->GetCurrentAnimationDuration() : player_->GetNextAnimationDuration();
 
 	//ノックバックの処理
 	player_->ApplyKnockback();
@@ -52,17 +43,8 @@ void PlayerStateStun::OnCollision(GameObject* other)
 	//衝突相手が武器だった場合
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
-		//ノックバックの速度を設定
-		player_->SetKnockbackSettings(weapon->GetKnockbackSettings());
-
-		//HPを減らす
-		player_->SetHP(player_->GetHP() - weapon->GetDamage());
-
-		//ダメージを食らった音を再生
-		player_->PlayDamageSound();
-
-		//スプライトの色の設定
-		damagedSpriteColor_.w = 0.2f;
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(weapon, false);
 
 		//アニメーションを再生する
 		player_->PlayAnimation("Impact", 2.0f, false);

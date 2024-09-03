@@ -134,7 +134,7 @@
                 0.0,
                 -2.0
             ],
-            "KnockbackDuration": 1.0,
+            "KnockbackDuration": 2.0,
             "KnockbackVelocity": [
                 0.0,
                 10.0,

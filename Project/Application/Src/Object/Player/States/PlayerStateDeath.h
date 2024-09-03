@@ -10,8 +10,5 @@ public:
 	void Update() override;
 
 	void OnCollision(GameObject* other) override;
-
-private:
-	Vector4 damagedSpriteColor_{};
 };
 

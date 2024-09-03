@@ -113,7 +113,7 @@ Vector3 PlayerStateDodge::CalculateFallbackDistance() const
 
 float PlayerStateDodge::CalculateEasingParameter() const
 {
-	return std::min<float>(1.0f, player_->GetCurrentAnimationTime() / player_->GetAnimationDuration());
+	return std::min<float>(1.0f, player_->GetCurrentAnimationTime() / player_->GetCurrentAnimationDuration());
 }
 
 Vector3 PlayerStateDodge::InterpolatePosition(float easingParameter) const

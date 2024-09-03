@@ -5,10 +5,6 @@ void PlayerStateDeath::Initialize()
 {
 	//死亡アニメーションを再生
 	player_->PlayAnimation("Death", 1.0f, false);
-
-	//ダメージのスプライトの色を初期化
-	damagedSpriteColor_ = player_->GetDamagedSpriteColor();
-	damagedSpriteColor_.w = 0.2f;
 }
 
 void PlayerStateDeath::Update()
@@ -17,12 +13,7 @@ void PlayerStateDeath::Update()
 	float animationTime = player_->GetIsBlendingCompleted() ? player_->GetCurrentAnimationTime() : player_->GetNextAnimationTime();
 
 	//アニメーションの持続時間を取得
-	float animationDuration = player_->GetIsBlendingCompleted() ? player_->GetAnimationDuration() : player_->GetNextAnimationDuration();
-
-	//スプライトの色を徐々に薄くする
-	damagedSpriteColor_.w = 0.2f - (0.2f * (animationTime / animationDuration));
-	damagedSpriteColor_.w = std::max<float>(0.0f, damagedSpriteColor_.w);
-	player_->SetDamagedSpriteColor(damagedSpriteColor_);
+	float animationDuration = player_->GetIsBlendingCompleted() ? player_->GetCurrentAnimationDuration() : player_->GetNextAnimationDuration();
 
 	//ノックバックの処理
 	player_->ApplyKnockback();

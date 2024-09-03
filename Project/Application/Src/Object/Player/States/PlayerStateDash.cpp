@@ -78,17 +78,8 @@ void PlayerStateDash::OnCollision(GameObject* other)
 		//ラジアルブラーを切る
 		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 
-		//ノックバックの速度を設定
-		player_->SetKnockbackSettings(weapon->GetKnockbackSettings());
-
-		//HPを減らす
-		player_->SetHP(player_->GetHP() - weapon->GetDamage());
-
-		//ダメージを食らった音を再生
-		player_->PlayDamageSound();
-
-		//スタン状態に遷移
-		player_->ChangeState(new PlayerStateStun());
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(weapon, true);
 	}
 }
 
