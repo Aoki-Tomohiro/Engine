@@ -318,27 +318,6 @@ void Renderer::PreDrawShadow()
 	//デプスバッファをクリア
 	commandContext->ClearDepth(*shadowDepthBuffer_);
 
-	//ビューポート
-	D3D12_VIEWPORT viewport{};
-	viewport.Width = Application::kClientWidth;
-	viewport.Height = Application::kClientHeight;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	commandContext->SetViewport(viewport);
-
-	//シザー矩形
-	D3D12_RECT scissorRect{};
-	scissorRect.left = 0;
-	scissorRect.right = Application::kClientWidth;
-	scissorRect.top = 0;
-	scissorRect.bottom = Application::kClientHeight;
-	commandContext->SetScissor(scissorRect);
-
-	//DescriptorHeapを設定
-	commandContext->SetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-
 	//RootSignatureを設定
 	commandContext->SetRootSignature(shadowRootSignature_);
 
@@ -351,9 +330,13 @@ void Renderer::PreDrawShadow()
 
 void Renderer::PostDrawShadow()
 {
+	//シャドウマップ用のデプスバッファをクリア
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 	commandContext->TransitionResource(*shadowDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	PreDraw();
+
+	//レンダーターゲットとデプスバッファを設定
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = sceneColorBuffer_->GetRTVHandle();
+	commandContext->SetRenderTargets(1, &rtvHandle, sceneDepthBuffer_->GetDSVHandle());
 }
 
 void Renderer::ClearRenderTarget()
@@ -368,7 +351,7 @@ void Renderer::ClearDepthBuffer()
 	commandContext->ClearDepth(*sceneDepthBuffer_);
 }
 
-void Renderer::PreDrawSprites(BlendMode blendMode) 
+void Renderer::PreDrawSprites(BlendMode blendMode)
 {
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
@@ -378,7 +361,7 @@ void Renderer::PreDrawSprites(BlendMode blendMode)
 	commandContext->SetPipelineState(spritePipelineStates_[blendMode]);
 }
 
-void Renderer::PostDrawSprites() 
+void Renderer::PostDrawSprites()
 {
 
 }
@@ -774,7 +757,7 @@ void Renderer::CreateShadowPipelineState()
 	pipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
 	pipelineState.SetBlendState(blendDesc);
 	pipelineState.SetRasterizerState(rasterizerDesc);
-	pipelineState.SetRenderTargetFormats(0, nullptr , DXGI_FORMAT_D24_UNORM_S8_UINT);
+	pipelineState.SetRenderTargetFormats(0, nullptr, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	pipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	pipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
 	pipelineState.SetDepthStencilState(depthStencilDesc);
