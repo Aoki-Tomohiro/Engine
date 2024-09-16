@@ -70,6 +70,9 @@ void PlayerStateJump::Update()
 		position.y = 0.0f;
 		player_->SetPosition(position);
 
+		//着地パーティクルの生成
+		CreateLandingParticles();
+
 		//通常状態に遷移
 		player_->ChangeState(new PlayerStateRoot());
 	}
@@ -95,4 +98,23 @@ void PlayerStateJump::OnCollision(GameObject* other)
 		//ダメージを食らった処理を実行
 		player_->HandleIncomingDamage(weapon, true);
 	}
+}
+
+void PlayerStateJump::CreateLandingParticles()
+{
+	//ダッシュパーティクルの生成
+	ParticleEmitter* newEmitter = EmitterBuilder()
+		.SetColor({ 0.6f,0.6f,0.6f,1.0f }, { 0.6f,0.6f,0.6f,1.0f })
+		.SetCount(100)
+		.SetEmitterLifeTime(0.01f)
+		.SetEmitterName("Landing")
+		.SetFrequency(1.0f)
+		.SetLifeTime(0.3f, 0.5f)
+		.SetRadius(0.0f)
+		.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+		.SetScale({ 0.4f,0.4f,0.4f }, { 0.6f,0.6f,0.6f })
+		.SetTranslation(player_->GetPosition())
+		.SetVelocity({ -0.1f,0.02f,-0.1f }, { 0.1f,0.04f,0.1f })
+		.Build();
+	player_->AddParticleEmitter("Smoke", newEmitter);
 }

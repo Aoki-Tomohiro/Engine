@@ -178,6 +178,27 @@ void MagicProjectile::CheckOutOfBounds()
 	}
 }
 
+void MagicProjectile::CreateDestoryParticles()
+{
+	//トランスフォームを取得
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+
+	//ヒットエフェクト
+	ParticleEmitter* hitNewEmitter = EmitterBuilder()
+		.SetEmitterName("Hit")
+		.SetEmitterLifeTime(1.0f)
+		.SetTranslation(transformComponent->worldTransform_.translation_)
+		.SetCount(200)
+		.SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
+		.SetFrequency(2.0f)
+		.SetLifeTime(0.2f, 0.4f)
+		.SetRadius(0.0f)
+		.SetScale({ 0.2f,0.2f,0.2f }, { 0.3f,0.3f,0.3f })
+		.SetVelocity({ -0.4f,-0.4f,-0.4f }, { 0.4f,0.4f,0.4f })
+		.Build();
+	particleSystem_->AddParticleEmitter(hitNewEmitter);
+}
+
 void MagicProjectile::DeleteMagicProjectile()
 {
 	//カウンターを減らす
@@ -185,6 +206,9 @@ void MagicProjectile::DeleteMagicProjectile()
 
 	//破壊フラグを立てる
 	SetIsDestroy(true);
+
+	//パーティクルを出す
+	CreateDestoryParticles();
 
 	//エミッターを削除
 	emitter_->SetIsDead(true);

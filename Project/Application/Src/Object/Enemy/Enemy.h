@@ -98,6 +98,10 @@ public:
 
 	void SetIsGameFinished(const bool isGameFinished) { isGameFinished_ = isGameFinished; };
 
+	const bool GetIsStunRecovered() const { return isStunRecovered_; };
+
+	void SetIsStunRecovered(const bool isStunRecovered) { isStunRecovered_ = isStunRecovered; };
+
 	const CombatAnimationEditor* GetCombatAnimationEditor() const { return combatAnimationEditor_; };
 
 	void SetCombatAnimationEditor(const CombatAnimationEditor* combatAnimationEditor) { combatAnimationEditor_ = combatAnimationEditor; };
@@ -163,6 +167,9 @@ private:
 	Vector2 hpSpritePosition_ = { 720.0f,32.0f };
 	Vector2 hpSpriteSize_{ 480.0f,16.0f };
 	Vector2 hpFrameSpritePosition_ = { 719.0f,31.0f };
+
+	//スタン状態から復帰したかどうか
+	bool isStunRecovered_ = false;
 
 	//死亡フラグ
 	bool isDead_ = false;

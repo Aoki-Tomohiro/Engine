@@ -19,7 +19,10 @@ void Weapon::Initialize()
 	UpdateObjectNameFromCollider();
 
 	//パーティクルシステムの作成
-	particleSystem_ = ParticleManager::Create(name_);
+	TextureManager::Load("star_09.png");
+	particleSystems_["Hit"] = ParticleManager::Create("Hit");
+	particleSystems_["Star"] = ParticleManager::Create("Star");
+	particleSystems_["Star"]->SetTexture("star_09.png");
 
 	//加速フィールドの生成
 	CreateAccelerationField();
@@ -81,22 +84,37 @@ void Weapon::OnCollision(GameObject* gameObject)
 		audio_->PlayAudio(hitAudioHandle_, false, 0.2f);
 
 		//パーティクルを出す
-		OBBCollider* collider = GetComponent<OBBCollider>();
-		ParticleEmitter* newEmitter = new ParticleEmitter();
-		newEmitter->Initialize("Hit", 1.0f);
-		newEmitter->SetTranslate(collider->GetWorldCenter());
-		newEmitter->SetCount(200);
-		newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
-		newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
-		newEmitter->SetFrequency(2.0f);
-		newEmitter->SetLifeTimeMin(0.2f);
-		newEmitter->SetLifeTimeMax(0.4f);
-		newEmitter->SetRadius(0.0f);
-		newEmitter->SetScaleMin({ 0.2f,0.2f,0.2f });
-		newEmitter->SetScaleMax({ 0.3f,0.3f,0.3f });
-		newEmitter->SetVelocityMin({ -0.6f,-0.6f,-0.6f });
-		newEmitter->SetVelocityMax({ 0.6f,0.6f,0.6f });
-		particleSystem_->AddParticleEmitter(newEmitter);
+		Vector3 emitterTranslation = GetComponent<OBBCollider>()->GetWorldCenter();
+		//ヒットエフェクト
+		ParticleEmitter* hitNewEmitter = EmitterBuilder()
+			.SetEmitterName("Hit")
+			.SetEmitterLifeTime(1.0f)
+			.SetTranslation(emitterTranslation)
+			.SetCount(200)
+			.SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
+			.SetFrequency(2.0f)
+			.SetLifeTime(0.2f, 0.4f)
+			.SetRadius(0.0f)
+			.SetScale({ 0.2f,0.2f,0.2f }, { 0.3f,0.3f,0.3f })
+			.SetVelocity({ -0.6f,-0.6f,-0.6f }, { 0.6f,0.6f,0.6f })
+			.Build();
+		particleSystems_["Hit"]->AddParticleEmitter(hitNewEmitter);
+
+		//星のパーティクル
+		ParticleEmitter* starNewEmitter = EmitterBuilder()
+			.SetEmitterName("Hit")
+			.SetEmitterLifeTime(0.1f)
+			.SetTranslation(emitterTranslation)
+			.SetCount(1)
+			.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f })
+			.SetFrequency(2.0f)
+			.SetLifeTime(0.2f, 0.4f)
+			.SetRadius(0.0f)
+			.SetScale({ 1.4f,1.4f,1.4f }, { 1.4f,1.4f,1.4f })
+			.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			.SetVelocity({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f })
+			.Build();
+		particleSystems_["Star"]->AddParticleEmitter(starNewEmitter);
 	}
 }
 
@@ -209,7 +227,7 @@ void Weapon::CreateAccelerationField()
 	accelerationField->SetAcceleration({ 0.0f, -3.8f, 0.0f });
 	accelerationField->SetMin({ -50.0f, -50.0f, -50.0f });
 	accelerationField->SetMax({ 50.0f, 50.0f, 50.0f });
-	particleSystem_->AddAccelerationField(accelerationField);
+	particleSystems_["Hit"]->AddAccelerationField(accelerationField);
 }
 
 void Weapon::InitializeGlobalVariables()

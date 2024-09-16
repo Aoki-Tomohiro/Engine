@@ -1,9 +1,5 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/Components/Animator/AnimatorComponent.h"
-#include "Engine/Components/Model/ModelComponent.h"
-#include "Engine/Components/Collision/AABBCollider.h"
-#include "Engine/Components/Transform/TransformComponent.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
@@ -24,12 +20,14 @@ void Player::Initialize()
 	//パーティクルシステムの初期化
 	InitializeParticleSystems();
 
-	//状態の初期化
-	InitializeState();
-
 	//コンポーネントの初期化
 	InitializeTransformComponent();
 	InitializeModelComponent();
+	InitializeAnimatorComponent();
+	InitializeColliderComponent();
+
+	//状態の初期化
+	InitializeState();
 
 	//UIスプライトの生成
 	InitializeUISprites();
@@ -137,16 +135,15 @@ void Player::OnCollision(GameObject* gameObject)
 	{
 		//プレイヤーと敵のAABBコライダーを取得
 		AABBCollider* AABB1 = gameObject->GetComponent<AABBCollider>();
-		AABBCollider* AABB2 = GetComponent<AABBCollider>();
 
 		//2つのAABBコライダー間のオーバーラップ軸を計算
 		Vector3 overlapAxis = {
-			std::min<float>(AABB2->GetWorldCenter().x + AABB2->GetMax().x, AABB1->GetWorldCenter().x + AABB1->GetMax().x) -
-			std::max<float>(AABB2->GetWorldCenter().x + AABB2->GetMin().x, AABB1->GetWorldCenter().x + AABB1->GetMin().x),
-			std::min<float>(AABB2->GetWorldCenter().y + AABB2->GetMax().y, AABB1->GetWorldCenter().y + AABB1->GetMax().y) -
-			std::max<float>(AABB2->GetWorldCenter().y + AABB2->GetMin().y, AABB1->GetWorldCenter().y + AABB1->GetMin().y),
-			std::min<float>(AABB2->GetWorldCenter().z + AABB2->GetMax().z, AABB1->GetWorldCenter().z + AABB1->GetMax().z) -
-			std::max<float>(AABB2->GetWorldCenter().z + AABB2->GetMin().z, AABB1->GetWorldCenter().z + AABB1->GetMin().z),
+			std::min<float>(collider_->GetWorldCenter().x + collider_->GetMax().x, AABB1->GetWorldCenter().x + AABB1->GetMax().x) -
+			std::max<float>(collider_->GetWorldCenter().x + collider_->GetMin().x, AABB1->GetWorldCenter().x + AABB1->GetMin().x),
+			std::min<float>(collider_->GetWorldCenter().y + collider_->GetMax().y, AABB1->GetWorldCenter().y + AABB1->GetMax().y) -
+			std::max<float>(collider_->GetWorldCenter().y + collider_->GetMin().y, AABB1->GetWorldCenter().y + AABB1->GetMin().y),
+			std::min<float>(collider_->GetWorldCenter().z + collider_->GetMax().z, AABB1->GetWorldCenter().z + AABB1->GetMax().z) -
+			std::max<float>(collider_->GetWorldCenter().z + collider_->GetMin().z, AABB1->GetWorldCenter().z + AABB1->GetMin().z),
 		};
 
 		//プレイヤーと敵のTransformComponentを取得
@@ -200,8 +197,7 @@ void Player::ChangeState(IPlayerState* newState)
 
 void Player::Move(const Vector3& velocity)
 {
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
+	transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
 }
 
 void Player::ApplyKnockback()
@@ -290,95 +286,83 @@ void Player::HandleIncomingDamage(const Weapon* weapon, const bool transitionToS
 
 void Player::PlayAnimation(const std::string& name, const float speed, const bool loop)
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->PlayAnimation(name, speed, loop);
+	animator_->PlayAnimation(name, speed, loop);
 }
 
 void Player::StopAnimation()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->StopAnimation();
+	animator_->StopAnimation();
 }
 
 void Player::PauseAnimation()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->PauseAnimation();
+	animator_->PauseAnimation();
 }
 
 void Player::ResumeAnimation()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->ResumeAnimation();
+	animator_->ResumeAnimation();
 }
 
 void Player::SetIsAnimationBlending(const bool isBlending)
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->SetIsBlending(isBlending);
+	animator_->SetIsBlending(isBlending);
 }
 
 void Player::SetAnimationSpeed(const float animationSpeed)
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->SetCurrentAnimationSpeed(animationSpeed);
+	animator_->SetCurrentAnimationSpeed(animationSpeed);
 }
 
 float Player::GetCurrentAnimationTime()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetCurrentAnimationTime();
+	return animator_->GetCurrentAnimationTime();
 }
 
 void Player::SetCurrentAnimationTime(const float animationTime)
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->SetCurrentAnimationTime(animationTime);
+	animator_->SetCurrentAnimationTime(animationTime);
 }
 
 float Player::GetNextAnimationTime()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetNextAnimationTime();
+	return animator_->GetNextAnimationTime();
 }
 
 void Player::SetNextAnimationTime(const float animationTime)
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	animatorComponent->SetNextAnimationTime(animationTime);
+	animator_->SetNextAnimationTime(animationTime);
 }
 
 bool Player::GetIsAnimationFinished()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetIsAnimationFinished();
+	return animator_->GetIsAnimationFinished();
 }
 
 bool Player::GetIsBlendingCompleted()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetIsBlendingCompleted();
+	return animator_->GetIsBlendingCompleted();
 }
 
 float Player::GetCurrentAnimationDuration()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetCurrentAnimationDuration();
+	return animator_->GetCurrentAnimationDuration();
 }
 
 float Player::GetNextAnimationDuration()
 {
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-	return animatorComponent->GetNextAnimationDuration();
+	return animator_->GetNextAnimationDuration();
+}
+
+float Player::GetCurrentAnimationSpeed()
+{
+	return animator_->GetCurrentAnimationSpeed();
 }
 
 Vector3 Player::GetHipLocalPosition()
 {
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
 	//腰のジョイントのローカル座標を計算
-	Vector3 hipLocalPosition = GetHipWorldPosition() - transformComponent->GetWorldPosition();
+	Vector3 hipLocalPosition = GetHipWorldPosition() - transform_->GetWorldPosition();
 
 	//腰のジョイントのローカル座標を返す
 	return hipLocalPosition;
@@ -386,11 +370,8 @@ Vector3 Player::GetHipLocalPosition()
 
 Vector3 Player::GetHipWorldPosition()
 {
-	//モデルコンポーネントを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-
 	//腰のジョイントのワールドトランスフォームを取得
-	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetJointWorldTransform("mixamorig:Hips");
+	WorldTransform hipWorldTransform = model_->GetModel()->GetJointWorldTransform("mixamorig:Hips");
 
 	//ワールド座標を取得しVector3に変換して返す
 	return Vector3{
@@ -402,14 +383,12 @@ Vector3 Player::GetHipWorldPosition()
 
 Vector3 Player::GetPosition()
 {
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	return transformComponent->worldTransform_.translation_;
+	return transform_->worldTransform_.translation_;
 }
 
 void Player::SetPosition(const Vector3& position)
 {
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_ = position;
+	transform_->worldTransform_.translation_ = position;
 }
 
 bool Player::GetActionFlag(const ActionFlag& flag) const
@@ -516,8 +495,8 @@ void Player::InitializeParticleSystems()
 	TextureManager::Load("smoke_01.png");
 
 	//パーティクルシステムの生成
-	particleSystems_["Dash"] = ParticleManager::Create("Dash");
-	particleSystems_["Dash"]->SetTexture("smoke_01.png");
+	particleSystems_["Smoke"] = ParticleManager::Create("Smoke");
+	particleSystems_["Smoke"]->SetTexture("smoke_01.png");
 }
 
 void Player::InitializeDamageEffect()
@@ -535,18 +514,28 @@ void Player::InitializeState()
 
 void Player::InitializeTransformComponent()
 {
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-	destinationQuaternion_ = transformComponent->worldTransform_.quaternion_;
+	transform_ = GetComponent<TransformComponent>();
+	transform_->worldTransform_.rotationType_ = RotationType::Quaternion;
+	destinationQuaternion_ = transform_->worldTransform_.quaternion_;
 }
 
 void Player::InitializeModelComponent()
 {
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	for (size_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
+	model_ = GetComponent<ModelComponent>();
+	for (size_t i = 0; i < model_->GetModel()->GetNumMaterials(); ++i)
 	{
-		modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
+		model_->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
 	}
+}
+
+void Player::InitializeAnimatorComponent()
+{
+	animator_ = GetComponent<AnimatorComponent>();
+}
+
+void Player::InitializeColliderComponent()
+{
+	collider_ = GetComponent<AABBCollider>();
 }
 
 void Player::InitializeUISprites()
@@ -637,18 +626,12 @@ void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConf
 
 void Player::UpdateRotation()
 {
-	//トランスフォームコンポーネントを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
 	//現在のクォータニオンと目的のクォータニオンを補間
-	transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+	transform_->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transform_->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
 }
 
 void Player::UpdateCollider()
 {
-	//AABBColliderを取得
-	AABBCollider* collider = GetComponent<AABBCollider>();
-
 	//腰のジョイントの位置を取得
 	Vector3 hipPosition = GetHipLocalPosition();
 
@@ -663,22 +646,19 @@ void Player::UpdateCollider()
 	}
 
 	//コライダーの中心座標を設定
-	collider->SetCenter(hipPosition + colliderOffset_);
+	collider_->SetCenter(hipPosition + colliderOffset_);
 }
 
 void Player::RestrictPlayerMovement(float moveLimit)
 {
-	//TransformComponentを取得
-	TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
 	//プレイヤーの現在位置から原点までの距離を計算
-	float distance = Mathf::Length(transformComponent->worldTransform_.translation_);
+	float distance = Mathf::Length(transform_->worldTransform_.translation_);
 
 	//距離が移動制限を超えているかどうかを確認
 	if (distance > moveLimit) {
 		//スケールを計算して移動制限範囲に収めるよう位置を調整
 		float scale = moveLimit / distance;
-		transformComponent->worldTransform_.translation_ *= scale;
+		transform_->worldTransform_.translation_ *= scale;
 	}
 }
 
@@ -763,22 +743,19 @@ void Player::CheckAndTransitionToDeath()
 
 void Player::DebugUpdate()
 {
-	//アニメーターコンポーネントを取得
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-
 	//デバッグ状態の場合
 	if (isDebug_)
 	{
 		//アニメーションの時間を設定
-		animatorComponent->SetAnimationTime(currentAnimationName_, animationTime_);
+		animator_->SetAnimationTime(currentAnimationName_, animationTime_);
 
 		//アニメーションのブレンドを無効化する
-		animatorComponent->SetIsBlending(false);
+		animator_->SetIsBlending(false);
 	}
 	else
 	{
 		//アニメーションのブレンドを有効化する
-		animatorComponent->SetIsBlending(true);
+		animator_->SetIsBlending(true);
 	}
 }
 
@@ -791,9 +768,6 @@ void Player::ApplyGlobalVariables()
 
 void Player::UpdateImGui()
 {
-	//アニメーターコンポーネントを取得
-	AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-
 	//ImGuiのウィンドウを開始
 	ImGui::Begin("Player");
 
@@ -804,7 +778,7 @@ void Player::UpdateImGui()
 	if (isDebug_)
 	{
 		//アニメーション時間のスライダー
-		ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f, 0.0f, animatorComponent->GetAnimation(currentAnimationName_)->GetDuration());
+		ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f, 0.0f, animator_->GetAnimation(currentAnimationName_)->GetDuration());
 
 		//アニメーション名のコンボボックス
 		if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
@@ -820,7 +794,7 @@ void Player::UpdateImGui()
 				{
 					//選択されたアニメーション名を現在のアニメーション名として設定
 					currentAnimationName_ = animation;
-					animatorComponent->PlayAnimation(currentAnimationName_, 1.0f, true);
+					animator_->PlayAnimation(currentAnimationName_, 1.0f, true);
 				}
 
 				//選択された項目にフォーカスを設定

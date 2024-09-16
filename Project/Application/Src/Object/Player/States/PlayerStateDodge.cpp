@@ -1,4 +1,5 @@
 #include "PlayerStateDodge.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 
@@ -12,6 +13,7 @@ void PlayerStateDodge::Initialize()
 
 	//プレイヤーの現在の座標を設定
 	startPosition_ = player_->GetPosition();
+	currentPosition_ = startPosition_;
 
 	//スティックの入力を取得
 	Vector3 inputValue = {
@@ -48,13 +50,21 @@ void PlayerStateDodge::Update()
 	float easingParameter = CalculateEasingParameter();
 
 	//移動後の座標を計算
-	Vector3 movedPosition = InterpolatePosition(easingParameter);
+	Vector3 nextPosition = InterpolatePosition(easingParameter);
+
+	//次の位置と現在の位置の差を速度にする
+	Vector3 moveAmount = nextPosition - currentPosition_;
+
+	//現在位置を更新
+	currentPosition_ = nextPosition;
 
 	//アニメーションによる座標のずれを修正
 	player_->CorrectAnimationOffset();
 
 	//プレイヤーに座標を設定
-	player_->SetPosition(movedPosition);
+	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
+	transformComponent->worldTransform_.translation_ += moveAmount;
+	player_->Move(moveAmount);
 
 	//アニメーションが終了した場合
 	if (player_->GetIsAnimationFinished())
@@ -66,6 +76,11 @@ void PlayerStateDodge::Update()
 
 void PlayerStateDodge::OnCollision(GameObject* other)
 {
+	//衝突相手が敵の場合
+	if (Enemy* enemy = dynamic_cast<Enemy*>(other))
+	{
+		easingParameter_ -= GameTimer::GetDeltaTime() * player_->GetCurrentAnimationSpeed();
+	}
 }
 
 void PlayerStateDodge::PlayDodgeAnimation(const Vector3& inputValue)
@@ -111,9 +126,10 @@ Vector3 PlayerStateDodge::CalculateFallbackDistance() const
 	return Mathf::RotateVector(Vector3{ 0.0f, 0.0f, -player_->GetDodgeParameters().dodgeDistance }, player_->GetDestinationQuaternion());
 }
 
-float PlayerStateDodge::CalculateEasingParameter() const
+const float PlayerStateDodge::CalculateEasingParameter()
 {
-	return std::min<float>(1.0f, player_->GetCurrentAnimationTime() / player_->GetCurrentAnimationDuration());
+	easingParameter_ += GameTimer::GetDeltaTime() * player_->GetCurrentAnimationSpeed();
+	return std::min<float>(1.0f, easingParameter_ / player_->GetCurrentAnimationDuration());
 }
 
 Vector3 PlayerStateDodge::InterpolatePosition(float easingParameter) const

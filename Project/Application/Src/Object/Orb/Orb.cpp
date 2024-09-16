@@ -23,6 +23,9 @@ void Orb::Initialize()
 	//モデルの初期化
 	InitializeModel();
 
+	//パーティクルシステムの生成
+	particleSystem_ = ParticleManager::Create("MagicProjectile");
+
 	//音声データの読み込み
 	fireAudioHandle_ = audio_->LoadAudioFile("Fire.mp3");
 	chargeFireAudioHandle_ = audio_->LoadAudioFile("ChargeFire.mp3");
@@ -74,6 +77,9 @@ void Orb::Update()
 			{
 				AddMagicProjectile(MagicProjectile::MagicType::kCharged);
 
+				//パーティクルの生成
+				CreateChargeMagicShotParticles();
+
 				//チャージショットの音声データを再生
 				audio_->PlayAudio(chargeFireAudioHandle_, false, 0.2f);
 			}
@@ -122,6 +128,36 @@ void Orb::OnCollisionEnter(GameObject* gameObject)
 
 void Orb::OnCollisionExit(GameObject* gameObject)
 {
+}
+
+void Orb::CreateChargeMagicShotParticles()
+{
+	//トランスフォームを取得
+	TransformComponent* transformComponent = GetComponent<TransformComponent>();
+
+	//パーティクルを出す
+	for (uint32_t i = 0; i < 360; ++i)
+	{
+		//速度を決める
+		const float kParticleVelocity = 0.3f;
+		Quaternion rotate = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, i * (3.14f / 180.0f));
+		Vector3 velocity = Mathf::RotateVector({ 0.0f,1.0f,0.0f }, destinationQuaternion_ * rotate) * kParticleVelocity;
+
+		//エミッターの生成
+		ParticleEmitter* emitter = EmitterBuilder()
+			.SetEmitterName("ChargeMagic")
+			.SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f })
+			.SetEmitterLifeTime(0.1f)
+			.SetCount(1)
+			.SetFrequency(0.2f)
+			.SetLifeTime(0.3f, 0.3f)
+			.SetRadius(0.1f)
+			.SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
+			.SetTranslation(transformComponent->worldTransform_.translation_)
+			.SetVelocity(velocity, velocity)
+			.Build();
+		particleSystem_->AddParticleEmitter(emitter);
+	}
 }
 
 void Orb::InitializeTransform()

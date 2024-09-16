@@ -66,7 +66,7 @@ private:
 	Audio* audio_ = nullptr;
 
 	//パーティクル
-	ParticleSystem* particleSystem_ = nullptr;
+	std::map<std::string, ParticleSystem*> particleSystems_{};
 
 	//ヒットストップ
 	HitStop* hitStop_ = nullptr;

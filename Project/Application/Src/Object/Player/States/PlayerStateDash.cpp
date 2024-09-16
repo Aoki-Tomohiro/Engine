@@ -203,13 +203,13 @@ void PlayerStateDash::SpawnDashParticles()
 	newEmitter->SetRotateMax({ 0.0f,0.0f,6.28f });
 	newEmitter->SetVelocityMin(minVelocity);
 	newEmitter->SetVelocityMax(maxVelocity);
-	player_->AddParticleEmitter("Dash", newEmitter);
+	player_->AddParticleEmitter("Smoke", newEmitter);
 }
 
 void PlayerStateDash::UpdateEmitterPosition()
 {
 	//パーティクルシステムを取得
-	ParticleSystem* particleSystem = player_->GetParticleSystem("Dash");
+	ParticleSystem* particleSystem = player_->GetParticleSystem("Smoke");
 	//エミッターの位置をプレイヤーの位置に更新
 	if (particleSystem) 
 	{
@@ -247,7 +247,7 @@ void PlayerStateDash::ResetDashFlags()
 	player_->SetActionFlag(Player::ActionFlag::kDashing, false);
 
 	//パーティクルシステムを取得
-	ParticleSystem* particleSystem = player_->GetParticleSystem("Dash");
+	ParticleSystem* particleSystem = player_->GetParticleSystem("Smoke");
 	if (particleSystem)
 	{
 		// パーティクルエミッターと加速フィールドを削除

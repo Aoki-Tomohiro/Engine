@@ -1,6 +1,10 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Animator/AnimatorComponent.h"
+#include "Engine/Components/Model/ModelComponent.h"
+#include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
@@ -181,6 +185,7 @@ public:
     void SetNextAnimationTime(float animationTime);
     float GetCurrentAnimationDuration();
     float GetNextAnimationDuration();
+    float GetCurrentAnimationSpeed();
     bool GetIsAnimationFinished();
     bool GetIsBlendingCompleted();
 
@@ -256,6 +261,8 @@ private:
     void InitializeState();
     void InitializeTransformComponent();
     void InitializeModelComponent();
+    void InitializeAnimatorComponent();
+    void InitializeColliderComponent();
 
     //スキル関連
     void InitializeSkillCooldownManager();
@@ -302,6 +309,22 @@ private:
 private:
 	//インプット関連
 	Input* input_ = nullptr;
+
+    //トランスフォーム関連
+    TransformComponent* transform_ = nullptr;
+    Vector3 preAnimationHipPosition_{};
+    Vector3 colliderOffset_{};
+    Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
+    float quaternionInterpolationSpeed_ = 0.4f;
+
+    //モデル関連
+    ModelComponent* model_ = nullptr;
+
+    //アニメーション関連
+    AnimatorComponent* animator_ = nullptr;
+
+    //コライダー関連
+    AABBCollider* collider_ = nullptr;
 
 	//オーディオ関連
 	Audio* audio_ = nullptr;
@@ -356,14 +379,6 @@ private:
 		"DashStart", "DashEnd", "Falling", "GroundAttack1", "GroundAttack2", "GroundAttack3", "GroundAttack4", "AerialAttack1", "AerialAttack2", "AerialAttack3",
 		"LaunchAttack", "SpinAttack",
 	};
-
-	//Quaternion関連
-	Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
-	float quaternionInterpolationSpeed_ = 0.4f;
-
-	//プレイヤーの位置関連
-	Vector3 preAnimationHipPosition_{};
-	Vector3 colliderOffset_{};
 
 	//UI関連
 	std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};

@@ -74,12 +74,17 @@ private:
 
 	void InitializeMagicProjectileCollider(MagicProjectile* magicProjectile);
 
+	void CreateChargeMagicShotParticles();
+
 private:
 	//インプット
 	Input* input_ = nullptr;
 
 	//オーディオ
 	Audio* audio_ = nullptr;
+
+	//パーティクル
+	ParticleSystem* particleSystem_ = nullptr;
 
 	//ロックオン
 	const Lockon* lockon_ = nullptr;

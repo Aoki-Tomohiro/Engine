@@ -17,8 +17,16 @@ void EnemyStateRoot::Initialize()
 	//アニメーションの初期化
 	enemy_->PlayAnimation("Idle", 1.0f, true);
 
-	//次の行動の間隔をランダムに設定
-	currentActionInterval_ = RandomGenerator::GetRandomFloat(enemy_->GetRootParameters().minActionInterval_, enemy_->GetRootParameters().maxActionInterval_);
+	//スタンから復帰した状態でなければ次の行動の間隔をランダムに設定
+	if (!enemy_->GetIsStunRecovered())
+	{
+		currentActionInterval_ = RandomGenerator::GetRandomFloat(enemy_->GetRootParameters().minActionInterval_, enemy_->GetRootParameters().maxActionInterval_);
+	}
+	//スタンから復帰した状態ならフラグをリセット
+	else
+	{
+		enemy_->SetIsStunRecovered(false);
+	}
 }
 
 void EnemyStateRoot::Update()

@@ -65,6 +65,8 @@ private:
 
 	void DeleteMagicProjectile();
 
+	void CreateDestoryParticles();
+
 private:
 	//パーティクル
 	ParticleSystem* particleSystem_ = nullptr;

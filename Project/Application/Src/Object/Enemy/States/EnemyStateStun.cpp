@@ -36,6 +36,9 @@ void EnemyStateStun::Update()
 		enemy_->SetIsAnimationCorrectionActive(true);
 		enemy_->SetPosition(enemy_->GetPosition() + Vector3(enemy_->GetHipLocalPosition().x, 0.0f, enemy_->GetHipLocalPosition().z));
 
+		//敵をスタン状態から復帰した状態にする
+		enemy_->SetIsStunRecovered(true);
+
 		//通常状態に戻す
 		enemy_->ChangeState(new EnemyStateRoot());
 	}
