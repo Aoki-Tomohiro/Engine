@@ -13,6 +13,10 @@ public:
 
 	void UpdateMatrix();
 
+	void SetParent(const WorldTransform* parent);
+
+	void UnsetParent();
+
 	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
 	WorldTransform() = default;

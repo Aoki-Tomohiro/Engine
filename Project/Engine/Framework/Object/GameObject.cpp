@@ -27,3 +27,11 @@ void GameObject::DrawUI()
 {
 
 }
+
+void GameObject::Reset()
+{
+	//フラグのリセット
+	isActive_ = true;
+	isVisible_ = true;
+	isDestroy_ = false;
+}

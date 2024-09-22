@@ -75,14 +75,14 @@ void Sprite::UpdateVertexBuffer()
 	AdjustTextureSize();
 
 	//頂点データの更新
-	float left = (0.0f - anchorPoint_.x) * size_.x;
-	float right = (1.0f - anchorPoint_.x) * size_.x;
-	float top = (0.0f - anchorPoint_.y) * size_.y;
-	float bottom = (1.0f - anchorPoint_.y) * size_.y;
+	float left = (0.0f - anchorPoint_.x) * textureSize_.x;
+	float right = (1.0f - anchorPoint_.x) * textureSize_.x;
+	float top = (0.0f - anchorPoint_.y) * textureSize_.y;
+	float bottom = (1.0f - anchorPoint_.y) * textureSize_.y;
 	float texLeft = textureLeftTop_.x / resourceDesc_.Width;
-	float texRight = (textureLeftTop_.x + textureSize_.x) / resourceDesc_.Width;
+	float texRight = (textureLeftTop_.x + size_.x) / resourceDesc_.Width;
 	float texTop = textureLeftTop_.y / resourceDesc_.Height;
-	float texBottom = (textureLeftTop_.y + textureSize_.y) / resourceDesc_.Height;
+	float texBottom = (textureLeftTop_.y + size_.y) / resourceDesc_.Height;
 
 	//左右反転
 	if (isFlipX_) {
@@ -168,8 +168,6 @@ void Sprite::AdjustTextureSize()
 {
 	//テクスチャの情報を取得
 	resourceDesc_ = texture_->GetResourceDesc();
-	//テクスチャサイズの初期化
-	textureSize_ = { float(resourceDesc_.Width),float(resourceDesc_.Height) };
 }
 
 void Sprite::SetTexture(const std::string& textureName)

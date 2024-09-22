@@ -194,7 +194,11 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		transformComponent->worldTransform_.scale_ = objectData.scaling;
 
 		//モデルの追加
-		ModelComponent* modelComponent = newObject->AddComponent<ModelComponent>();
+		ModelComponent* modelComponent = newObject->GetComponent<ModelComponent>();
+		if (!modelComponent)
+		{
+			modelComponent = newObject->AddComponent<ModelComponent>();
+		}
 		modelComponent->SetModel(ModelManager::CreateFromModelFile(objectData.modelName, Opaque));
 
 		//Typeが無かったらColliderがないとみなす
@@ -203,7 +207,11 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
 			if (objectData.colliderData.type == "AABB")
 			{
-				AABBCollider* collider = newObject->AddComponent<AABBCollider>();
+				AABBCollider* collider = newObject->GetComponent<AABBCollider>();
+				if (!collider)
+				{
+					collider = newObject->AddComponent<AABBCollider>();
+				}
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
@@ -212,7 +220,11 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			}
 			else if (objectData.colliderData.type == "OBB")
 			{
-				OBBCollider* collider = newObject->AddComponent<OBBCollider>();
+				OBBCollider* collider = newObject->GetComponent<OBBCollider>();
+				if (!collider)
+				{
+					collider = newObject->AddComponent<OBBCollider>();
+				}
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);
@@ -221,7 +233,11 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 			}
 			else if (objectData.colliderData.type == "SPHERE")
 			{
-				SphereCollider* collider = newObject->AddComponent<SphereCollider>();
+				SphereCollider* collider = newObject->GetComponent<SphereCollider>();
+				if (!collider)
+				{
+					collider = newObject->AddComponent<SphereCollider>();
+				}
 				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
 				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
 				collider->SetCenter(objectData.colliderData.center);

@@ -12,11 +12,11 @@ public:
 
 	void Draw(const Camera& camera) override;
 
-	Model* GetModel() const { return model_; };
+	Model* GetModel() const { return model_.get(); };
 
-	void SetModel(Model* model) { model_ = model; };
+	void SetModel(Model* model) { model_.reset(model); };
 
 private:
-	Model* model_ = nullptr;
+	std::unique_ptr<Model> model_ = nullptr;
 };
 

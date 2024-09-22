@@ -24,21 +24,11 @@ void GameObjectManager::Destroy()
 
 void GameObjectManager::Update()
 {
-	//破壊フラグが立ったゲームオブジェクトを削除
-	std::vector<std::unique_ptr<GameObject>>::iterator it = std::remove_if(gameObjects_.begin(), gameObjects_.end(),
-		[](std::unique_ptr<GameObject>& gameObject)
-		{
-			return gameObject->GetIsDestroy();
-		});
-	gameObjects_.erase(it, gameObjects_.end());
+	//破壊フラグの立ったオブジェクトを削除
+	RemoveDestroyedObjects();
 
-	//全てのゲームオブジェクトの初期化
-	for (const std::unique_ptr<GameObject>& newGameObject : newGameObjectsBuffer_)
-	{
-		newGameObject->Initialize();
-	}
-	gameObjects_.insert(gameObjects_.end(), std::make_move_iterator(newGameObjectsBuffer_.begin()), std::make_move_iterator(newGameObjectsBuffer_.end()));
-	newGameObjectsBuffer_.clear();
+	//新規オブジェクトの初期化と追加
+	InitializeNewObjects();
 
 	//ゲームオブジェクトの更新
 	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
@@ -76,8 +66,9 @@ void GameObjectManager::DrawUI()
 
 void GameObjectManager::Clear()
 {
-	//ゲームオブジェクトをクリア
 	gameObjects_.clear();
+	newGameObjectsBuffer_.clear();
+	gameObjectPool_.clear();
 }
 
 GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
@@ -88,10 +79,47 @@ GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
 
 GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
 {
+	//ファクトリが設定されていない場合は止める
 	assert(gameObjectFactory_);
+
+	//ファクトリを使ってゲームオブジェクトを生成
 	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
 	newGameObject->SetGameObjectManager(this);
 	newGameObject->AddComponent<TransformComponent>();
-	newGameObjectsBuffer_.push_back(std::unique_ptr<GameObject>(newGameObject));
+	newGameObjectsBuffer_.emplace_back(std::unique_ptr<GameObject>(newGameObject));
 	return newGameObject;
+}
+
+void GameObjectManager::RemoveDestroyedObjects()
+{
+	//破壊フラグが立ったオブジェクトを検索して削除
+	auto it = std::remove_if(gameObjects_.begin(), gameObjects_.end(),
+		[this](std::unique_ptr<GameObject>& gameObject) {
+			if (gameObject->GetIsDestroy())
+			{
+				//プールにオブジェクトを戻す
+				ReleaseObjectToPool(std::move(gameObject));
+				return true;
+			}
+			return false;
+		});
+	//削除対象をリストから削除
+	gameObjects_.erase(it, gameObjects_.end());
+}
+
+void GameObjectManager::InitializeNewObjects()
+{
+	//新規ゲームオブジェクトを初期化
+	for (const auto& newGameObject : newGameObjectsBuffer_)
+	{
+		newGameObject->Initialize();
+	}
+
+	//初期化された新規オブジェクトをゲームオブジェクトリストに追加
+	gameObjects_.insert(gameObjects_.end(),
+		std::make_move_iterator(newGameObjectsBuffer_.begin()),
+		std::make_move_iterator(newGameObjectsBuffer_.end()));
+
+	//新規オブジェクトバッファをクリア
+	newGameObjectsBuffer_.clear();
 }

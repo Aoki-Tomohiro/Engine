@@ -118,13 +118,13 @@ void Renderer::AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView, D3D12_GPU_VIRT
 
 void Renderer::Render()
 {
-	// 並び替える
+	//並び替える
 	Sort();
 
-	// コマンドリストを取得
+	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
-	// 描画パスを設定
+	//描画パスを設定
 	DrawPass currentRenderingType = Opaque;
 
 	//RootSignatureを設定

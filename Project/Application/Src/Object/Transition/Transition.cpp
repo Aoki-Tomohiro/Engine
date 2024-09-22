@@ -6,7 +6,7 @@ void Transition::Initialize()
 	sprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 
 	//スプライトのサイズを設定
-	sprite_->SetSize({ 1280.0f,720.0f });
+	sprite_->SetTextureSize({ 1280.0f,720.0f });
 }
 
 void Transition::Update()

@@ -21,6 +21,8 @@ public:
 
 	virtual void DrawUI();
 
+	virtual void Reset();
+
 	virtual void OnCollision(GameObject* collider) = 0;
 
 	virtual void OnCollisionEnter(GameObject* collider) = 0;
@@ -61,7 +63,7 @@ protected:
 	//コンポーネント
 	std::list<std::unique_ptr<Component>> components_{};
 
-	//タグ
+	//名前
 	std::string name_{};
 
 	//描画フラグ

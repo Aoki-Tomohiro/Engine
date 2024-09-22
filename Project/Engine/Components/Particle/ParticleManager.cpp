@@ -98,10 +98,23 @@ void ParticleManager::Update()
 void ParticleManager::Draw()
 {
 	//カメラがない場合は飛ばす
-	if (!camera_) 
+	if (!camera_)
 	{
 		return;
 	};
+
+	//パーティクルシステムをブレンドモード順にソートするために、一旦ベクターに変換
+	std::vector<ParticleSystem*> sortedParticleSystems;
+	for (const auto& pair : particleSystems_)
+	{
+		sortedParticleSystems.push_back(pair.second.get());
+	}
+
+	//パーティクルシステムをブレンドモード順にソート
+	std::sort(sortedParticleSystems.begin(), sortedParticleSystems.end(),
+		[](const ParticleSystem* lhs, const ParticleSystem* rhs) {
+			return lhs->GetBlendMode() < rhs->GetBlendMode();
+		});
 
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
@@ -109,13 +122,27 @@ void ParticleManager::Draw()
 	//RootSignatureを設定
 	commandContext->SetRootSignature(particleRootSignature_);
 
-	//PipelineStateを設定
-	commandContext->SetPipelineState(particlePipelineState_);
+	//現在のブレンドモードを保存
+	BlendMode currentBlendMode = kBlendModeNone;
 
 	//パーティクルの描画
-	for (auto& particleSystem : particleSystems_)
+	for (auto& particleSystem : sortedParticleSystems)
 	{
-		particleSystem.second->Draw(camera_);
+		//パーティクルシステムのブレンドモードを取得
+		BlendMode blendMode = particleSystem->GetBlendMode();
+
+		//ブレンドモードが変わったらPipelineStateを変更
+		if (blendMode != currentBlendMode)
+		{
+			//PipelineStateを設定
+			commandContext->SetPipelineState(particlePipelineStates_[blendMode]);
+
+			//現在のブレンドモードを更新
+			currentBlendMode = blendMode;
+		}
+
+		//パーティクルの描画
+		particleSystem->Draw(camera_);
 	}
 }
 
@@ -163,18 +190,59 @@ void ParticleManager::CreateParticlePipelineState()
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
 	//BlendStateの設定
-	D3D12_BLEND_DESC blendDesc{};
-	//すべての色要素を書き込む
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	//共通設定
-	blendDesc.RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
-	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
-	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	D3D12_BLEND_DESC blendDesc[6]{};
+	//ブレンドなし
+	blendDesc[0].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	//半透明合成
+	blendDesc[1].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc[1].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
+	blendDesc[1].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[1].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
+	blendDesc[1].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	blendDesc[1].RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[1].RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースのアルファ値
+	blendDesc[1].RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;//1.0f-ソースのアルファ値
+
 	//加算合成
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースの値を100%使う
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;//デストの値を100%使う
+	blendDesc[2].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc[2].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
+	blendDesc[2].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[2].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
+	blendDesc[2].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	blendDesc[2].RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[2].RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースの値を100%使う
+	blendDesc[2].RenderTarget[0].DestBlend = D3D12_BLEND_ONE;//デストの値を100%使う
+
+	//減算合成
+	blendDesc[3].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc[3].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
+	blendDesc[3].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[3].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
+	blendDesc[3].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	blendDesc[3].RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;//減算
+	blendDesc[3].RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;//ソースの値を100%使う
+	blendDesc[3].RenderTarget[0].DestBlend = D3D12_BLEND_ONE;//デストの値を100%使う
+
+	//乗算合成
+	blendDesc[4].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc[4].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
+	blendDesc[4].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[4].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
+	blendDesc[4].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	blendDesc[4].RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[4].RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;//ソースの値を0%使う
+	blendDesc[4].RenderTarget[0].DestBlend = D3D12_BLEND_SRC_COLOR;//デストの色を使う
+
+	//スクリーン合成
+	blendDesc[5].RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc[5].RenderTarget[0].BlendEnable = true;//ブレンドを有効にする
+	blendDesc[5].RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[5].RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;//ソースの値を100%使う
+	blendDesc[5].RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;//デストの値を0%使う
+	blendDesc[5].RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;//加算
+	blendDesc[5].RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;//1-ソースの色を使う
+	blendDesc[5].RenderTarget[0].DestBlend = D3D12_BLEND_ONE;//デストの色を100%使う
 
 	//RasterizerStateの設定
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
@@ -202,17 +270,22 @@ void ParticleManager::CreateParticlePipelineState()
 	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	//PipelineStateを作成
-	particlePipelineState_.SetRootSignature(&particleRootSignature_);
-	particlePipelineState_.SetInputLayout(3, inputElementDescs);
-	particlePipelineState_.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-	particlePipelineState_.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-	particlePipelineState_.SetBlendState(blendDesc);
-	particlePipelineState_.SetRasterizerState(rasterizerDesc);
-	particlePipelineState_.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	particlePipelineState_.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-	particlePipelineState_.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-	particlePipelineState_.SetDepthStencilState(depthStencilDesc);
-	particlePipelineState_.Finalize();
+	for (uint32_t i = 0; i < kCountOfBlendMode; i++)
+	{
+		GraphicsPSO newPipelineState;
+		newPipelineState.SetRootSignature(&particleRootSignature_);
+		newPipelineState.SetInputLayout(3, inputElementDescs);
+		newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
+		newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
+		newPipelineState.SetBlendState(blendDesc[i]);
+		newPipelineState.SetRasterizerState(rasterizerDesc);
+		newPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+		newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
+		newPipelineState.SetDepthStencilState(depthStencilDesc);
+		newPipelineState.Finalize();
+		particlePipelineStates_.push_back(newPipelineState);
+	}
 }
 
 void ParticleManager::CreateInitializeParticlePipelineState()

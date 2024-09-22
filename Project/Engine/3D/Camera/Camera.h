@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Base/Application.h"
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
 #include <memory>
@@ -52,7 +53,7 @@ public:
 
 	float fov_ = 45.0f * 3.141592654f / 180.0f;
 
-	float aspectRatio_ = 1280.0f / 720.0f;
+	float aspectRatio_ = static_cast<float>(Application::kClientWidth) / static_cast<float>(Application::kClientHeight);
 
 	float nearClip_ = 0.1f;
 

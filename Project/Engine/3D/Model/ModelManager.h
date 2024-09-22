@@ -31,6 +31,6 @@ private:
 private:
 	static ModelManager* instance_;
 
-	std::map<std::string, std::unique_ptr<Model>> modelDatas_{};
+	std::map<std::string, Model::ModelData> modelDatas_{};
 };
 

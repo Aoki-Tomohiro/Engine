@@ -59,6 +59,10 @@ public:
 
 	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
 
+	const BlendMode& GetBlendMode() const { return blendMode_; };
+
+	void SetBlendMode(const BlendMode& blendMode) { blendMode_ = blendMode; };
+
 	RWStructuredBuffer* GetParticleResource() const { return particleResource_.get(); };
 
 	RWStructuredBuffer* GetFreeListIndexResource() const { return freeListIndexResource_.get(); };
@@ -114,11 +118,14 @@ private:
 
 	//AccelerationField
 	std::vector<std::unique_ptr<AccelerationField>> accelerationFields_{};
-	
+
 	//GravityField
 	std::vector<std::unique_ptr<GravityField>> gravityFields_{};
 
 	//billBoardFlag
 	bool isBillboard_ = true;
+
+	//ブレンドモード
+	BlendMode blendMode_ = BlendMode::kBlendModeAdd;
 };
 

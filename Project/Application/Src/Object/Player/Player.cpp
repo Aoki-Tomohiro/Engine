@@ -504,7 +504,7 @@ void Player::InitializeDamageEffect()
 	//ダメージエフェクト用のスプライトの生成
 	damageEffectSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 	damageEffectSprite_->SetColor(damageEffectColor_);
-	damageEffectSprite_->SetSize({ 1280.0f,720.0f });
+	damageEffectSprite_->SetTextureSize({ 1280.0f,720.0f });
 }
 
 void Player::InitializeState()

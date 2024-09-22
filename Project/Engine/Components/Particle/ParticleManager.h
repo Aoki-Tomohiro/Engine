@@ -4,6 +4,7 @@
 #include "Engine/Base/ComputePSO.h"
 #include <map>
 #include <string>
+#include <algorithm>
 
 class ParticleManager
 {
@@ -57,7 +58,7 @@ private:
 
 	RootSignature updateParticleRootSignature_{};
 
-	GraphicsPSO particlePipelineState_{};
+	std::vector<GraphicsPSO> particlePipelineStates_{};
 
 	ComputePSO initializeParticlePipelineState_{};
 
