@@ -23,17 +23,17 @@ void GameManager::Initialize()
 	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
 	collisionAttributeManager_->AddAttribute("Pillar",       0b1000000, 0b0000001);
 
-	////PostEffectsの有効化
-	//postEffects_->SetIsEnable(true);
-	//postEffects_->GetFog()->SetIsEnable(true);
-	//postEffects_->GetBloom()->SetIsEnable(true);
-	//postEffects_->GetBloom()->SetBlurCount(4);
-	//postEffects_->GetBloom()->SetTextureWeight(1.0f);
-	//postEffects_->GetBloom()->SetHighLumTextureWeight(0.1f);
-	//postEffects_->GetBloom()->SetBlurTextureWeight(0, 0.1f);
-	//postEffects_->GetBloom()->SetBlurTextureWeight(1, 0.1f);
-	//postEffects_->GetBloom()->SetBlurTextureWeight(2, 0.2f);
-	//postEffects_->GetBloom()->SetBlurTextureWeight(3, 0.4f);
+	//PostEffectsの有効化
+	postEffects_->SetIsEnable(true);
+	postEffects_->GetFog()->SetIsEnable(true);
+	postEffects_->GetBloom()->SetIsEnable(true);
+	postEffects_->GetBloom()->SetBlurCount(4);
+	postEffects_->GetBloom()->SetTextureWeight(1.0f);
+	postEffects_->GetBloom()->SetHighLumTextureWeight(0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(0, 0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(1, 0.1f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(2, 0.2f);
+	postEffects_->GetBloom()->SetBlurTextureWeight(3, 0.4f);
 }
 
 void GameManager::Finalize()
