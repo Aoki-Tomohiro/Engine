@@ -76,6 +76,9 @@ private:
 	//出現後の座標
 	Vector3 spawnedPosition_{};
 
+	//コライダーのサイズ
+	Vector3 colliderSize_ = { 2.0f,14.0f,2.0f };
+
 	//状態
 	PillarState pillarState_ = PillarState::kInactive;
 

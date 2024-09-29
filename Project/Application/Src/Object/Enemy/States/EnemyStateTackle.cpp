@@ -109,6 +109,8 @@ void EnemyStateTackle::HandleCurrentPhase(Weapon* weapon)
 	switch (phaseIndex_)
 	{
 	case kCharge:
+		//チャージフェーズの処理
+		ChargeUpdate();
 		break;
 	case kAttack:
 		//攻撃フェーズの処理
@@ -119,6 +121,13 @@ void EnemyStateTackle::HandleCurrentPhase(Weapon* weapon)
 		weapon->SetIsAttack(false);
 		break;
 	}
+}
+
+void EnemyStateTackle::ChargeUpdate()
+{
+	//プレイヤーへの方向ベクトルを計算し、敵を回転させる
+	Vector3 directionToPlayer = GetDirectionToPlayer();
+	enemy_->Rotate(directionToPlayer);
 }
 
 void EnemyStateTackle::AttackUpdate(Weapon* weapon)

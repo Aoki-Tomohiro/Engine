@@ -60,7 +60,10 @@ void Pillar::Reset()
 	//モデルの色を初期化
 	Vector4 currentColor = model_->GetModel()->GetMaterial(1)->GetColor();
 	Vector4 nextColor = { currentColor.x, currentColor.y, currentColor.z, alpha_ };
-	model_->GetModel()->GetMaterial(1)->SetColor(nextColor);
+	for (int32_t i = 0; i < model_->GetModel()->GetNumMaterials(); ++i)
+	{
+		model_->GetModel()->GetMaterial(i)->SetColor(nextColor);
+	}
 }
 
 void Pillar::InitializeTransform()
@@ -74,7 +77,7 @@ void Pillar::InitializeModel()
 {
 	//モデルの追加
 	model_ = AddComponent<ModelComponent>();
-	Model* model = ModelManager::CreateFromModelFile("Cube", Transparent);
+	Model* model = ModelManager::CreateFromModelFile("Spear", Transparent);
 	model->SetCastShadows(false);
 	model_->SetModel(model);
 }
@@ -159,7 +162,10 @@ void Pillar::DespawnUpdate()
 	//色を設定
 	Vector4 currentColor = model_->GetModel()->GetMaterial(1)->GetColor();
 	Vector4 nextColor = { currentColor.x, currentColor.y, currentColor.z, alpha_ };
-	model_->GetModel()->GetMaterial(1)->SetColor(nextColor);
+	for (int32_t i = 0; i < model_->GetModel()->GetNumMaterials(); ++i)
+	{
+		model_->GetModel()->GetMaterial(i)->SetColor(nextColor);
+	}
 
 	//タイマーが一定値を超えていたらタイマーをリセットして破壊する
 	if (despawnTimer_ > despawnDuration_)
@@ -177,5 +183,5 @@ void Pillar::UpdateCollider()
 		{ transform_->worldTransform_.matWorld_.m[1][0], transform_->worldTransform_.matWorld_.m[1][1], transform_->worldTransform_.matWorld_.m[1][2] },
 		{ transform_->worldTransform_.matWorld_.m[2][0], transform_->worldTransform_.matWorld_.m[2][1], transform_->worldTransform_.matWorld_.m[2][2] }
 	);
-	collider_->SetSize(transform_->worldTransform_.scale_);
+	collider_->SetSize(colliderSize_);
 }

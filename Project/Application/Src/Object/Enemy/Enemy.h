@@ -94,9 +94,9 @@ public:
 	//柱攻撃のパラメーター
 	struct EarthSpikeAttackParameters
 	{
-		int32_t maxPillarCount = 20;               // 柱の数
-		Vector3 pillarScale{ 2.0f, 2.0f, 2.0f };   // 柱の大きさ
-		float nextPillarDelay = 0.02f;             // 次の柱をまでの遅延時間
+		int32_t maxPillarCount = 20;                    // 柱の数
+		Vector3 pillarScale{ 2.0f, 2.0f, 2.0f };        // 柱の大きさ
+		float nextPillarDelay = 0.01f;                  // 次の柱をまでの遅延時間
 	};
 
 	//初期化処理

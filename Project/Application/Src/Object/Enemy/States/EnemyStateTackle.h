@@ -10,6 +10,7 @@ public:
 	enum TackleAttackState
 	{
 		kCharge,
+		kWait,
 		kAttack,
 		kRecovery,
 	};
@@ -28,6 +29,8 @@ private:
 	void ApplyParametersToWeapon();
 
 	void HandleCurrentPhase(Weapon* weapon);
+
+	void ChargeUpdate();
 
 	void AttackUpdate(Weapon* weapon);
 

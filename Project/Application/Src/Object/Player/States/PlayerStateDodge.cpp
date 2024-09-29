@@ -19,11 +19,12 @@ void PlayerStateDodge::Initialize()
 	if (Mathf::Length(inputValue) > player_->GetRootParameters().walkThreshold)
 	{
 		//前方への回避
-		SetupDodge("DodgeForward", 2.4f);
+		SetupDodge("DodgeForward", 2.8f);
 
 		//速度を設定
 		velocity_ = Mathf::Normalize(inputValue) * player_->GetDodgeParameters().dodgeSpeed;
-		velocity_ = Mathf::RotateVector(velocity_, player_->GetDestinationQuaternion());
+		velocity_ = Mathf::RotateVector(velocity_, player_->GetCamera()->quaternion_);
+		velocity_.y = 0.0f;
 
 		//方向に応じてプレイヤーを回転させる
 		player_->Rotate(Mathf::Normalize(velocity_));

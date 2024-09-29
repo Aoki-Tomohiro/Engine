@@ -96,12 +96,12 @@ void EnemyStateEarthSpikeAttack::CreatePillar()
 		//柱の生成前の座標を設定
 		Vector3 pillarScale = enemy_->GetEarthSpikeAttackParameters().pillarScale;
 		Vector3 preSpawnPosition = enemy_->GetPosition() + Mathf::RotateVector(Vector3{ 0.0f, 0.0f, pillarScale.z * 2.0f + static_cast<float>(i)* (pillarScale.z * 2.0f) }, enemy_->GetDestinationQuaternion());
-		preSpawnPosition .y = -pillarScale.y * 1.2f;
+		preSpawnPosition .y = -20.0f;
 		newPillar->SetPreSpawnPosition(preSpawnPosition);
 
 		//柱の生成後の座標を設定
 		Vector3 spawnedPosition = preSpawnPosition;
-		spawnedPosition.y = pillarScale.y;
+		spawnedPosition.y = -10.0f;
 		newPillar->SetSpawnedPosition(spawnedPosition);
 
 		//柱のトランスフォームの初期化
