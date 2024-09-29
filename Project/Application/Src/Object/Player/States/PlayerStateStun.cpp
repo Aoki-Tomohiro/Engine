@@ -1,7 +1,6 @@
 #include "PlayerStateStun.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
 
 void PlayerStateStun::Initialize()
 {
@@ -40,13 +39,4 @@ void PlayerStateStun::Update()
 
 void PlayerStateStun::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, false);
-
-		//アニメーションを再生する
-		player_->PlayAnimation("Impact", 2.0f, false);
-	}
 }

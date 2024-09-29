@@ -77,6 +77,8 @@ private:
 
     std::vector<std::unique_ptr<GameObject>> newGameObjectsBuffer_;
 
+    std::vector<std::unique_ptr<GameObject>> reusedObjectsBuffer_;
+
     std::unordered_map<std::type_index, std::queue<std::unique_ptr<GameObject>>> gameObjectPool_;
 
     const Camera* camera_ = nullptr;
@@ -110,8 +112,7 @@ Type* GameObjectManager::CreateGameObjectInternal()
         //既存オブジェクトを再利用
         newObject->SetGameObjectManager(this);
         newObject->SetIsDestroy(false);
-        newObject->Reset();
-        gameObjects_.emplace_back(newObject);
+        reusedObjectsBuffer_.emplace_back(newObject);
     }
     return newObject;
 }
@@ -142,7 +143,12 @@ const Type* GameObjectManager::GetConstGameObject(const std::string& name) const
 {
     //名前でゲームオブジェクトを検索 (const版)
     const Type* obj = FindGameObject<Type>(name, newGameObjectsBuffer_);
-    return obj ? obj : FindGameObject<Type>(name, gameObjects_);
+    if (obj) return obj;
+
+    obj = FindGameObject<Type>(name, reusedObjectsBuffer_);
+    if (obj) return obj;
+
+    return FindGameObject<Type>(name, gameObjects_);
 }
 
 template <typename Type>
@@ -150,8 +156,15 @@ const std::vector<Type*> GameObjectManager::GetConstGameObjects(const std::strin
 {
     //名前で複数のゲームオブジェクトを検索 (const版)
     std::vector<Type*> result = FindGameObjects<Type>(name, newGameObjectsBuffer_);
+
+    //プールから取得したゲームオブジェクトも追加
+    const auto reusedObjects = FindGameObjects<Type>(name, reusedObjectsBuffer_);
+    result.insert(result.end(), reusedObjects.begin(), reusedObjects.end());
+
+    //既存のゲームオブジェクトも追加
     const auto mutableObjects = FindGameObjects<Type>(name, gameObjects_);
     result.insert(result.end(), mutableObjects.begin(), mutableObjects.end());
+
     return result;
 }
 
@@ -160,7 +173,12 @@ Type* GameObjectManager::GetMutableGameObject(const std::string& name) const
 {
     //名前でゲームオブジェクトを検索
     Type* obj = FindGameObject<Type>(name, newGameObjectsBuffer_);
-    return obj ? obj : FindGameObject<Type>(name, gameObjects_);
+    if (obj) return obj;
+
+    obj = FindGameObject<Type>(name, reusedObjectsBuffer_);
+    if (obj) return obj;
+
+    return FindGameObject<Type>(name, gameObjects_);
 }
 
 template <typename Type>
@@ -168,8 +186,15 @@ std::vector<Type*> GameObjectManager::GetMutableGameObjects(const std::string& n
 {
     //名前で複数のゲームオブジェクトを検索
     std::vector<Type*> result = FindGameObjects<Type>(name, newGameObjectsBuffer_);
+
+    //プールから取得したゲームオブジェクトも追加
+    const auto reusedObjects = FindGameObjects<Type>(name, reusedObjectsBuffer_);
+    result.insert(result.end(), reusedObjects.begin(), reusedObjects.end());
+
+    //既存のゲームオブジェクトも追加
     const auto mutableObjects = FindGameObjects<Type>(name, gameObjects_);
     result.insert(result.end(), mutableObjects.begin(), mutableObjects.end());
+
     return result;
 }
 

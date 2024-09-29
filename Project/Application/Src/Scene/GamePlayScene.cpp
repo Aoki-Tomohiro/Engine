@@ -191,61 +191,22 @@ void GamePlayScene::InitializePlayer()
 {
 	//プレイヤーの初期化
 	player_ = gameObjectManager_->GetMutableGameObject<Player>("");
+	player_->SetIsInTitleScene(false);
 	player_->SetCamera(camera_);
 	player_->SetLockon(lockon_.get());
 	player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-
-	//アニメーターコンポーネントの追加とアニメーションの設定
-	AnimatorComponent* animatorComponent = player_->AddComponent<AnimatorComponent>();
-	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
-	animatorComponent->AddAnimation("Walk1", AnimationManager::Create("Player/Animations/Walk1.gltf"));
-	animatorComponent->AddAnimation("Walk2", AnimationManager::Create("Player/Animations/Walk2.gltf"));
-	animatorComponent->AddAnimation("Walk3", AnimationManager::Create("Player/Animations/Walk3.gltf"));
-	animatorComponent->AddAnimation("Walk4", AnimationManager::Create("Player/Animations/Walk4.gltf"));
-	animatorComponent->AddAnimation("Run1", AnimationManager::Create("Player/Animations/Run1.gltf"));
-	animatorComponent->AddAnimation("Run2", AnimationManager::Create("Player/Animations/Run2.gltf"));
-	animatorComponent->AddAnimation("Run3", AnimationManager::Create("Player/Animations/Run3.gltf"));
-	animatorComponent->AddAnimation("Run4", AnimationManager::Create("Player/Animations/Run4.gltf"));
-	animatorComponent->AddAnimation("Jump1", AnimationManager::Create("Player/Animations/Jump1.gltf"));
-	animatorComponent->AddAnimation("Jump2", AnimationManager::Create("Player/Animations/Jump2.gltf"));
-	animatorComponent->AddAnimation("Dodge1", AnimationManager::Create("Player/Animations/Dodge1.gltf"));
-	animatorComponent->AddAnimation("Dodge2", AnimationManager::Create("Player/Animations/Dodge2.gltf"));
-	animatorComponent->AddAnimation("Dodge3", AnimationManager::Create("Player/Animations/Dodge3.gltf"));
-	animatorComponent->AddAnimation("Dodge4", AnimationManager::Create("Player/Animations/Dodge4.gltf"));
-	animatorComponent->AddAnimation("DashStart", AnimationManager::Create("Player/Animations/DashStart.gltf"));
-	animatorComponent->AddAnimation("DashEnd", AnimationManager::Create("Player/Animations/DashEnd.gltf"));
-	animatorComponent->AddAnimation("Falling", AnimationManager::Create("Player/Animations/Falling.gltf"));
-	animatorComponent->AddAnimation("GroundAttack1", AnimationManager::Create("Player/Animations/GroundAttack1.gltf"));
-	animatorComponent->AddAnimation("GroundAttack2", AnimationManager::Create("Player/Animations/GroundAttack2.gltf"));
-	animatorComponent->AddAnimation("GroundAttack3", AnimationManager::Create("Player/Animations/GroundAttack3.gltf"));
-	animatorComponent->AddAnimation("GroundAttack4", AnimationManager::Create("Player/Animations/GroundAttack4.gltf"));
-	animatorComponent->AddAnimation("AerialAttack1", AnimationManager::Create("Player/Animations/AerialAttack1.gltf"));
-	animatorComponent->AddAnimation("AerialAttack2", AnimationManager::Create("Player/Animations/AerialAttack2.gltf"));
-	animatorComponent->AddAnimation("AerialAttack3", AnimationManager::Create("Player/Animations/AerialAttack3.gltf"));
-	animatorComponent->AddAnimation("LaunchAttack", AnimationManager::Create("Player/Animations/LaunchAttack.gltf"));
-	animatorComponent->AddAnimation("SpinAttack", AnimationManager::Create("Player/Animations/SpinAttack.gltf"));
-	animatorComponent->AddAnimation("Impact", AnimationManager::Create("Player/Animations/Impact.gltf"));
-	animatorComponent->AddAnimation("Death", AnimationManager::Create("Player/Animations/Death.gltf"));
 }
 
 void GamePlayScene::InitializePlayerWeapon()
 {    
 	//プレイヤーの武器の生成と設定
 	playerWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
+	playerWeapon_->SetName("PlayerWeapon");
 	playerWeapon_->SetHitStop(hitStop_.get());
 
 	//トランスフォームの設定
 	TransformComponent* weaponTransformComponent = playerWeapon_->GetComponent<TransformComponent>();
 	weaponTransformComponent->worldTransform_.parent_ = &player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
-
-	//モデルとコライダーの追加
-	ModelComponent* weaponModelComponent = playerWeapon_->AddComponent<ModelComponent>();
-	weaponModelComponent->SetModel(ModelManager::CreateFromModelFile("PlayerWeapon", Opaque));
-
-	CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
-	OBBCollider* obbCollider = playerWeapon_->AddComponent<OBBCollider>();
-	obbCollider->SetCollisionAttribute(collisionAttributeManager->GetAttribute("PlayerWeapon"));
-	obbCollider->SetCollisionMask(collisionAttributeManager->GetMask("PlayerWeapon"));
 }
 
 void GamePlayScene::InitializeOrb()
@@ -254,50 +215,26 @@ void GamePlayScene::InitializeOrb()
 	Orb* orb = GameObjectManager::CreateGameObject<Orb>();
 	orb->SetLockon(lockon_.get());
 	orb->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
-
-	//モデルの追加
-	ModelComponent* orbModelComponent = orb->AddComponent<ModelComponent>();
-	orbModelComponent->SetModel(ModelManager::CreateFromModelFile("Orb", Opaque));
 }
 
 void GamePlayScene::InitializeEnemy()
 {
 	//敵の初期化
 	enemy_ = gameObjectManager_->GetMutableGameObject<Enemy>("");
+	enemy_->SetIsInTitleScene(false);
 	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-
-	//アニメーターコンポーネントの追加とアニメーションの設定
-	AnimatorComponent* animatorComponent = enemy_->AddComponent<AnimatorComponent>();
-	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Enemy/Animations/Idle.gltf"));
-	animatorComponent->AddAnimation("Walk", AnimationManager::Create("Enemy/Animations/Walk.gltf"));
-	animatorComponent->AddAnimation("Run", AnimationManager::Create("Enemy/Animations/Run.gltf"));
-	animatorComponent->AddAnimation("TackleAttack", AnimationManager::Create("Enemy/Animations/Tackle.gltf"));
-	animatorComponent->AddAnimation("JumpAttack", AnimationManager::Create("Enemy/Animations/JumpAttack.gltf"));
-	animatorComponent->AddAnimation("ComboAttack", AnimationManager::Create("Enemy/Animations/ComboAttack.gltf"));
-	animatorComponent->AddAnimation("Stun", AnimationManager::Create("Enemy/Animations/Stun.gltf"));
-	animatorComponent->AddAnimation("Death", AnimationManager::Create("Enemy/Animations/Death.gltf"));
-	animatorComponent->PlayAnimation("Idle", 1.0f, true);
 }
 
 void GamePlayScene::InitializeEnemyWeapon()
 {
 	//敵の武器の生成と設定
 	enemyWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
-	enemyWeapon_->SetIsVisible(false);
+	enemyWeapon_->SetName("EnemyWeapon");
 	enemyWeapon_->SetHitStop(hitStop_.get());
 
 	//トランスフォームの設定
 	TransformComponent* weaponTransformComponent = enemyWeapon_->GetComponent<TransformComponent>();
 	weaponTransformComponent->worldTransform_.parent_ = &enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
-
-	//モデルとコライダーの追加
-	ModelComponent* weaponModelComponent = enemyWeapon_->AddComponent<ModelComponent>();
-	weaponModelComponent->SetModel(ModelManager::CreateFromModelFile("EnemyWeapon", Opaque));
-
-	CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
-	OBBCollider* obbCollider = enemyWeapon_->AddComponent<OBBCollider>();
-	obbCollider->SetCollisionAttribute(collisionAttributeManager->GetAttribute("EnemyWeapon"));
-	obbCollider->SetCollisionMask(collisionAttributeManager->GetMask("EnemyWeapon"));
 }
 
 void GamePlayScene::InitializeCameraController()
@@ -347,6 +284,26 @@ void GamePlayScene::UpdateColliders()
 	for (MagicProjectile* magicProjectile : magicProjectiles)
 	{
 		if (Collider* collider = magicProjectile->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
+
+	//レーザーを衝突マネージャーに追加
+	std::vector<Laser*> lasers = gameObjectManager_->GetMutableGameObjects<Laser>("");
+	for (Laser* laser : lasers)
+	{
+		if (Collider* collider = laser->GetComponent<Collider>())
+		{
+			collisionManager_->SetColliderList(collider);
+		}
+	}
+
+	//柱を衝突マネージャーに追加
+	std::vector<Pillar*> pillars = gameObjectManager_->GetMutableGameObjects<Pillar>("");
+	for (Pillar* pillar : pillars)
+	{
+		if (Collider* collider = pillar->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}

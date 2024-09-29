@@ -15,14 +15,14 @@ void Weapon::Initialize()
 	//オーディオのインスタンスを取得
 	audio_ = Audio::GetInstance();
 
-	//コライダーの情報をもとに武器の名前を設定
-	UpdateObjectNameFromCollider();
+	//モデルの初期化
+	InitializeModel();
 
-	//パーティクルシステムの作成
-	TextureManager::Load("star_09.png");
-	particleSystems_["Hit"] = ParticleManager::Create("Hit");
-	particleSystems_["Star"] = ParticleManager::Create("Star");
-	particleSystems_["Star"]->SetTexture("star_09.png");
+	//コライダーの初期化
+	InitializeCollider();
+
+	//パーティクルシステムの初期化
+	InitializeParticleSystem();
 
 	//加速フィールドの生成
 	CreateAccelerationField();
@@ -210,14 +210,29 @@ void Weapon::UpdateEnemyCollider()
 	collider->SetDebugDrawEnabled(isDebug_);
 }
 
-void Weapon::UpdateObjectNameFromCollider()
+void Weapon::InitializeModel()
 {
-	//衝突属性マネージャーを取得
+	//モデルの初期化
+	ModelComponent* modelComponent = AddComponent<ModelComponent>();
+	modelComponent->SetModel(name_ == "PlayerWeapon" ? ModelManager::CreateFromModelFile("PlayerWeapon", Opaque) : ModelManager::CreateFromModelFile("EnemyWeapon", Opaque));
+}
+
+void Weapon::InitializeCollider()
+{
+	//コライダーの追加
+	OBBCollider* collider = AddComponent<OBBCollider>();
 	CollisionAttributeManager* collisionAttributeManager = CollisionAttributeManager::GetInstance();
-	//コライダーを取得
-	OBBCollider* collider = GetComponent<OBBCollider>();
-	//コライダーの情報をもとに名前を設定
-	name_ = (collider->GetCollisionAttribute() == collisionAttributeManager->GetAttribute("PlayerWeapon")) ? "PlayerWeapon" : "EnemyWeapon";
+	collider->SetCollisionAttribute(name_ == "PlayerWeapon" ? collisionAttributeManager->GetAttribute("PlayerWeapon") : collisionAttributeManager->GetAttribute("EnemyWeapon"));
+	collider->SetCollisionMask(name_ == "PlayerWeapon" ? collisionAttributeManager->GetMask("PlayerWeapon") : collisionAttributeManager->GetMask("EnemyWeapon"));
+}
+
+void Weapon::InitializeParticleSystem()
+{
+	//パーティクルシステムの作成
+	TextureManager::Load("star_09.png");
+	particleSystems_["Hit"] = ParticleManager::Create("Hit");
+	particleSystems_["Star"] = ParticleManager::Create("Star");
+	particleSystems_["Star"]->SetTexture("star_09.png");
 }
 
 void Weapon::CreateAccelerationField()

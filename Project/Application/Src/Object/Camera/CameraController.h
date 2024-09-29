@@ -16,7 +16,7 @@ public:
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
 		float rotationRangeMin = 1.6f;
-		float rotationRangeMax = 2.0f;
+		float rotationRangeMax = 2.4f;
 		float rotationSpeedX = 0.02f;
 		float rotationSpeedY = 0.04f;
 	};
@@ -26,7 +26,7 @@ public:
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
 		float rotationRangeMin = 1.4f;
-		float rotationRangeMax = 2.0f;
+		float rotationRangeMax = 2.4f;
 	};
 
 	void Initialize();
@@ -36,6 +36,8 @@ public:
 	void ChangeState(ICameraState* state);
 
 	void StartCameraShake(const Vector3& intensity, const float duration);
+
+	void StartInterpolationSpeedIncrease();
 
 	const Vector3& GetInterTarget() const { return interTarget_; };
 
@@ -88,6 +90,8 @@ private:
 
 	void UpdateCameraTransform(const Quaternion& rotation, float fovDegrees);
 
+	void UpdateInterpolationSpeed();
+
 	void UpdateCameraOffset();
 
 	void UpdateCameraRotation();
@@ -131,6 +135,15 @@ private:
 
 	//Quaternionの補間速度
 	float quaternionInterpolationSpeed_ = 0.2f;
+
+	//補間速度を徐々に増加させるフラグ
+	bool isInterpolationSpeedIncreasing_ = false;
+
+	//補間速度を増加させるためのタイマー
+	float interpolationSpeedTimer_ = 0.0f;
+
+	//補間が完了までの時間
+	float remainingInterpolationTime_ = 0.2f;
 
 	//クリアアニメーション状態かどうか
 	bool isClearAnimationActive_ = false;

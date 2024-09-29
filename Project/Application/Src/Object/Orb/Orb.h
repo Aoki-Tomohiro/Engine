@@ -23,14 +23,14 @@ public:
 	//魔法攻撃用のパラメーター
 	struct MagicAttackParameters
 	{
-		float chargeTimeThreshold = 1.0f;                                 //チャージマジックのため時間
-		float cooldownTime = 0.6f;                                        //通常魔法のクールタイム
-		float magicProjectileSpeed = 96.0f;                               //魔法の速度
-		float normalMagicDamage = 4.0f;                                   //通常魔法のダメージ
-		float chargeMagicDamage = 8.0f;                                   //チャージマジックのダメージ
-		Vector3 chargeMagicKnockbackVelocity{0.0f, 30.0f, 10.0f};         //チャージマジックのノックバック速度
-		Vector3 chargeMagicKnockbackAcceleration{ 0.0f, -20.0f, -10.0f }; //チャージマジックのノックバック加速度
-		float chargeMagicKnockbackDuration = 2.0f;                        //チャージマジックのノックバク持続時間
+		float chargeTimeThreshold = 1.0f;                                 // チャージマジックのため時間
+		float cooldownTime = 0.6f;                                        // 通常魔法のクールタイム
+		float magicProjectileSpeed = 96.0f;                               // 魔法の速度
+		float normalMagicDamage = 4.0f;                                   // 通常魔法のダメージ
+		float chargeMagicDamage = 8.0f;                                   // チャージマジックのダメージ
+		Vector3 chargeMagicKnockbackVelocity{0.0f, 30.0f, 12.0f};         // チャージマジックのノックバック速度
+		Vector3 chargeMagicKnockbackAcceleration{ 0.0f, -20.0f, -10.0f }; // チャージマジックのノックバック加速度
+		float chargeMagicKnockbackDuration = 2.0f;                        // チャージマジックのノックバク持続時間
 	};
 
 	void Initialize() override;

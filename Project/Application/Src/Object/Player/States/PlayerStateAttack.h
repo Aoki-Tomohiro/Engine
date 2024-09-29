@@ -22,6 +22,7 @@ public:
 		kDash,
 		kLaunchAttack,
 		kSpinAttack,
+		kFallingAttack,
 	};
 
 	//攻撃用ワーク

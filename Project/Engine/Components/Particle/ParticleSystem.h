@@ -4,7 +4,7 @@
 #include "AccelerationField.h"
 #include "GravityField.h"
 #include "Engine/Base/RWStructuredBuffer.h"
-#include "Engine/3D/Model/Model.h"
+#include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Camera/Camera.h"
 
 class ParticleSystem

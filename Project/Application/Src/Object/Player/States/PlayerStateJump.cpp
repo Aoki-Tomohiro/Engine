@@ -3,8 +3,11 @@
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -76,17 +79,30 @@ void PlayerStateJump::Update()
 		//通常状態に遷移
 		player_->ChangeState(new PlayerStateRoot());
 	}
-	//Bボタンを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	//Aボタンを押していなかった場合
+	else if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
 	{
-		//ダッシュ状態に遷移
-		player_->ChangeState(new PlayerStateDash());
+		//Bボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+		{
+			//ダッシュ状態に遷移
+			player_->ChangeState(new PlayerStateDash());
+		}
+		//Xボタンを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			//攻撃状態に遷移
+			player_->ChangeState(new PlayerStateAttack());
+		}
 	}
-	//Xボタンを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	//Aボタンを押していた場合
+	else
 	{
-		//攻撃状態に遷移
-		player_->ChangeState(new PlayerStateAttack());
+		//落下攻撃状態に遷移
+		if (input_->IsPressButton(XINPUT_GAMEPAD_X))
+		{
+			player_->ChangeState(new PlayerStateFallingAttack());
+		}
 	}
 }
 
@@ -96,7 +112,17 @@ void PlayerStateJump::OnCollision(GameObject* other)
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
 		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, true);
+		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
 	}
 }
 

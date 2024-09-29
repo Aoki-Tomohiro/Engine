@@ -5,33 +5,8 @@
 
 void ParticleSystem::Initialize()
 {
-	//モデルデータ
-	Model::ModelData modelData{};
-
-	//メッシュデータ
-	Mesh::MeshData meshData{};
-	meshData.vertices.resize(4);
-	meshData.vertices[0] = { {-1.0f,1.0f,0.0f,1.0f},{0.0f,1.0f},{-1.0f,-1.0f,-1.0f} };
-	meshData.vertices[1] = { {-1.0f,-1.0f,0.0f,1.0f},{0.0f,0.0f},{-1.0f,-1.0f,-1.0f} };
-	meshData.vertices[2] = { {1.0f,1.0f,0.0f,1.0f},{1.0f,1.0f},{-1.0f,-1.0f,-1.0f} };
-	meshData.vertices[3] = { {1.0f,-1.0f,0.0f,1.0f},{1.0f,0.0f},{-1.0f,-1.0f,-1.0f} };
-	meshData.indices.resize(6);
-	meshData.indices[0] = 0;
-	meshData.indices[1] = 1;
-	meshData.indices[2] = 2;
-	meshData.indices[3] = 1;
-	meshData.indices[4] = 3;
-	meshData.indices[5] = 2;
-	meshData.materialIndex = 0;
-	modelData.skinClusterData.push_back(std::map<std::string, Model::JointWeightData>());
-	modelData.meshData.push_back(meshData);
-
-	//マテリアルデータ
-	modelData.materialData.push_back(Material::MaterialData());
-
 	//モデルの作成
-	defaultModel_ = std::make_unique<Model>();
-	defaultModel_->Initialize(modelData, Transparent);
+	defaultModel_.reset(ModelManager::CreateFromModelFile("Plane", Transparent));
 	defaultModel_->GetMaterial(0)->SetTexture("DefaultParticle.png");
 
 	//ParticleResourceの作成

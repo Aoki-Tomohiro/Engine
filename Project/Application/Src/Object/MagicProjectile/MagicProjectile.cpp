@@ -33,11 +33,11 @@ void MagicProjectile::Update()
 	//移動処理
 	UpdateMovement();
 
-	//エミッターの座標を更新
-	UpdateEmitterPosition();
+	//エミッターの更新
+	UpdateMoveEmitter();
 
-	//パーティクルの初期速度を更新
-	UpdateParticleEmitterVelocity();
+	//コライダーの更新
+	UpdateCollider();
 
 	//フィールド外に出たら破壊
 	CheckOutOfBounds();
@@ -80,9 +80,10 @@ void MagicProjectile::InitializeTransform()
 void MagicProjectile::InitializeModel()
 {
 	//モデルコンポーネントを取得し、シャドウのキャストを無効化
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	Model* model = modelComponent->GetModel();
+	ModelComponent* modelComponent = AddComponent<ModelComponent>();
+	Model* model = ModelManager::CreateFromModelFile("Sphere", Opaque);
 	model->SetCastShadows(false);
+	modelComponent->SetModel(model);
 
 	//マテリアルの初期化
 	for (size_t i = 0; i < model->GetNumMaterials(); ++i)
@@ -97,7 +98,7 @@ void MagicProjectile::InitializeModel()
 void MagicProjectile::InitializeCollider()
 {
 	//コライダーの初期化
-	SphereCollider* sphereCollider = GetComponent<SphereCollider>();
+	SphereCollider* sphereCollider = AddComponent<SphereCollider>();
 	sphereCollider->SetCollisionEnabled(true);
 	sphereCollider->SetCollisionAttribute(CollisionAttributeManager::GetInstance()->GetAttribute("PlayerWeapon"));
 	sphereCollider->SetCollisionMask(CollisionAttributeManager::GetInstance()->GetMask("PlayerWeapon"));
@@ -107,6 +108,11 @@ void MagicProjectile::InitializeParticleSystem()
 {
 	//パーティクルシステムの初期化とエミッターの作成
 	particleSystem_ = ParticleManager::Create("MagicProjectile");
+	CreateMoveEmitter();
+}
+
+void MagicProjectile::CreateMoveEmitter()
+{
 	emitter_ = EmitterBuilder()
 		.SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f })
 		.SetCount(20)
@@ -127,6 +133,21 @@ void MagicProjectile::UpdateMovement()
 	//移動処理
 	TransformComponent* transformComponent = GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_ += velocity_ * GameTimer::GetDeltaTime();
+}
+
+void MagicProjectile::UpdateMoveEmitter()
+{
+	//エミッターが存在しなければ生成する
+	if (!particleSystem_->GetParticleEmitter("MoveMagicProjectile" + std::to_string(id_)))
+	{
+		CreateMoveEmitter();
+	}
+
+	//エミッターの座標を更新
+	UpdateEmitterPosition();
+
+	//パーティクルの初期速度を更新
+	UpdateParticleEmitterVelocity();
 }
 
 void MagicProjectile::UpdateEmitterPosition()
@@ -178,6 +199,12 @@ void MagicProjectile::CheckOutOfBounds()
 	}
 }
 
+void MagicProjectile::UpdateCollider()
+{
+	SphereCollider* sphereCollider = GetComponent<SphereCollider>();
+	sphereCollider->SetCollisionEnabled(true);
+}
+
 void MagicProjectile::CreateDestoryParticles()
 {
 	//トランスフォームを取得
@@ -185,8 +212,8 @@ void MagicProjectile::CreateDestoryParticles()
 
 	//ヒットエフェクト
 	ParticleEmitter* hitNewEmitter = EmitterBuilder()
-		.SetEmitterName("Hit")
-		.SetEmitterLifeTime(1.0f)
+		.SetEmitterName("Hit" + std::to_string(id_))
+		.SetEmitterLifeTime(0.01f)
 		.SetTranslation(transformComponent->worldTransform_.translation_)
 		.SetCount(200)
 		.SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
@@ -201,9 +228,6 @@ void MagicProjectile::CreateDestoryParticles()
 
 void MagicProjectile::DeleteMagicProjectile()
 {
-	//カウンターを減らす
-	counter--;
-
 	//破壊フラグを立てる
 	SetIsDestroy(true);
 
@@ -211,5 +235,9 @@ void MagicProjectile::DeleteMagicProjectile()
 	CreateDestoryParticles();
 
 	//エミッターを削除
-	emitter_->SetIsDead(true);
+	emitter_->SetCount(0);
+
+	//衝突判定をなくす
+	SphereCollider* sphereCollider = GetComponent<SphereCollider>();
+	sphereCollider->SetCollisionEnabled(false);
 }

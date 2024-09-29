@@ -29,6 +29,8 @@ private:
 
 	void HandleCurrentPhase(Weapon* weapon);
 
+	void ChargeUpdate();
+
 	void AttackUpdate(Weapon* weapon);
 
 private:
@@ -38,11 +40,14 @@ private:
 	//フェーズのインデックス
 	int32_t phaseIndex_ = 0;
 
+	//開始座標
+	Vector3 startPosition_{};
+
+	//終了座標
+	Vector3 endPosition_{};
+
 	//速度
 	Vector3 velocity_{};
-
-	//移動が終了しているかどうか
-	bool isMovementFinished = false;
 
 	//攻撃がヒットしたかどうか
 	bool isHit_ = false;

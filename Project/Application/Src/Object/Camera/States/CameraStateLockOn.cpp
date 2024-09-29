@@ -3,6 +3,7 @@
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLaunchAttack.h"
+#include "Application/Src/Object/Camera/States/CameraStateFallingAttack.h"
 #include "Application/Src/Object/Player/Player.h"
 
 void CameraStateLockon::Initialize()
@@ -174,5 +175,10 @@ void CameraStateLockon::ManageCameraStateTransition(const Player* player)
     else if (player->GetActionFlag(Player::ActionFlag::kLaunchAttack))
     {
         cameraController_->ChangeState(new CameraStateLaunchAttack());
+    }
+    //プレイヤーが落下攻撃中であれば、落下攻撃カメラに切り替え
+    else if (player->GetActionFlag(Player::ActionFlag::kFallingAttack))
+    {
+        cameraController_->ChangeState(new CameraStateFallingAttack());
     }
 }

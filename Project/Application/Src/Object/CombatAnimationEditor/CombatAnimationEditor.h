@@ -7,6 +7,13 @@
 #include <fstream>
 #include <Engine/Externals/nlohmann/json.hpp>
 
+//リアクションのタイプ
+enum class ReactionType
+{
+	Flinch,     // のけぞり
+	Knockback,  // 強力な攻撃で後方に吹き飛ばされる
+};
+
 //攻撃に関する設定をまとめる構造体
 struct AttackSettings
 {
@@ -26,9 +33,10 @@ struct Hitbox
 //ノックバックとその関連設定をまとめる構造体
 struct KnockbackSettings
 {
-	Vector3 knockbackVelocity{};     //ノックバックの速度
-	Vector3 knockbackAcceleration{}; //ノックバックの加速度
-	float knockbackDuration = 0.0f;  //ノックバックの持続時間
+	Vector3 knockbackVelocity{};                       // ノックバックの速度
+	Vector3 knockbackAcceleration{};                   // ノックバックの加速度
+	float knockbackDuration = 0.0f;                    // ノックバックの持続時間
+	ReactionType reactionType_ = ReactionType::Flinch; // リアクションのタイプ
 };
 
 //攻撃の効果をまとめる構造体
@@ -73,6 +81,10 @@ private:
 	void LoadConfigFile();
 
 	void SaveConfigFile();
+
+	const std::string ReactionTypeToString(const ReactionType& type) const;
+
+	const ReactionType StringToReactionType(const std::string& str) const;
 
 private:
 	//アニメーション状態とそれに関連するフェーズを管理するコンテナ

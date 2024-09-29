@@ -4,6 +4,8 @@
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateAttack.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateLaunchAttack::Initialize()
 {
@@ -47,7 +49,17 @@ void PlayerStateLaunchAttack::OnCollision(GameObject* other)
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
 		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, false);
+		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), false);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), false);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), false);
 	}
 }
 

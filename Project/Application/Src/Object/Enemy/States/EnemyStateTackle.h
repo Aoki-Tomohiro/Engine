@@ -44,7 +44,7 @@ private:
 	Vector3 velocity_{};
 
 	//移動が終了しているかどうか
-	bool isMovementFinished = false;              
+	bool isMovementFinished = false;
 
 	//攻撃がヒットしたかどうか
 	bool isHit_ = false;

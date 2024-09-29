@@ -44,7 +44,7 @@ void CameraStateLaunchAttack::UpdateCameraTransform(const CameraKeyFrame& keyFra
 	cameraController_->SetDestinationOffset(keyFrame.position);
 
 	//キーフレームの回転情報を基にカメラの回転を設定
-	cameraController_->SetDestinationQuaternion(keyFrame.rotation * player->GetDestinationQuaternion());
+	cameraController_->SetDestinationQuaternion(player->GetDestinationQuaternion() * keyFrame.rotation);
 
 	//キーフレームの視野角情報を基にカメラのFOVを設定
 	cameraController_->SetFov(keyFrame.fov * (std::numbers::pi_v<float> / 180.0f));

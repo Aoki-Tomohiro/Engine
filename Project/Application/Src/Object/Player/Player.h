@@ -1,5 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/3D/Model/AnimationManager.h"
+#include "Engine/2D/Sprite.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
@@ -17,8 +19,6 @@
 #include "Application/Src/Object/Player/SkillCooldownManager.h"
 #include "Application/Src/Object/Player/States/IPlayerState.h"
 #include <numbers>
-
-class Weapon;
 
 class Player : public GameObject
 {
@@ -80,6 +80,7 @@ public:
         kDashAttackEnabled,            // ダッシュ攻撃状態かどうか
         kAerialAttack,                 // 空中攻撃状態かどうか
         kLaunchAttack,                 // 打ち上げ攻撃状態かどうか
+        kFallingAttack,                // 落下攻撃状態かどうか
     };
 
     //通常状態のパラメーター
@@ -101,7 +102,7 @@ public:
     //回避用のパラメーター
     struct DodgeParameters
     {
-        float dodgeDistance = 10.0f; // 回避距離
+        float dodgeSpeed = 32.0f; // 回避速度
     };
 
     //ダッシュ用のパラメーター
@@ -149,6 +150,9 @@ public:
     void OnCollisionEnter(GameObject* gameObject) override;
     void OnCollisionExit(GameObject* gameObject) override;
 
+    //リセット処理
+    void Reset() override;
+
     //状態遷移
     void ChangeState(IPlayerState* newState);
 
@@ -168,7 +172,7 @@ public:
     void CorrectAnimationOffset();
 
     //ダメージを食らった時の処理
-    void HandleIncomingDamage(const Weapon* weapon, const bool transitionToStun);
+    void HandleIncomingDamage(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
 
     //アニメーション操作
     void PlayAnimation(const std::string& name, float speed, bool loop);
@@ -271,10 +275,11 @@ private:
 
     //スプライトとUIの設定
     void InitializeUISprites();
-    void LoadAndCreateSprite(const std::string& textureFileName, std::unique_ptr<Sprite>& sprite, const Vector2& position, const Vector4& color);
     void SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config);
     void SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config);
     void UpdateHealthBar();
+    void UpdateHpBarMiddleSegment(int hpBarIndex, int middleSegmentIndex);
+    void UpdateHpBarRightSegmentPosition(int hpBarIndex, int middleSegmentIndex, int rightSegmentIndex);
     void DrawSkillUI(const SkillUISettings& uiSettings);
     void DrawButtonUI(const ButtonUISettings& uiSettings);
 
@@ -362,13 +367,14 @@ private:
 	const CombatAnimationEditor* combatAnimationEditor_ = nullptr;
 
 	//体力関連
-	const float kMaxHP = 100.0f;
-	float hp_ = kMaxHP;
-	std::unique_ptr<Sprite> hpSprite_ = nullptr;
-	std::unique_ptr<Sprite> hpFrameSprite_ = nullptr;
-	Vector2 hpSpritePosition_ = { 80.0f, 32.0f };
-	Vector2 hpSpriteSize_ = { 480.0f, 16.0f };
-	Vector2 hpFrameSpritePosition_ = { 79.0f, 31.0f };
+	const float kMaxHp = 100.0f;
+	float hp_ = kMaxHp;
+    std::array<std::array<std::unique_ptr<Sprite>, 3>, 2> hpBarSegments_{};
+    std::vector<std::vector<Vector2>> hpBarSegmentPositions_{
+        {{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f}},
+        {{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f}},
+    };
+    Vector2 hpBarSegmentTextureSize_ = { 480.0f,18.0f };
 
 	//デバッグ関連
 	bool isDebug_ = false;
@@ -377,7 +383,7 @@ private:
 	std::vector<std::string> animationName_ = {
 		"Idle", "Walk1", "Walk2", "Walk3", "Walk4", "Run1", "Run2", "Run3", "Run4", "Jump1", "Jump2", "Dodge1", "Dodge2", "Dodge3", "Dodge4",
 		"DashStart", "DashEnd", "Falling", "GroundAttack1", "GroundAttack2", "GroundAttack3", "GroundAttack4", "AerialAttack1", "AerialAttack2", "AerialAttack3",
-		"LaunchAttack", "SpinAttack",
+		"LaunchAttack", "SpinAttack", "FallingAttack", "DodgeForward"
 	};
 
 	//UI関連

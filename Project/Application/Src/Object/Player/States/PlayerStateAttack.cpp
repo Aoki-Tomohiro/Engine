@@ -6,9 +6,12 @@
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateLaunchAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateSpinAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateAttack::Initialize()
 {
@@ -58,7 +61,29 @@ void PlayerStateAttack::OnCollision(GameObject* other)
 		CorrectPlayerPosition();
 
 		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, true);
+		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(other))
+	{
+		//アニメーションを停止
+		player_->StopAnimation();
+
+		//プレイヤーの位置をアニメーション後の位置に補正
+		CorrectPlayerPosition();
+
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
+	{
+		//アニメーションを停止
+		player_->StopAnimation();
+
+		//プレイヤーの位置をアニメーション後の位置に補正
+		CorrectPlayerPosition();
+
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
 	}
 }
 
@@ -66,8 +91,10 @@ void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)
 {
 	//アニメーションの名前を設定
 	std::string animationName = (isAerial ? "AerialAttack" : "GroundAttack") + std::to_string(workAttack_.comboIndex + 1);
+	//アニメーションの速度を設定
+	float animationSpeed = isAerial ? 3.0f : 2.4f;
 	//アニメーションを再生
-	player_->PlayAnimation(animationName, 2.4f, false);
+	player_->PlayAnimation(animationName, animationSpeed, false);
 }
 
 void PlayerStateAttack::LoadAnimationStates(const bool isAerial)
@@ -120,15 +147,26 @@ void PlayerStateAttack::EvaluateComboProgress()
 		}
 		else
 		{
-			//攻撃ボタンをトリガーしたら
-			if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+			if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
 			{
-				EnableCombo(kNormalCombo);
+				//攻撃ボタンをトリガーしたら
+				if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+				{
+					EnableCombo(kNormalCombo);
+				}
+				//ダッシュボタンをトリガーしたら
+				else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+				{
+					EnableCombo(kDash);
+				}
 			}
-			//ダッシュボタンをトリガーしたら
-			else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+			//落下攻撃
+			else
 			{
-				EnableCombo(kDash);
+				if (input_->IsPressButton(XINPUT_GAMEPAD_X) && player_->GetPosition().y != 0.0f)
+				{
+					EnableCombo(kFallingAttack);
+				}
 			}
 		}
 	}
@@ -150,15 +188,26 @@ void PlayerStateAttack::UpdateComboStateWithoutTrigger()
 
 void PlayerStateAttack::UpdateComboStateBasedOnButtonPress()
 {
-	//打ち上げ攻撃
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack))
+	if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
 	{
-		EnableCombo(kLaunchAttack);
+		//打ち上げ攻撃
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
+		{
+			EnableCombo(kLaunchAttack);
+		}
+		//回転攻撃
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+		{
+			EnableCombo(kSpinAttack);
+		}
 	}
-	//回転攻撃
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+	//落下攻撃
+	else
 	{
-		EnableCombo(kSpinAttack);
+		if (input_->IsPressButton(XINPUT_GAMEPAD_X) && player_->GetPosition().y != 0.0f)
+		{
+			EnableCombo(kFallingAttack);
+		}
 	}
 }
 
@@ -390,20 +439,18 @@ void PlayerStateAttack::HandleComboTransition()
 	{
 	case kNormalCombo:
 		HandleNormalComboTransition();
-
 		break;
 	case kDash:
 		player_->ChangeState(new PlayerStateDash());
-
 		break;
-
 	case kLaunchAttack:
 		player_->ChangeState(new PlayerStateLaunchAttack());
-
 		break;
 	case kSpinAttack:
 		player_->ChangeState(new PlayerStateSpinAttack());
-
+		break;
+	case kFallingAttack:
+		player_->ChangeState(new PlayerStateFallingAttack());
 		break;
 	}
 }

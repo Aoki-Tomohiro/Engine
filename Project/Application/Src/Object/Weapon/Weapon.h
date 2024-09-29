@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
@@ -47,7 +48,11 @@ public:
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
 private:
-	void UpdateObjectNameFromCollider();
+	void InitializeModel();
+
+	void InitializeCollider();
+
+	void InitializeParticleSystem();
 
 	void CreateAccelerationField();
 

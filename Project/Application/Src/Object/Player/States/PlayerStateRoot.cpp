@@ -8,6 +8,8 @@
 #include "Application/Src/Object/Player/States/PlayerStateSpinAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 //現在のアニメーションの名前を保持するための変数
 std::string PlayerStateRoot::currentAnimation_ = "Idle";
@@ -20,7 +22,8 @@ void PlayerStateRoot::Initialize()
 	//アニメーションブレンドを有効化する
 	player_->SetIsAnimationBlending(true);
 
-	//アニメーションを再生
+	//現在のアニメーションを初期化
+	currentAnimation_ = "Idle";
 	player_->PlayAnimation(currentAnimation_, 1.0f, true);
 }
 
@@ -29,7 +32,14 @@ void PlayerStateRoot::Update()
 	//ゲームが終了していたら処理を飛ばす
 	if (player_->GetIsGameFinished())
 	{
-		player_->PlayAnimation("Idle", 1.0f, true);
+		//現在のアニメーションが通常状態ではない場合
+		if (currentAnimation_ != "Idle")
+		{
+			//現在のアニメーションを通常状態に変更
+			currentAnimation_ = "Idle";
+			//歩きの閾値を超えていない場合は待機アニメーションを設定
+			player_->PlayAnimation("Idle", 1.0f, true);
+		}
 		return;
 	}
 
@@ -71,7 +81,17 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
 		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, true);
+		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
 	}
 }
 
@@ -215,7 +235,7 @@ void PlayerStateRoot::ProcessStateTransition()
 	else
 	{
 		//Xボタンを押したとき
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack))
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
 		{
 			//打ち上げ攻撃状態に遷移
 			player_->ChangeState(new PlayerStateLaunchAttack());

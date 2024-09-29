@@ -1,8 +1,6 @@
 #include "Orb.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Components/Transform/TransformComponent.h"
-#include "Engine/Components/Model/ModelComponent.h"
-#include "Engine/Components/Collision/SphereCollider.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 
@@ -170,9 +168,10 @@ void Orb::InitializeTransform()
 void Orb::InitializeModel()
 {
 	//モデルコンポーネントを取得し、シャドウのキャストを無効化
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
-	Model* model = modelComponent->GetModel();
+	ModelComponent* orbModelComponent = AddComponent<ModelComponent>();
+	Model* model = ModelManager::CreateFromModelFile("Orb", Opaque);
 	model->SetCastShadows(false);
+	orbModelComponent->SetModel(model);
 
 	//マテリアルの初期化
 	for (size_t i = 0; i < model->GetNumMaterials(); ++i)
@@ -253,6 +252,7 @@ void Orb::AddMagicProjectile(MagicProjectile::MagicType type)
 		knockbackSettings.knockbackVelocity = Mathf::RotateVector(magicAttackParameters_.chargeMagicKnockbackVelocity, player->GetDestinationQuaternion());
 		knockbackSettings.knockbackAcceleration = Mathf::RotateVector(magicAttackParameters_.chargeMagicKnockbackAcceleration, player->GetDestinationQuaternion());
 		knockbackSettings.knockbackDuration = magicAttackParameters_.chargeMagicKnockbackDuration;
+		knockbackSettings.reactionType_ = ReactionType::Knockback;
 	}
 
 	//ダメージを設定
@@ -268,11 +268,11 @@ void Orb::AddMagicProjectile(MagicProjectile::MagicType type)
 	//トランスフォームの初期化
 	InitializeMagicProjectileTransform(magicProjectile);
 
-	//モデルコンポーネントを追加
-	InitializeMagicProjectileModel(magicProjectile);
+	////モデルコンポーネントを追加
+	//InitializeMagicProjectileModel(magicProjectile);
 
-	//コライダーを追加
-	InitializeMagicProjectileCollider(magicProjectile);
+	////コライダーを追加
+	//InitializeMagicProjectileCollider(magicProjectile);
 }
 
 Vector3 Orb::CalculateMagicProjectileVelocity()
@@ -309,18 +309,19 @@ void Orb::InitializeMagicProjectileTransform(MagicProjectile* magicProjectile)
 	TransformComponent* transformComponent = magicProjectile->GetComponent<TransformComponent>();
 	transformComponent->worldTransform_.translation_ = orbTransformComponent->GetWorldPosition();
 	transformComponent->worldTransform_.quaternion_ = player->GetDestinationQuaternion();
+	transformComponent->Update();
 }
 
-void Orb::InitializeMagicProjectileModel(MagicProjectile* magicProjectile)
-{
-	//魔法のモデルコンポーネントを初期化
-	ModelComponent* modelComponent = magicProjectile->AddComponent<ModelComponent>();
-	modelComponent->SetModel(ModelManager::CreateFromModelFile("Sphere", Opaque));
-}
-
-void Orb::InitializeMagicProjectileCollider(MagicProjectile* magicProjectile)
-{
-	//魔法のコライダーを初期化
-	SphereCollider* sphereCollider = magicProjectile->AddComponent<SphereCollider>();
-	sphereCollider->SetCollisionEnabled(false);
-}
+//void Orb::InitializeMagicProjectileModel(MagicProjectile* magicProjectile)
+//{
+//	//魔法のモデルコンポーネントを初期化
+//	ModelComponent* modelComponent = magicProjectile->AddComponent<ModelComponent>();
+//	modelComponent->SetModel(ModelManager::CreateFromModelFile("Sphere", Opaque));
+//}
+//
+//void Orb::InitializeMagicProjectileCollider(MagicProjectile* magicProjectile)
+//{
+//	//魔法のコライダーを初期化
+//	SphereCollider* sphereCollider = magicProjectile->AddComponent<SphereCollider>();
+//	sphereCollider->SetCollisionEnabled(false);
+//}

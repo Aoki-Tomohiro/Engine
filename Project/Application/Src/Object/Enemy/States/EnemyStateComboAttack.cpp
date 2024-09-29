@@ -8,7 +8,7 @@
 
 void EnemyStateComboAttack::Initialize()
 {
-	//タックルアタックアニメーションを再生する
+	//コンボ攻撃アニメーションを再生する
 	enemy_->PlayAnimation("ComboAttack", 1.0f, false);
 
 	//アニメーションの状態を取得して設定

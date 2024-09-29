@@ -2,17 +2,18 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/RandomGenerator.h"
 #include "Application/Src/Object/Enemy/States/IEnemyState.h"
+#include <optional>
 
 class EnemyStateRoot : public IEnemyState
 {
 public:
-	//近距離の行動
-	enum CloseRangeAction
+	//移動状態
+	enum class MovementBehavior
 	{
-		kTackle,
-		kJumpAttack,
-		kComboAttack,
-		kMaxCloseRangeActions
+		kIdle,
+		kTowardsPlayer,
+		kRetreat,
+		kSideways,
 	};
 
 	void Initialize() override;
@@ -22,25 +23,57 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	void UpdatePositionAndAnimation();
+	void UpdateActionTimer();
 
-	void MoveTowardsPlayer(const Vector3& direction);
+	void PerformActionBasedOnDistance();
 
-	void PlayIdleAnimationIfNotPlaying();
+	void HandleCloseRangeAttack(float distanceToPlayer, float stopDistance);
 
-	void PlayAnimationIfNotPlaying(const std::string& animationName);
+	void HandleRangedAttack();
+
+	void PerformApproachAction(const int action);
+
+	void PerformCloseRangeAttack(const int attack);
+
+	void PerformRangedAttack(const int attack);
+
+	void ResetBlendDurationAfterAnimation(float defaultBlendDuration);
 
 	void RotateTowardsPlayer();
 
-	void PerformNextAction();
+	void InitializeMovementBehavior();
 
-	int ChooseNextAction() const;
+	void UpdateMovementBehavior();
 
-	void ExecuteAction(int action);
+	void InitializeIdle();
+
+	void UpdateIdle();
+
+	void InitializeTowardsPlayer();
+
+	void UpdateTowardsPlayer();
+
+	void InitializeRetreat();
+
+	void UpdateRetreat();
+
+	void InitializeSideways();
+
+	void UpdateSideways();
+
+	void ResetWaitTimeBeforeMovement();
+
+	void UpdateWaitTimeAndRequestMovement(const MovementBehavior& behavior);
 
 private:
-	//前のアクション状態
-	static int preAction_;
+	//振る舞い
+	MovementBehavior behavior_ = MovementBehavior::kIdle;
+
+	//次の振る舞い
+	MovementBehavior nextBehavior_ = MovementBehavior::kIdle;
+
+	//次のふるまいのリクエスト
+	std::optional<MovementBehavior> behaviorRequest_ = std::nullopt;
 
 	//現在のアニメーション
 	std::string currentAnimation_ = "Idle";
@@ -48,16 +81,19 @@ private:
 	//速度
 	Vector3 velocity_{};
 
+	//横移動の方向
+	float horizontalMovementDirection_ = 1.0f;
+
 	//現在の次の行動の間隔
 	float currentActionInterval_ = 0.0f;
 
 	//アクションタイマー
 	float actionTimer_ = 0.0f;
 
-	//現在の選択中の状態
-	int currentItem_ = kMaxCloseRangeActions;
+	//接近前の待機時間
+	float currentWaitTimeBeforeMovement_ = 0.0f;
 
-	//次のアクションが有効かどうか
-	bool isActionCooldownComplete = false;
+	//接近前の待機タイマー
+	float waitTimeBeforeMovementTimer_ = 0.0f;
 };
 

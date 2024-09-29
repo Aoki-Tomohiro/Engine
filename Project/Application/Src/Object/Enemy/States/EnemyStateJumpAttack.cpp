@@ -1,5 +1,6 @@
 #include "EnemyStateJumpAttack.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
@@ -12,6 +13,13 @@ void EnemyStateJumpAttack::Initialize()
 
 	//アニメーションの状態を取得して設定
 	animationState_ = enemy_->GetCombatAnimationEditor()->GetAnimationState("JumpAttack");
+
+	//移動開始座標を設定
+	startPosition_ = enemy_->GetPosition();
+
+	//移動終了座標を設定
+	endPosition_ = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	endPosition_.y = enemy_->GetJumpAttackParameters().heightOffset_;
 
 	//武器に初期パラメータを適用
 	ApplyParametersToWeapon();
@@ -78,7 +86,7 @@ void EnemyStateJumpAttack::UpdateAnimationPhase(Weapon* weapon, float currentAni
 void EnemyStateJumpAttack::UpdateVelocityForCurrentPhase()
 {
 	//現在のフェーズに基づいて速度を更新
-	velocity_ = Mathf::RotateVector({ 0.0f, 0.0f, animationState_.phases[phaseIndex_].attackSettings.moveSpeed }, enemy_->GetDestinationQuaternion());
+	velocity_ = { 0.0f,animationState_.phases[phaseIndex_].attackSettings.moveSpeed ,0.0f };
 }
 
 void EnemyStateJumpAttack::ApplyParametersToWeapon()
@@ -109,6 +117,8 @@ void EnemyStateJumpAttack::HandleCurrentPhase(Weapon* weapon)
 	switch (phaseIndex_)
 	{
 	case kCharge:
+		//チャージフェーズの処理
+		ChargeUpdate();
 		break;
 	case kAttack:
 		//攻撃フェーズの処理
@@ -121,8 +131,34 @@ void EnemyStateJumpAttack::HandleCurrentPhase(Weapon* weapon)
 	}
 }
 
+void EnemyStateJumpAttack::ChargeUpdate()
+{
+	//現在のアニメーション時間を取得
+	float currentAnimationTime = enemy_->GetIsBlendingCompleted() ? enemy_->GetCurrentAnimationTime() : enemy_->GetNextAnimationTime();
+
+	//イージング係数を計算
+	float easingParameter = std::min<float>(1.0f, currentAnimationTime / animationState_.phases[0].duration);
+
+	//イージングさせる
+	Vector3 easedPosition = startPosition_ + (endPosition_ - startPosition_) * Mathf::EaseInCubic(easingParameter);
+
+	//座標を設定
+	enemy_->SetPosition(easedPosition);
+}
+
 void EnemyStateJumpAttack::AttackUpdate(Weapon* weapon)
 {
+	//移動処理
+	enemy_->Move(velocity_);
+
+	//地面に埋まらないようにする
+	Vector3 movedPosition = enemy_->GetPosition();
+	if (movedPosition.y <= 0.0f)
+	{
+		movedPosition.y = 0.0f;
+		enemy_->SetPosition(movedPosition);
+	}
+
 	//攻撃がヒットしていない場合
 	if (!isHit_)
 	{

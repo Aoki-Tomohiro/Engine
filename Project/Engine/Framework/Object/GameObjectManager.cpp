@@ -66,9 +66,28 @@ void GameObjectManager::DrawUI()
 
 void GameObjectManager::Clear()
 {
+	//gameObjects_のすべてのオブジェクトをプールに戻す
+	for (auto& gameObject : gameObjects_)
+	{
+		ReleaseObjectToPool(std::move(gameObject));
+	}
+
+	//newGameObjectsBuffer_のすべてのオブジェクトをプールに戻す
+	for (auto& newGameObject : newGameObjectsBuffer_)
+	{
+		ReleaseObjectToPool(std::move(newGameObject));
+	}
+
+	//reusedObjectsBuffer_のすべてのオブジェクトをプールに戻す
+	for (auto& newGameObject : reusedObjectsBuffer_)
+	{
+		ReleaseObjectToPool(std::move(newGameObject));
+	}
+
+	//gameObjects_とnewGameObjectsBuffer_とreusedObjectsBuffer_をクリア
 	gameObjects_.clear();
 	newGameObjectsBuffer_.clear();
-	gameObjectPool_.clear();
+	reusedObjectsBuffer_.clear();
 }
 
 GameObject* GameObjectManager::CreateGameObject(const std::string& objectName)
@@ -84,10 +103,30 @@ GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objec
 
 	//ファクトリを使ってゲームオブジェクトを生成
 	GameObject* newGameObject = gameObjectFactory_->CreateGameObject(objectName);
-	newGameObject->SetGameObjectManager(this);
+
+	//オブジェクトプールから指定された型のオブジェクトを取得
+	auto it = gameObjectPool_.find(std::type_index(typeid(*newGameObject)));
+
+	//プールから再利用可能なオブジェクトが存在する場合
+	if (it != gameObjectPool_.end() && !it->second.empty())
+	{
+		delete newGameObject; // 新しいオブジェクトは不要
+		GameObject* reusedObject = it->second.front().release(); //プールからオブジェクトを取得
+		it->second.pop();
+
+		reusedObject->SetGameObjectManager(this);
+		reusedObject->SetIsDestroy(false);
+		reusedObjectsBuffer_.emplace_back(reusedObject);
+
+		return reusedObject; //再利用したオブジェクトを返す
+	}
+
+	//プールに再利用可能なオブジェクトがない場合、新規作成
 	newGameObject->AddComponent<TransformComponent>();
-	newGameObjectsBuffer_.emplace_back(std::unique_ptr<GameObject>(newGameObject));
-	return newGameObject;
+	newGameObject->SetGameObjectManager(this);
+	newGameObjectsBuffer_.emplace_back(newGameObject);
+
+	return newGameObject; //新規作成したオブジェクトを返す
 }
 
 void GameObjectManager::RemoveDestroyedObjects()
@@ -112,14 +151,25 @@ void GameObjectManager::InitializeNewObjects()
 	//新規ゲームオブジェクトを初期化
 	for (const auto& newGameObject : newGameObjectsBuffer_)
 	{
-		newGameObject->Initialize();
+		newGameObject->Initialize(); //新しく生成されたオブジェクトの初期化
 	}
 
-	//初期化された新規オブジェクトをゲームオブジェクトリストに追加
+	//プールから取得したゲームオブジェクトをリセット
+	for (const auto& reusedObject : reusedObjectsBuffer_)
+	{
+		reusedObject->Reset(); //プールから取得したオブジェクトのリセット
+	}
+
+	//両方のバッファをゲームオブジェクトリストに追加
 	gameObjects_.insert(gameObjects_.end(),
 		std::make_move_iterator(newGameObjectsBuffer_.begin()),
 		std::make_move_iterator(newGameObjectsBuffer_.end()));
 
-	//新規オブジェクトバッファをクリア
+	gameObjects_.insert(gameObjects_.end(),
+		std::make_move_iterator(reusedObjectsBuffer_.begin()),
+		std::make_move_iterator(reusedObjectsBuffer_.end()));
+
+	//両方のバッファをクリア
 	newGameObjectsBuffer_.clear();
+	reusedObjectsBuffer_.clear();
 }

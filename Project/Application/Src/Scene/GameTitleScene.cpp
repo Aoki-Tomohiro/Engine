@@ -33,19 +33,25 @@ void GameTitleScene::Initialize()
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
 	//タイトルシーンのフラグを設定
 	player->SetIsInTitleScene(true);
-	//アニメーターコンポーネントを追加
-	AnimatorComponent* animatorComponent = player->AddComponent<AnimatorComponent>();
-	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
-	animatorComponent->PlayAnimation("Idle", 1.0f, true);
+
+	//プレイヤーの武器の生成と設定
+	Weapon* playerWeapon = GameObjectManager::CreateGameObject<Weapon>();
+	playerWeapon->SetName("PlayerWeapon");
+	//トランスフォームの設定
+	TransformComponent* playerWeaponTransformComponent = playerWeapon->GetComponent<TransformComponent>();
+	playerWeaponTransformComponent->worldTransform_.parent_ = &player->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 
 	//敵を取得
 	Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>("");
 	//タイトルシーンのフラグを設定
 	enemy->SetIsInTitleScene(true);
-	//アニメーターコンポーネントを追加
-	animatorComponent = enemy->AddComponent<AnimatorComponent>();
-	animatorComponent->AddAnimation("Idle", AnimationManager::Create("Enemy/Animations/Idle.gltf"));
-	animatorComponent->PlayAnimation("Idle", 1.0f, true);
+
+	//敵の武器の生成と設定
+	Weapon* enemyWeapon = GameObjectManager::CreateGameObject<Weapon>();
+	enemyWeapon->SetName("EnemyWeapon");
+	//トランスフォームの設定
+	TransformComponent* enemyWeaponTransformComponent = enemyWeapon->GetComponent<TransformComponent>();
+	enemyWeaponTransformComponent->worldTransform_.parent_ = &enemy->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();

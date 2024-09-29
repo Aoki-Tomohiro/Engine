@@ -2,6 +2,7 @@
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
+#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 
 class PlayerStateDodge : public IPlayerState
 {
@@ -13,17 +14,9 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	void PlayDodgeAnimation(const Vector3& inputValue);
+	void SetupDodge(const std::string& animationName, const float animationSpeed);
 
-	void PlayDirectionalDodgeAnimation(const Vector3& inputValue);
-
-	Vector3 CalculateDodgeDistance(const Vector3& inputValue) const;
-
-	Vector3 CalculateFallbackDistance() const;
-
-	const float CalculateEasingParameter();
-
-	Vector3 InterpolatePosition(float easingParameter) const;
+	void UpdateAnimationPhase();
 
 	void FinalizeDodge();
 
@@ -31,16 +24,13 @@ private:
 	//インプット
 	Input* input_ = nullptr;
 
-	//イージングパラメーター
-	float easingParameter_ = 0.0f;
+	//速度
+	Vector3 velocity_{};
 
-	//開始座標
-	Vector3 startPosition_{};
+	//アニメーションの状態
+	CombatAnimationState animationState_{};
 
-	//目標座標
-	Vector3 targetPosition_{};
-
-	//現在の座標
-	Vector3 currentPosition_{};
+	//フェーズのインデックス
+	int32_t phaseIndex_ = 0;
 };
 

@@ -118,8 +118,13 @@ void Player::DrawUI()
 	}
 
 	//体力バーの描画
-	hpSprite_->Draw();
-	hpFrameSprite_->Draw();
+	for (int32_t i = 0; i < hpBarSegments_.size(); ++i)
+	{
+		for (int32_t j = 0; j < hpBarSegments_[i].size(); ++j)
+		{
+			hpBarSegments_[i][j]->Draw();
+		}
+	}
 
 	//ダメージエフェクトのスプライトを描画
 	damageEffectSprite_->Draw();
@@ -183,6 +188,26 @@ void Player::OnCollisionExit(GameObject* gameObject)
 {
 }
 
+void Player::Reset()
+{
+	//フラグのリセット
+	isDead_ = false;
+	isGameFinished_ = false;
+
+	//HPのリセット
+	hp_ = kMaxHp;
+
+	//Quaternionの初期化
+	destinationQuaternion_ = transform_->worldTransform_.quaternion_;
+
+	//タイトルシーンにいた場合はアニメーションブレンドを無効にする
+	bool isAnimationBlending = isInTitleScene_ ? false : true;
+	SetIsAnimationBlending(isAnimationBlending);
+
+	//状態の初期化
+	InitializeState();
+}
+
 void Player::ChangeState(IPlayerState* newState)
 {
 	//新しい状態の設定
@@ -204,12 +229,8 @@ void Player::ApplyKnockback()
 {
 	if (knockbackSettings_.knockbackDuration > 0.0f)
 	{
-		//現在の速度が逆向きにならないように加速度を調整
-		if (Mathf::Dot(knockbackSettings_.knockbackVelocity, knockbackSettings_.knockbackAcceleration) > 0.0f)
-		{
-			//速度と加速度の向きが逆の場合加速度をリセット
-			knockbackSettings_.knockbackAcceleration = { 0.0f,0.0f,0.0f };
-		}
+		//加速度を加算する前の速度を保存
+		Vector3 currentVelocity = knockbackSettings_.knockbackVelocity;
 
 		//重力加速度を考慮
 		Vector3 gravity = { 0.0f, jumpParameters_.gravityAcceleration, 0.0f };
@@ -220,6 +241,15 @@ void Player::ApplyKnockback()
 
 		//移動処理
 		Move(knockbackSettings_.knockbackVelocity);
+
+		//ノックバックの速度の符号が変わっていたら停止させる
+		bool velocityChangedSign = (currentVelocity.z >= 0.0f && knockbackSettings_.knockbackVelocity.z < 0.0f) || (currentVelocity.z < 0.0f && knockbackSettings_.knockbackVelocity.z >= 0.0f);
+		if (velocityChangedSign)
+		{
+			//ノックバックを停止
+			knockbackSettings_.knockbackVelocity = { 0.0f, 0.0f, 0.0f };
+			knockbackSettings_.knockbackAcceleration = { 0.0f,0.0f,0.0f };
+		}
 
 		//持続時間が終了したらノックバックを停止
 		if (knockbackSettings_.knockbackDuration <= 0.0f)
@@ -262,13 +292,13 @@ void Player::CorrectAnimationOffset()
 	SetPosition(GetPosition() - hipPositionOffset);
 }
 
-void Player::HandleIncomingDamage(const Weapon* weapon, const bool transitionToStun)
+void Player::HandleIncomingDamage(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
 {
 	//ノックバックの速度を設定
-	knockbackSettings_ = weapon->GetKnockbackSettings();
+	knockbackSettings_ = knockbackSettings;
 
 	//HPを減らす
-	hp_ -= weapon->GetDamage();
+	hp_ -= damage;
 
 	//ダメージの音を再生
 	audio_->PlayAudio(damageAudioHandle_, false, 0.2f);
@@ -530,7 +560,36 @@ void Player::InitializeModelComponent()
 
 void Player::InitializeAnimatorComponent()
 {
-	animator_ = GetComponent<AnimatorComponent>();
+	//アニメーターコンポーネントの追加とアニメーションの設定
+	animator_ = AddComponent<AnimatorComponent>();
+	animator_->AddAnimation("Idle", AnimationManager::Create("Player/Animations/Idle.gltf"));
+	animator_->AddAnimation("Walk1", AnimationManager::Create("Player/Animations/Walk1.gltf"));
+	animator_->AddAnimation("Walk2", AnimationManager::Create("Player/Animations/Walk2.gltf"));
+	animator_->AddAnimation("Walk3", AnimationManager::Create("Player/Animations/Walk3.gltf"));
+	animator_->AddAnimation("Walk4", AnimationManager::Create("Player/Animations/Walk4.gltf"));
+	animator_->AddAnimation("Run1", AnimationManager::Create("Player/Animations/Run1.gltf"));
+	animator_->AddAnimation("Run2", AnimationManager::Create("Player/Animations/Run2.gltf"));
+	animator_->AddAnimation("Run3", AnimationManager::Create("Player/Animations/Run3.gltf"));
+	animator_->AddAnimation("Run4", AnimationManager::Create("Player/Animations/Run4.gltf"));
+	animator_->AddAnimation("Jump1", AnimationManager::Create("Player/Animations/Jump1.gltf"));
+	animator_->AddAnimation("Jump2", AnimationManager::Create("Player/Animations/Jump2.gltf"));
+	animator_->AddAnimation("DodgeForward", AnimationManager::Create("Player/Animations/DodgeForward.gltf"));
+	animator_->AddAnimation("DodgeBackward", AnimationManager::Create("Player/Animations/DodgeBackward.gltf"));
+	animator_->AddAnimation("DashStart", AnimationManager::Create("Player/Animations/DashStart.gltf"));
+	animator_->AddAnimation("DashEnd", AnimationManager::Create("Player/Animations/DashEnd.gltf"));
+	animator_->AddAnimation("Falling", AnimationManager::Create("Player/Animations/Falling.gltf"));
+	animator_->AddAnimation("GroundAttack1", AnimationManager::Create("Player/Animations/GroundAttack1.gltf"));
+	animator_->AddAnimation("GroundAttack2", AnimationManager::Create("Player/Animations/GroundAttack2.gltf"));
+	animator_->AddAnimation("GroundAttack3", AnimationManager::Create("Player/Animations/GroundAttack3.gltf"));
+	animator_->AddAnimation("GroundAttack4", AnimationManager::Create("Player/Animations/GroundAttack4.gltf"));
+	animator_->AddAnimation("AerialAttack1", AnimationManager::Create("Player/Animations/AerialAttack1.gltf"));
+	animator_->AddAnimation("AerialAttack2", AnimationManager::Create("Player/Animations/AerialAttack2.gltf"));
+	animator_->AddAnimation("AerialAttack3", AnimationManager::Create("Player/Animations/AerialAttack3.gltf"));
+	animator_->AddAnimation("LaunchAttack", AnimationManager::Create("Player/Animations/LaunchAttack.gltf"));
+	animator_->AddAnimation("SpinAttack", AnimationManager::Create("Player/Animations/SpinAttack.gltf"));
+	animator_->AddAnimation("FallingAttack", AnimationManager::Create("Player/Animations/FallingAttack.gltf"));
+	animator_->AddAnimation("Impact", AnimationManager::Create("Player/Animations/Impact.gltf"));
+	animator_->AddAnimation("Death", AnimationManager::Create("Player/Animations/Death.gltf"));
 }
 
 void Player::InitializeColliderComponent()
@@ -540,8 +599,22 @@ void Player::InitializeColliderComponent()
 
 void Player::InitializeUISprites()
 {
-	LoadAndCreateSprite("HpBar.png", hpSprite_, hpSpritePosition_, { 0.0f, 1.0f, 0.0f, 1.0f });
-	LoadAndCreateSprite("HpBarFrame.png", hpFrameSprite_, hpFrameSpritePosition_, { 0.0f, 1.0f, 0.0f, 1.0f });
+	//テクスチャの名前
+	std::vector<std::vector<std::string>> textureNames = {
+		{"barBack_horizontalLeft.png","barBack_horizontalMid.png","barBack_horizontalRight.png"},
+		{"barRed_horizontalLeft.png","barRed_horizontalMid.png","barRed_horizontalRight.png"},
+	};
+
+	//テクスチャの読み込みとスプライトの生成
+	for (int32_t i = 0; i < hpBarSegments_.size(); ++i)
+	{
+		for (int32_t j = 0; j < hpBarSegments_[i].size(); ++j)
+		{
+			TextureManager::Load(textureNames[i][j]);
+			hpBarSegments_[i][j].reset(Sprite::Create(textureNames[i][j], hpBarSegmentPositions_[i][j]));
+		}
+	}
+	hpBarSegments_[0][1]->SetTextureSize(hpBarSegmentTextureSize_);
 
 	for (int32_t i = 0; i < kMaxButtons; ++i)
 	{
@@ -565,13 +638,6 @@ void Player::ConfigureGlobalVariables()
 	const char* groupName = "Player";
 	globalVariables->CreateGroup(groupName);
 	globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
-}
-
-void Player::LoadAndCreateSprite(const std::string& textureFileName, std::unique_ptr<Sprite>& sprite, const Vector2& position, const Vector4& color)
-{
-	TextureManager::Load(textureFileName);
-	sprite.reset(Sprite::Create(textureFileName, position));
-	sprite->SetColor(color);
 }
 
 void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)
@@ -627,7 +693,10 @@ void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConf
 void Player::UpdateRotation()
 {
 	//現在のクォータニオンと目的のクォータニオンを補間
-	transform_->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transform_->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+	if (!isInTitleScene_)
+	{
+		transform_->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transform_->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+	}
 }
 
 void Player::UpdateCollider()
@@ -676,9 +745,32 @@ void Player::UpdateHP()
 
 void Player::UpdateHealthBar()
 {
+	const int kFrontHpBarIndex = 1;
+	const int kBackHpBarIndex = 0;
+	const int kLeftSegmentIndex = 0;
+	const int kMiddleSegmentIndex = 1;
+	const int kRightSegmentIndex = 2;
+
+	//体力バーの中央部分のサイズを更新
+	UpdateHpBarMiddleSegment(kFrontHpBarIndex, kMiddleSegmentIndex);
+
+	//体力バーの右側部分の位置を調整
+	UpdateHpBarRightSegmentPosition(kFrontHpBarIndex, kMiddleSegmentIndex, kRightSegmentIndex);
+}
+
+void Player::UpdateHpBarMiddleSegment(int hpBarIndex, int middleSegmentIndex)
+{
 	//現在の体力バーのサイズを計算して設定
-	Vector2 currentHPSize = { hpSpriteSize_.x * (hp_ / kMaxHP), hpSpriteSize_.y };
-	hpSprite_->SetSize(currentHPSize);
+	Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / kMaxHp), hpBarSegmentTextureSize_.y };
+	hpBarSegments_[hpBarIndex][middleSegmentIndex]->SetTextureSize(currentHpSize);
+}
+
+void Player::UpdateHpBarRightSegmentPosition(int hpBarIndex, int middleSegmentIndex, int rightSegmentIndex)
+{
+	//右の体力バーの位置を調整
+	Vector2 currentRightHpBarSegmentPosition = hpBarSegments_[hpBarIndex][middleSegmentIndex]->GetPosition();
+	currentRightHpBarSegmentPosition.x += hpBarSegments_[hpBarIndex][middleSegmentIndex]->GetTextureSize().x;
+	hpBarSegments_[hpBarIndex][rightSegmentIndex]->SetPosition(currentRightHpBarSegmentPosition);
 }
 
 void Player::DrawSkillUI(const SkillUISettings& uiSettings)
@@ -698,7 +790,7 @@ void Player::UpdateVignetteEffects()
 {
 	//プレイヤーの体力が一定量以下になったらVignetteをかける
 	const float lowHealthThresholdRatio = 4.0f;
-	bool shouldEnableVignette = (hp_ <= kMaxHP / lowHealthThresholdRatio);
+	bool shouldEnableVignette = (hp_ <= kMaxHp / lowHealthThresholdRatio);
 	PostEffects::GetInstance()->GetVignette()->SetIsEnable(shouldEnableVignette);
 }
 

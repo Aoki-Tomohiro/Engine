@@ -8,13 +8,6 @@ void PlayerStateDodge::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーションブレンドを無効化する
-	player_->SetIsAnimationBlending(false);
-
-	//プレイヤーの現在の座標を設定
-	startPosition_ = player_->GetPosition();
-	currentPosition_ = startPosition_;
-
 	//スティックの入力を取得
 	Vector3 inputValue = {
 		input_->GetLeftStickX(),
@@ -22,49 +15,42 @@ void PlayerStateDodge::Initialize()
 		input_->GetLeftStickY(),
 	};
 
-	//回避動作を行うかどうかを判定
+	//スティック入力に応じて設定する
 	if (Mathf::Length(inputValue) > player_->GetRootParameters().walkThreshold)
 	{
-		//回避アニメーションの再生
-		PlayDodgeAnimation(inputValue);
+		//前方への回避
+		SetupDodge("DodgeForward", 2.4f);
 
-		//目標座標を設定
-		targetPosition_ = startPosition_ + CalculateDodgeDistance(inputValue);
+		//速度を設定
+		velocity_ = Mathf::Normalize(inputValue) * player_->GetDodgeParameters().dodgeSpeed;
+		velocity_ = Mathf::RotateVector(velocity_, player_->GetDestinationQuaternion());
+
+		//方向に応じてプレイヤーを回転させる
+		player_->Rotate(Mathf::Normalize(velocity_));
 	}
 	else
 	{
-		//後退アニメーションを再生
-		player_->PlayAnimation("Dodge2", 1.6f, false);
+		//後方への回避
+		SetupDodge("DodgeBackward", 2.0f);
 
-		//後退距離を計算して目標座標を設定
-		targetPosition_ = startPosition_ + CalculateFallbackDistance();
+		//速度を設定
+		velocity_ = Mathf::RotateVector({ 0.0f,0.0f,-1.0f }, player_->GetDestinationQuaternion()) * player_->GetDodgeParameters().dodgeSpeed;
 	}
-
-	// プレイヤーを水平方向に移動させるためY成分を0にして地面に合わせる
-	targetPosition_.y = 0.0f;
 }
 
 void PlayerStateDodge::Update()
 {
-	//イージングの係数を計算
-	float easingParameter = CalculateEasingParameter();
-
-	//移動後の座標を計算
-	Vector3 nextPosition = InterpolatePosition(easingParameter);
-
-	//次の位置と現在の位置の差を速度にする
-	Vector3 moveAmount = nextPosition - currentPosition_;
-
-	//現在位置を更新
-	currentPosition_ = nextPosition;
-
 	//アニメーションによる座標のずれを修正
 	player_->CorrectAnimationOffset();
 
-	//プレイヤーに座標を設定
-	TransformComponent* transformComponent = player_->GetComponent<TransformComponent>();
-	transformComponent->worldTransform_.translation_ += moveAmount;
-	player_->Move(moveAmount);
+	//アニメーションフェーズの更新
+	UpdateAnimationPhase();
+
+	//現在のフェーズが移動させる
+	if (animationState_.phases[phaseIndex_].name == "DodgeMove")
+	{
+		player_->Move(velocity_);
+	}
 
 	//アニメーションが終了した場合
 	if (player_->GetIsAnimationFinished())
@@ -76,65 +62,15 @@ void PlayerStateDodge::Update()
 
 void PlayerStateDodge::OnCollision(GameObject* other)
 {
-	//衝突相手が敵の場合
-	if (Enemy* enemy = dynamic_cast<Enemy*>(other))
-	{
-		easingParameter_ -= GameTimer::GetDeltaTime() * player_->GetCurrentAnimationSpeed();
-	}
 }
 
-void PlayerStateDodge::PlayDodgeAnimation(const Vector3& inputValue)
+void PlayerStateDodge::SetupDodge(const std::string& animationName, float animationSpeed)
 {
-	if (player_->GetLockon()->ExistTarget())
-	{
-		//ロックオン中の場合、入力方向に応じた回避アニメーションを再生
-		PlayDirectionalDodgeAnimation(inputValue);
-	}
-	else
-	{
-		//通常の前進回避アニメーションを再生
-		player_->PlayAnimation("Dodge1", 1.6f, false);
-	}
-}
+	//アニメーションの状態を取得して設定
+	animationState_ = player_->GetCombatAnimationEditor()->GetAnimationState(animationName);
 
-void PlayerStateDodge::PlayDirectionalDodgeAnimation(const Vector3& inputValue)
-{
-	//入力値の絶対値を取得
-	float horizontalValue = std::abs(inputValue.x);
-	float verticalValue = std::abs(inputValue.z);
-
-	//垂直方向の移動量が大きい場合前進または後退アニメーションを再生
-	if (verticalValue >= horizontalValue)
-	{
-		player_->PlayAnimation(inputValue.z > 0.0f ? "Dodge1" : "Dodge2", 1.6f, false);
-	}
-	//水平方向の移動量が大きい場合、左または右移動のアニメーションを再生
-	else
-	{
-		player_->PlayAnimation(inputValue.x < 0.0f ? "Dodge3" : "Dodge4", 1.6f, false);
-	}
-}
-
-Vector3 PlayerStateDodge::CalculateDodgeDistance(const Vector3& inputValue) const
-{
-	Vector3 distance = Mathf::Normalize(inputValue) * player_->GetDodgeParameters().dodgeDistance;
-	return Mathf::RotateVector(distance, player_->GetCamera()->quaternion_);
-}
-
-Vector3 PlayerStateDodge::CalculateFallbackDistance() const
-{
-	return Mathf::RotateVector(Vector3{ 0.0f, 0.0f, -player_->GetDodgeParameters().dodgeDistance }, player_->GetDestinationQuaternion());
-}
-
-const float PlayerStateDodge::CalculateEasingParameter()
-{
-	easingParameter_ += GameTimer::GetDeltaTime() * player_->GetCurrentAnimationSpeed();
-	return std::min<float>(1.0f, easingParameter_ / player_->GetCurrentAnimationDuration());
-}
-
-Vector3 PlayerStateDodge::InterpolatePosition(float easingParameter) const
-{
-	return startPosition_ + (targetPosition_ - startPosition_) * Mathf::EaseInOutSine(easingParameter);
+	//アニメーションの再生
+	player_->PlayAnimation(animationName, animationSpeed, false);
 }
 
 void PlayerStateDodge::FinalizeDodge()
@@ -148,4 +84,17 @@ void PlayerStateDodge::FinalizeDodge()
 
 	//通常状態に戻す
 	player_->ChangeState(new PlayerStateRoot());
+}
+
+void PlayerStateDodge::UpdateAnimationPhase()
+{
+	//現在のアニメーション時間を取得
+	float currentAnimationTime = player_->GetIsBlendingCompleted() ? player_->GetCurrentAnimationTime() : player_->GetNextAnimationTime();
+
+	//次のフェーズがあり現在のアニメーション時間が現在のフェーズの持続時間を超えた場合フェーズを進める
+	if (phaseIndex_ < animationState_.phases.size() - 1 && currentAnimationTime >= animationState_.phases[phaseIndex_].duration)
+	{
+		//フェーズを進める
+		phaseIndex_++;
+	}
 }

@@ -45,6 +45,9 @@ void CameraController::Update()
 		}
 	}
 
+	//補間速度の更新
+	UpdateInterpolationSpeed();
+
 	//オフセット値を更新
 	UpdateCameraOffset();
 
@@ -86,6 +89,12 @@ void CameraController::StartCameraShake(const Vector3& intensity, const float du
 {
 	//カメラシェイクを開始
 	cameraShake_->Start(intensity, duration);
+}
+
+void CameraController::StartInterpolationSpeedIncrease()
+{
+	isInterpolationSpeedIncreasing_ = true;
+	interpolationSpeedTimer_ = 0.0f;
 }
 
 const Vector3 CameraController::CalculateOffset() const
@@ -154,6 +163,36 @@ void CameraController::UpdateCameraTransform(const Quaternion& rotation, float f
 
 	//FOVを設定
 	camera_.fov_ = fovDegrees * std::numbers::pi_v<float> / 180.0f;
+}
+
+void CameraController::UpdateInterpolationSpeed()
+{
+	//補間速度を増加させるフラグが立っている場合
+	if (isInterpolationSpeedIncreasing_)
+	{
+		//タイマーを経過時間で更新
+		interpolationSpeedTimer_ += GameTimer::GetDeltaTime();
+
+		//タイマーを範囲内に制限
+		interpolationSpeedTimer_ = std::clamp(interpolationSpeedTimer_, 0.0f, remainingInterpolationTime_);
+
+		//イージングパラメータを計算
+		float easingParameter = interpolationSpeedTimer_ / remainingInterpolationTime_;
+
+		//補間速度を更新
+		offsetInterpolationSpeed_ = Mathf::Lerp(0.02f, 0.1f, easingParameter);
+		quaternionInterpolationSpeed_ = Mathf::Lerp(0.02f, 0.2f, easingParameter);
+
+		//タイマーが最大値に達した場合
+		if (interpolationSpeedTimer_ >= remainingInterpolationTime_)
+		{
+			//補間速度の増加フラグを折る
+			isInterpolationSpeedIncreasing_ = false;
+
+			//タイマーをリセット
+			interpolationSpeedTimer_ = 0.0f;
+		}
+	}
 }
 
 void CameraController::UpdateCameraPosition()

@@ -198,8 +198,8 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 		if (!modelComponent)
 		{
 			modelComponent = newObject->AddComponent<ModelComponent>();
+			modelComponent->SetModel(ModelManager::CreateFromModelFile(objectData.modelName, Opaque));
 		}
-		modelComponent->SetModel(ModelManager::CreateFromModelFile(objectData.modelName, Opaque));
 
 		//Typeが無かったらColliderがないとみなす
 		if (objectData.colliderData.type != "")
@@ -211,12 +211,12 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 				if (!collider)
 				{
 					collider = newObject->AddComponent<AABBCollider>();
+					collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+					collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
+					collider->SetCenter(objectData.colliderData.center);
+					collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
+					collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
 				}
-				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
-				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
-				collider->SetCenter(objectData.colliderData.center);
-				collider->SetMin({ -objectData.colliderData.size.x / 2.0f, -objectData.colliderData.size.y / 2.0f, -objectData.colliderData.size.z / 2.0f });
-				collider->SetMax({ objectData.colliderData.size.x / 2.0f, objectData.colliderData.size.y / 2.0f, objectData.colliderData.size.z / 2.0f });
 			}
 			else if (objectData.colliderData.type == "OBB")
 			{
@@ -224,12 +224,12 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 				if (!collider)
 				{
 					collider = newObject->AddComponent<OBBCollider>();
+					collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+					collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
+					collider->SetCenter(objectData.colliderData.center);
+					collider->SetSize(objectData.colliderData.size);
+					collider->SetOrientations({ 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f });
 				}
-				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
-				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
-				collider->SetCenter(objectData.colliderData.center);
-				collider->SetSize(objectData.colliderData.size);
-				collider->SetOrientations({ 1.0f,0.0f,0.0f }, { 0.0f,1.0f,0.0f }, { 0.0f,0.0f,1.0f });
 			}
 			else if (objectData.colliderData.type == "SPHERE")
 			{
@@ -237,11 +237,11 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 				if (!collider)
 				{
 					collider = newObject->AddComponent<SphereCollider>();
+					collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
+					collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
+					collider->SetCenter(objectData.colliderData.center);
+					collider->SetRadius(objectData.colliderData.radius);
 				}
-				collider->SetCollisionAttribute(collisionAttributeManager->GetAttribute(objectData.colliderData.attribute));
-				collider->SetCollisionMask(collisionAttributeManager->GetMask(objectData.colliderData.attribute));
-				collider->SetCenter(objectData.colliderData.center);
-				collider->SetRadius(objectData.colliderData.radius);
 			}
 		}
 	}

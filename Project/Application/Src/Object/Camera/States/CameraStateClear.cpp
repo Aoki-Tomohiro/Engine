@@ -63,6 +63,6 @@ void CameraStateClear::CheckAnimationCompletion()
 	else
 	{
 		//ゲームの進行を遅くする
-		GameTimer::SetTimeScale(0.2f);
+		GameTimer::SetTimeScale(0.1f);
 	}
 }

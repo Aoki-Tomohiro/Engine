@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
@@ -55,11 +56,17 @@ private:
 
 	void InitializeParticleSystem();
 
+	void CreateMoveEmitter();
+
 	void UpdateMovement();
+
+	void UpdateMoveEmitter();
 
 	void UpdateEmitterPosition();
 
 	void UpdateParticleEmitterVelocity();
+
+	void UpdateCollider();
 
 	void CheckOutOfBounds();
 

@@ -130,6 +130,12 @@ void CombatAnimationEditor::Update()
                         ImGui::DragFloat3("KnockbackVelocity", &phase.knockbackSettings.knockbackVelocity.x, 0.01f);
                         ImGui::DragFloat3("KnockbackAcceleration", &phase.knockbackSettings.knockbackAcceleration.x, 0.01f);
                         ImGui::DragFloat("KnockbackDuration", &phase.knockbackSettings.knockbackDuration, 0.01f);
+                        const char* reactionTypeItems[] = { "Flinch","Knockback" };
+                        int currentReactionIndex = static_cast<int>(phase.knockbackSettings.reactionType_);
+                        if (ImGui::Combo("ReactionType", &currentReactionIndex, reactionTypeItems, IM_ARRAYSIZE(reactionTypeItems)))
+                        {
+                            phase.knockbackSettings.reactionType_ = static_cast<ReactionType>(currentReactionIndex);
+                        }
                     }
 
                     //エフェクト設定の表示
@@ -234,6 +240,7 @@ void CombatAnimationEditor::LoadConfigFile()
             phase.knockbackSettings.knockbackAcceleration.y = phaseJson.at("KnockbackAcceleration")[1].get<float>();
             phase.knockbackSettings.knockbackAcceleration.z = phaseJson.at("KnockbackAcceleration")[2].get<float>();
             phase.knockbackSettings.knockbackDuration = phaseJson.value("KnockbackDuration", 0.0f);
+            phase.knockbackSettings.reactionType_ = StringToReactionType(phaseJson["ReactionType"]);
             phase.effectSettings.hitStopDuration = phaseJson.value("HitStopDuration", 0.0f);
             phase.effectSettings.cameraShakeDuration = phaseJson.value("CameraShakeDuration", 0.0f);
             phase.effectSettings.cameraShakeIntensity.x = phaseJson.at("CameraShakeIntensity")[0].get<float>();
@@ -266,6 +273,7 @@ void CombatAnimationEditor::SaveConfigFile()
             phaseJson["KnockbackVelocity"] = nlohmann::json::array({ phase.knockbackSettings.knockbackVelocity.x, phase.knockbackSettings.knockbackVelocity.y, phase.knockbackSettings.knockbackVelocity.z });
             phaseJson["KnockbackAcceleration"] = nlohmann::json::array({ phase.knockbackSettings.knockbackAcceleration.x, phase.knockbackSettings.knockbackAcceleration.y, phase.knockbackSettings.knockbackAcceleration.z });
             phaseJson["KnockbackDuration"] = phase.knockbackSettings.knockbackDuration;
+            phaseJson["ReactionType"] = ReactionTypeToString(phase.knockbackSettings.reactionType_);
             phaseJson["HitStopDuration"] = phase.effectSettings.hitStopDuration;
             phaseJson["CameraShakeDuration"] = phase.effectSettings.cameraShakeDuration;
             phaseJson["CameraShakeIntensity"] = nlohmann::json::array({ phase.effectSettings.cameraShakeIntensity.x, phase.effectSettings.cameraShakeIntensity.y, phase.effectSettings.cameraShakeIntensity.z });
@@ -282,4 +290,21 @@ void CombatAnimationEditor::SaveConfigFile()
     ofs << std::setw(4) << root << std::endl;
     //ファイルを閉じる
     ofs.close();
+}
+
+const std::string CombatAnimationEditor::ReactionTypeToString(const ReactionType& type) const
+{
+    switch (type)
+    {
+    case ReactionType::Flinch: return "Flinch";
+    case ReactionType::Knockback: return "Knockback";
+    default: return "Unknown";
+    }
+}
+
+const ReactionType CombatAnimationEditor::StringToReactionType(const std::string& str) const
+{
+    if (str == "Flinch") return ReactionType::Flinch;
+    if (str == "Knockback") return ReactionType::Knockback;
+    return ReactionType::Flinch;  //デフォルト値
 }

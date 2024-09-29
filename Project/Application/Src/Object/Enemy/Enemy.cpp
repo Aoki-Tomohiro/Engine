@@ -1,8 +1,4 @@
 #include "Enemy.h"
-#include "Engine/Components/Model/ModelComponent.h"
-#include "Engine/Components/Animator/AnimatorComponent.h"
-#include "Engine/Components/Collision/AABBCollider.h"
-#include "Engine/Components/Transform/TransformComponent.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateDeath.h"
 
@@ -11,37 +7,20 @@ void Enemy::Initialize()
     //基底クラスの初期化
     GameObject::Initialize();
 
+    //コンポーネントの初期化
+    InitializeTransformComponent();
+    InitializeModelComponent();
+    InitializeAnimatorComponent();
+    InitializeColliderComponent();
+
     //状態の初期化
-    ChangeState(new EnemyStateRoot());
+    InitializeState();
 
-    //トランスフォームコンポーネントを取得
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-    //回転の種類をQuaternionに設定
-    transformComponent->worldTransform_.rotationType_ = RotationType::Quaternion;
-    //Quaternionの初期化
-    destinationQuaternion_ = transformComponent->worldTransform_.quaternion_;
-
-    //モデルコンポーネントを取得
-    ModelComponent* modelComponent = GetComponent<ModelComponent>();
-    //全てのマテリアルの環境マップの映り込みの係数を設定
-    for (size_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
-    {
-        modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
-    }
-
-    //体力のスプライトの生成
-    TextureManager::Load("HpBar.png");
-    hpSprite_.reset(Sprite::Create("HpBar.png", hpSpritePosition_));
-    hpSprite_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
-    TextureManager::Load("HpBarFrame.png");
-    hpFrameSprite_.reset(Sprite::Create("HpBarFrame.png", hpFrameSpritePosition_));
-    hpFrameSprite_->SetColor({ 1.0f, 0.1f, 0.0f, 1.0f });
+    //HPスプライトの生成
+    InitializeHPSprites();
 
     //環境変数の設定
-    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-    const char* groupName = "Enemy";
-    globalVariables->CreateGroup(groupName);
-    globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
+    ConfigureGlobalVariables();
 }
 
 void Enemy::Update()
@@ -63,7 +42,7 @@ void Enemy::Update()
     UpdateCollider();
 
     //移動制限の処理
-    RestrictPlayerMovement(100.0f);
+    RestrictEnemyMovement(100.0f);
 
     //HPの更新
     UpdateHP();
@@ -92,9 +71,14 @@ void Enemy::Draw(const Camera& camera)
 
 void Enemy::DrawUI()
 {
-    //HPの描画
-    hpSprite_->Draw();
-    hpFrameSprite_->Draw();
+    //体力バーの描画
+    for (int32_t i = 0; i < hpBarSegments_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpBarSegments_[i].size(); ++j)
+        {
+            hpBarSegments_[i][j]->Draw();
+        }
+    }
 }
 
 void Enemy::OnCollision(GameObject* gameObject)
@@ -109,6 +93,32 @@ void Enemy::OnCollisionEnter(GameObject* gameObject)
 
 void Enemy::OnCollisionExit(GameObject* gameObject)
 {
+}
+
+void Enemy::Reset()
+{
+    //フラグのリセット
+    isDead_ = false;
+    isGameFinished_ = false;
+
+    //HPをリセット
+    hp_ = kMaxHp;
+
+    //タイムスケールをリセット
+    timeScale_ = 1.0f;
+
+    //Quaternionの初期化
+    destinationQuaternion_ = transform_->worldTransform_.quaternion_;
+
+    //タイトルシーンにいた場合はアニメーションブレンドを無効にする
+    bool isAnimationBlending = isInTitleScene_ ? false : true;
+    SetIsAnimationBlending(isAnimationBlending);
+
+    //アニメーションの再生
+    PlayAnimation("Idle", 1.0f, true);
+
+    //状態の初期化
+    InitializeState();
 }
 
 void Enemy::ChangeState(IEnemyState* newState)
@@ -156,12 +166,8 @@ void Enemy::ApplyKnockback()
 {
     if (knockbackSettings_.knockbackDuration > 0.0f)
     {
-        //現在の速度が逆向きにならないように加速度を調整
-        if (Mathf::Dot(knockbackSettings_.knockbackVelocity, knockbackSettings_.knockbackAcceleration) > 0.0f)
-        {
-            //速度と加速度の向きが逆の場合加速度をリセット
-            knockbackSettings_.knockbackAcceleration = { 0.0f,0.0f,0.0f };
-        }
+        //加速度を加算する前の速度を保存
+        Vector3 currentVelocity = knockbackSettings_.knockbackVelocity;
 
         //重力加速度を考慮
         Vector3 gravity = { 0.0f, gravityAcceleration, 0.0f };
@@ -172,6 +178,15 @@ void Enemy::ApplyKnockback()
 
         //移動処理
         Move(knockbackSettings_.knockbackVelocity);
+
+        //ノックバックの速度の符号が変わっていたら停止させる
+        bool velocityChangedSign = (currentVelocity.z >= 0.0f && knockbackSettings_.knockbackVelocity.z < 0.0f) || (currentVelocity.z < 0.0f && knockbackSettings_.knockbackVelocity.z >= 0.0f);
+        if (velocityChangedSign)
+        {
+            //ノックバックを停止
+            knockbackSettings_.knockbackVelocity = { 0.0f, 0.0f, 0.0f };
+            knockbackSettings_.knockbackAcceleration = { 0.0f,0.0f,0.0f };
+        }
 
         //持続時間が終了したらノックバックを停止
         if (knockbackSettings_.knockbackDuration <= 0.0f)
@@ -191,53 +206,71 @@ void Enemy::CorrectAnimationOffset()
 
 void Enemy::PlayAnimation(const std::string& name, const float speed, const bool loop)
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    animatorComponent->PlayAnimation(name, speed, loop);
+    animator_->PlayAnimation(name, speed, loop);
 }
 
 void Enemy::StopAnimation()
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    animatorComponent->StopAnimation();
+    animator_->StopAnimation();
 }
 
 void Enemy::SetIsAnimationBlending(bool isBlending)
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    animatorComponent->SetIsBlending(isBlending);
+    animator_->SetIsBlending(isBlending);
+}
+
+void Enemy::SetBlendDuration(const float blendDuration)
+{
+    animator_->SetBlendDuration(blendDuration);
 }
 
 float Enemy::GetCurrentAnimationTime()
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    return animatorComponent->GetCurrentAnimationTime();
+    return animator_->GetCurrentAnimationTime();
 }
 
 float Enemy::GetNextAnimationTime()
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    return animatorComponent->GetNextAnimationTime();
+    return animator_->GetNextAnimationTime();
+}
+
+float Enemy::GetCurrentAnimationDuration()
+{
+    return animator_->GetCurrentAnimationDuration();
+}
+
+float Enemy::GetNextAnimationDuration()
+{
+    return animator_->GetNextAnimationDuration();
 }
 
 const bool Enemy::GetIsAnimationFinished()
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    return animatorComponent->GetIsAnimationFinished();
+    return animator_->GetIsAnimationFinished();
 }
 
 const bool Enemy::GetIsBlendingCompleted()
 {
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-    return animatorComponent->GetIsBlendingCompleted();
+    return animator_->GetIsBlendingCompleted();
+}
+
+const Vector3 Enemy::GetJointWorldPosition(const std::string& jointName)
+{
+    //ジョイントのワールドトランスフォームを取得
+    WorldTransform jointWorldTransform = model_->GetModel()->GetJointWorldTransform(jointName);
+
+    //ワールド座標を取得しVector3に変換して返す
+    return Vector3{
+        jointWorldTransform.matWorld_.m[3][0],
+        jointWorldTransform.matWorld_.m[3][1],
+        jointWorldTransform.matWorld_.m[3][2],
+    };
 }
 
 const Vector3 Enemy::GetHipLocalPosition()
 {
-    //トランスフォームコンポーネントを取得
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
     //腰のジョイントのローカル座標を計算
-    Vector3 hipLocalPosition = GetHipWorldPosition() - transformComponent->GetWorldPosition();
+    Vector3 hipLocalPosition = GetHipWorldPosition() - transform_->GetWorldPosition();
 
     //腰のジョイントのローカル座標を返す
     return hipLocalPosition;
@@ -245,46 +278,136 @@ const Vector3 Enemy::GetHipLocalPosition()
 
 const Vector3 Enemy::GetHipWorldPosition()
 {
-	//モデルコンポーネントを取得
-    ModelComponent* modelComponent = GetComponent<ModelComponent>();
-
-	//腰のジョイントのワールドトランスフォームを取得
-	WorldTransform hipWorldTransform = modelComponent->GetModel()->GetJointWorldTransform("mixamorig:Hips");
-
     //ワールド座標を取得しVector3に変換して返す
-    return Vector3{
-        hipWorldTransform.matWorld_.m[3][0],
-        hipWorldTransform.matWorld_.m[3][1],
-        hipWorldTransform.matWorld_.m[3][2],
-    };
+    return GetJointWorldPosition("mixamorig:Hips");
 }
 
 const Vector3 Enemy::GetPosition()
 {
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-    return transformComponent->worldTransform_.translation_;
+    return transform_->worldTransform_.translation_;
 }
 
 void Enemy::SetPosition(const Vector3& position)
 {
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-    transformComponent->worldTransform_.translation_ = position;
+    transform_->worldTransform_.translation_ = position;
+}
+
+void Enemy::InitializeState()
+{
+    ChangeState(new EnemyStateRoot());
+}
+
+void Enemy::InitializeTransformComponent()
+{
+    //トランスフォームコンポーネントを取得
+    transform_ = GetComponent<TransformComponent>();
+    //回転の種類をQuaternionに設定
+    transform_->worldTransform_.rotationType_ = RotationType::Quaternion;
+    //Quaternionの初期化
+    destinationQuaternion_ = transform_->worldTransform_.quaternion_;
+}
+
+void Enemy::InitializeModelComponent()
+{
+    //モデルコンポーネントを取得
+    model_ = GetComponent<ModelComponent>();
+    //全てのマテリアルの環境マップの映り込みの係数を設定
+    for (size_t i = 0; i < model_->GetModel()->GetNumMaterials(); ++i)
+    {
+        model_->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
+    }
+}
+
+void Enemy::InitializeAnimatorComponent()
+{
+    //アニメーターコンポーネントの初期化
+    animator_ = AddComponent<AnimatorComponent>();
+    animator_->AddAnimation("Idle", AnimationManager::Create("Enemy/Animations/Idle.gltf"));
+    animator_->AddAnimation("Walk1", AnimationManager::Create("Enemy/Animations/Walk1.gltf"));
+    animator_->AddAnimation("Walk2", AnimationManager::Create("Enemy/Animations/Walk2.gltf"));
+    animator_->AddAnimation("Walk3", AnimationManager::Create("Enemy/Animations/Walk3.gltf"));
+    animator_->AddAnimation("Walk4", AnimationManager::Create("Enemy/Animations/Walk4.gltf"));
+    animator_->AddAnimation("Run", AnimationManager::Create("Enemy/Animations/Run.gltf"));
+    animator_->AddAnimation("Dash", AnimationManager::Create("Enemy/Animations/Dash.gltf"));
+    animator_->AddAnimation("TackleAttack", AnimationManager::Create("Enemy/Animations/Tackle.gltf"));
+    animator_->AddAnimation("JumpAttack", AnimationManager::Create("Enemy/Animations/JumpAttack.gltf"));
+    animator_->AddAnimation("ComboAttack", AnimationManager::Create("Enemy/Animations/ComboAttack.gltf"));
+    animator_->AddAnimation("EarthSpike", AnimationManager::Create("Enemy/Animations/EarthSpike.gltf"));
+    animator_->AddAnimation("LaserBeam", AnimationManager::Create("Enemy/Animations/LaserBeam.gltf"));
+    animator_->AddAnimation("HitStun", AnimationManager::Create("Enemy/Animations/HitStun.gltf"));
+    animator_->AddAnimation("Knockdown", AnimationManager::Create("Enemy/Animations/Knockdown.gltf"));
+    animator_->AddAnimation("StandUp", AnimationManager::Create("Enemy/Animations/StandUp.gltf"));
+    animator_->AddAnimation("Death", AnimationManager::Create("Enemy/Animations/Death.gltf"));
+    PlayAnimation("Idle", 1.0f, true);
+}
+
+void Enemy::InitializeColliderComponent()
+{
+    //コライダーコンポーネントを取得
+    collider_ = GetComponent<AABBCollider>();
+}
+
+void Enemy::InitializeHPSprites()
+{
+    //テクスチャの名前
+    std::vector<std::vector<std::string>> textureNames = {
+        {"barBack_horizontalLeft.png","barBack_horizontalMid.png","barBack_horizontalRight.png"},
+        {"barBlue_horizontalLeft.png","barBlue_horizontalBlue.png","barBlue_horizontalRight.png"},
+    };
+
+    //テクスチャの読み込みとスプライトの生成
+    for (int32_t i = 0; i < hpBarSegments_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpBarSegments_[i].size(); ++j)
+        {
+            TextureManager::Load(textureNames[i][j]);
+            hpBarSegments_[i][j].reset(Sprite::Create(textureNames[i][j], hpBarSegmentPositions_[i][j]));
+        }
+    }
+    hpBarSegments_[0][1]->SetTextureSize(hpBarSegmentTextureSize_);
+}
+
+void Enemy::UpdateHealthBar()
+{
+    const int kFrontHpBarIndex = 1;
+    const int kBackHpBarIndex = 0;
+    const int kLeftSegmentIndex = 0;
+    const int kMiddleSegmentIndex = 1;
+    const int kRightSegmentIndex = 2;
+
+    //体力バーの中央部分のサイズを更新
+    UpdateHpBarMiddleSegment(kFrontHpBarIndex, kMiddleSegmentIndex);
+
+    //体力バーの右側部分の位置を調整
+    UpdateHpBarRightSegmentPosition(kFrontHpBarIndex, kMiddleSegmentIndex, kRightSegmentIndex);
+}
+
+void Enemy::UpdateHpBarMiddleSegment(int hpBarIndex, int middleSegmentIndex)
+{
+    //現在の体力バーのサイズを計算して設定
+    Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / kMaxHp), hpBarSegmentTextureSize_.y };
+    hpBarSegments_[hpBarIndex][middleSegmentIndex]->SetTextureSize(currentHpSize);
+}
+
+void Enemy::UpdateHpBarRightSegmentPosition(int hpBarIndex, int middleSegmentIndex, int rightSegmentIndex)
+{
+    //右の体力バーの位置を調整
+    Vector2 currentRightHpBarSegmentPosition = hpBarSegments_[hpBarIndex][middleSegmentIndex]->GetPosition();
+    currentRightHpBarSegmentPosition.x += hpBarSegments_[hpBarIndex][middleSegmentIndex]->GetTextureSize().x;
+    hpBarSegments_[hpBarIndex][rightSegmentIndex]->SetPosition(currentRightHpBarSegmentPosition);
 }
 
 void Enemy::UpdateRotation()
 {
-    //トランスフォームコンポーネントを取得
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
     //現在のクォータニオンと目的のクォータニオンを補間
-    transformComponent->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transformComponent->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+    if (!isInTitleScene_)
+    {
+        transform_->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transform_->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+    }
 }
 
 void Enemy::UpdateCollider()
 {
-    //AABBColliderを取得
-    AABBCollider* collider = GetComponent<AABBCollider>();
-
     //腰のジョイントの位置を取得
     Vector3 hipPosition = GetHipLocalPosition();
 
@@ -299,52 +422,53 @@ void Enemy::UpdateCollider()
     }
 
     //コライダーの中心座標を設定
-    collider->SetCenter(hipPosition + colliderOffset_);
+    collider_->SetCenter(hipPosition + colliderOffset_);
 }
 
-void Enemy::RestrictPlayerMovement(float moveLimit)
+void Enemy::RestrictEnemyMovement(float moveLimit)
 {
-    //TransformComponentを取得
-    TransformComponent* transformComponent = GetComponent<TransformComponent>();
-
-    //プレイヤーの現在位置から原点までの距離を計算
-    float distance = Mathf::Length(transformComponent->worldTransform_.translation_);
+    //敵の現在位置から原点までの距離を計算
+    float distance = Mathf::Length(transform_->worldTransform_.translation_);
 
     //距離が移動制限を超えているかどうかを確認
     if (distance > moveLimit) {
         //スケールを計算して移動制限範囲に収めるよう位置を調整
         float scale = moveLimit / distance;
-        transformComponent->worldTransform_.translation_ *= scale;
+        transform_->worldTransform_.translation_ *= scale;
     }
 }
 
 void Enemy::UpdateHP()
 {
-    //HPバーの処理
-    hp_ = (hp_ <= 0.0f) ? 0.0f : hp_;
-    Vector2 currentHPSize = { hpSpriteSize_.x * (hp_ / kMaxHP), hpSpriteSize_.y };
-    hpSprite_->SetSize(currentHPSize);
+    //HPが0を下回らないようにする
+    hp_ = std::max<float>(hp_, 0.0f);
+
+    //体力バーの更新
+    UpdateHealthBar();
 }
 
 void Enemy::DebugUpdate()
 {
-    //アニメーターコンポーネントを取得
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-
     //デバッグ状態の場合
     if (isDebug_)
     {
         //アニメーションの時間を設定
-        animatorComponent->SetAnimationTime(currentAnimationName_, animationTime_);
-
-        //アニメーションのブレンドを無効化する
-        animatorComponent->SetIsBlending(false);
+        animator_->PauseAnimation();
+        animator_->SetAnimationTime(currentAnimationName_, animationTime_);
     }
     else
     {
-        //アニメーションのブレンドを有効化する
-        animatorComponent->SetIsBlending(true);
+        animator_->ResumeAnimation();
     }
+}
+
+void Enemy::ConfigureGlobalVariables()
+{
+    //環境変数の設定
+    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+    const char* groupName = "Enemy";
+    globalVariables->CreateGroup(groupName);
+    globalVariables->AddItem(groupName, "ColliderOffset", colliderOffset_);
 }
 
 void Enemy::ApplyGlobalVariables()
@@ -356,9 +480,6 @@ void Enemy::ApplyGlobalVariables()
 
 void Enemy::UpdateImGui()
 {
-    //アニメーターコンポーネントを取得
-    AnimatorComponent* animatorComponent = GetComponent<AnimatorComponent>();
-
     //ImGuiのウィンドウを開始
     ImGui::Begin("Enemy");
 
@@ -369,7 +490,7 @@ void Enemy::UpdateImGui()
     if (isDebug_)
     {
         //アニメーション時間のスライダー
-        ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f, 0.0f, animatorComponent->GetAnimation(currentAnimationName_)->GetDuration());
+        ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f, 0.0f, animator_->GetAnimation(currentAnimationName_)->GetDuration());
 
         //アニメーション名のコンボボックス
         if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
@@ -385,7 +506,8 @@ void Enemy::UpdateImGui()
                 {
                     //選択されたアニメーション名を現在のアニメーション名として設定
                     currentAnimationName_ = animation;
-                    animatorComponent->PlayAnimation(currentAnimationName_, 1.0f, true);
+                    animator_->SetIsBlending(false);
+                    animator_->PlayAnimation(currentAnimationName_, 1.0f, true);
                 }
 
                 //選択された項目にフォーカスを設定

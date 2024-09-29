@@ -1,8 +1,11 @@
 #include "PlayerStateFalling.h"
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
+#include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateFalling::Initialize()
 {
@@ -30,6 +33,13 @@ void PlayerStateFalling::Update()
 		HandleLanding();
 		return;
 	}
+	//AボタンとXボタンを押したとき
+	else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && input_->IsPressButton(XINPUT_GAMEPAD_X))
+	{
+		//攻撃状態に遷移
+		player_->ChangeState(new PlayerStateFallingAttack());
+		return;
+	}
 
 	//アニメーションの更新
 	CheckAndPauseAnimation();
@@ -47,7 +57,17 @@ void PlayerStateFalling::OnCollision(GameObject* other)
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
 		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon, true);
+		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
+	{
+		//ダメージを食らった処理を実行
+		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
 	}
 }
 
