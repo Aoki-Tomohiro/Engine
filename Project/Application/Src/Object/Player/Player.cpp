@@ -204,6 +204,15 @@ void Player::Reset()
 	bool isAnimationBlending = isInTitleScene_ ? false : true;
 	SetIsAnimationBlending(isAnimationBlending);
 
+	//スキルのクールタイムをリセット
+	skillCooldownManager_->ClearAllCooldowns();
+
+	//アクションフラグのリセット
+	for (auto& flag : flags_)
+	{
+		flag.second = false;
+	}
+
 	//状態の初期化
 	InitializeState();
 }

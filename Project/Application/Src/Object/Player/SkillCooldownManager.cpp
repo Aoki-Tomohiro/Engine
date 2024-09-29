@@ -31,6 +31,14 @@ void SkillCooldownManager::ResetCooldown(const Skill& skill)
 	}
 }
 
+void SkillCooldownManager::ClearAllCooldowns()
+{
+	for (auto& cooldown : cooldownTimers_)
+	{
+		cooldown.second = 0.0f;
+	}
+}
+
 const bool SkillCooldownManager::IsCooldownComplete(const Skill& skill) const
 {
 	auto it = cooldownTimers_.find(skill);

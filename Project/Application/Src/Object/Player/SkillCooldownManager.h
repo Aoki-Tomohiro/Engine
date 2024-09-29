@@ -24,6 +24,8 @@ public:
 
 	void ResetCooldown(const Skill& skill);
 
+	void ClearAllCooldowns();
+
 	const bool IsCooldownComplete(const Skill& skill) const;
 
 	const float GetCooldownTime(const Skill& skill) const;
