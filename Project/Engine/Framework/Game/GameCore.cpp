@@ -54,6 +54,10 @@ void GameCore::Initialize()
 	lineRenderer_ = LineRenderer::GetInstance();
 	lineRenderer_->Initialize();
 
+	//TrailRendererの初期化
+	trailRenderer_ = TrailRenderer::GetInstance();
+	trailRenderer_->Initialize();
+
 	//LightManagerの初期化
 	lightManager_ = LightManager::GetInstance();
 	lightManager_->Initialize();
@@ -67,10 +71,13 @@ void GameCore::Initialize()
 
 void GameCore::Finalize()
 {
-	//LightManagerの開放
+	//LightManagerの解放
 	LightManager::Destroy();
 
-	//LineRendererの開放
+	//TrailRendererの解放
+	TrailRenderer::Destroy();
+
+	//LineRendererの解放
 	LineRenderer::Destroy();
 
 	//CameraManagerの解放
@@ -82,19 +89,19 @@ void GameCore::Finalize()
 	//PostEffectsの解放
 	PostEffects::Destroy();
 
-	//ParticleManagerの開放
+	//ParticleManagerの解放
 	ParticleManager::Destroy();
 
-	//Audioの開放
+	//Audioの解放
 	audio_->Finalize();
 
-	//Inputの開放
+	//Inputの解放
 	Input::Destroy();
 
-	//GameObjectManagerの開放
+	//GameObjectManagerの解放
 	GameObjectManager::Destroy();
 
-	//SceneManagerの開放
+	//SceneManagerの解放
 	SceneManager::Destroy();
 
 	//Rendererの解放
