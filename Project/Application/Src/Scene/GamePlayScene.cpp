@@ -318,7 +318,7 @@ void GamePlayScene::HandleCameraShake()
 	//プレイヤーの武器がヒットした場合、カメラシェイクを開始
 	if (playerWeapon_->GetIsHit())
 	{
-		cameraController_->StartCameraShake({ 0.0f, 0.6f, 0.0f }, playerWeapon_->GetEffectSettings().cameraShakeDuration);
+		cameraController_->StartCameraShake(playerWeapon_->GetEffectSettings().cameraShakeIntensity, playerWeapon_->GetEffectSettings().cameraShakeDuration);
 	}
 }
 

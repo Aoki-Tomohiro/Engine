@@ -1179,8 +1179,8 @@
             ],
             "Damage": 8.0,
             "Duration": 1.840000033378601,
-            "HitCount": 1,
-            "HitInterval": 0.0,
+            "HitCount": 10,
+            "HitInterval": 0.11999999731779099,
             "HitStopDuration": 0.0,
             "HitboxCenter": [
                 0.0,
@@ -1189,7 +1189,7 @@
             ],
             "HitboxSize": [
                 2.0,
-                2.0,
+                3.0,
                 2.0
             ],
             "KnockbackAcceleration": [
@@ -1317,7 +1317,7 @@
     },
     "GroundAttack1": {
         "Attack": {
-            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeDuration": 0.07999999821186066,
             "CameraShakeIntensity": [
                 0.0,
                 0.5,
@@ -1427,7 +1427,7 @@
     },
     "GroundAttack2": {
         "Attack": {
-            "CameraShakeDuration": 0.03999999910593033,
+            "CameraShakeDuration": 0.07999999821186066,
             "CameraShakeIntensity": [
                 0.0,
                 0.5,
@@ -1537,10 +1537,10 @@
     },
     "GroundAttack3": {
         "Attack": {
-            "CameraShakeDuration": 0.05999999865889549,
+            "CameraShakeDuration": 0.10000000149011612,
             "CameraShakeIntensity": [
                 0.0,
-                0.5,
+                0.800000011920929,
                 0.0
             ],
             "Damage": 8.0,
@@ -1647,7 +1647,7 @@
     },
     "GroundAttack4": {
         "Attack": {
-            "CameraShakeDuration": 0.07999999821186066,
+            "CameraShakeDuration": 0.10000000149011612,
             "CameraShakeIntensity": [
                 0.0,
                 1.0,
@@ -2162,7 +2162,7 @@
             "CameraShakeDuration": 0.10000000149011612,
             "CameraShakeIntensity": [
                 0.0,
-                0.009999999776482582,
+                0.6000000238418579,
                 0.0
             ],
             "Damage": 6.0,

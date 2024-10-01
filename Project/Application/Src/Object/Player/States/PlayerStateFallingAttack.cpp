@@ -45,10 +45,13 @@ void PlayerStateFallingAttack::Update()
 	HandleCurrentPhase(weapon);
 
 	//アニメーションが終了していた場合
-	if (player_->GetIsAnimationFinished() || isRecoveryCanceled_)
+	if (player_->GetIsAnimationFinished())
 	{
 		//落下攻撃終了
 		EndFallingAttack();
+
+		//通常状態に戻す
+		player_->ChangeState(new PlayerStateRoot());
 	}
 }
 
@@ -67,9 +70,6 @@ void PlayerStateFallingAttack::EndFallingAttack()
 
 	//アニメーションを停止
 	player_->StopAnimation();
-
-	//通常状態に戻す
-	player_->ChangeState(new PlayerStateRoot());
 }
 
 void PlayerStateFallingAttack::CorrectPlayerPosition()
@@ -81,39 +81,18 @@ void PlayerStateFallingAttack::CorrectPlayerPosition()
 
 void PlayerStateFallingAttack::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
+	//衝突処理
 	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
 	{
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
-
-		//アニメーションを停止
-		player_->StopAnimation();
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
+		ApplyDamageAndKnockback(weapon->GetKnockbackSettings(), weapon->GetDamage());
 	}
 	else if (Laser* laser = dynamic_cast<Laser*>(other))
 	{
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
-
-		//アニメーションを停止
-		player_->StopAnimation();
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
+		ApplyDamageAndKnockback(KnockbackSettings{}, laser->GetDamage());
 	}
 	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
 	{
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
-
-		//アニメーションを停止
-		player_->StopAnimation();
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
+		ApplyDamageAndKnockback(KnockbackSettings{}, pillar->GetDamage());
 	}
 }
 
@@ -192,10 +171,6 @@ void PlayerStateFallingAttack::HandleCurrentPhase(Weapon* weapon)
 		//攻撃フェーズの処理
 		AttackUpdate(weapon);
 		break;
-	case kRecovery:
-		//溜めフェーズの処理
-		RecoveryUpdate();
-		break;
 	}
 }
 
@@ -213,25 +188,51 @@ void PlayerStateFallingAttack::AttackUpdate(Weapon* weapon)
 	float currentAnimationTime = Mathf::Lerp(animationState_.phases[1].duration, animationState_.phases[2].duration, easingParameter_);
 	player_->SetCurrentAnimationTime(currentAnimationTime);
 
-	//武器が敵にヒットしたかをチェック
-	if (weapon->GetIsHit())
+	//武器のヒット判定処理
+	HandleWeaponHit(weapon);
+}
+
+void PlayerStateFallingAttack::HandleWeaponHit(Weapon* weapon)
+{
+	//現在のフェーズでのヒット数が上限に達していない場合
+	if (hitCount_ < animationState_.phases[phaseIndex_].attackSettings.hitCount)
 	{
+		//ヒットタイマーを進める
+		hitTimer_ += GameTimer::GetDeltaTime();
+
+		//ヒットタイマーがヒット間隔を超えた場合、攻撃判定を付ける
+		if (hitTimer_ > animationState_.phases[phaseIndex_].attackSettings.hitInterval)
+		{
+			hitTimer_ = 0.0f;
+			weapon->SetIsAttack(true);
+		}
+		else
+		{
+			weapon->SetIsAttack(false);
+		}
+
+		//武器が敵にヒットしたかをチェック
+		if (weapon->GetIsHit())
+		{
+			hitCount_++; //ヒットカウントを増加
+		}
+	}
+	else
+	{
+		//ヒット数が上限に達した場合攻撃状態を無効にする
 		weapon->SetIsAttack(false);
 	}
 }
 
-void PlayerStateFallingAttack::RecoveryUpdate()
+void PlayerStateFallingAttack::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage)
 {
-	//スティックの入力を取得
-	Vector3 inputValue = {
-		input_->GetLeftStickX(),
-		0.0f,
-		input_->GetLeftStickY(),
-	};
+	//武器の当たり判定をなくす
+	Weapon* playerWeapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	playerWeapon->SetIsAttack(false);
 
-	//入力値が歩行の閾値を超えている場合は硬直をキャンセルする
-	if (Mathf::Length(inputValue) > player_->GetRootParameters().walkThreshold)
-	{
-		isRecoveryCanceled_ = true;
-	}
+	//落下攻撃終了
+	EndFallingAttack();
+
+	//ダメージを食らった処理を実行
+	player_->HandleIncomingDamage(knockbackSettings, damage, true);
 }

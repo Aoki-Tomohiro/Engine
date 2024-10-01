@@ -13,7 +13,8 @@ void CameraShake::Update()
 	if (isActive_)
 	{
 		//経過時間を減らす
-		elapsedTime_ -= GameTimer::GetDeltaTime();
+		const float kDeltaTime = 1.0f / 60.0f;
+		elapsedTime_ -= kDeltaTime;
 
 		//経過時間が0以下になった場合はシェイクを無効にし、オフセットをリセット
 		if (elapsedTime_ <= 0.0f)

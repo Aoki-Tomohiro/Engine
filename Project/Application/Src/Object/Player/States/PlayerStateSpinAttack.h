@@ -22,7 +22,6 @@ private:
 
 	void HandleWeaponHit();
 
-	//void EndSpinAttack();
 	void FinalizeSpinAttack();
 
 private:

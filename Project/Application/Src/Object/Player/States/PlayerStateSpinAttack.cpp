@@ -145,9 +145,6 @@ void PlayerStateSpinAttack::UpdatePosition()
 
 void PlayerStateSpinAttack::HandleWeaponHit()
 {
-	//攻撃パラメーターを取得
-	const auto& attackParameters = player_->GetSpinAttackParameters();
-
 	//プレイヤーの武器を取得
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
 

@@ -37,7 +37,9 @@ private:
 
 	void AttackUpdate(Weapon* weapon);
 
-	void RecoveryUpdate();
+	void HandleWeaponHit(Weapon* weapon);
+
+	void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage);
 
 	const float GetCurrentAnimationTime() const;
 
@@ -60,7 +62,10 @@ private:
 	//終了座標
 	Vector3 endPosition_{};
 
-	//硬直キャンセルフラグ
-	bool isRecoveryCanceled_ = false;
+	//ヒットタイマー
+	float hitTimer_ = 0.0f;
+
+	//ヒットカウント
+	int32_t hitCount_ = 0;
 };
 

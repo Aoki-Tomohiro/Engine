@@ -4,19 +4,19 @@
 void BackGroundObject::Initialize()
 {
 	//基底クラスの初期化
-	GameObject::Initialize();
+	//GameObject::Initialize();
 }
 
 void BackGroundObject::Update()
 {
 	//基底クラスの更新
-	GameObject::Update();
+	//GameObject::Update();
 }
 
 void BackGroundObject::Draw(const Camera& camera)
 {
 	//基底クラスの描画
-	GameObject::Draw(camera);
+	//GameObject::Draw(camera);
 }
 
 void BackGroundObject::OnCollision(GameObject* gameObject)
