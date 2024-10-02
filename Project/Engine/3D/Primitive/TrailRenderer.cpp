@@ -1,6 +1,5 @@
 #include "TrailRenderer.h"
 #include "Engine/Base/GraphicsCore.h"
-#include "Engine/Base/TextureManager.h"
 #include "Engine/Utilities/ShaderCompiler.h"
 
 //実体定義
@@ -26,18 +25,6 @@ void TrailRenderer::Destroy()
 
 void TrailRenderer::Initialize()
 {
-	//頂点バッファの作成
-	vertexBuffer_ = std::make_unique<UploadBuffer>();
-	vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxVertices);
-
-	//頂点バッファビューの作成
-	vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
-	vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUV);
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUV) * kMaxVertices);
-
-	//テクスチャを設定
-	SetTexture("white.png");
-
 	//RootSignatureの作成
 	rootSignature_.Create(2, 1);
 	rootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
@@ -121,46 +108,50 @@ void TrailRenderer::Initialize()
 
 void TrailRenderer::Update()
 {
-
+	for (const std::unique_ptr<Trail>& trail : trails_)
+	{
+		trail->Update();
+	}
 }
 
 void TrailRenderer::Draw()
 {
-	if (!vertices_.empty())
+	//軌跡が無ければ処理を飛ばす
+	if (trails_.empty()) return;
+
+	//カメラが無ければ止める
+	assert(camera_);
+
+	//コマンドリストを取得
+	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
+
+	//RootSignatureを設定
+	commandContext->SetRootSignature(rootSignature_);
+
+	//PipelineStateを設定
+	commandContext->SetPipelineState(pipelineState_);
+
+	//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
+	commandContext->SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//Cameraを設定
+	commandContext->SetConstantBuffer(0, camera_->GetConstantBuffer()->GetGpuVirtualAddress());
+
+	//全ての軌跡を描画
+	for (const std::unique_ptr<Trail>& trail : trails_)
 	{
-		//カメラが無ければ止める
-		assert(camera_);
-
-		// コマンドリストを取得
-		CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-
-		//RootSignatureを設定
-		commandContext->SetRootSignature(rootSignature_);
-
-		//PipelineStateを設定
-		commandContext->SetPipelineState(pipelineState_);
-
 		//VertexBufferViewを設定
-		commandContext->SetVertexBuffer(vertexBufferView_);
-
-		//形状を設定。PSOに設定しているものとは別。同じものを設定すると考えておけば良い
-		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
-		//Cameraを設定
-		commandContext->SetConstantBuffer(0, camera_->GetConstantBuffer()->GetGpuVirtualAddress());
+		commandContext->SetVertexBuffer(trail->GetVertexBufferView());
 
 		//Textureを設定
-		commandContext->SetDescriptorTable(1, texture_->GetSRVHandle());
+		commandContext->SetDescriptorTable(1, trail->GetTexture()->GetSRVHandle());
 
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandContext->DrawInstanced((UINT)vertices_.size(), 1);
+		commandContext->DrawInstanced((UINT)trail->GetNumVertices(), 1);
 	}
 }
 
-void TrailRenderer::SetTexture(const std::string& textureName)
+void TrailRenderer::AddTrail(Trail* trail)
 {
-	//テクスチャを設定
-	texture_ = TextureManager::GetInstance()->FindTexture(textureName);
-	//テクスチャがなかったら止める
-	assert(texture_);
+	trails_.push_back(std::unique_ptr<Trail>(trail));
 }

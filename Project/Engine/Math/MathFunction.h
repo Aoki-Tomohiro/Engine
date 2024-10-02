@@ -40,6 +40,8 @@ namespace Mathf
 
 	Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t);
 
+	Vector3 CatmullRomSpline(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, const float t);
+
 	Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 
 	Matrix4x4 Inverse(const Matrix4x4& m);

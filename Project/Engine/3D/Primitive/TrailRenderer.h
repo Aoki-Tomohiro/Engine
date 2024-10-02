@@ -1,15 +1,12 @@
 #pragma once
 #include "Engine/Base/GraphicsPSO.h"
-#include "Engine/Base/UploadBuffer.h"
-#include "Engine/Base/Texture.h"
 #include "Engine/3D/Camera/Camera.h"
+#include "Trail.h"
 #include <vector>
 
 class TrailRenderer
 {
 public:
-	static const uint32_t kMaxVertices = 1024;
-
 	static TrailRenderer* GetInstance();
 
 	static void Destroy();
@@ -20,7 +17,7 @@ public:
 
 	void Draw();
 
-	void SetTexture(const std::string& textureName);
+	void AddTrail(Trail* trail);
 
 	const Camera* GetCamera() const { return camera_; };
 
@@ -39,13 +36,7 @@ private:
 
 	GraphicsPSO pipelineState_{};
 
-	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
-
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-
-	std::vector<VertexDataPosUV> vertices_{};
-
-	const Texture* texture_ = nullptr;
+	std::vector<std::unique_ptr<Trail>> trails_{};
 
 	const Camera* camera_ = nullptr;
 };

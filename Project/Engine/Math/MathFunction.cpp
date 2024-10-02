@@ -163,6 +163,23 @@ namespace Mathf
 	}
 
 
+	Vector3 CatmullRomSpline(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, const float t)
+	{
+		auto interpolate = [](float p0, float p1, float p2, float p3, float t) {
+			return 0.5f * ((2.0f * p1) +
+				(-p0 + p2) * t +
+				(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t * t +
+				(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t * t * t);
+			};
+
+		return Vector3(
+			interpolate(p0.x, p1.x, p2.x, p3.x, t),
+			interpolate(p0.y, p1.y, p2.y, p3.y, t),
+			interpolate(p0.z, p1.z, p2.z, p3.z, t)
+		);
+	}
+
+
 	Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion)
 	{
 		Vector3 result{};

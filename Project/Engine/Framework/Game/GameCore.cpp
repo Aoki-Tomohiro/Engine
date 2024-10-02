@@ -140,6 +140,9 @@ void GameCore::Update()
 	//SceneManagerの更新
 	sceneManager_->Update();
 
+	//軌跡の更新
+	trailRenderer_->Update();
+
 	//Particleの更新
 	particleManager_->Update();
 
@@ -178,6 +181,9 @@ void GameCore::Draw()
 
 	//PostEffectsの描画
 	postEffects_->Draw();
+
+	//軌跡の描画
+	trailRenderer_->Draw();
 
 	//ラインの描画
 	lineRenderer_->Draw();

@@ -74,6 +74,7 @@
     <ClCompile Include="Engine\3D\Model\Model.cpp" />
     <ClCompile Include="Engine\3D\Model\ModelManager.cpp" />
     <ClCompile Include="Engine\3D\Primitive\LineRenderer.cpp" />
+    <ClCompile Include="Engine\3D\Primitive\Trail.cpp" />
     <ClCompile Include="Engine\3D\Primitive\TrailRenderer.cpp" />
     <ClCompile Include="Engine\3D\Transform\WorldTransform.cpp" />
     <ClCompile Include="Engine\Base\ComputePSO.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="Engine\3D\Model\Model.h" />
     <ClInclude Include="Engine\3D\Model\ModelManager.h" />
     <ClInclude Include="Engine\3D\Primitive\LineRenderer.h" />
+    <ClInclude Include="Engine\3D\Primitive\Trail.h" />
     <ClInclude Include="Engine\3D\Primitive\TrailRenderer.h" />
     <ClInclude Include="Engine\3D\Transform\WorldTransform.h" />
     <ClInclude Include="Engine\Base\ComputePSO.h" />
