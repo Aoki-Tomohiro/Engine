@@ -1,4 +1,6 @@
 #include "Enemy.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateDeath.h"
 
@@ -144,6 +146,37 @@ void Enemy::Rotate(const Vector3& vector)
     Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
     float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
     destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+}
+
+void Enemy::ApplyParametersToWeapon(const CombatPhase& combatPhase)
+{
+    //武器を取得
+    Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("EnemyWeapon");
+
+    //ダメージを設定
+    weapon->SetDamage(combatPhase.attackSettings.damage);
+
+    //ヒットボックスを設定
+    weapon->SetHitbox(combatPhase.hitbox);
+
+    //エフェクトの設定を武器に設定
+    weapon->SetEffectSettings(combatPhase.effectSettings);
+
+    //ノックバックの設定を取得
+    KnockbackSettings knockbackSettings = combatPhase.knockbackSettings;
+
+    //ノックバック速度を設定
+    Vector3 knockbackVelocity = Mathf::RotateVector({ 0.0f, 0.0f, combatPhase.knockbackSettings.knockbackVelocity.z }, destinationQuaternion_);
+    knockbackVelocity.y = combatPhase.knockbackSettings.knockbackVelocity.y;
+    knockbackSettings.knockbackVelocity = knockbackVelocity;
+
+    //ノックバック加速度を設定
+    Vector3 knockbackAcceleration = Mathf::RotateVector({ 0.0f, 0.0f, combatPhase.knockbackSettings.knockbackAcceleration.z }, destinationQuaternion_);
+    knockbackAcceleration.y = combatPhase.knockbackSettings.knockbackAcceleration.y;
+    knockbackSettings.knockbackAcceleration = knockbackAcceleration;
+
+    //ノックバックの設定を武器に設定
+    weapon->SetKnockbackSettings(knockbackSettings);
 }
 
 void Enemy::CheckAndTransitionToDeath()

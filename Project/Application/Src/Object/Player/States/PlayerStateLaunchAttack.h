@@ -23,8 +23,6 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	void ApplyParametersToWeapon();
-
 	void CheckForAttackStateTransition();
 
 	void UpdateAnimationPhase(Weapon* weapon, float currentAnimationTime);

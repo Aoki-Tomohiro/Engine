@@ -27,22 +27,12 @@ void PlayerStateSpinAttack::Initialize()
 	//目標とする座標を設定
 	targetPosition_ = player_->GetPosition() + Vector3{ 0.0f,attackParameters.riseHeight,0.0f };
 
-	//ダメージを設定
+	//軌跡エフェクトを有効にする
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
-	weapon->SetDamage(animationState_.phases[0].attackSettings.damage);
 	weapon->SetIsTrailActive(true);
 
-	//ノックバックの設定を武器に設定
-	KnockbackSettings knockbackSettings = animationState_.phases[0].knockbackSettings;
-	knockbackSettings.knockbackVelocity = Mathf::RotateVector(knockbackSettings.knockbackVelocity, player_->GetDestinationQuaternion());
-	knockbackSettings.knockbackAcceleration = Mathf::RotateVector(knockbackSettings.knockbackAcceleration, player_->GetDestinationQuaternion());
-	weapon->SetKnockbackSettings(knockbackSettings);
-
-	//ヒットボックスを設定
-	weapon->SetHitbox(animationState_.phases[0].hitbox);
-
-	//エフェクトの設定を武器に設定
-	weapon->SetEffectSettings(animationState_.phases[0].effectSettings);
+	//武器にパラメーターを設定
+	player_->ApplyParametersToWeapon(animationState_.phases[0]);
 }
 
 void PlayerStateSpinAttack::Update()

@@ -62,8 +62,6 @@ private:
 
 	void UpdateAnimationAndHandlePhase();
 
-	void ApplyParametersToWeapon();
-
 	void HandleComboPhase();
 
 	void ChargeUpdate();

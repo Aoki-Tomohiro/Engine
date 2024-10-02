@@ -26,8 +26,6 @@ private:
 
 	void UpdateVelocityForCurrentPhase();
 
-	void ApplyParametersToWeapon();
-
 	void HandleCurrentPhase(Weapon* weapon);
 
 	void ChargeUpdate();

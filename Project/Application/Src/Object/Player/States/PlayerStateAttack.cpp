@@ -232,36 +232,12 @@ void PlayerStateAttack::UpdateAnimationAndHandlePhase()
 		if (workAttack_.inComboPhase < animationStates_[workAttack_.comboIndex].phases.size() - 1 && animationTime > animationStates_[workAttack_.comboIndex].phases[workAttack_.inComboPhase].duration)
 		{
 			workAttack_.inComboPhase++;
-			ApplyParametersToWeapon();
+			player_->ApplyParametersToWeapon(animationStates_[workAttack_.comboIndex].phases[workAttack_.inComboPhase]);
 		}
 
 		//現在のフェーズに応じた処理を実行
 		HandleComboPhase();
 	}
-}
-
-void PlayerStateAttack::ApplyParametersToWeapon()
-{
-	//武器を取得
-	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
-
-	//現在のフェーズの設定を取得
-	const auto& currentPhase = animationStates_[workAttack_.comboIndex].phases[workAttack_.inComboPhase];
-
-	//ダメージを設定
-	weapon->SetDamage(currentPhase.attackSettings.damage);
-
-	//ヒットボックスを設定
-	weapon->SetHitbox(currentPhase.hitbox);
-
-	//エフェクトの設定を武器に設定
-	weapon->SetEffectSettings(currentPhase.effectSettings);
-
-	//ノックバックの設定を武器に設定
-	KnockbackSettings knockbackSettings = currentPhase.knockbackSettings;
-	knockbackSettings.knockbackVelocity = Mathf::RotateVector(knockbackSettings.knockbackVelocity, player_->GetDestinationQuaternion());
-	knockbackSettings.knockbackAcceleration = Mathf::RotateVector(knockbackSettings.knockbackAcceleration, player_->GetDestinationQuaternion());
-	weapon->SetKnockbackSettings(knockbackSettings);
 }
 
 void PlayerStateAttack::HandleComboPhase()

@@ -249,9 +249,21 @@ void Orb::AddMagicProjectile(MagicProjectile::MagicType type)
 	{
 		//プレイヤーの取得
 		const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("");
-		knockbackSettings.knockbackVelocity = Mathf::RotateVector(magicAttackParameters_.chargeMagicKnockbackVelocity, player->GetDestinationQuaternion());
-		knockbackSettings.knockbackAcceleration = Mathf::RotateVector(magicAttackParameters_.chargeMagicKnockbackAcceleration, player->GetDestinationQuaternion());
+
+		//ノックバック速度を設定
+		Vector3 knockbackVelocity = Mathf::RotateVector({ 0.0f, 0.0f, magicAttackParameters_.chargeMagicKnockbackVelocity.z }, player->GetDestinationQuaternion());
+		knockbackVelocity.y = magicAttackParameters_.chargeMagicKnockbackVelocity.y;
+		knockbackSettings.knockbackVelocity = knockbackVelocity;
+
+		//ノックバック加速度を設定
+		Vector3 knockbackAcceleration = Mathf::RotateVector({ 0.0f, 0.0f, magicAttackParameters_.chargeMagicKnockbackAcceleration.z }, player->GetDestinationQuaternion());
+		knockbackAcceleration.y = magicAttackParameters_.chargeMagicKnockbackAcceleration.y;
+		knockbackSettings.knockbackAcceleration = knockbackAcceleration;
+
+		//ノックバックの時間を設定
 		knockbackSettings.knockbackDuration = magicAttackParameters_.chargeMagicKnockbackDuration;
+
+		//リアクションタイプを設定
 		knockbackSettings.reactionType_ = ReactionType::Knockback;
 	}
 
@@ -267,12 +279,6 @@ void Orb::AddMagicProjectile(MagicProjectile::MagicType type)
 
 	//トランスフォームの初期化
 	InitializeMagicProjectileTransform(magicProjectile);
-
-	////モデルコンポーネントを追加
-	//InitializeMagicProjectileModel(magicProjectile);
-
-	////コライダーを追加
-	//InitializeMagicProjectileCollider(magicProjectile);
 }
 
 Vector3 Orb::CalculateMagicProjectileVelocity()

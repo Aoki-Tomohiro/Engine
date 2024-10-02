@@ -234,6 +234,37 @@ void Player::Move(const Vector3& velocity)
 	transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
 }
 
+void Player::ApplyParametersToWeapon(const CombatPhase& combatPhase)
+{
+	//武器を取得
+	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+
+	//ダメージを設定
+	weapon->SetDamage(combatPhase.attackSettings.damage);
+
+	//ヒットボックスを設定
+	weapon->SetHitbox(combatPhase.hitbox);
+
+	//エフェクトの設定を武器に設定
+	weapon->SetEffectSettings(combatPhase.effectSettings);
+
+	//ノックバックの設定を取得
+	KnockbackSettings knockbackSettings = combatPhase.knockbackSettings;
+
+	//ノックバック速度を設定
+	Vector3 knockbackVelocity = Mathf::RotateVector({ 0.0f, 0.0f, combatPhase.knockbackSettings.knockbackVelocity.z }, destinationQuaternion_);
+	knockbackVelocity.y = combatPhase.knockbackSettings.knockbackVelocity.y;
+	knockbackSettings.knockbackVelocity = knockbackVelocity;
+
+	//ノックバック加速度を設定
+	Vector3 knockbackAcceleration = Mathf::RotateVector({ 0.0f, 0.0f, combatPhase.knockbackSettings.knockbackAcceleration.z }, destinationQuaternion_);
+	knockbackAcceleration.y = combatPhase.knockbackSettings.knockbackAcceleration.y;
+	knockbackSettings.knockbackAcceleration = knockbackAcceleration;
+
+	//ノックバックの設定を武器に設定
+	weapon->SetKnockbackSettings(knockbackSettings);
+}
+
 void Player::ApplyKnockback()
 {
 	if (knockbackSettings_.knockbackDuration > 0.0f)

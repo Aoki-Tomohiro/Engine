@@ -126,6 +126,9 @@ public:
 	//回転処理
 	void Rotate(const Vector3& vector);
 
+	//武器にパラメーターを設定
+	void ApplyParametersToWeapon(const CombatPhase& combatPhase);
+
 	//ノックバックを適用
 	void ApplyKnockback();
 

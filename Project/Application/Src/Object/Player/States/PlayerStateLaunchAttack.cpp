@@ -21,8 +21,8 @@ void PlayerStateLaunchAttack::Initialize()
 	//打ち上げ攻撃のフラグを立てる
 	player_->SetActionFlag(Player::ActionFlag::kLaunchAttack, true);
 
-	//武器にヒットストップの持続時間を設定
-	ApplyParametersToWeapon();
+	//武器にパラメーターを設定
+	player_->ApplyParametersToWeapon(animationState_.phases[phaseIndex_]);
 }
 
 void PlayerStateLaunchAttack::Update()
@@ -63,30 +63,6 @@ void PlayerStateLaunchAttack::OnCollision(GameObject* other)
 	}
 }
 
-void PlayerStateLaunchAttack::ApplyParametersToWeapon()
-{
-	//武器を取得
-	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
-
-	//現在のフェーズの設定を取得
-	const auto& currentPhase = animationState_.phases[phaseIndex_];
-
-	//ダメージを設定
-	weapon->SetDamage(currentPhase.attackSettings.damage);
-
-	//ヒットボックスを設定
-	weapon->SetHitbox(currentPhase.hitbox);
-
-	//エフェクトの設定を武器に設定
-	weapon->SetEffectSettings(currentPhase.effectSettings);
-
-	//ノックバックの設定を武器に設定
-	KnockbackSettings knockbackSettings = currentPhase.knockbackSettings;
-	knockbackSettings.knockbackVelocity = Mathf::RotateVector(knockbackSettings.knockbackVelocity, player_->GetDestinationQuaternion());
-	knockbackSettings.knockbackAcceleration = Mathf::RotateVector(knockbackSettings.knockbackAcceleration, player_->GetDestinationQuaternion());
-	weapon->SetKnockbackSettings(knockbackSettings);
-}
-
 void PlayerStateLaunchAttack::CheckForAttackStateTransition()
 {
 	//Xボタンが押されている場合攻撃状態への遷移要求を設定
@@ -101,8 +77,6 @@ void PlayerStateLaunchAttack::UpdateAnimationPhase(Weapon* weapon, float current
 	//次のフェーズがあり現在のアニメーション時間が現在のフェーズの持続時間を超えた場合フェーズを進める
 	if (phaseIndex_ < animationState_.phases.size() - 1 && currentAnimationTime > animationState_.phases[phaseIndex_].duration)
 	{
-		//攻撃状態を無効にする
-		weapon->SetIsAttack(false);
 		//フェーズを進める
 		phaseIndex_++;
 		//ヒットタイマーをリセット
@@ -110,7 +84,9 @@ void PlayerStateLaunchAttack::UpdateAnimationPhase(Weapon* weapon, float current
 		//ヒットカウントをリセット
 		hitCount_ = 0;
 		//武器に新しいフェーズのパラメータを適用
-		ApplyParametersToWeapon();
+		player_->ApplyParametersToWeapon(animationState_.phases[phaseIndex_]);
+		//攻撃状態を無効にする
+		weapon->SetIsAttack(false);
 	}
 }
 

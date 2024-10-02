@@ -22,7 +22,7 @@ void EnemyStateTackle::Initialize()
 	velocity_ = directionToPlayer * animationState_.phases[0].attackSettings.moveSpeed;
 
 	//武器に初期パラメータを適用
-	ApplyParametersToWeapon();
+	enemy_->ApplyParametersToWeapon(animationState_.phases[phaseIndex_]);
 }
 
 void EnemyStateTackle::Update()
@@ -71,7 +71,7 @@ void EnemyStateTackle::UpdateAnimationPhase(Weapon* weapon, float currentAnimati
 		//フェーズを進め、速度を再計算
 		phaseIndex_++;
 		UpdateVelocityForCurrentPhase();
-		ApplyParametersToWeapon();
+		enemy_->ApplyParametersToWeapon(animationState_.phases[phaseIndex_]);
 	}
 }
 
@@ -79,28 +79,6 @@ void EnemyStateTackle::UpdateVelocityForCurrentPhase()
 {
 	//現在のフェーズに基づいて速度を更新
 	velocity_ = Mathf::RotateVector({ 0.0f, 0.0f, animationState_.phases[phaseIndex_].attackSettings.moveSpeed }, enemy_->GetDestinationQuaternion());
-}
-
-void EnemyStateTackle::ApplyParametersToWeapon()
-{
-	//現在のフェーズの設定に基づいて武器のパラメータを適用
-	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("EnemyWeapon");
-	const auto& currentPhase = animationState_.phases[phaseIndex_];
-
-	//ダメージを設定
-	weapon->SetDamage(currentPhase.attackSettings.damage);
-
-	//ヒットボックスを設定
-	weapon->SetHitbox(currentPhase.hitbox);
-
-	//エフェクトの設定を武器に設定
-	weapon->SetEffectSettings(currentPhase.effectSettings);
-
-	//ノックバックの設定を武器に設定
-	KnockbackSettings knockbackSettings = currentPhase.knockbackSettings;
-	knockbackSettings.knockbackVelocity = Mathf::RotateVector(knockbackSettings.knockbackVelocity, enemy_->GetDestinationQuaternion());
-	knockbackSettings.knockbackAcceleration = Mathf::RotateVector(knockbackSettings.knockbackAcceleration, enemy_->GetDestinationQuaternion());
-	weapon->SetKnockbackSettings(knockbackSettings);
 }
 
 void EnemyStateTackle::HandleCurrentPhase(Weapon* weapon)

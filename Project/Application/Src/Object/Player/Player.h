@@ -159,6 +159,9 @@ public:
     //プレイヤーの移動
     void Move(const Vector3& velocity);
 
+    //武器にパラメーターを設定
+    void ApplyParametersToWeapon(const CombatPhase& combatPhase);
+
     //ノックバックを適用
     void ApplyKnockback();
 

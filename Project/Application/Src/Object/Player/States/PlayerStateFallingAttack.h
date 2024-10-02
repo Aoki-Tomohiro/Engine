@@ -24,8 +24,6 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	void ApplyParametersToWeapon();
-
 	void EndFallingAttack();
 
 	void CorrectPlayerPosition();
