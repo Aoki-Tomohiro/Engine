@@ -3,6 +3,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Model/AnimationManager.h"
+#include "Engine/3D/Primitive/TrailRenderer.h"
 #include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Components/Input/Input.h"

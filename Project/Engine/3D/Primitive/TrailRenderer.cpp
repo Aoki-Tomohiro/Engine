@@ -23,12 +23,19 @@ void TrailRenderer::Destroy()
 	}
 }
 
+Trail* TrailRenderer::CreateTrail()
+{
+	Trail* trail = TrailRenderer::GetInstance()->CreateTrailInternal();
+	return trail;
+}
+
 void TrailRenderer::Initialize()
 {
 	//RootSignatureの作成
-	rootSignature_.Create(2, 1);
+	rootSignature_.Create(3, 1);
 	rootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
-	rootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_[1].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootSignature_[2].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
@@ -108,6 +115,7 @@ void TrailRenderer::Initialize()
 
 void TrailRenderer::Update()
 {
+	//全ての軌跡の更新
 	for (const std::unique_ptr<Trail>& trail : trails_)
 	{
 		trail->Update();
@@ -143,15 +151,21 @@ void TrailRenderer::Draw()
 		//VertexBufferViewを設定
 		commandContext->SetVertexBuffer(trail->GetVertexBufferView());
 
+		//Materialを設定
+		commandContext->SetConstantBuffer(1, trail->GetMaterialResource()->GetGpuVirtualAddress());
+
 		//Textureを設定
-		commandContext->SetDescriptorTable(1, trail->GetTexture()->GetSRVHandle());
+		commandContext->SetDescriptorTable(2, trail->GetTexture()->GetSRVHandle());
 
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
 		commandContext->DrawInstanced((UINT)trail->GetNumVertices(), 1);
 	}
 }
 
-void TrailRenderer::AddTrail(Trail* trail)
+Trail* TrailRenderer::CreateTrailInternal()
 {
-	trails_.push_back(std::unique_ptr<Trail>(trail));
+	Trail* newTrail = new Trail();
+	newTrail->Initialize();
+	trails_.push_back(std::unique_ptr<Trail>(newTrail));
+	return newTrail;
 }

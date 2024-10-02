@@ -25,7 +25,7 @@ public:
 	struct LockonCameraParameters
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
-		float rotationRangeMin = 1.4f;
+		float rotationRangeMin = 1.0f;
 		float rotationRangeMax = 2.4f;
 	};
 

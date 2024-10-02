@@ -168,10 +168,14 @@ void PlayerStateDash::DashUpdate()
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();
 
-	//敵と一定距離近づいたら速度を0にする
+	//敵と一定距離近づいていた場合
 	if (Mathf::Length(enemyPosition - playerPosition) < player_->GetDashParameters().proximityDistance)
 	{
+		//速度を0にする
 		velocity_ = { 0.0f,0.0f,0.0f };
+
+		//パーティクルエミッターと加速フィールドを削除
+		DeleteParticleEmitterAndAccelerationField();
 	}
 
 	//移動処理
@@ -269,21 +273,8 @@ void PlayerStateDash::ResetDashFlags()
 	player_->SetIsVisible(true);
 	//ダッシュのフラグを解除
 	player_->SetActionFlag(Player::ActionFlag::kDashing, false);
-
-	//パーティクルシステムを取得
-	ParticleSystem* particleSystem = player_->GetParticleSystem("Smoke");
-	if (particleSystem)
-	{
-		// パーティクルエミッターと加速フィールドを削除
-		if (ParticleEmitter* emitter = particleSystem->GetParticleEmitter("Dash"))
-		{
-			emitter->SetIsDead(true);
-		}
-		if (AccelerationField* accelerationField = particleSystem->GetAccelerationField("Dash"))
-		{
-			accelerationField->SetIsDead(true);
-		}
-	}
+	//エミッターと加速フィールドの削除
+	DeleteParticleEmitterAndAccelerationField();
 }
 
 void PlayerStateDash::HandleAnimationFinish()
@@ -298,5 +289,23 @@ void PlayerStateDash::HandleAnimationFinish()
 	{
 		//通常状態に戻す
 		player_->ChangeState(new PlayerStateRoot());
+	}
+}
+
+void PlayerStateDash::DeleteParticleEmitterAndAccelerationField()
+{
+	//パーティクルシステムを取得
+	ParticleSystem* particleSystem = player_->GetParticleSystem("Smoke");
+	//パーティクルシステムが見つからない場合は終了
+	if (!particleSystem) { return; };
+
+	//パーティクルエミッターと加速フィールドを削除
+	if (ParticleEmitter* emitter = particleSystem->GetParticleEmitter("Dash"))
+	{
+		emitter->SetIsDead(true);
+	}
+	if (AccelerationField* accelerationField = particleSystem->GetAccelerationField("Dash"))
+	{
+		accelerationField->SetIsDead(true);
 	}
 }

@@ -3,42 +3,46 @@
 
 void Trail::Initialize()
 {
-	//頂点バッファの作成
-	vertexBuffer_ = std::make_unique<UploadBuffer>();
-	vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+    //頂点バッファの作成
+    CreateVertexBuffer();
 
-	//頂点バッファビューの作成
-	vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
-	vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUV);
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+    //マテリアル用のリソースの作成
+    CreateMaterialResource();
 
 	//デフォルトのテクスチャを設定
-    TextureManager::Load("Gradation2.png");
-	SetTexture("Gradation2.png");
+    TextureManager::Load("white.png");
+	SetTexture("white.png");
 }
 
 void Trail::Update()
 {
-    //軌跡の頂点データをクリア
+    //頂点データをクリア
     trailVertices_.clear();
 
-    //頂点を計算
-    for (int32_t i = 0; i < startVertices_.size() - 1; ++i)
-    {
-        CalculateTrailVertices(i);
-    }
+    //軌跡データの更新
+    UpdateTrailData();
+
+    //有効な軌跡データが足りない場合は終了
+    if (trailDatas_.size() < 3) return;
+
+    //頂点データの更新
+    GenerateTrailVertices();
 
     //頂点バッファを更新
-    UpdateVertexBuffer(trailVertices_);
+    UpdateVertexBuffer(trailDatas_);
+
+    //マテリアル用のリソースの更新
+    UpdateMaterialResource();
 }
 
-void Trail::AddVertex(const Vector3& start, const Vector3& end)
+void Trail::AddVertex(const Vector3& head, const Vector3& front)
 {
-	//始点座標を設定
-    startVertices_.push_back(start);
-
-	//終点座標を設定
-    endVertices_.push_back(end);
+    //新しい軌跡を追加
+    TrailData trailData{};
+    trailData.headPosition = head;
+    trailData.frontPosition = front;
+    trailData.dissipationTime = dissipationDuration_;
+    trailDatas_.push_back(trailData);
 }
 
 void Trail::SetTexture(const std::string& textureName)
@@ -49,7 +53,51 @@ void Trail::SetTexture(const std::string& textureName)
 	assert(texture_);
 }
 
-void Trail::CalculateTrailVertices(const int32_t vertexIndex)
+void Trail::CreateVertexBuffer()
+{
+    //頂点バッファの作成
+    vertexBuffer_ = std::make_unique<UploadBuffer>();
+    vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+
+    //頂点バッファビューの作成
+    vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
+    vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUV);
+    vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+}
+
+void Trail::CreateMaterialResource()
+{
+    //マテリアル用のリソースの作成
+    materialResource_ = std::make_unique<UploadBuffer>();
+    materialResource_->Create(sizeof(Vector4));
+
+    //リソースに書き込む
+    UpdateMaterialResource();
+}
+
+void Trail::UpdateTrailData()
+{
+    //全ての軌跡データの生存時間を減少させ、時間切れのデータを削除
+    for (int32_t i = (int32_t)trailDatas_.size() - 1; i >= 0; --i)
+    {
+        trailDatas_[i].dissipationTime -= GameTimer::GetDeltaTime();
+        if (trailDatas_[i].dissipationTime < 0.0f)
+        {
+            trailDatas_.erase(trailDatas_.begin() + i);
+        }
+    }
+}
+
+void Trail::GenerateTrailVertices()
+{
+    //各軌跡の頂点を計算
+    for (int32_t i = 0; i < trailDatas_.size() - 1; ++i)
+    {
+        CalculateTrailVertices(i);
+    }
+}
+
+void Trail::CalculateTrailVertices(const int32_t trailIndex)
 {
     //セグメントごとの計算
     for (int32_t j = 0; j < numSegments_; ++j)
@@ -58,15 +106,14 @@ void Trail::CalculateTrailVertices(const int32_t vertexIndex)
         float t = static_cast<float>(j) / static_cast<float>(numSegments_);
 
         //制御点を取得
-        std::vector<Vector3> headP = GetControlPoints(startVertices_, vertexIndex);
-        std::vector<Vector3> frontP = GetControlPoints(endVertices_, vertexIndex);
+        std::vector<TrailData> trailData = GetControlPoints(trailIndex);
 
         //Catmull-Romスプラインを用いてポイントを計算
-        Vector3 headPoint = Mathf::CatmullRomSpline(headP[0], headP[1], headP[2], headP[3], t);
-        Vector3 frontPoint = Mathf::CatmullRomSpline(frontP[0], frontP[1], frontP[2], frontP[3], t);
+        Vector3 headPoint = Mathf::CatmullRomSpline(trailData[0].headPosition, trailData[1].headPosition, trailData[2].headPosition, trailData[3].headPosition, t);
+        Vector3 frontPoint = Mathf::CatmullRomSpline(trailData[0].frontPosition, trailData[1].frontPosition, trailData[2].frontPosition, trailData[3].frontPosition, t);
 
         //テクスチャ座標を計算
-        float texCoordX = (static_cast<float>(vertexIndex) + t) / static_cast<float>(startVertices_.size() - 1);
+        float texCoordX = (static_cast<float>(trailIndex) + t) / static_cast<float>(trailDatas_.size() - 1);
 
         //新しい頂点データを追加
         AddTrailVertexData(headPoint, { texCoordX, 0.0f });
@@ -74,26 +121,26 @@ void Trail::CalculateTrailVertices(const int32_t vertexIndex)
     }
 }
 
-const std::vector<Vector3> Trail::GetControlPoints(const std::vector<Vector3>& vertices, const int32_t controlVertex)
+const std::vector<Trail::TrailData> Trail::GetControlPoints(const int32_t trailIndex)
 {
-    //制御点の座標を初期化
-    std::vector<Vector3> controlPoints(4);
+    //制御点を取得
+    std::vector<TrailData> controlPoints(4);
     for (int32_t l = 0; l < controlPoints.size(); ++l)
     {
         //制御点のインデックスを計算
-        int32_t vertexIndex = controlVertex - 1 + l;
+        int32_t vertexIndex = trailIndex - 1 + l;
 
         //最初の制御点の場合の特別処理
-        if (controlVertex == 0)
+        if (trailIndex == 0)
         {
-            vertexIndex = (l == 0) ? controlVertex : vertexIndex;
+            vertexIndex = (l == 0) ? trailIndex : vertexIndex;
         }
         //最後の制御点の場合の特別処理
-        else if (controlVertex == vertices.size() - 2)
+        else if (trailIndex == trailDatas_.size() - 2)
         {
-            vertexIndex = (l == controlPoints.size() - 1) ? controlVertex - 2 + l : vertexIndex;
+            vertexIndex = (l == controlPoints.size() - 1) ? trailIndex - 2 + l : vertexIndex;
         }
-        controlPoints[l] = { vertices[vertexIndex].x, vertices[vertexIndex].y, vertices[vertexIndex].z };
+        controlPoints[l] = trailDatas_[vertexIndex];
     }
     return controlPoints;
 }
@@ -107,10 +154,18 @@ void Trail::AddTrailVertexData(const Vector3& point, const Vector2& texcoord)
     trailVertices_.push_back(vertex);
 }
 
-void Trail::UpdateVertexBuffer(const std::vector<VertexDataPosUV>& vertices)
+void Trail::UpdateVertexBuffer(const std::vector<TrailData>& trailDatas)
 {
     //頂点バッファにデータを書き込む
     VertexDataPosUV* vertexData = static_cast<VertexDataPosUV*>(vertexBuffer_->Map());
-    std::memcpy(vertexData, vertices.data(), sizeof(VertexDataPosUV) * vertices.size());
+    std::memcpy(vertexData, trailVertices_.data(), sizeof(VertexDataPosUV) * trailVertices_.size());
     vertexBuffer_->Unmap();
+}
+
+void Trail::UpdateMaterialResource()
+{
+    //マテリアル用のリソースにデータを書き込む
+    Vector4* materialData = static_cast<Vector4*>(materialResource_->Map());
+    *materialData = color_;
+    materialResource_->Unmap();
 }

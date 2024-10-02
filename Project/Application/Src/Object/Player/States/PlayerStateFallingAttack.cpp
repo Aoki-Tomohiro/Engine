@@ -127,6 +127,10 @@ void PlayerStateFallingAttack::UpdateAnimationPhase(Weapon* weapon, float curren
 	{
 		//フェーズを進める
 		phaseIndex_++;
+		//ヒットカウントをリセット
+		hitCount_ = 0;
+		//ヒットタイマーをリセット
+		hitTimer_ = 0.0f;
 		//武器に新しいフェーズのパラメータを適用
 		ApplyParametersToWeapon();
 		//フェーズ遷移処理
@@ -154,8 +158,9 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 	}
 	else
 	{
-		//攻撃状態を無効にする
-		weapon->SetIsAttack(false);
+		//攻撃状態を設定
+		bool isAttack = animationState_.phases[phaseIndex_].name == "SlamAttack" ? true : false;
+		weapon->SetIsAttack(isAttack);
 
 		//アニメーション停止を解除
 		player_->ResumeAnimation();
@@ -170,6 +175,10 @@ void PlayerStateFallingAttack::HandleCurrentPhase(Weapon* weapon)
 	case kAttack:
 		//攻撃フェーズの処理
 		AttackUpdate(weapon);
+		break;
+	case kSlamAttack:
+		//武器のヒット判定処理
+		HandleWeaponHit(weapon);
 		break;
 	}
 }

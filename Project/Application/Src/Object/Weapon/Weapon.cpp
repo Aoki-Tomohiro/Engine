@@ -30,6 +30,11 @@ void Weapon::Initialize()
 	//環境変数の初期化
 	InitializeGlobalVariables();
 
+	//軌跡の作成
+	TextureManager::Load("Trail.png");
+	trail_ = TrailRenderer::CreateTrail();
+	trail_->SetTexture("Trail.png");
+
 	//音声データの読み込み
 	hitAudioHandle_ = audio_->LoadAudioFile("Hit.mp3");
 }
@@ -51,6 +56,9 @@ void Weapon::Update()
 
 	//基底クラスの更新
 	GameObject::Update();
+
+	//軌跡の更新
+	UpdateTrail();
 
 	//環境変数の適用
 	ApplyGlobalVariables();
@@ -210,6 +218,29 @@ void Weapon::UpdateEnemyCollider()
 	collider->SetDebugDrawEnabled(isDebug_);
 }
 
+void Weapon::UpdateTrail()
+{
+	//軌跡が有効な場合
+	if (isTrailActive_)
+	{
+		//トランスフォームを取得
+		TransformComponent* tranformComponent = GetComponent<TransformComponent>();
+
+		//ワールド座標を取得
+		Vector3 worldPosition = tranformComponent->GetWorldPosition();
+
+		//オフセット値を計算
+		Vector3 headOffset = Mathf::TransformNormal(headOffset_, tranformComponent->worldTransform_.matWorld_);
+		Vector3 frontOffset = Mathf::TransformNormal(frontOffset_, tranformComponent->worldTransform_.matWorld_);
+
+		//軌跡の追加
+		trail_->AddVertex(worldPosition + headOffset, worldPosition + frontOffset);
+	}
+
+	//軌跡の色の更新
+	trail_->SetColor(trailColor_);
+}
+
 void Weapon::InitializeModel()
 {
 	//モデルの初期化
@@ -289,5 +320,6 @@ void Weapon::UpdateImGui()
 	ImGui::DragFloat3("Scale", &transformComponent->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("HitboxCenter", &hitbox_.center.x, 0.01f);
 	ImGui::DragFloat3("HitboxSize", &hitbox_.size.x, 0.01f);
+	ImGui::ColorEdit4("TrailColor", &trailColor_.x);
 	ImGui::End();
 }

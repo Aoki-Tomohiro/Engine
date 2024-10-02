@@ -11,13 +11,13 @@ public:
 
 	static void Destroy();
 
+	static Trail* CreateTrail();
+
 	void Initialize();
 
 	void Update();
 
 	void Draw();
-
-	void AddTrail(Trail* trail);
 
 	const Camera* GetCamera() const { return camera_; };
 
@@ -28,6 +28,8 @@ private:
 	~TrailRenderer() = default;
 	TrailRenderer(const TrailRenderer&) = delete;
 	TrailRenderer& operator=(const TrailRenderer&) = delete;
+
+	Trail* CreateTrailInternal();
 
 private:
 	static TrailRenderer* instance_;

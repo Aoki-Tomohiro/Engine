@@ -30,6 +30,7 @@ void PlayerStateSpinAttack::Initialize()
 	//ダメージを設定
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
 	weapon->SetDamage(animationState_.phases[0].attackSettings.damage);
+	weapon->SetIsTrailActive(true);
 
 	//ノックバックの設定を武器に設定
 	KnockbackSettings knockbackSettings = animationState_.phases[0].knockbackSettings;
@@ -185,6 +186,7 @@ void PlayerStateSpinAttack::FinalizeSpinAttack()
 
 	//武器の攻撃判定を無効にする
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	weapon->SetIsTrailActive(false);
 	weapon->SetIsAttack(false);
 
 	//攻撃状態への遷移フラグが立っている場合

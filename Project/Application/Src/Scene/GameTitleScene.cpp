@@ -28,6 +28,8 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->SetCamera(camera_);
 	//パーティクルマネージャーにカメラを設定
 	particleManager_->SetCamera(camera_);
+	//トレイルレンダラーにカメラを設定
+	TrailRenderer::GetInstance()->SetCamera(camera_);
 
 	//プレイヤーを取得
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
@@ -69,19 +71,6 @@ void GameTitleScene::Initialize()
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
 	audio_->PlayAudio(audioHandle_, true, 0.2f);
-
-	//軌跡の作成
-	trail_ = new Trail();
-	trail_->Initialize();
-	trail_->AddVertex({ -30.0f,0.0f,0.0f }, { -30.0f, 10.0f, 0.0f });
-	trail_->AddVertex({ -20.0f,4.0f,0.0f }, { -20.0f, 14.0f, 0.0f });
-	trail_->AddVertex({ -10.0f,4.0f,0.0f }, { -10.0f, 14.0f, 0.0f });
-	trail_->AddVertex({ 0.0f,0.0f,0.0f }, { 0.0f, 10.0f, 0.0f });
-	trail_->AddVertex({ 10.0f,4.0f,0.0f }, { 10.0f, 14.0f, 0.0f });
-	trail_->AddVertex({ 20.0f,4.0f,0.0f }, { 20.0f, 14.0f, 0.0f });
-	trail_->AddVertex({ 30.0f,0.0f,0.0f }, { 30.0f, 10.0f, 0.0f });
-	TrailRenderer::GetInstance()->AddTrail(trail_);
-	TrailRenderer::GetInstance()->SetCamera(camera_);
 }
 
 void GameTitleScene::Finalize()

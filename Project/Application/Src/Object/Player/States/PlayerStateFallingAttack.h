@@ -13,6 +13,7 @@ public:
 		kRush,
 		kCharge,
 		kAttack,
+		kSlamAttack,
 		kRecovery,
 	};
 
