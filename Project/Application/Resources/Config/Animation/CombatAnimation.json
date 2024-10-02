@@ -154,7 +154,7 @@
                 0.0
             ],
             "Damage": 0.0,
-            "Duration": 0.800000011920929,
+            "Duration": 0.699999988079071,
             "HitCount": 0,
             "HitInterval": 0.0,
             "HitStopDuration": 0.0,
@@ -264,7 +264,7 @@
                 0.0
             ],
             "Damage": 0.0,
-            "Duration": 0.9599999785423279,
+            "Duration": 0.8600000143051147,
             "HitCount": 0,
             "HitInterval": 0.0,
             "HitStopDuration": 0.0,
@@ -1189,7 +1189,7 @@
             ],
             "HitboxSize": [
                 2.0,
-                3.0,
+                4.0,
                 2.0
             ],
             "KnockbackAcceleration": [
@@ -1200,7 +1200,7 @@
             "KnockbackDuration": 2.0,
             "KnockbackVelocity": [
                 0.0,
-                -50.0,
+                -80.0,
                 0.0
             ],
             "MoveSpeed": 0.0,
@@ -1313,6 +1313,42 @@
             ],
             "MoveSpeed": 0.0,
             "ReactionType": "Flinch"
+        },
+        "SlamAttack": {
+            "CameraShakeDuration": 0.20000000298023224,
+            "CameraShakeIntensity": [
+                0.0,
+                2.0,
+                0.0
+            ],
+            "Damage": 10.0,
+            "Duration": 1.940000057220459,
+            "HitCount": 1,
+            "HitInterval": 0.0,
+            "HitStopDuration": 0.0,
+            "HitboxCenter": [
+                0.0,
+                0.0,
+                3.0
+            ],
+            "HitboxSize": [
+                2.0,
+                4.0,
+                2.0
+            ],
+            "KnockbackAcceleration": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "KnockbackDuration": 2.0,
+            "KnockbackVelocity": [
+                0.0,
+                20.0,
+                0.0
+            ],
+            "MoveSpeed": 0.0,
+            "ReactionType": "Knockback"
         }
     },
     "GroundAttack1": {
@@ -1470,7 +1506,7 @@
                 0.0
             ],
             "Damage": 0.0,
-            "Duration": 0.800000011920929,
+            "Duration": 0.699999988079071,
             "HitCount": 0,
             "HitInterval": 0.0,
             "HitStopDuration": 0.0,
@@ -1580,7 +1616,7 @@
                 0.0
             ],
             "Damage": 0.0,
-            "Duration": 0.550000011920929,
+            "Duration": 0.44999998807907104,
             "HitCount": 0,
             "HitInterval": 0.0,
             "HitStopDuration": 0.0,
@@ -1690,7 +1726,7 @@
                 0.0
             ],
             "Damage": 0.0,
-            "Duration": 1.340000033378601,
+            "Duration": 1.2400000095367432,
             "HitCount": 0,
             "HitInterval": 0.0,
             "HitStopDuration": 0.0,
@@ -2183,13 +2219,13 @@
             "KnockbackAcceleration": [
                 0.0,
                 0.0,
-                1.0
+                0.0
             ],
             "KnockbackDuration": 2.0,
             "KnockbackVelocity": [
                 0.0,
-                14.0,
-                -1.0
+                20.0,
+                0.0
             ],
             "MoveSpeed": 0.0,
             "ReactionType": "Knockback"

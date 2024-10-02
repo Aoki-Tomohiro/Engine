@@ -136,6 +136,9 @@ void PlayerStateLaunchAttack::HandleCurrentPhase(Weapon* weapon)
 
 void PlayerStateLaunchAttack::AttackUpdate(Weapon* weapon)
 {
+	//軌跡エフェクトを有効にする
+	weapon->SetIsTrailActive(true);
+
 	//現在のフェーズの攻撃設定を取得
 	const auto& attackSettings = animationState_.phases[phaseIndex_].attackSettings;
 
@@ -173,6 +176,8 @@ void PlayerStateLaunchAttack::RecoveryUpdate(Weapon* weapon)
 {
 	//攻撃状態を無効にする
 	weapon->SetIsAttack(false); 
+	//軌跡エフェクトを無効にする
+	weapon->SetIsTrailActive(false);
 
 	//打ち上げ攻撃のフラグを折る
 	player_->SetActionFlag(Player::ActionFlag::kLaunchAttack, false);

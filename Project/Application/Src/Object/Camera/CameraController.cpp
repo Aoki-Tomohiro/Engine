@@ -201,7 +201,12 @@ void CameraController::UpdateCameraPosition()
 	Vector3 offset = CalculateOffset();
 
 	//追従対象の位置と計算したオフセットを加算してカメラの位置を設定
-	SetPosition(GetInterTarget() + offset);
+	Vector3 newPosition = GetInterTarget() + offset;
+	if (newPosition.y <= 0.0f)
+	{
+		newPosition.y = 0.0f;
+	}
+	SetPosition(newPosition);
 }
 
 void CameraController::UpdateCameraOffset()

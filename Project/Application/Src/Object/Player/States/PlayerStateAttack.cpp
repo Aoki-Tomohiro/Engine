@@ -92,7 +92,7 @@ void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)
 	//アニメーションの名前を設定
 	std::string animationName = (isAerial ? "AerialAttack" : "GroundAttack") + std::to_string(workAttack_.comboIndex + 1);
 	//アニメーションの速度を設定
-	float animationSpeed = isAerial ? 3.0f : 2.4f;
+	float animationSpeed = isAerial ? 2.0f : 1.8f;
 	//アニメーションを再生
 	player_->PlayAnimation(animationName, animationSpeed, false);
 }
@@ -328,6 +328,7 @@ void PlayerStateAttack::AttackUpdate()
 {
 	//武器を取得
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	weapon->SetIsTrailActive(true);
 
 	//アニメーション内でのヒットカウントチェック
 	if (workAttack_.hitCount < animationStates_[workAttack_.comboIndex].phases[workAttack_.inComboPhase].attackSettings.hitCount)
@@ -363,6 +364,7 @@ void PlayerStateAttack::RecoveryUpdate()
 {
 	//硬直フェーズでは攻撃判定を無効化
 	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	weapon->SetIsTrailActive(false);
 	weapon->SetIsAttack(false);
 }
 

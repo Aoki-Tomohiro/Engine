@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/3D/Model/ModelManager.h"
+#include "Engine/3D/Primitive/TrailRenderer.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
@@ -45,6 +46,8 @@ public:
 
 	const bool GetIsHit() const { return isHit_; };
 
+	void SetIsTrailActive(const bool isTrailActive) { isTrailActive_ = isTrailActive; };
+
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
 private:
@@ -61,6 +64,8 @@ private:
 	void UpdatePlayerCollider();
 
 	void UpdateEnemyCollider();
+
+	void UpdateTrail();
 
 	void ApplyGlobalVariables();
 
@@ -105,5 +110,18 @@ private:
 
 	//オーディオハンドル
 	uint32_t hitAudioHandle_ = 0;
-};
+
+	//軌跡
+	Trail* trail_ = nullptr;
+
+	//軌跡のアクティブフラグ
+	bool isTrailActive_ = false;
+
+	//軌跡の色
+	Vector4 trailColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
+
+	//軌跡のオフセット値
+	Vector3 headOffset_ = { 0.0f, 0.0f, -30.0f };
+	Vector3 frontOffset_ = { 0.0f, 0.0f, -110.0f };
+ };
 

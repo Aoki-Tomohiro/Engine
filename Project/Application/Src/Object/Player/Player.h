@@ -123,13 +123,13 @@ public:
     //打ち上げ攻撃のパラメーター
     struct LaunchAttackParameters : public SkillParameters
     {
-        LaunchAttackParameters() : SkillParameters{ 3.0f } {};
+        LaunchAttackParameters() : SkillParameters{ 6.0f } {};
     };
 
     //回転攻撃用のパラメーター
     struct SpinAttackParameters : public SkillParameters
     {
-        SpinAttackParameters() : SkillParameters{ 3.0f } {};
+        SpinAttackParameters() : SkillParameters{ 6.0f } {};
         float totalRotation = std::numbers::pi_v<float> *2.0f * 3.0f;
         float totalDuration = 0.6f;
         float riseHeight = 4.0f;

@@ -42,6 +42,8 @@ private:
 
 	void ResetDashFlags();
 
+	void DeleteParticleEmitterAndAccelerationField();
+
 	void HandleAnimationFinish();
 
 private:

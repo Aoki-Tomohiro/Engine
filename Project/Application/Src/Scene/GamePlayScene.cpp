@@ -178,6 +178,7 @@ void GamePlayScene::InitializeCameraAndLockon()
 	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
 	gameObjectManager_->SetCamera(camera_);
 	particleManager_->SetCamera(camera_);
+	TrailRenderer::GetInstance()->SetCamera(camera_);
 
 	//CombatAnimationEditorとロックオンシステムの初期化
 	combatAnimationEditor_ = std::make_unique<CombatAnimationEditor>();

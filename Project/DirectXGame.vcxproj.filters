@@ -711,6 +711,12 @@
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3D\Primitive\TrailRenderer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3D\Primitive\Trail.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -1187,6 +1193,12 @@
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3D\Primitive\TrailRenderer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3D\Primitive\Trail.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Externals\imgui\LICENSE.txt">
@@ -1248,6 +1260,7 @@
     <None Include="Application\Resources\Shaders\Vignette.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\Trail.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
@@ -1373,5 +1386,7 @@
     <FxCompile Include="Application\Resources\Shaders\ShadowMap.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Application\Resources\Shaders\Trail.PS.hlsl" />
+    <FxCompile Include="Application\Resources\Shaders\Trail.VS.hlsl" />
   </ItemGroup>
 </Project>

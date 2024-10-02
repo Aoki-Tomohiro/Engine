@@ -28,6 +28,8 @@ void GameTitleScene::Initialize()
 	gameObjectManager_->SetCamera(camera_);
 	//パーティクルマネージャーにカメラを設定
 	particleManager_->SetCamera(camera_);
+	//トレイルレンダラーにカメラを設定
+	TrailRenderer::GetInstance()->SetCamera(camera_);
 
 	//プレイヤーを取得
 	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
