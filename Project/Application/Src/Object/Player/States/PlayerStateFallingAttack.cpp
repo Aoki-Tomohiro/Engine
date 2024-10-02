@@ -119,24 +119,34 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 	//攻撃フェーズに移行した場合
 	if (animationState_.phases[phaseIndex_].name == "Attack")
 	{
-		//攻撃状態を有効にする
-		weapon->SetIsAttack(true);
-
-		//アニメーションを一時停止
-		player_->PauseAnimation();
-
 		//移動開始座標を設定
 		startPosition_ = player_->GetPosition();
 
 		//移動終了座標を設定
 		endPosition_ = startPosition_;
 		endPosition_.y = 0.0f;
+
+		//攻撃状態を有効にする
+		weapon->SetIsAttack(true);
+
+		//アニメーションを一時停止
+		player_->PauseAnimation();
+	}
+	else if(animationState_.phases[phaseIndex_].name == "SlamAttack")
+	{
+		//攻撃状態を設定
+		weapon->SetIsAttack(true);
+
+		//アニメーション停止を解除
+		player_->ResumeAnimation();
+
+		//パーティクルを生成
+		CreateSlamAttackParticles();
 	}
 	else
 	{
 		//攻撃状態を設定
-		bool isAttack = animationState_.phases[phaseIndex_].name == "SlamAttack" ? true : false;
-		weapon->SetIsAttack(isAttack);
+		weapon->SetIsAttack(false);
 
 		//アニメーション停止を解除
 		player_->ResumeAnimation();
@@ -220,4 +230,28 @@ void PlayerStateFallingAttack::ApplyDamageAndKnockback(const KnockbackSettings& 
 
 	//ダメージを食らった処理を実行
 	player_->HandleIncomingDamage(knockbackSettings, damage, true);
+}
+
+void PlayerStateFallingAttack::CreateSlamAttackParticles()
+{
+	//パーティクルを出す
+	for (int32_t i = 0; i <= 360; ++i)
+	{
+		//Quaternionを計算
+		Quaternion rotation = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, static_cast<float>(i) * (std::numbers::pi_v<float> / 180.0f));
+
+		//速度を計算
+		const float kMoveSpeed = 0.8f;
+		Vector3 velocity = Mathf::Normalize(Mathf::RotateVector({ 0.0f,0.0f,1.0f }, rotation)) * kMoveSpeed;
+
+		//エミッターの生成
+		ParticleEmitter* emitter = EmitterBuilder()
+			.SetEmitterName("SlamAttack").SetColor({ 1.0f, 0.1f, 0.0f, 1.0f }, { 1.0f, 0.1f, 0.0f, 1.0f })
+			.SetEmitterLifeTime(0.0f).SetCount(1).SetFrequency(100.0f).SetLifeTime(0.6f, 0.8f).SetRadius(0.0f)
+			.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }).SetScale({ 1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f })
+			.SetTranslation(player_->GetHipWorldPosition()).SetVelocity(velocity, velocity).Build();
+
+		//パーティクルシステムにエミッターを追加
+		player_->AddParticleEmitter("Smoke", emitter);
+	}
 }

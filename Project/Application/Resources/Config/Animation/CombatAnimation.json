@@ -2202,7 +2202,7 @@
                 0.0
             ],
             "Damage": 6.0,
-            "Duration": 1.059999942779541,
+            "Duration": 0.9200000166893005,
             "HitCount": 5,
             "HitInterval": 0.10000000149011612,
             "HitStopDuration": 0.0,
@@ -2224,7 +2224,7 @@
             "KnockbackDuration": 2.0,
             "KnockbackVelocity": [
                 0.0,
-                20.0,
+                16.0,
                 0.0
             ],
             "MoveSpeed": 0.0,

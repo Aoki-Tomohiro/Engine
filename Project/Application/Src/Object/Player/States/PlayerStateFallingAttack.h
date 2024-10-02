@@ -40,6 +40,8 @@ private:
 
 	void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage);
 
+	void CreateSlamAttackParticles();
+
 	const float GetCurrentAnimationTime() const;
 
 private:
