@@ -3,9 +3,6 @@
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateFalling::Initialize()
 {
@@ -53,22 +50,8 @@ void PlayerStateFalling::Update()
 
 void PlayerStateFalling::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
-	}
-	else if (Laser* laser = dynamic_cast<Laser*>(other))
-	{
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
-	}
-	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
-	{
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
-	}
+	//衝突処理
+	player_->ProcessCollisionImpact(other, true);
 }
 
 void PlayerStateFalling::ApplyGravity()

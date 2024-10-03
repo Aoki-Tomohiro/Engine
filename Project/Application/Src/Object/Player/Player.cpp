@@ -1,7 +1,9 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Player/States/PlayerStateDeath.h"
@@ -132,9 +134,6 @@ void Player::DrawUI()
 
 void Player::OnCollision(GameObject* gameObject)
 {
-	//状態の衝突判定処理
-	state_->OnCollision(gameObject);
-
 	//衝突相手が敵の場合
 	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
 	{
@@ -177,6 +176,11 @@ void Player::OnCollision(GameObject* gameObject)
 
 		//衝突方向に基づいてプレイヤーの位置を修正
 		transform1->worldTransform_.translation_ += overlapAxis * directionAxis;
+	}
+	else
+	{
+		//状態の衝突判定処理
+		state_->OnCollision(gameObject);
 	}
 }
 
@@ -332,7 +336,27 @@ void Player::CorrectAnimationOffset()
 	SetPosition(GetPosition() - hipPositionOffset);
 }
 
-void Player::HandleIncomingDamage(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
+void Player::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
+{
+	//衝突相手が武器だった場合
+	if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
+	{
+		//ダメージを食らった処理を実行
+		ApplyDamageAndKnockback(weapon->GetKnockbackSettings(), weapon->GetDamage(), transitionToStun);
+	}
+	else if (Laser* laser = dynamic_cast<Laser*>(gameObject))
+	{
+		//ダメージを食らった処理を実行
+		ApplyDamageAndKnockback(KnockbackSettings{}, laser->GetDamage(), transitionToStun);
+	}
+	else if (Pillar* pillar = dynamic_cast<Pillar*>(gameObject))
+	{
+		//ダメージを食らった処理を実行
+		ApplyDamageAndKnockback(KnockbackSettings{}, pillar->GetDamage(), transitionToStun);
+	}
+}
+
+void Player::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
 {
 	//ノックバックの速度を設定
 	knockbackSettings_ = knockbackSettings;

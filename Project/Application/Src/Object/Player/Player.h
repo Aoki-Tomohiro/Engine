@@ -175,7 +175,8 @@ public:
     void CorrectAnimationOffset();
 
     //ダメージを食らった時の処理
-    void HandleIncomingDamage(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
+    void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
+    void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
 
     //アニメーション操作
     void PlayAnimation(const std::string& name, float speed, bool loop);

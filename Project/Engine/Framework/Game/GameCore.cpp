@@ -167,6 +167,9 @@ void GameCore::Draw()
 	//SceneManagerの描画
 	sceneManager_->Draw();
 
+	//軌跡の描画
+	trailRenderer_->Draw();
+
 	//パーティクルの描画
 	particleManager_->Draw();
 
@@ -181,9 +184,6 @@ void GameCore::Draw()
 
 	//PostEffectsの描画
 	postEffects_->Draw();
-
-	//軌跡の描画
-	trailRenderer_->Draw();
 
 	//ラインの描画
 	lineRenderer_->Draw();

@@ -51,40 +51,14 @@ void PlayerStateAttack::Update()
 
 void PlayerStateAttack::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//アニメーションを停止
-		player_->StopAnimation();
+	//アニメーションを停止
+	player_->StopAnimation();
 
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
+	//プレイヤーの位置をアニメーション後の位置に補正
+	CorrectPlayerPosition();
 
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
-	}
-	else if (Laser* laser = dynamic_cast<Laser*>(other))
-	{
-		//アニメーションを停止
-		player_->StopAnimation();
-
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
-	}
-	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
-	{
-		//アニメーションを停止
-		player_->StopAnimation();
-
-		//プレイヤーの位置をアニメーション後の位置に補正
-		CorrectPlayerPosition();
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
-	}
+	//衝突処理
+	player_->ProcessCollisionImpact(other, true);
 }
 
 void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)

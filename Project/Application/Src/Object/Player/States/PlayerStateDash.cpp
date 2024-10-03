@@ -7,8 +7,6 @@
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateDash::Initialize()
 {
@@ -71,40 +69,14 @@ void PlayerStateDash::Update()
 
 void PlayerStateDash::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//ダッシュの状態をリセット
-		ResetDashFlags();
+	//ダッシュの状態をリセット
+	ResetDashFlags();
 
-		//ラジアルブラーを切る
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+	//ラジアルブラーを切る
+	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(weapon->GetKnockbackSettings(), weapon->GetDamage(), true);
-	}
-	else if (Laser* laser = dynamic_cast<Laser*>(other))
-	{
-		//ダッシュの状態をリセット
-		ResetDashFlags();
-
-		//ラジアルブラーを切る
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, laser->GetDamage(), true);
-	}
-	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
-	{
-		//ダッシュの状態をリセット
-		ResetDashFlags();
-
-		//ラジアルブラーを切る
-		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-
-		//ダメージを食らった処理を実行
-		player_->HandleIncomingDamage(KnockbackSettings{}, pillar->GetDamage(), true);
-	}
+	//衝突処理
+	player_->ProcessCollisionImpact(other, true);
 }
 
 void PlayerStateDash::HandleLockon()
@@ -151,6 +123,10 @@ void PlayerStateDash::DashUpdate()
 	{
 		//プレイヤーを一時的に非表示にする
 		player_->SetIsVisible(false);
+
+		//武器を一時的に非表示にする
+		Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+		weapon->SetIsVisible(false);
 
 		//ダッシュのパーティクルを生成
 		SpawnDashParticles();
@@ -271,6 +247,9 @@ void PlayerStateDash::ResetDashFlags()
 {
 	//プレイヤーを再表示
 	player_->SetIsVisible(true);
+	//武器を再表示
+	Weapon* weapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	weapon->SetIsVisible(true);
 	//ダッシュのフラグを解除
 	player_->SetActionFlag(Player::ActionFlag::kDashing, false);
 	//エミッターと加速フィールドの削除

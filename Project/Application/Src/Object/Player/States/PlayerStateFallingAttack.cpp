@@ -3,8 +3,6 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Pillar/Pillar.h"
 
 void PlayerStateFallingAttack::Initialize()
 {
@@ -81,19 +79,15 @@ void PlayerStateFallingAttack::CorrectPlayerPosition()
 
 void PlayerStateFallingAttack::OnCollision(GameObject* other)
 {
+	//武器の当たり判定をなくす
+	Weapon* playerWeapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
+	playerWeapon->SetIsAttack(false);
+
+	//落下攻撃終了
+	EndFallingAttack();
+
 	//衝突処理
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		ApplyDamageAndKnockback(weapon->GetKnockbackSettings(), weapon->GetDamage());
-	}
-	else if (Laser* laser = dynamic_cast<Laser*>(other))
-	{
-		ApplyDamageAndKnockback(KnockbackSettings{}, laser->GetDamage());
-	}
-	else if (Pillar* pillar = dynamic_cast<Pillar*>(other))
-	{
-		ApplyDamageAndKnockback(KnockbackSettings{}, pillar->GetDamage());
-	}
+	player_->ProcessCollisionImpact(other, true);
 }
 
 void PlayerStateFallingAttack::UpdateAnimationPhase(Weapon* weapon, float currentAnimationTime)
@@ -217,19 +211,6 @@ void PlayerStateFallingAttack::HandleWeaponHit(Weapon* weapon)
 		//ヒット数が上限に達した場合攻撃状態を無効にする
 		weapon->SetIsAttack(false);
 	}
-}
-
-void PlayerStateFallingAttack::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage)
-{
-	//武器の当たり判定をなくす
-	Weapon* playerWeapon = GameObjectManager::GetInstance()->GetMutableGameObject<Weapon>("PlayerWeapon");
-	playerWeapon->SetIsAttack(false);
-
-	//落下攻撃終了
-	EndFallingAttack();
-
-	//ダメージを食らった処理を実行
-	player_->HandleIncomingDamage(knockbackSettings, damage, true);
 }
 
 void PlayerStateFallingAttack::CreateSlamAttackParticles()

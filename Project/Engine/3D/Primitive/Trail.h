@@ -72,9 +72,9 @@ private:
 
 	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
-	float dissipationDuration_ = 0.2f;
+	float dissipationDuration_ = 0.1f;
 
-	int32_t numSegments_ = 10;
+	int32_t numSegments_ = 4;
 
 	const Texture* texture_ = nullptr;
 };
