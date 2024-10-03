@@ -235,7 +235,7 @@ void PlayerStateFallingAttack::ApplyDamageAndKnockback(const KnockbackSettings& 
 void PlayerStateFallingAttack::CreateSlamAttackParticles()
 {
 	//パーティクルを出す
-	for (int32_t i = 0; i <= 360; ++i)
+	for (int32_t i = 0; i <= 360; i += 2)
 	{
 		//Quaternionを計算
 		Quaternion rotation = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, static_cast<float>(i) * (std::numbers::pi_v<float> / 180.0f));
@@ -248,10 +248,29 @@ void PlayerStateFallingAttack::CreateSlamAttackParticles()
 		ParticleEmitter* emitter = EmitterBuilder()
 			.SetEmitterName("SlamAttack").SetColor({ 1.0f, 0.1f, 0.0f, 1.0f }, { 1.0f, 0.1f, 0.0f, 1.0f })
 			.SetEmitterLifeTime(0.0f).SetCount(1).SetFrequency(100.0f).SetLifeTime(0.6f, 0.8f).SetRadius(0.0f)
-			.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }).SetScale({ 1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f })
+			.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }).SetScale({ 1.6f, 1.6f, 1.6f }, { 2.0f, 2.0f, 2.0f })
 			.SetTranslation(player_->GetHipWorldPosition()).SetVelocity(velocity, velocity).Build();
 
 		//パーティクルシステムにエミッターを追加
 		player_->AddParticleEmitter("Smoke", emitter);
 	}
+
+	//エミッターの生成
+	ParticleEmitter* emitter = EmitterBuilder()
+		.SetEmitterName("SlamAttack").SetColor({ 1.0f, 0.1f, 0.0f, 1.0f }, { 1.0f, 0.1f, 0.0f, 1.0f })
+		.SetEmitterLifeTime(0.0f).SetCount(200).SetFrequency(100.0f).SetLifeTime(0.8f, 1.0f).SetRadius(1.0f)
+		.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }).SetScale({ 1.6f, 1.6f, 1.6f }, { 2.0f, 2.0f, 2.0f })
+		.SetTranslation(player_->GetHipWorldPosition()).SetVelocity({ -0.06f, 0.6f, -0.06f }, { 0.06f, 1.0f, 0.06f }).Build();
+
+	//パーティクルシステムにエミッターを追加
+	player_->AddParticleEmitter("Smoke", emitter);
+
+	//加速フィールドの追加
+	AccelerationField* accelerationField = new AccelerationField();
+	accelerationField->Initialize("SlamAttack", 0.8f);
+	accelerationField->SetTranslate(player_->GetHipWorldPosition());
+	accelerationField->SetAcceleration({ 0.0f, -2.0f, 0.0f });
+	accelerationField->SetMin({-2.0f,2.0f,-2.0f});
+	accelerationField->SetMax({ 2.0f,100.0f,2.0f });
+	player_->AddAccelerationField("Smoke", accelerationField);
 }

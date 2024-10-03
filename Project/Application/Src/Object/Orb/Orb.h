@@ -28,9 +28,9 @@ public:
 		float magicProjectileSpeed = 96.0f;                               // 魔法の速度
 		float normalMagicDamage = 4.0f;                                   // 通常魔法のダメージ
 		float chargeMagicDamage = 8.0f;                                   // チャージマジックのダメージ
-		Vector3 chargeMagicKnockbackVelocity{0.0f, 30.0f, 10.0f};         // チャージマジックのノックバック速度
-		Vector3 chargeMagicKnockbackAcceleration{ 0.0f, -20.0f, -10.0f }; // チャージマジックのノックバック加速度
-		float chargeMagicKnockbackDuration = 2.0f;                        // チャージマジックのノックバク持続時間
+		Vector3 chargeMagicKnockbackVelocity{0.0f, 30.0f, 0.0f};          // チャージマジックのノックバック速度
+		Vector3 chargeMagicKnockbackAcceleration{ 0.0f, -20.0f, 0.0f };   // チャージマジックのノックバック加速度
+		float chargeMagicKnockbackDuration = 10.0f;                       // チャージマジックのノックバク持続時間
 	};
 
 	void Initialize() override;
