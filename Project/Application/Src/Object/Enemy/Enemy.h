@@ -132,8 +132,15 @@ public:
 	//ノックバックを適用
 	void ApplyKnockback();
 
+	//モデルシェイク開始
+	void StartModelShake();
+
 	//アニメーションの補正
 	void CorrectAnimationOffset();
+
+	//ダメージを食らった時の処理
+	void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
+	void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
 
 	//アニメーション操作
 	void PlayAnimation(const std::string& name, const float speed, const bool loop);
@@ -237,6 +244,9 @@ private:
 	void UpdateCollider();
 	void RestrictEnemyMovement(float moveLimit);
 	void UpdateHP();
+	void ResetToOriginalPosition();
+	void UpdateModelShake();
+	void ApplyModelShake();
 
 	//デバッグ関連
 	void DebugUpdate();
@@ -277,6 +287,13 @@ private:
 	bool isGameFinished_ = false;
 	bool isInTitleScene_ = false;
 	bool isStunRecovered_ = false;
+
+	//モデルシェイク用の変数
+	bool isModelShakeActive_ = false;
+	float modelShakeDuration_ = 0.1f;
+	float elapsedModelShakeTime_ = 0.0f;
+	Vector3 originalModelPosition_{};
+	Vector3 modelShakeIntensity_{ 40.0f,0.0f,40.0f };
 
 	//重力加速度
 	float gravityAcceleration = -42.0f;

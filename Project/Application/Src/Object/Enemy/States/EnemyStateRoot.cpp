@@ -8,10 +8,7 @@
 #include "Application/Src/Object/Enemy/States/EnemyStateComboAttack.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateEarthSpikeAttack.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateLaserBeam.h"
-#include "Application/Src/Object/Enemy/States/EnemyStateStun.h"
 #include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 
 void EnemyStateRoot::Initialize()
 {
@@ -73,29 +70,8 @@ void EnemyStateRoot::Update()
 
 void EnemyStateRoot::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//HPを減らす
-		enemy_->SetHP(enemy_->GetHP() - weapon->GetDamage());
-		//ノックバックの速度を設定し、スタン状態にする
-		enemy_->SetKnockbackSettings(weapon->GetKnockbackSettings());
-		enemy_->ChangeState(new EnemyStateStun());
-	}
-	//衝突相手が魔法だった場合
-	else if (MagicProjectile* magicProjectile = dynamic_cast<MagicProjectile*>(other))
-	{
-		//HPを減らす
-		enemy_->SetHP(enemy_->GetHP() - magicProjectile->GetDamage());
-
-		//チャージマジックの場合
-		if (magicProjectile->GetMagicType() == MagicProjectile::MagicType::kCharged)
-		{
-			//ノックバックの速度を設定し、スタン状態にする
-			enemy_->SetKnockbackSettings(magicProjectile->GetKnockbackSettings());
-			enemy_->ChangeState(new EnemyStateStun());
-		}
-	}
+	//衝突処理
+	enemy_->ProcessCollisionImpact(other, true);
 }
 
 void EnemyStateRoot::UpdateActionTimer()

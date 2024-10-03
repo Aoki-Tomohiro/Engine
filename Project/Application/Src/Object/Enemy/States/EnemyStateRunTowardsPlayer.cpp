@@ -37,7 +37,8 @@ void EnemyStateRunTowardsPlayer::Update()
 
 void EnemyStateRunTowardsPlayer::OnCollision(GameObject* other)
 {
-
+    //衝突処理
+    enemy_->ProcessCollisionImpact(other, false);
 }
 
 Vector3 EnemyStateRunTowardsPlayer::CalculateDirectionToPlayer(const Vector3& playerPosition, const Vector3& enemyPosition)

@@ -4,7 +4,6 @@
 #include "Application/Src/Object/Enemy/Enemy.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 
 void EnemyStateJumpAttack::Initialize()
 {
@@ -54,18 +53,8 @@ void EnemyStateJumpAttack::Update()
 
 void EnemyStateJumpAttack::OnCollision(GameObject* other)
 {
-	//衝突相手が武器だった場合
-	if (Weapon* weapon = dynamic_cast<Weapon*>(other))
-	{
-		//HPを減らす
-		enemy_->SetHP(enemy_->GetHP() - weapon->GetDamage());
-	}
-	//衝突相手が魔法だった場合
-	else if (MagicProjectile* magicProjectile = dynamic_cast<MagicProjectile*>(other))
-	{
-		//HPを減らす
-		enemy_->SetHP(enemy_->GetHP() - magicProjectile->GetDamage());
-	}
+	//衝突処理
+	enemy_->ProcessCollisionImpact(other, false);
 }
 
 void EnemyStateJumpAttack::UpdateAnimationPhase(Weapon* weapon, float currentAnimationTime)

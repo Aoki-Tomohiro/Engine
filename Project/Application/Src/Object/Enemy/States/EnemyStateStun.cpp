@@ -107,6 +107,9 @@ void EnemyStateStun::ApplyDamageAndKnockback(const float damage, const Knockback
 	//HPを減らす
 	enemy_->SetHP(enemy_->GetHP() - damage);
 
+	//モデルシェイクを開始
+	enemy_->StartModelShake();
+
 	//ノックバックを適用してアニメーションを再生させる
 	if (applyKnockback)
 	{

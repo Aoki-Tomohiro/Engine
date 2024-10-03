@@ -1,7 +1,9 @@
 #include "Enemy.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateRoot.h"
+#include "Application/Src/Object/Enemy/States/EnemyStateStun.h"
 #include "Application/Src/Object/Enemy/States/EnemyStateDeath.h"
 
 void Enemy::Initialize()
@@ -27,6 +29,12 @@ void Enemy::Initialize()
 
 void Enemy::Update()
 {
+    //モデルシェイクでずれた分の座標をリセット
+    ResetToOriginalPosition();
+
+    //モデルシェイクの更新
+    UpdateModelShake();
+
     //タイトルシーンにいない場合
     if (!isInTitleScene_)
     {
@@ -45,6 +53,9 @@ void Enemy::Update()
 
     //移動制限の処理
     RestrictEnemyMovement(100.0f);
+
+    //モデルシェイクを適用
+    ApplyModelShake();
 
     //HPの更新
     UpdateHP();
@@ -230,11 +241,52 @@ void Enemy::ApplyKnockback()
     }
 }
 
+void Enemy::StartModelShake()
+{
+    isModelShakeActive_ = true;
+    elapsedModelShakeTime_ = 0.0f;
+    originalModelPosition_ = GetPosition();
+}
+
 void Enemy::CorrectAnimationOffset()
 {
     Vector3 hipPositionOffset = GetHipLocalPosition() - preAnimationHipPosition_;
     hipPositionOffset.y = 0.0f;
     SetPosition(GetPosition() - hipPositionOffset);
+}
+
+void Enemy::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
+{
+    //衝突相手が武器だった場合
+    if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
+    {
+        //ダメージを食らった時の処理を実行
+        ApplyDamageAndKnockback(weapon->GetKnockbackSettings(), weapon->GetDamage(), transitionToStun);
+    }
+    //衝突相手が魔法だった場合
+    else if (MagicProjectile* magicProjectile = dynamic_cast<MagicProjectile*>(gameObject))
+    {
+        //ダメージを食らった時の処理を実行
+        ApplyDamageAndKnockback(magicProjectile->GetKnockbackSettings(), magicProjectile->GetDamage(), transitionToStun && magicProjectile->GetMagicType() == MagicProjectile::MagicType::kCharged);
+    }
+}
+
+void Enemy::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
+{
+    //ノックバックの速度を設定
+    knockbackSettings_ = knockbackSettings;
+
+    //HPを減らす
+    hp_ -= damage;
+
+    //モデルシェイクを有効にする
+    StartModelShake();
+
+    //スタン状態に遷移するかどうかをチェック
+    if (transitionToStun)
+    {
+        ChangeState(new EnemyStateStun());
+    }
 }
 
 void Enemy::PlayAnimation(const std::string& name, const float speed, const bool loop)
@@ -478,6 +530,46 @@ void Enemy::UpdateHP()
 
     //体力バーの更新
     UpdateHealthBar();
+}
+
+void Enemy::ResetToOriginalPosition()
+{
+    if (isModelShakeActive_)
+    {
+        SetPosition(originalModelPosition_);
+    }
+}
+
+void Enemy::UpdateModelShake()
+{
+    //モデルシェイクの経過時間を進める
+    elapsedModelShakeTime_ += GameTimer::GetDeltaTime();
+
+    //モデルシェイクの経過時間が一定値を超えていたら終了させる
+    if (elapsedModelShakeTime_ > modelShakeDuration_)
+    {
+        isModelShakeActive_ = false;
+    }
+}
+
+void Enemy::ApplyModelShake()
+{
+    //モデルシェイクが有効な場合
+    if (isModelShakeActive_)
+    {
+        //モデルシェイクの強度をランダムで決める
+        Vector3 intensity = {
+            RandomGenerator::GetRandomFloat(-modelShakeIntensity_.x,modelShakeIntensity_.x),
+            RandomGenerator::GetRandomFloat(-modelShakeIntensity_.y,modelShakeIntensity_.y),
+            RandomGenerator::GetRandomFloat(-modelShakeIntensity_.z,modelShakeIntensity_.z),
+        };
+
+        //座標をずらす
+        Vector3 currentPosition = GetPosition();
+        originalModelPosition_ = currentPosition;
+        currentPosition += intensity * GameTimer::GetDeltaTime();
+        SetPosition(currentPosition);
+    }
 }
 
 void Enemy::DebugUpdate()

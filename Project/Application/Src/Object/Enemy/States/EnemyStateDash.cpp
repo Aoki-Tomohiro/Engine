@@ -74,7 +74,8 @@ void EnemyStateDash::FinishDash()
 
 void EnemyStateDash::OnCollision(GameObject* other)
 {
-
+	//衝突処理
+	enemy_->ProcessCollisionImpact(other, false);
 }
 
 Vector3 EnemyStateDash::CalculateDirectionToPlayer() const
