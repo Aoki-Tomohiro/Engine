@@ -4,6 +4,8 @@
 #include "Application/Src/Object/Player/States/PlayerStateDodge.h"
 #include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateMagicAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargeMagicAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateLaunchAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateSpinAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
@@ -64,7 +66,7 @@ void PlayerStateRoot::Update()
 			//現在のアニメーションを通常状態に変更
 			currentAnimation_ = "Idle";
 			//歩きの閾値を超えていない場合は待機アニメーションを設定
-			player_->PlayAnimation("Idle", 1.0f, true);
+			player_->PlayAnimation(currentAnimation_, 1.0f, true);
 		}
 	}
 
@@ -187,32 +189,50 @@ void PlayerStateRoot::ProcessStateTransition()
 	//RTの入力の閾値
 	const float kRightTriggerThreshold = 0.7f;
 
+	//Aボタンを押したとき
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	{
+		//ジャンプ状態に遷移
+		player_->ChangeState(new PlayerStateJump());
+		return;
+	}
+	//RBを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+	{
+		//回避状態に遷移
+		player_->ChangeState(new PlayerStateDodge());
+		return;
+	}
+	//Bボタンを押したとき
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
+		return;
+	}
+
 	//RTが押されていない場合
 	if (input_->GetRightTriggerValue() < kRightTriggerThreshold)
 	{
-		//Aボタンを押したとき
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
-		{
-			//ジャンプ状態に遷移
-			player_->ChangeState(new PlayerStateJump());
-		}
-		//RBを押したとき
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
-		{
-			//回避状態に遷移
-			player_->ChangeState(new PlayerStateDodge());
-		}
-		//Bボタンを押したとき
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-		{
-			//ダッシュ状態に遷移
-			player_->ChangeState(new PlayerStateDash());
-		}
 		//Xボタンを押したとき
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
 		{
 			//攻撃状態に遷移
 			player_->ChangeState(new PlayerStateAttack());
+		}
+		//Yボタンを離した時
+		else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+		{
+			//魔法攻撃状態に遷移
+			if (player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
+			{
+				player_->ChangeState(new PlayerStateMagicAttack());
+			}
+			//溜め魔法攻撃状態に遷移
+			else if (player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+			{
+				player_->ChangeState(new PlayerStateChargeMagicAttack());
+			}
 		}
 	}
 	else

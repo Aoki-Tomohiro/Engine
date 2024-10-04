@@ -51,6 +51,9 @@ void Player::Update()
 	{
 		//状態の更新
 		state_->Update();
+
+		//魔法攻撃の更新
+		UpdateMagicAttack();
 	}
 
 	//アニメーション後の座標を代入
@@ -453,7 +456,20 @@ float Player::GetCurrentAnimationSpeed()
 	return animator_->GetCurrentAnimationSpeed();
 }
 
-Vector3 Player::GetHipLocalPosition()
+const Vector3 Player::GetJointWorldPosition(const std::string& jointName)
+{
+	//ジョイントのワールドトランスフォームを取得
+	WorldTransform jointWorldTransform = model_->GetModel()->GetJointWorldTransform(jointName);
+
+	//ワールド座標を取得しVector3に変換して返す
+	return Vector3{
+		jointWorldTransform.matWorld_.m[3][0],
+		jointWorldTransform.matWorld_.m[3][1],
+		jointWorldTransform.matWorld_.m[3][2],
+	};
+}
+
+const Vector3 Player::GetHipLocalPosition()
 {
 	//腰のジョイントのローカル座標を計算
 	Vector3 hipLocalPosition = GetHipWorldPosition() - transform_->GetWorldPosition();
@@ -462,17 +478,10 @@ Vector3 Player::GetHipLocalPosition()
 	return hipLocalPosition;
 }
 
-Vector3 Player::GetHipWorldPosition()
+const Vector3 Player::GetHipWorldPosition()
 {
-	//腰のジョイントのワールドトランスフォームを取得
-	WorldTransform hipWorldTransform = model_->GetModel()->GetJointWorldTransform("mixamorig:Hips");
-
 	//ワールド座標を取得しVector3に変換して返す
-	return Vector3{
-		hipWorldTransform.matWorld_.m[3][0],
-		hipWorldTransform.matWorld_.m[3][1],
-		hipWorldTransform.matWorld_.m[3][2],
-	};
+	return GetJointWorldPosition("mixamorig:Hips");
 }
 
 Vector3 Player::GetPosition()
@@ -589,6 +598,7 @@ void Player::InitializeParticleSystems()
 	TextureManager::Load("smoke_01.png");
 
 	//パーティクルシステムの生成
+	particleSystems_["Normal"] = ParticleManager::Create("Normal");
 	particleSystems_["Smoke"] = ParticleManager::Create("Smoke");
 	particleSystems_["Smoke"]->SetTexture("smoke_01.png");
 }
@@ -654,6 +664,8 @@ void Player::InitializeAnimatorComponent()
 	animator_->AddAnimation("FallingAttack", AnimationManager::Create("Player/Animations/FallingAttack.gltf"));
 	animator_->AddAnimation("Impact", AnimationManager::Create("Player/Animations/Impact.gltf"));
 	animator_->AddAnimation("Death", AnimationManager::Create("Player/Animations/Death.gltf"));
+	animator_->AddAnimation("Casting", AnimationManager::Create("Player/Animations/Casting.gltf"));
+	animator_->AddAnimation("MagicAttack", AnimationManager::Create("Player/Animations/MagicAttack.gltf"));
 }
 
 void Player::InitializeColliderComponent()
@@ -693,6 +705,7 @@ void Player::InitializeUISprites()
 
 void Player::LoadAudioData()
 {
+	//音声データの読み込み
 	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
 }
 
@@ -752,6 +765,62 @@ void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConf
 {
 	float currentScale = config.skillBarScale.x * (cooldownTime / cooldownDuration);
 	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
+}
+
+void Player::UpdateMagicAttack()
+{
+	//クールダウンのタイマーを進める
+	if (magicAttackWork_.cooldownTimer > 0.0f)
+	{
+		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime();
+	}
+
+	//Yボタンが押されていた場合
+	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
+	{
+		//魔法がチャージされていない場合はチャージを始める
+		if (!magicAttackWork_.isCharging)
+		{
+			magicAttackWork_.isCharging = true;
+			magicAttackWork_.chargeTimer = 0.0f;
+		}
+		//魔法がチャージされている場合
+		else
+		{
+			//チャージタイマーを進める
+			magicAttackWork_.chargeTimer += GameTimer::GetDeltaTime();
+
+			//チャージの閾値を超えていた場合は溜め魔法を生成
+			if (magicAttackWork_.chargeTimer > magicAttackParameters_.chargeTimeThreshold)
+			{
+				//チャージフラグを立てる
+				flags_[ActionFlag::kChargeMagicAttackEnabled] = true;
+				flags_[ActionFlag::kMagicAttackEnabled] = false;
+			}
+			//チャージの閾値を超えていない場合
+			else
+			{
+				//魔法攻撃のクールタイムを超えていた場合
+				if (magicAttackWork_.cooldownTimer <= 0.0f)
+				{
+					//魔法攻撃のフラグを立てる
+					flags_[ActionFlag::kMagicAttackEnabled] = true;
+					flags_[ActionFlag::kChargeMagicAttackEnabled] = false;
+				}
+			}
+		}
+	}
+	//Yボタンが押されていない場合
+	else
+	{
+		//魔法をチャージ中の場合
+		if (magicAttackWork_.isCharging)
+		{
+			//フラグをリセット
+			magicAttackWork_.isCharging = false;
+			magicAttackWork_.chargeTimer = 0.0f;
+		}
+	}
 }
 
 void Player::UpdateRotation()
@@ -929,6 +998,9 @@ void Player::UpdateImGui()
 
 	//デバッグモードのチェックボックス
 	ImGui::Checkbox("IsDebug", &isDebug_);
+
+	ImGui::DragFloat("verticalRetreatSpeed", &magicAttackParameters_.verticalRetreatSpeed, 0.01f);
+	ImGui::DragFloat3("acceleration", &magicAttackParameters_.acceleration.x, 0.01f);
 
 	//デバッグ状態の場合
 	if (isDebug_)

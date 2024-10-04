@@ -16,7 +16,7 @@
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Pillar/Pillar.h"
-#include "Application/Src/Object/Orb/Orb.h"
+#include "Application/Src/Object/MagicProjectile/MagicProjectile.h"
 #include "Application/Src/Object/combatAnimationEditor/combatAnimationEditor.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/CameraPathManager.h"
@@ -45,8 +45,6 @@ private:
 	void InitializePlayer();
 
 	void InitializePlayerWeapon();
-
-	void InitializeOrb();
 
 	void InitializeEnemy();
 
@@ -92,9 +90,6 @@ private:
 
 	//敵の武器
 	Weapon* enemyWeapon_ = nullptr;
-
-	//オーブ
-	Orb* orb_ = nullptr;
 
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;

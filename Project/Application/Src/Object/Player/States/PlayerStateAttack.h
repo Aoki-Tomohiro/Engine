@@ -23,6 +23,7 @@ public:
 		kLaunchAttack,
 		kSpinAttack,
 		kFallingAttack,
+		kChargeMagic,
 	};
 
 	//攻撃用ワーク

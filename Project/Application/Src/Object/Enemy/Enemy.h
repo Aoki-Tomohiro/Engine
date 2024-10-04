@@ -293,7 +293,7 @@ private:
 	float modelShakeDuration_ = 0.1f;
 	float elapsedModelShakeTime_ = 0.0f;
 	Vector3 originalModelPosition_{};
-	Vector3 modelShakeIntensity_{ 40.0f,0.0f,40.0f };
+	Vector3 modelShakeIntensity_{ 20.0f,0.0f,20.0f };
 
 	//重力加速度
 	float gravityAcceleration = -42.0f;

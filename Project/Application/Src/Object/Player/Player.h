@@ -81,6 +81,16 @@ public:
         kAerialAttack,                 // 空中攻撃状態かどうか
         kLaunchAttack,                 // 打ち上げ攻撃状態かどうか
         kFallingAttack,                // 落下攻撃状態かどうか
+        kMagicAttackEnabled,           // 魔法攻撃が有効かどうか
+        kChargeMagicAttackEnabled,     // 溜め魔法攻撃が有効かどうか
+    };
+
+    //魔法攻撃用ワーク
+    struct MagicAttackWork
+    {
+        bool isCharging = false;    //魔法がチャージされているかどうか
+        float chargeTimer = 0.0f;   //チャージ用のタイマー
+        float cooldownTimer = 0.0f; //クールタイム用のタイマー
     };
 
     //通常状態のパラメーター
@@ -118,6 +128,16 @@ public:
     {
         int32_t comboNum = 4;        // コンボの数
         float attackDistance = 6.0f; // 攻撃の補正を掛ける距離
+    };
+
+    //魔法攻撃用のパラメーター
+    struct MagicAttackParameters
+    {
+        float chargeTimeThreshold = 1.0f;               // チャージマジックのため時間
+        float cooldownTime = 0.6f;                      // 通常魔法のクールタイム
+        float magicProjectileSpeed = 96.0f;             // 魔法の速度
+        float verticalRetreatSpeed = 10.0f;             // 垂直後退速度
+        Vector3 acceleration = { 0.0f, -64.0f ,60.0f }; // 加速度
     };
 
     //打ち上げ攻撃のパラメーター
@@ -174,6 +194,9 @@ public:
     //アニメーションの補正
     void CorrectAnimationOffset();
 
+    //魔法攻撃のクールダウンタイムをリセット
+    void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
+
     //ダメージを食らった時の処理
     void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
     void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
@@ -198,8 +221,9 @@ public:
     bool GetIsBlendingCompleted();
 
     //腰の位置取得
-    Vector3 GetHipLocalPosition();
-    Vector3 GetHipWorldPosition();
+    const Vector3 GetJointWorldPosition(const std::string& jointName);
+    const Vector3 GetHipLocalPosition();
+    const Vector3 GetHipWorldPosition();
 
     //位置設定
     Vector3 GetPosition();
@@ -262,6 +286,7 @@ public:
     const AttackParameters& GetAerialAttackParameters() const { return aerialAttackAttackParameters_; };
     const LaunchAttackParameters& GetLaunchAttackParameters() const { return launchAttackParameters_; };
     const SpinAttackParameters& GetSpinAttackParameters() const { return spinAttackParameters_; };
+    const MagicAttackParameters& GetMagicAttackParameters() const { return magicAttackParameters_; };
 
 private:
     //初期化関連
@@ -288,6 +313,7 @@ private:
     void DrawButtonUI(const ButtonUISettings& uiSettings);
 
     //プレイヤーの状態更新
+    void UpdateMagicAttack();
     void UpdateRotation();
     void UpdateCollider();
     void RestrictPlayerMovement(float moveLimit);
@@ -347,6 +373,9 @@ private:
 	bool isGameFinished_ = false;
 	bool isInTitleScene_ = false;
 
+    //魔法攻撃用ワーク
+    MagicAttackWork magicAttackWork_{};
+
 	//スキル関連
 	std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
 	std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
@@ -385,9 +414,9 @@ private:
 	std::string currentAnimationName_ = "Idle";
 	float animationTime_ = 0.0f;
 	std::vector<std::string> animationName_ = {
-		"Idle", "Walk1", "Walk2", "Walk3", "Walk4", "Run1", "Run2", "Run3", "Run4", "Jump1", "Jump2", "Dodge1", "Dodge2", "Dodge3", "Dodge4",
-		"DashStart", "DashEnd", "Falling", "GroundAttack1", "GroundAttack2", "GroundAttack3", "GroundAttack4", "AerialAttack1", "AerialAttack2", "AerialAttack3",
-		"LaunchAttack", "SpinAttack", "FallingAttack", "DodgeForward"
+		"Idle", "Walk1", "Walk2", "Walk3", "Walk4", "Run1", "Run2", "Run3", "Run4", "Jump1", "Jump2", "DodgeForward", "DodgeBackward", "DashStart", "DashEnd",
+        "Falling", "GroundAttack1", "GroundAttack2", "GroundAttack3", "GroundAttack4", "AerialAttack1", "AerialAttack2", "AerialAttack3","LaunchAttack", "SpinAttack",
+        "FallingAttack", "Casting", "MagicAttack",
 	};
 
 	//UI関連
@@ -415,7 +444,8 @@ private:
 	DashParameters dashParameters_{};
 	AttackParameters groundAttackParameters_{ .comboNum = 4, .attackDistance = 3.0f };
 	AttackParameters aerialAttackAttackParameters_{ .comboNum = 3, .attackDistance = 3.0f };
-	LaunchAttackParameters launchAttackParameters_{};
-	SpinAttackParameters spinAttackParameters_{};
+    LaunchAttackParameters launchAttackParameters_{};
+    SpinAttackParameters spinAttackParameters_{};
+    MagicAttackParameters magicAttackParameters_{};
 };
 

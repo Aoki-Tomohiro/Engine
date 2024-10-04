@@ -7,6 +7,7 @@
 #include "Application/Src/Object/Player/States/PlayerStateLaunchAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateSpinAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargeMagicAttack.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Laser/Laser.h"
@@ -121,6 +122,7 @@ void PlayerStateAttack::EvaluateComboProgress()
 		}
 		else
 		{
+			//Aボタンを押していない場合
 			if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
 			{
 				//攻撃ボタンをトリガーしたら
@@ -133,10 +135,16 @@ void PlayerStateAttack::EvaluateComboProgress()
 				{
 					EnableCombo(kDash);
 				}
+				//Yボタンを離した時
+				else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+				{
+					EnableCombo(kChargeMagic);
+				}
 			}
-			//落下攻撃
+			//Aボタンを押している場合
 			else
 			{
+				//Xボタンも同時に押されていたら落下攻撃
 				if (input_->IsPressButton(XINPUT_GAMEPAD_X) && player_->GetPosition().y != 0.0f)
 				{
 					EnableCombo(kFallingAttack);
@@ -403,6 +411,9 @@ void PlayerStateAttack::HandleComboTransition()
 		break;
 	case kFallingAttack:
 		player_->ChangeState(new PlayerStateFallingAttack());
+		break;
+	case kChargeMagic:
+		player_->ChangeState(new PlayerStateChargeMagicAttack());
 		break;
 	}
 }

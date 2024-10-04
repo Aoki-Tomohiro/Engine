@@ -35,9 +35,6 @@ void GamePlayScene::Initialize()
 	//プレイヤーの武器の初期化
 	InitializePlayerWeapon();
 
-	//魔法の球体の初期化
-	InitializeOrb();
-
 	//敵の初期化
 	InitializeEnemy();
 
@@ -208,14 +205,6 @@ void GamePlayScene::InitializePlayerWeapon()
 	//トランスフォームの設定
 	TransformComponent* weaponTransformComponent = playerWeapon_->GetComponent<TransformComponent>();
 	weaponTransformComponent->worldTransform_.parent_ = &player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
-}
-
-void GamePlayScene::InitializeOrb()
-{
-	//魔法の球体の生成と設定
-	Orb* orb = GameObjectManager::CreateGameObject<Orb>();
-	orb->SetLockon(lockon_.get());
-	orb->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
 }
 
 void GamePlayScene::InitializeEnemy()

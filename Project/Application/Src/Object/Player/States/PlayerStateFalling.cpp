@@ -2,6 +2,8 @@
 #include "Application/Src/Object/Player/Player.h"
 #include "Application/Src/Object/Player/States/PlayerStateRoot.h"
 #include "Application/Src/Object/Player/States/PlayerStateFallingAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateChargeMagicAttack.h"
+#include "Application/Src/Object/Player/States/PlayerStateDash.h"
 #include "Application/Src/Object/Player/States/PlayerStateStun.h"
 
 void PlayerStateFalling::Initialize()
@@ -33,8 +35,22 @@ void PlayerStateFalling::Update()
 	//AボタンとXボタンを押したとき
 	else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && input_->IsPressButton(XINPUT_GAMEPAD_X))
 	{
-		//攻撃状態に遷移
+		//落下攻撃状態に遷移
 		player_->ChangeState(new PlayerStateFallingAttack());
+		return;
+	}
+	//Bボタンを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
+		return;
+	}
+	//Yボタンを離した時
+	else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+	{
+		//溜め魔法攻撃状態に遷移
+		player_->ChangeState(new PlayerStateChargeMagicAttack());
 		return;
 	}
 
