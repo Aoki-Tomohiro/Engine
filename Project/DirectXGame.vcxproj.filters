@@ -283,9 +283,6 @@
     <Filter Include="ソース ファイル\Application\Object\MagicProjectile">
       <UniqueIdentifier>{86b386de-56d2-4ede-9b1e-ef970fcecadf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Orb">
-      <UniqueIdentifier>{e8d3703a-1fa5-4af9-9181-cb58527fc462}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\CombatAnimationEditor">
       <UniqueIdentifier>{e8d04e06-2c22-443d-b0bd-90edab22405e}</UniqueIdentifier>
     </Filter>
@@ -294,9 +291,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\MagicProjectile">
       <UniqueIdentifier>{d97079b0-4af7-4159-a88d-a452700c8657}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Orb">
-      <UniqueIdentifier>{400b3c66-5d7f-45a0-96e1-d9d9b5403ce5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Application\Object\Laser">
       <UniqueIdentifier>{006520c6-79a0-4c2a-b196-3fc21b70098d}</UniqueIdentifier>
@@ -730,7 +724,7 @@
       <Filter>ソース ファイル\Engine\3D\Primitive</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateChargeMagicAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1215,7 +1209,7 @@
       <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateChargeMagicAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
