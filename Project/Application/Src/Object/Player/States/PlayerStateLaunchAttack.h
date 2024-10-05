@@ -62,9 +62,9 @@ private:
 	Vector3 launchParticleOffset_{ 0.0f, 0.0f, 3.0f };
 
 	//パーティクルの速度
-	Vector3 launchParticleVelocity_{ 0.0f, 0.06f, 0.08f };
+	Vector3 launchParticleVelocity_{ 0.0f, 0.06f, 0.2f };
 
 	//パーティクルの加速度
-	Vector3 launchParticleAcceleration_{ 0.0f, 0.8f, -0.5f };
+	Vector3 launchParticleAcceleration_{ 0.0f, 2.8f, -0.8f };
 };
 
