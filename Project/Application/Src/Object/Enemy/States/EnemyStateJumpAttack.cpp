@@ -17,7 +17,7 @@ void EnemyStateJumpAttack::Initialize()
 	startPosition_ = enemy_->GetPosition();
 
 	//移動終了座標を設定
-	endPosition_ = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	endPosition_ = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	endPosition_.y = enemy_->GetJumpAttackParameters().heightOffset_;
 
 	//武器に初期パラメータを適用

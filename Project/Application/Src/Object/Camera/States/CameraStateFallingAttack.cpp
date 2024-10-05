@@ -14,7 +14,7 @@ void CameraStateFallingAttack::Initialize()
 void CameraStateFallingAttack::Update()
 {
 	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("");
+	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player");
 
 	//アニメーション時間を更新
 	UpdateAnimationTime(player);

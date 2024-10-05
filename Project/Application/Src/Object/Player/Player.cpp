@@ -320,7 +320,7 @@ void Player::LookAtEnemy()
 	Vector3 playerPosition = GetHipWorldPosition();
 
 	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
 
 	//敵の方向へのベクトルを計算
 	Vector3 rotateVector = Mathf::Normalize(enemyPosition - playerPosition);

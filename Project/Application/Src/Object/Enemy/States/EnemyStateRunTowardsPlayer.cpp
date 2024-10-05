@@ -15,7 +15,7 @@ void EnemyStateRunTowardsPlayer::Initialize()
 void EnemyStateRunTowardsPlayer::Update()
 {
     //プレイヤーと敵の座標を取得
-    Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+    Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
     Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
     //プレイヤーへの方向ベクトルを計算

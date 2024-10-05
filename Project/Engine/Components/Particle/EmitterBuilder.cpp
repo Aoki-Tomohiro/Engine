@@ -52,6 +52,12 @@ EmitterBuilder& EmitterBuilder::SetRotate(const Vector3& min, const Vector3& max
 	return *this;
 }
 
+EmitterBuilder& EmitterBuilder::SetQuaternion(const Quaternion& quaternion)
+{
+	particleEmitter_->quaternion_ = quaternion;
+	return *this;
+}
+
 EmitterBuilder& EmitterBuilder::SetScale(const Vector3& min, const Vector3& max)
 {
 	particleEmitter_->scaleMin_ = min;
@@ -77,6 +83,12 @@ EmitterBuilder& EmitterBuilder::SetColor(const Vector4& min, const Vector4& max)
 {
 	particleEmitter_->colorMin_ = min;
 	particleEmitter_->colorMax_ = max;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetAlignToDirection(const float alignToDirection)
+{
+	particleEmitter_->alignToDirection_ = alignToDirection;
 	return *this;
 }
 

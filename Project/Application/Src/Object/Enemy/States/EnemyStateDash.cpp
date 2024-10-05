@@ -81,7 +81,7 @@ void EnemyStateDash::OnCollision(GameObject* other)
 Vector3 EnemyStateDash::CalculateDirectionToPlayer() const
 {
 	//プレイヤーの位置と敵の位置から方向ベクトルを計算し、Y軸方向を無視
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 	Vector3 directionToPlayer = playerPosition - enemyPosition;
 	directionToPlayer.y = 0.0f;

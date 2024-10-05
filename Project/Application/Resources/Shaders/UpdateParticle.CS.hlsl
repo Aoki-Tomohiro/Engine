@@ -46,7 +46,12 @@ void main(uint32_t DTid : SV_DispatchThreadID )
         for (uint32_t i = 0; i < gAccelerationFieldCount.numAccelerationFields; ++i)
         {
             AccelerationField field = gAccelerationFields[i];
-            if (all(gParticles[particleIndex].translate >= field.translate + field.min) && all(gParticles[particleIndex].translate <= field.translate + field.max))
+            if (gParticles[particleIndex].translate.x >= field.translate.x + field.min.x &&
+                gParticles[particleIndex].translate.y >= field.translate.y + field.min.y &&
+                gParticles[particleIndex].translate.z >= field.translate.z + field.min.z &&
+                gParticles[particleIndex].translate.x <= field.translate.x + field.max.x &&
+                gParticles[particleIndex].translate.y <= field.translate.y + field.max.y &&
+                gParticles[particleIndex].translate.z <= field.translate.z + field.max.z)
             {
                 gParticles[particleIndex].velocity += field.acceleration * gPerFrame.deltaTime;
             }
@@ -56,14 +61,18 @@ void main(uint32_t DTid : SV_DispatchThreadID )
         for (uint32_t j = 0; j < gGravityFieldCount.numGravityFields; ++j)
         {
             GravityField field = gGravityFields[j];
-            if (all(gParticles[particleIndex].translate >= field.translate + field.min) && all(gParticles[particleIndex].translate <= field.translate + field.max))
+            if (gParticles[particleIndex].translate.x >= field.translate.x + field.min.x &&
+                gParticles[particleIndex].translate.y >= field.translate.y + field.min.y &&
+                gParticles[particleIndex].translate.z >= field.translate.z + field.min.z &&
+                gParticles[particleIndex].translate.x <= field.translate.x + field.max.x &&
+                gParticles[particleIndex].translate.y <= field.translate.y + field.max.y &&
+                gParticles[particleIndex].translate.z <= field.translate.z + field.max.z)
             {
                 float32_t3 direction = field.translate - gParticles[particleIndex].translate;
                 float32_t distance = length(direction);
                 if (distance > field.stopDistance)
                 {
-                    direction = normalize(direction);
-                    gParticles[particleIndex].velocity += direction * field.strength * gPerFrame.deltaTime;
+                    gParticles[particleIndex].velocity += normalize(direction) * field.strength * gPerFrame.deltaTime;
                 }
                 else
                 {
@@ -73,10 +82,19 @@ void main(uint32_t DTid : SV_DispatchThreadID )
         }
          
         //パーティクルの更新処理
+        float32_t3 currentTranslate = gParticles[particleIndex].translate;
         gParticles[particleIndex].translate += gParticles[particleIndex].velocity;
+        
+        //パーティクルが進行方向に向くように設定されているかを確認
+        if (gParticles[particleIndex].alignToDirection)
+        {
+            //クォータニオンの更新
+            gParticles[particleIndex].quaternion = LookAt(currentTranslate, gParticles[particleIndex].translate);
+        }
+
+        //アルファの更新
         gParticles[particleIndex].currentTime += gPerFrame.deltaTime;
-        float32_t alpha = 1.0f - (gParticles[particleIndex].currentTime / gParticles[particleIndex].lifeTime);
-        gParticles[particleIndex].color.a = saturate(alpha);
+        gParticles[particleIndex].color.a = saturate(1.0f - (gParticles[particleIndex].currentTime / gParticles[particleIndex].lifeTime));
         
         //Alphaが0になったので、ここはFreeとする
         if(gParticles[particleIndex].color.a == 0.0f)
@@ -85,6 +103,7 @@ void main(uint32_t DTid : SV_DispatchThreadID )
             gParticles[particleIndex].scale = float32_t3(0.0f, 0.0f, 0.0f);
             int32_t freeListIndex;
             InterlockedAdd(gFreeListIndex[0], 1, freeListIndex);
+            
             //最新のFreeListIndexの場所に死んだParticleのIndexを設定する。
             if((freeListIndex + 1) < kMaxParticles)
             {

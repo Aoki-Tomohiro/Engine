@@ -19,7 +19,7 @@ void EnemyStateRoot::Initialize()
 	currentActionInterval_ = RandomGenerator::GetRandomFloat(enemy_->GetRootParameters().minActionInterval, enemy_->GetRootParameters().maxActionInterval);
 
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算
@@ -80,7 +80,7 @@ void EnemyStateRoot::UpdateActionTimer()
 	actionTimer_ += GameTimer::GetDeltaTime() * enemy_->GetTimeScale();
 
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算
@@ -106,7 +106,7 @@ void EnemyStateRoot::UpdateActionTimer()
 void EnemyStateRoot::PerformActionBasedOnDistance()
 {
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算
@@ -247,7 +247,7 @@ void EnemyStateRoot::ResetBlendDurationAfterAnimation(float defaultBlendDuration
 void EnemyStateRoot::RotateTowardsPlayer()
 {
 	//プレイヤーへの方向を計算
-	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
+	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
 	directionToPlayer.y = 0.0f;
 	directionToPlayer = Mathf::Normalize(directionToPlayer);
 
@@ -333,7 +333,7 @@ void EnemyStateRoot::InitializeTowardsPlayer()
 void EnemyStateRoot::UpdateTowardsPlayer()
 {
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算
@@ -371,7 +371,7 @@ void EnemyStateRoot::InitializeRetreat()
 void EnemyStateRoot::UpdateRetreat()
 {
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算

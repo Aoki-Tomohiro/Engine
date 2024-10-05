@@ -2,20 +2,22 @@
 
 struct EmitterSphere
 {
-    float32_t3 translate;   //位置
-    float32_t radius;       //射出半径
-    uint32_t count;         //射出数
-    uint32_t emit;          //射出許可
-    float32_t3 rotateMin;   //スケールの最小値
-    float32_t3 rotateMax;   //スケールの最大値
-    float32_t3 scaleMin;    //スケールの最小値
-    float32_t3 scaleMax;    //スケールの最大値
-    float32_t3 velocityMin; //速度の最小値
-    float32_t3 velocityMax; //速度の最大値
-    float32_t lifeTimeMin;  //寿命の最小値
-    float32_t lifeTimeMax;  //寿命の最大値
-    float32_t4 colorMin;    //色の最小値
-    float32_t4 colorMax;    //色の最大値
+    float32_t3 translate;     //位置
+    float32_t radius;         //射出半径
+    uint32_t count;           //射出数
+    uint32_t emit;            //射出許可
+    float32_t3 rotateMin;     //スケールの最小値
+    float32_t3 rotateMax;     //スケールの最大値
+    float32_t4 quaternion;    //Quaternion
+    float32_t3 scaleMin;      //スケールの最小値
+    float32_t3 scaleMax;      //スケールの最大値
+    float32_t3 velocityMin;   //速度の最小値
+    float32_t3 velocityMax;   //速度の最大値
+    float32_t lifeTimeMin;    //寿命の最小値
+    float32_t lifeTimeMax;    //寿命の最大値
+    float32_t4 colorMin;      //色の最小値
+    float32_t4 colorMax;      //色の最大値
+    int32_t alignToDirection; //進行方向に回転させるか
 };
 
 struct EmitterInformation
@@ -101,6 +103,8 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                     
                     //回転の初期化
                     gParticles[particleIndex].rotate = lerp(gEmitter[emitterIndex].rotateMin, gEmitter[emitterIndex].rotateMax, generator.Generate3d());
+                    
+                    gParticles[particleIndex].quaternion = gEmitter[emitterIndex].quaternion;
                 
                     //寿命の初期化
                     gParticles[particleIndex].lifeTime = lerp(gEmitter[emitterIndex].lifeTimeMin, gEmitter[emitterIndex].lifeTimeMax, generator.Generate1d());
@@ -113,6 +117,9 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                 
                     //色の初期化
                     gParticles[particleIndex].color = lerp(gEmitter[emitterIndex].colorMin, gEmitter[emitterIndex].colorMax, float32_t4(generator.Generate3d(), generator.Generate1d()));
+               
+                    //進行方向に回転させるかどうかを設定
+                    gParticles[particleIndex].alignToDirection = gEmitter[emitterIndex].alignToDirection;
                 }
                 else
                 {

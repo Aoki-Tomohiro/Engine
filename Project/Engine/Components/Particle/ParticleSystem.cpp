@@ -391,6 +391,7 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].lifeTimeMax = particleEmitters_[i]->GetLifeTimeMax();
 		emitterSphereData[i].colorMin = particleEmitters_[i]->GetColorMin();
 		emitterSphereData[i].colorMax = particleEmitters_[i]->GetColorMax();
+		emitterSphereData[i].alignToDirection = particleEmitters_[i]->GetAlignToDirection();
 	}
 
 	//Emitterの数の更新

@@ -82,7 +82,7 @@ void PlayerStateDash::OnCollision(GameObject* other)
 void PlayerStateDash::HandleLockon()
 {
 	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
 
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();
@@ -139,7 +139,7 @@ void PlayerStateDash::DashUpdate()
 	}
 
 	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
 
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();

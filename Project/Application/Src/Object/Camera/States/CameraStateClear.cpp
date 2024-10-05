@@ -12,7 +12,7 @@ void CameraStateClear::Initialize()
 void CameraStateClear::Update()
 {
 	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("");
+	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player");
 
 	//アニメーション時間を更新
 	UpdateAnimationTime();

@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
+#include "Engine/Math/Quaternion.h"
 #include <string>
 
 class ParticleEmitter
@@ -33,6 +34,10 @@ public:
 	const Vector3& GetRotateMax() const { return rotateMax_; };
 
 	void SetRotateMax(const Vector3& rotateMax) { rotateMax_ = rotateMax; };
+
+	const Quaternion& GetQuaternion() const { return quaternion_; };
+
+	void SetQuaternion(const Quaternion& quaternion) { quaternion_ = quaternion; };
 
 	const Vector3& GetScaleMin() const { return scaleMin_; };
 
@@ -70,6 +75,10 @@ public:
 
 	void SetFrequency(const float frequency) { frequency_ = frequency; };
 
+	const float GetAlignToDirection() const { return alignToDirection_; };
+
+	void SetAlignToDirection(const float alignToDirection) { alignToDirection_ = alignToDirection; };
+
 	const bool GetIsDead() const { return isDead_; };
 
 	void SetIsDead(const bool isDead) { isDead_ = isDead; };
@@ -95,6 +104,9 @@ private:
 	//回転角
 	Vector3 rotateMin_ = { 0.0f,0.0f,0.0f };
 	Vector3 rotateMax_ = { 0.0f,0.0f,0.0f };
+
+	//Quaternion
+	Quaternion quaternion_ = { 0.0f,0.0f,0.0f,1.0f };
 
 	//スケール
 	Vector3 scaleMin_ = { 0.2f,0.2f,0.2f };
@@ -123,6 +135,9 @@ private:
 
 	//死亡までのタイマー
 	float lifeTimer_ = 0.0f;
+
+	//パーティクルを進行方向に向かせるか
+	bool alignToDirection_ = false;
 
 	//死亡フラグ
 	bool isDead_ = false;

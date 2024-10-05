@@ -181,6 +181,7 @@ void LevelLoader::CreateGameObjects(const LevelData* levelData)
 	{
 		//3Dオブジェクトを生成
 		GameObject* newObject = GameObjectManager::CreateGameObject(objectData.objectName);
+		newObject->SetName(objectData.objectName);
 		newObject->SetIsVisible(objectData.isVisible);
 
 		//トランスフォームの追加

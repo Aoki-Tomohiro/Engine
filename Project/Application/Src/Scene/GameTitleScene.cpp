@@ -32,7 +32,7 @@ void GameTitleScene::Initialize()
 	TrailRenderer::GetInstance()->SetCamera(camera_);
 
 	//プレイヤーを取得
-	Player* player = gameObjectManager_->GetMutableGameObject<Player>("");
+	Player* player = gameObjectManager_->GetMutableGameObject<Player>("Player");
 	//タイトルシーンのフラグを設定
 	player->SetIsInTitleScene(true);
 
@@ -44,7 +44,7 @@ void GameTitleScene::Initialize()
 	playerWeaponTransformComponent->worldTransform_.parent_ = &player->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 
 	//敵を取得
-	Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>("");
+	Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>("Enemy");
 	//タイトルシーンのフラグを設定
 	enemy->SetIsInTitleScene(true);
 

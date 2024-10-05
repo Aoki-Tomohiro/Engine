@@ -114,7 +114,7 @@ void EnemyStateComboAttack::ChargeUpdate()
 void EnemyStateComboAttack::AttackUpdate(Weapon* weapon)
 {
 	//プレイヤーと敵の座標を取得
-	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition();
+	Vector3 playerPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition();
 	Vector3 enemyPosition = enemy_->GetHipWorldPosition();
 
 	//プレイヤーへの方向ベクトルを計算
@@ -154,7 +154,7 @@ void EnemyStateComboAttack::AttackUpdate(Weapon* weapon)
 Vector3 EnemyStateComboAttack::GetDirectionToPlayer()
 {
 	//プレイヤーへの方向ベクトルを計算し、y成分を0に設定して正規化
-	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
+	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
 	directionToPlayer.y = 0.0f;
 	return Mathf::Normalize(directionToPlayer);
 }

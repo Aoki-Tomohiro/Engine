@@ -57,7 +57,7 @@ void CameraController::Update()
 	//クリアアニメーション状態に遷移するかを確認
 	if (!isClearAnimationActive_)
 	{
-		const Enemy* enemy = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("");
+		const Enemy* enemy = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("Enemy");
 		if (enemy->GetIsDead())
 		{
 			isClearAnimationActive_ = true;
@@ -156,7 +156,7 @@ void CameraController::UpdateEditing()
 void CameraController::UpdateCameraTransform(const Quaternion& rotation, float fovDegrees)
 {
 	//プレイヤーの情報を取得
-	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("");
+	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
 
 	//プレイヤーのクォータニオンと指定された回転を合成してカメラの目標クォータニオンを設定
 	destinationQuaternion_ = player->GetDestinationQuaternion() * rotation;

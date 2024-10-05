@@ -21,7 +21,7 @@ void CameraStateLockon::Update()
     UpdateCameraRotation();
 
     //プレイヤーを取得
-    const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("");
+    const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
 
     //プレイヤーがダッシュしている場合、ダッシュカメラアニメーションを適用
     HandleDashState(player);

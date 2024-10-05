@@ -121,7 +121,7 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 		endPosition_.y = 0.0f;
 
 		//攻撃状態を有効にする
-		weapon->SetIsAttack(true);
+		weapon->SetIsAttack(false);
 
 		//アニメーションを一時停止
 		player_->PauseAnimation();
@@ -129,7 +129,7 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 	else if(animationState_.phases[phaseIndex_].name == "SlamAttack")
 	{
 		//攻撃状態を設定
-		weapon->SetIsAttack(true);
+		weapon->SetIsAttack(false);
 
 		//アニメーション停止を解除
 		player_->ResumeAnimation();
@@ -183,6 +183,12 @@ void PlayerStateFallingAttack::AttackUpdate(Weapon* weapon)
 
 void PlayerStateFallingAttack::HandleWeaponHit(Weapon* weapon)
 {
+	//武器が敵にヒットしたかをチェック
+	if (weapon->GetIsHit())
+	{
+		hitCount_++; //ヒットカウントを増加
+	}
+
 	//現在のフェーズでのヒット数が上限に達していない場合
 	if (hitCount_ < animationState_.phases[phaseIndex_].attackSettings.hitCount)
 	{
@@ -198,12 +204,6 @@ void PlayerStateFallingAttack::HandleWeaponHit(Weapon* weapon)
 		else
 		{
 			weapon->SetIsAttack(false);
-		}
-
-		//武器が敵にヒットしたかをチェック
-		if (weapon->GetIsHit())
-		{
-			hitCount_++; //ヒットカウントを増加
 		}
 	}
 	else

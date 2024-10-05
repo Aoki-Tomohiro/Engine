@@ -1,10 +1,16 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Primitive/TrailRenderer.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
+#include "Engine/Components/Transform/TransformComponent.h"
+#include "Engine/Components/Model/ModelComponent.h"
+#include "Engine/Components/Collision/OBBCollider.h"
+#include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
@@ -17,8 +23,6 @@ public:
 	void Update() override;
 
 	void Draw(const Camera& camera) override;
-
-	void DrawUI() override;
 
 	void OnCollision(GameObject* gameObject) override;
 
@@ -51,6 +55,8 @@ public:
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
 private:
+	void InitializeTransform();
+
 	void InitializeModel();
 
 	void InitializeCollider();
@@ -61,9 +67,13 @@ private:
 
 	void InitializeGlobalVariables();
 
-	void UpdatePlayerCollider();
+	void InitializeTrail();
 
-	void UpdateEnemyCollider();
+	void InitializeHitAudio();
+
+	void UpdateCollider();
+
+	void SetColliderTransform(GameObject* gameObject);
 
 	void UpdateTrail();
 
@@ -71,12 +81,34 @@ private:
 
 	void UpdateImGui();
 
+	void HandlePlayerWeaponCollision();
+
+	void CreateParticleEmitters();
+
+	void CreateShockWaveEmitters(const Vector3& emitterTranslation, Camera* camera);
+
+	void CreateSparkEmitter(const Vector3& emitterTranslation);
+
+	void CreateStarEmitter(const Vector3& position);
+
+	ParticleEmitter* CreateShockWaveEmitter(const Vector3& position, const Vector3& velocity);
+
 private:
 	//オーディオ
 	Audio* audio_ = nullptr;
 
+	//トランスフォーム
+	TransformComponent* transform_ = nullptr;
+
+	//モデル
+	ModelComponent* model_ = nullptr;
+
+	//コライダー
+	OBBCollider* collider_ = nullptr;
+
 	//パーティクル
 	std::map<std::string, ParticleSystem*> particleSystems_{};
+	std::unique_ptr<Model> sparkParticleModel_ = nullptr;
 
 	//ヒットストップ
 	HitStop* hitStop_ = nullptr;

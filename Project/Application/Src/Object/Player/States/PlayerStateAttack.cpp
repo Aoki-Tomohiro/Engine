@@ -67,7 +67,7 @@ void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)
 	//アニメーションの名前を設定
 	std::string animationName = (isAerial ? "AerialAttack" : "GroundAttack") + std::to_string(workAttack_.comboIndex + 1);
 	//アニメーションの速度を設定
-	float animationSpeed = isAerial ? 2.0f : 1.8f;
+	float animationSpeed = isAerial ? 3.0f : 2.4f;
 	//アニメーションを再生
 	player_->PlayAnimation(animationName, animationSpeed, false);
 }
@@ -251,7 +251,7 @@ void PlayerStateAttack::ChargeUpdate()
 	const auto& attackParameters = player_->GetActionFlag(Player::ActionFlag::kAerialAttack) ? player_->GetAerialAttackParameters() : player_->GetGroundAttackParameters();
 
 	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
 
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();
@@ -332,7 +332,7 @@ void PlayerStateAttack::RotatePlayerTowardsEnemy()
 	const auto& attackParameters = player_->GetActionFlag(Player::ActionFlag::kAerialAttack) ? player_->GetAerialAttackParameters() : player_->GetGroundAttackParameters();
 
 	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
 
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = player_->GetHipWorldPosition();

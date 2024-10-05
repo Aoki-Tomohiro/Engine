@@ -137,13 +137,13 @@ const Vector3 PlayerStateChargeMagicAttack::GetMagicProjectileVelocity()
     if (player_->GetLockon()->ExistTarget())
     {
         Vector3 orbPosition = player_->GetJointWorldPosition("mixamorig:LeftHand");
-        Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("")->GetHipWorldPosition();
+        Vector3 enemyPosition = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy")->GetHipWorldPosition();
         velocity = Mathf::Normalize(enemyPosition - orbPosition) * player_->GetMagicAttackParameters().magicProjectileSpeed;
     }
     //敵がロックオンされていない場合、プレイヤーの方向に基づいて速度を回転
     else
     {
-        const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("");
+        const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
         velocity = Mathf::RotateVector(velocity, player->GetDestinationQuaternion());
     }
 

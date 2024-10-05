@@ -13,7 +13,7 @@ void CameraStateFollow::Initialize()
 	cameraController_->SetDestinationOffset(cameraController_->GetFollowCameraParameters().offset);
 
 	//Quaternionの初期化
-	if (const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>(""))
+	if (const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player"))
 	{
 		quaternionY = player->GetDestinationQuaternion();
 		cameraController_->SetDestinationQuaternion(quaternionY);

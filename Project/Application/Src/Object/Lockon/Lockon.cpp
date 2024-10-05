@@ -54,7 +54,7 @@ void Lockon::UpdateTargeting()
 		else
 		{
 			//ターゲットを設定
-			target_ = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("");
+			target_ = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy");
 		}
 	}
 }

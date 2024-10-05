@@ -99,11 +99,13 @@ struct ParticleCS
 {
 	Vector3 translate;
 	Vector3 rotate;
+	Quaternion quaternion;
 	Vector3 scale;
 	float lifeTime;
 	Vector3 velocity;
 	float currentTime;
 	Vector4 color;
+	int32_t alignToDirection;
 };
 
 struct PerView
@@ -121,20 +123,22 @@ struct PerFrame
 
 struct EmitterSphere
 {
-	Vector3 translate;   //位置
-	float radius;        //射出半径
-	uint32_t count;      //射出数
-	uint32_t emit;       //射出許可
-	Vector3 rotateMin;   //回転角の最小値
-	Vector3 rotateMax;   //回転角の最大値
-	Vector3 scaleMin;    //スケールの最小値
-	Vector3 scaleMax;    //スケールの最大値
-	Vector3 velocityMin; //速度の最小値
-	Vector3 velocityMax; //速度の最大値
-	float lifeTimeMin;   //寿命の最小値
-	float lifeTimeMax;   //寿命の最大値
-	Vector4 colorMin;    //色の最小値
-	Vector4 colorMax;    //色の最大値
+	Vector3 translate;     //位置
+	float radius;          //射出半径
+	uint32_t count;        //射出数
+	uint32_t emit;         //射出許可
+	Vector3 rotateMin;     //回転角の最小値
+	Vector3 rotateMax;     //回転角の最大値
+	Quaternion quaternion; //Quaternion
+	Vector3 scaleMin;      //スケールの最小値
+	Vector3 scaleMax;      //スケールの最大値
+	Vector3 velocityMin;   //速度の最小値
+	Vector3 velocityMax;   //速度の最大値
+	float lifeTimeMin;     //寿命の最小値
+	float lifeTimeMax;     //寿命の最大値
+	Vector4 colorMin;      //色の最小値
+	Vector4 colorMax;      //色の最大値
+	bool alignToDirection; //パーティクルを進行方向に向かせるか
 };
 
 struct AccelerationFieldData

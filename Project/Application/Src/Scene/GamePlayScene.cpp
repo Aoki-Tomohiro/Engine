@@ -188,7 +188,7 @@ void GamePlayScene::InitializeCameraAndLockon()
 void GamePlayScene::InitializePlayer()
 {
 	//プレイヤーの初期化
-	player_ = gameObjectManager_->GetMutableGameObject<Player>("");
+	player_ = gameObjectManager_->GetMutableGameObject<Player>("Player");
 	player_->SetIsInTitleScene(false);
 	player_->SetCamera(camera_);
 	player_->SetLockon(lockon_.get());
@@ -201,16 +201,12 @@ void GamePlayScene::InitializePlayerWeapon()
 	playerWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	playerWeapon_->SetName("PlayerWeapon");
 	playerWeapon_->SetHitStop(hitStop_.get());
-
-	//トランスフォームの設定
-	TransformComponent* weaponTransformComponent = playerWeapon_->GetComponent<TransformComponent>();
-	weaponTransformComponent->worldTransform_.parent_ = &player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 }
 
 void GamePlayScene::InitializeEnemy()
 {
 	//敵の初期化
-	enemy_ = gameObjectManager_->GetMutableGameObject<Enemy>("");
+	enemy_ = gameObjectManager_->GetMutableGameObject<Enemy>("Enemy");
 	enemy_->SetIsInTitleScene(false);
 	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
 }
@@ -221,10 +217,6 @@ void GamePlayScene::InitializeEnemyWeapon()
 	enemyWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
 	enemyWeapon_->SetName("EnemyWeapon");
 	enemyWeapon_->SetHitStop(hitStop_.get());
-
-	//トランスフォームの設定
-	TransformComponent* weaponTransformComponent = enemyWeapon_->GetComponent<TransformComponent>();
-	weaponTransformComponent->worldTransform_.parent_ = &enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 }
 
 void GamePlayScene::InitializeCameraController()

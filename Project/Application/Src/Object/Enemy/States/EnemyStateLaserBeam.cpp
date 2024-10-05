@@ -117,7 +117,7 @@ void EnemyStateLaserBeam::AttackUpdate()
 Vector3 EnemyStateLaserBeam::GetDirectionToPlayer()
 {
 	//プレイヤーへの方向ベクトルを計算し、y成分を0に設定して正規化
-	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
+	Vector3 directionToPlayer = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player")->GetHipWorldPosition() - enemy_->GetHipWorldPosition();
 	directionToPlayer.y = 0.0f;
 	return Mathf::Normalize(directionToPlayer);
 }
