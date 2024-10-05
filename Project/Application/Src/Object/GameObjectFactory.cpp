@@ -22,6 +22,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		Ground* ground = new Ground();
 		return ground;
 	}
+	else if (objectName == "Skydome")
+	{
+		Skydome* skydome = new Skydome();
+		return skydome;
+	}
 	else if (objectName.find("BackGroundObject") != std::string::npos)
 	{
 		BackGroundObject* backGroundObject = new BackGroundObject();

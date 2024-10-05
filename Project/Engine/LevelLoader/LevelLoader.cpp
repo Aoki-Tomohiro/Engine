@@ -116,7 +116,7 @@ void LevelLoader::ProcessObject(const nlohmann::json& object, LevelData* levelDa
 		//平行移動
 		objectData.translation = { (float)transform["translation"][0] ,(float)transform["translation"][2] ,(float)transform["translation"][1] };
 		//回転角
-		objectData.rotation = { (float)transform["rotation"][0] ,(float)transform["rotation"][2] ,(float)transform["rotation"][1] };
+		objectData.rotation = { -(float)transform["rotation"][0] ,-(float)transform["rotation"][2] ,-(float)transform["rotation"][1] };
 		//スケーリング
 		objectData.scaling = { (float)transform["scaling"][0] ,(float)transform["scaling"][2] ,(float)transform["scaling"][1] };
 

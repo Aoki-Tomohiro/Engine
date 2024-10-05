@@ -27,6 +27,6 @@ private:
 	Vector3 specularColor_ = { 0.0f,0.0f,0.0f };
 
 	//UVスケール
-	Vector2 uvScale_ = { 500.0f,500.0f };
+	Vector2 uvScale_ = { 600.0f,600.0f };
 };
 

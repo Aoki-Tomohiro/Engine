@@ -3,12 +3,6 @@
         "generator" : "Khronos glTF Blender I/O v3.3.32",
         "version" : "2.0"
     },
-    "extensionsUsed" : [
-        "KHR_texture_transform"
-    ],
-    "extensionsRequired" : [
-        "KHR_texture_transform"
-    ],
     "scene" : 0,
     "scenes" : [
         {
@@ -21,7 +15,7 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Cube"
+            "name" : "\u5186\u9310"
         }
     ],
     "materials" : [
@@ -30,18 +24,6 @@
             "name" : "Material",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
-                    "extensions" : {
-                        "KHR_texture_transform" : {
-                            "offset" : [
-                                0,
-                                -299
-                            ],
-                            "scale" : [
-                                300,
-                                300
-                            ]
-                        }
-                    },
                     "index" : 0
                 },
                 "metallicFactor" : 0,
@@ -51,7 +33,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Cube",
+            "name" : "\u5186\u9310",
             "primitives" : [
                 {
                     "attributes" : {
@@ -82,61 +64,61 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 236744,
+            "count" : 128,
             "max" : [
                 1,
-                1.0163308382034302,
-                1
+                1.0000001192092896,
+                1.0000001192092896
             ],
             "min" : [
                 -1,
                 -1,
-                -1
+                -0.9999999403953552
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 236744,
+            "count" : 128,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 236744,
+            "count" : 128,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
-            "componentType" : 5125,
-            "count" : 396306,
+            "componentType" : 5123,
+            "count" : 186,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 2840928,
+            "byteLength" : 1536,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 2840928,
-            "byteOffset" : 2840928,
+            "byteLength" : 1536,
+            "byteOffset" : 1536,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1893952,
-            "byteOffset" : 5681856,
+            "byteLength" : 1024,
+            "byteOffset" : 3072,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1585224,
-            "byteOffset" : 7575808,
+            "byteLength" : 372,
+            "byteOffset" : 4096,
             "target" : 34963
         }
     ],
@@ -148,7 +130,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 9161032,
+            "byteLength" : 4468,
             "uri" : "Ground.bin"
         }
     ]

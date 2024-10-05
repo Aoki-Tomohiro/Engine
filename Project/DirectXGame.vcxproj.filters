@@ -726,6 +726,9 @@
     <ClCompile Include="Application\Src\Object\Player\States\PlayerStateChargeMagicAttack.cpp">
       <Filter>ソース ファイル\Application\Object\Player\States</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -1210,6 +1213,9 @@
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Player\States\PlayerStateChargeMagicAttack.h">
       <Filter>ヘッダー ファイル\Application\Object\Player\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,7 @@ struct PixelShaderOutput
 struct Fog
 {
     float32_t4x4 projectionInverse;
+    float32_t3 color;
     float32_t scale;
     float32_t attenuationRate;
 };
@@ -30,8 +31,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float fogWeight = 0.0f;
     fogWeight += gFogParameter.scale * max(0.0f, 1.0f - exp(-gFogParameter.attenuationRate * viewZ));
     const float3 gbColor = textureColor.rgb;
-    const float3 fogColor = 0.8f;
-    output.color.rgb = lerp(gbColor, fogColor, fogWeight);
+    output.color.rgb = lerp(gbColor, gFogParameter.color, fogWeight);
     output.color.a = textureColor.a;
     
     return output;

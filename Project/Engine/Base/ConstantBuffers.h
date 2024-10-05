@@ -178,6 +178,7 @@ struct ConstBuffDataBloom
 struct ConstBuffDataFog
 {
 	Matrix4x4 projectionInverse;
+	Vector3 color;
 	float scale;
 	float attenuationRate;
 };

@@ -26,6 +26,7 @@ void Fog::Update()
 {
 	ConstBuffDataFog* fogData = static_cast<ConstBuffDataFog*>(constBuff_->Map());
 	fogData->projectionInverse = projectionInverse_;
+	fogData->color = color_;
 	fogData->scale = scale_;
 	fogData->attenuationRate = attenuationRate_;
 	constBuff_->Unmap();

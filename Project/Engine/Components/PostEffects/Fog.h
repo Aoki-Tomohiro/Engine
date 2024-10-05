@@ -21,6 +21,10 @@ public:
 
 	void SetProjectionInverse(const Matrix4x4& projectionInverse) { projectionInverse_ = projectionInverse; };
 
+	const Vector3& GetColor() const { return color_; };
+
+	void SetColor(const Vector3& color) { color_ = color; };
+
 	const float GetScale() const { return scale_; };
 
 	void SetScale(const float scale) { scale_ = scale; };
@@ -52,8 +56,10 @@ private:
 
 	Matrix4x4 projectionInverse_{};
 
+	Vector3 color_ = { 0.6f,0.6f,0.6f };
+
 	float scale_ = 2.0f;
 
-	float attenuationRate_ = 0.0006f;
+	float attenuationRate_ = 0.0004f;
 };
 
