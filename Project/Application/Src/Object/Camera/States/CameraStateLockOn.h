@@ -21,17 +21,7 @@ private:
 
 	Quaternion CalculateNewRotation() const;
 
-	void HandleDashState(const Player* player);
-
-	void ApplyDashCameraAnimation();
-
-	void UpdateAnimationTime();
-
-	void UpdateCameraTransformFromKeyFrame(const CameraKeyFrame& keyFrame);
-
-	void CheckAnimationCompletion();
-
-	void ManageCameraStateTransition(const Player* player);
+	void ManageCameraStateTransition();
 
 private:
 	//前のフレームの方向ベクトル

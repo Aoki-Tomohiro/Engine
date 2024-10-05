@@ -109,16 +109,9 @@ public:
         float gravityAcceleration = -148.0f; // 重力加速度
     };
 
-    //回避用のパラメーター
-    struct DodgeParameters
-    {
-        float dodgeSpeed = 32.0f; // 回避速度
-    };
-
     //ダッシュ用のパラメーター
     struct DashParameters
     {
-        float dashSpeed = 125.0f;                 // ダッシュ速度
         float proximityDistance = 4.0f;           // 移動を止める距離
         float verticalAlignmentTolerance = 0.1f;  // プレイヤーと敵のY軸方向の許容誤差
     };
@@ -280,7 +273,6 @@ public:
     //各パラメーターの取得
     const RootParameters& GetRootParameters() const { return rootParameters_; };
     const JumpParameters& GetJumpParameters() const { return jumpParameters_; };
-    const DodgeParameters& GetDodgeParameters() const { return dodgeParameters_; };
     const DashParameters& GetDashParameters() const { return dashParameters_; };
     const AttackParameters& GetGroundAttackParameters() const { return groundAttackParameters_; };
     const AttackParameters& GetAerialAttackParameters() const { return aerialAttackAttackParameters_; };
@@ -440,7 +432,6 @@ private:
 	//各種パラメーター
 	RootParameters rootParameters_{};
 	JumpParameters jumpParameters_{};
-	DodgeParameters dodgeParameters_{};
 	DashParameters dashParameters_{};
 	AttackParameters groundAttackParameters_{ .comboNum = 4, .attackDistance = 3.0f };
 	AttackParameters aerialAttackAttackParameters_{ .comboNum = 3, .attackDistance = 3.0f };

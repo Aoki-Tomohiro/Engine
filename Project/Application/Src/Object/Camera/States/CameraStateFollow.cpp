@@ -26,10 +26,21 @@ void CameraStateFollow::Update()
 	UpdateCameraRotation();
 
 	//ロックオンカメラに遷移
-	if (cameraController_->GetLockon()->ExistTarget())
+	if (cameraController_->GetLockon()->ExistTarget() && !IsPlayerPerformingAction())
 	{
 		cameraController_->ChangeState(new CameraStateLockon());
 	}
+}
+
+const bool CameraStateFollow::IsPlayerPerformingAction() const
+{
+	//プレイヤーを取得
+	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
+
+	//いずれかのフラグが立っていたらtrueを返す
+	return player->GetActionFlag(Player::ActionFlag::kDashing) ||
+		player->GetActionFlag(Player::ActionFlag::kLaunchAttack) ||
+		player->GetActionFlag(Player::ActionFlag::kFallingAttack);
 }
 
 void CameraStateFollow::UpdateCameraRotation()

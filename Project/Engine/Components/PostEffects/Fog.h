@@ -60,6 +60,6 @@ private:
 
 	float scale_ = 2.0f;
 
-	float attenuationRate_ = 0.0004f;
+	float attenuationRate_ = 0.0006f;
 };
 

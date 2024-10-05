@@ -2,6 +2,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
+#include "Application/Src/Object/Camera/States/CameraStateDash.h"
 #include "Application/Src/Object/Camera/States/CameraStateLaunchAttack.h"
 #include "Application/Src/Object/Camera/States/CameraStateFallingAttack.h"
 #include "Application/Src/Object/Player/Player.h"
@@ -20,14 +21,8 @@ void CameraStateLockon::Update()
     //カメラの回転を更新
     UpdateCameraRotation();
 
-    //プレイヤーを取得
-    const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
-
-    //プレイヤーがダッシュしている場合、ダッシュカメラアニメーションを適用
-    HandleDashState(player);
-
     //カメラの状態遷移を管理
-    ManageCameraStateTransition(player);
+    ManageCameraStateTransition();
 }
 
 void CameraStateLockon::UpdateCameraRotation()
@@ -99,77 +94,20 @@ Quaternion CameraStateLockon::CalculateNewRotation() const
         : Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -angle);
 }
 
-void CameraStateLockon::HandleDashState(const Player* player)
+void CameraStateLockon::ManageCameraStateTransition()
 {
-    //プレイヤーがダッシュ中であればダッシュカメラアニメーションを有効化
-    if (player->GetActionFlag(Player::ActionFlag::kDashing))
-    {
-        //ダッシュカメラアニメーションを有効化
-        if (!isDashCameraAnimationActive_)
-        {
-            isDashCameraAnimationActive_ = true;
-        }
-    }
+    //プレイヤーを取得
+    const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
 
-    //ダッシュカメラアニメーションが有効であればアニメーションを適用
-    if (isDashCameraAnimationActive_)
-    {
-        ApplyDashCameraAnimation();
-    }
-}
-
-void CameraStateLockon::ApplyDashCameraAnimation()
-{
-    //アニメーション時間を更新
-    UpdateAnimationTime();
-
-    //現在のアニメーション時間に基づいてカメラのキーフレームを取得
-    CameraKeyFrame cameraKeyFrame = dashCameraPath_.GetInterpolatedKeyFrame(dashAnimationTime_);
-
-    //キーフレームに基づいてカメラの位置と回転を更新
-    UpdateCameraTransformFromKeyFrame(cameraKeyFrame);
-
-    //アニメーションが終了しているかどうかを確認し、必要に応じてカメラ状態を変更
-    CheckAnimationCompletion();
-}
-
-void CameraStateLockon::UpdateAnimationTime()
-{
-    //アニメーション時間を進める
-    dashAnimationTime_ += GameTimer::GetDeltaTime();
-
-    //アニメーション時間をカメラパスの持続時間にクランプ
-    dashAnimationTime_ = std::min<float>(dashAnimationTime_, dashCameraPath_.GetDuration());
-}
-
-void CameraStateLockon::UpdateCameraTransformFromKeyFrame(const CameraKeyFrame& keyFrame)
-{
-    //キーフレームの情報を基にカメラの位置オフセットを設定
-    cameraController_->SetDestinationOffset(keyFrame.position);
-
-    //キーフレームの回転情報を基にカメラの回転を設定
-    cameraController_->SetDestinationQuaternion(keyFrame.rotation * cameraController_->GetDestinationQuaternion());
-
-    //キーフレームの視野角情報を基にカメラのFOVを設定
-    cameraController_->SetFov(keyFrame.fov * (std::numbers::pi_v<float> / 180.0f));
-}
-
-void CameraStateLockon::CheckAnimationCompletion()
-{
-    //アニメーションが終了している場合
-    if (dashAnimationTime_ >= dashCameraPath_.GetDuration())
-    {
-        isDashCameraAnimationActive_ = false;
-        dashAnimationTime_ = 0.0f;
-    }
-}
-
-void CameraStateLockon::ManageCameraStateTransition(const Player* player)
-{
     //ロックオン対象がいない場合、追従カメラに切り替え
     if (!cameraController_->GetLockon()->ExistTarget())
     {
         cameraController_->ChangeState(new CameraStateFollow());
+    }
+    //プレイヤーがダッシュ状態であれば、ダッシュカメラに切り替え
+    else if (player->GetActionFlag(Player::ActionFlag::kDashing))
+    {
+        cameraController_->ChangeState(new CameraStateDash());
     }
     //プレイヤーが打ち上げ攻撃中であれば、打ち上げ攻撃カメラに切り替え
     else if (player->GetActionFlag(Player::ActionFlag::kLaunchAttack))

@@ -27,17 +27,6 @@ void PlayerStateDash::Initialize()
 
 	//ダッシュ開始時のアニメーションを再生
 	player_->PlayAnimation("DashStart", 1.0f, false);
-
-	//ロックオン中の場合敵の方向に向かってダッシュ
-	if (player_->GetLockon()->ExistTarget())
-	{
-		HandleLockon();
-	}
-	//ロックオンしていない場合前方に向かってダッシュ
-	else
-	{
-		HandleNonLockon();
-	}
 }
 
 void PlayerStateDash::Update()
@@ -94,7 +83,7 @@ void PlayerStateDash::HandleLockon()
 	sub.y = std::abs(sub.y) < player_->GetDashParameters().verticalAlignmentTolerance ? 0.0f : sub.y;
 
 	//計算した方向と速度でダッシュベクトルを設定
-	velocity_ = sub * player_->GetDashParameters().dashSpeed;
+	velocity_ = sub * animationState_.phases[currentPhaseIndex_].attackSettings.moveSpeed;;
 
 	//プレイヤーを敵の方向に向ける
 	player_->Rotate({ sub.x, 0.0f, sub.z });
@@ -104,7 +93,7 @@ void PlayerStateDash::HandleNonLockon()
 {
 	//プレイヤーの前方にダッシュ
 	velocity_ = Mathf::RotateVector({ 0.0f, 0.0f, 1.0f }, player_->GetDestinationQuaternion());
-	velocity_ = Mathf::Normalize(velocity_) * player_->GetDashParameters().dashSpeed;
+	velocity_ = Mathf::Normalize(velocity_) * animationState_.phases[currentPhaseIndex_].attackSettings.moveSpeed;
 }
 
 void PlayerStateDash::UpdateAnimationPhase()
@@ -112,7 +101,23 @@ void PlayerStateDash::UpdateAnimationPhase()
 	//アニメーションのフェーズの更新
 	if (currentPhaseIndex_ < animationState_.phases.size() - 1 && animationTime_ > animationState_.phases[currentPhaseIndex_].duration)
 	{
+		//現在のフェーズを更新
 		currentPhaseIndex_++;
+
+		//ダッシュフェーズになったら速度を計算
+		if (animationState_.phases[currentPhaseIndex_].name == "Dash")
+		{
+			//ロックオン中の場合敵の方向に向かってダッシュ
+			if (player_->GetLockon()->ExistTarget())
+			{
+				HandleLockon();
+			}
+			//ロックオンしていない場合前方に向かってダッシュ
+			else
+			{
+				HandleNonLockon();
+			}
+		}
 	}
 }
 

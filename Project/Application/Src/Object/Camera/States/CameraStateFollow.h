@@ -20,6 +20,8 @@ private:
 
 	Vector3 GetRightStickInput() const;
 
+	const bool IsPlayerPerformingAction() const;
+
 private:
 	//Input
 	Input* input_ = nullptr;

@@ -871,7 +871,7 @@
                 0.0,
                 0.0
             ],
-            "MoveSpeed": 0.0,
+            "MoveSpeed": 128.0,
             "ReactionType": "Flinch"
         },
         "Recovery": {
@@ -981,7 +981,7 @@
                 0.0,
                 0.0
             ],
-            "MoveSpeed": 0.0,
+            "MoveSpeed": 32.0,
             "ReactionType": "Flinch"
         },
         "DodgeStart": {
@@ -1091,7 +1091,7 @@
                 0.0,
                 0.0
             ],
-            "MoveSpeed": 0.0,
+            "MoveSpeed": 32.0,
             "ReactionType": "Flinch"
         },
         "DodgeStart": {

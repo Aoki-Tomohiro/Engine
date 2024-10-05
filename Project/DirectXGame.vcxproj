@@ -14,6 +14,7 @@
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraShake.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateClear.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateDash.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.cpp" />
     <ClCompile Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraShake.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateClear.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateDash.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.h" />
     <ClInclude Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.h" />

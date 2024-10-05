@@ -9,33 +9,28 @@ void PlayerStateDodge::Initialize()
 	input_ = Input::GetInstance();
 
 	//スティックの入力を取得
-	Vector3 inputValue = {
+	inputValue_ = {
 		input_->GetLeftStickX(),
 		0.0f,
 		input_->GetLeftStickY(),
 	};
 
 	//スティック入力に応じて設定する
-	if (Mathf::Length(inputValue) > player_->GetRootParameters().walkThreshold)
+	if (Mathf::Length(inputValue_) > player_->GetRootParameters().walkThreshold)
 	{
+		//回避状態を設定
+		dodgeState_ = DodgeState::kForward;
+
 		//前方への回避
 		SetupDodge("DodgeForward", 2.8f);
-
-		//速度を設定
-		velocity_ = Mathf::Normalize(inputValue) * player_->GetDodgeParameters().dodgeSpeed;
-		velocity_ = Mathf::RotateVector(velocity_, player_->GetCamera()->quaternion_);
-		velocity_.y = 0.0f;
-
-		//方向に応じてプレイヤーを回転させる
-		player_->Rotate(Mathf::Normalize(velocity_));
 	}
 	else
 	{
+		//回避状態を設定
+		dodgeState_ = DodgeState::kBackward;
+
 		//後方への回避
 		SetupDodge("DodgeBackward", 2.0f);
-
-		//速度を設定
-		velocity_ = Mathf::RotateVector({ 0.0f,0.0f,-1.0f }, player_->GetDestinationQuaternion()) * player_->GetDodgeParameters().dodgeSpeed;
 	}
 }
 
@@ -47,11 +42,8 @@ void PlayerStateDodge::Update()
 	//アニメーションフェーズの更新
 	UpdateAnimationPhase();
 
-	//現在のフェーズが移動させる
-	if (animationState_.phases[phaseIndex_].name == "DodgeMove")
-	{
-		player_->Move(velocity_);
-	}
+	//移動処理
+	player_->Move(velocity_);
 
 	//アニメーションが終了した場合
 	if (player_->GetIsAnimationFinished())
@@ -97,5 +89,32 @@ void PlayerStateDodge::UpdateAnimationPhase()
 	{
 		//フェーズを進める
 		phaseIndex_++;
+
+		//速度を計算
+		CalculateVelocity();
+
+		//回避状態になったら回転させる
+		if (animationState_.phases[phaseIndex_].name == "DodgeMove")
+		{
+			player_->Rotate(Mathf::Normalize(velocity_));
+		}
+	}
+}
+
+void PlayerStateDodge::CalculateVelocity()
+{
+	//回避状態に応じて速度の計算を変更
+	switch (dodgeState_)
+	{
+	case DodgeState::kForward:
+		//速度を計算
+		velocity_ = Mathf::Normalize(inputValue_) * animationState_.phases[phaseIndex_].attackSettings.moveSpeed;
+		velocity_ = Mathf::RotateVector(velocity_, player_->GetCamera()->quaternion_);
+		velocity_.y = 0.0f;
+		break;
+	case DodgeState::kBackward:
+		//速度を計算
+		velocity_ = Mathf::RotateVector({ 0.0f,0.0f,-1.0f }, player_->GetDestinationQuaternion()) * animationState_.phases[phaseIndex_].attackSettings.moveSpeed;
+		break;
 	}
 }

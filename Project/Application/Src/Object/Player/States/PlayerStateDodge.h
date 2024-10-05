@@ -7,6 +7,13 @@
 class PlayerStateDodge : public IPlayerState
 {
 public:
+	//回避状態
+	enum class DodgeState
+	{
+		kForward,
+		kBackward,
+	};
+
 	void Initialize() override;
 
 	void Update() override;
@@ -18,11 +25,16 @@ private:
 
 	void UpdateAnimationPhase();
 
+	void CalculateVelocity();
+
 	void FinalizeDodge();
 
 private:
 	//インプット
 	Input* input_ = nullptr;
+
+	//入力値
+	Vector3 inputValue_{};
 
 	//速度
 	Vector3 velocity_{};
@@ -32,5 +44,8 @@ private:
 
 	//フェーズのインデックス
 	int32_t phaseIndex_ = 0;
+
+	//回避状態
+	DodgeState dodgeState_ = DodgeState::kForward;
 };
 
