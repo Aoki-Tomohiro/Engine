@@ -33,6 +33,10 @@ private:
 
 	void RecoveryUpdate(Weapon* weapon);
 
+	void CreateLaunchParticles(const Vector3& emitterPosition);
+
+	void CreateAccelerationField(const Vector3& accelerationPosition);
+
 	Vector3 GetInputValue();
 
 private:
@@ -53,5 +57,14 @@ private:
 
 	//攻撃状態への遷移するかどうか
 	bool isAttackStateTransitionRequested_ = false;
+
+	//パーティクルのオフセット値
+	Vector3 launchParticleOffset_{ 0.0f, 0.0f, 3.0f };
+
+	//パーティクルの速度
+	Vector3 launchParticleVelocity_{ 0.0f, 0.06f, 0.08f };
+
+	//パーティクルの加速度
+	Vector3 launchParticleAcceleration_{ 0.0f, 0.8f, -0.5f };
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 
 class Weapon;

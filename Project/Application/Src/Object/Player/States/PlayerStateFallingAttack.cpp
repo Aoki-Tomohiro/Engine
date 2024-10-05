@@ -63,6 +63,9 @@ void PlayerStateFallingAttack::EndFallingAttack()
 	//落下攻撃のフラグを折る
 	player_->SetActionFlag(Player::ActionFlag::kFallingAttack, false);
 
+	//ラジアルブラーを無効にする
+	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+
 	//プレイヤーの位置をアニメーション後の位置に補正
 	CorrectPlayerPosition();
 
@@ -125,6 +128,9 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 
 		//アニメーションを一時停止
 		player_->PauseAnimation();
+
+		//ラジアルブラーを有効にする
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
 	}
 	else if(animationState_.phases[phaseIndex_].name == "SlamAttack")
 	{
@@ -136,6 +142,9 @@ void PlayerStateFallingAttack::HandlePhaseTransition(Weapon* weapon)
 
 		//パーティクルを生成
 		CreateSlamAttackParticles();
+
+		//ラジアルブラーを無効にする
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 	}
 	else
 	{

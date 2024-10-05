@@ -999,9 +999,6 @@ void Player::UpdateImGui()
 	//デバッグモードのチェックボックス
 	ImGui::Checkbox("IsDebug", &isDebug_);
 
-	ImGui::DragFloat("verticalRetreatSpeed", &magicAttackParameters_.verticalRetreatSpeed, 0.01f);
-	ImGui::DragFloat3("acceleration", &magicAttackParameters_.acceleration.x, 0.01f);
-
 	//デバッグ状態の場合
 	if (isDebug_)
 	{
