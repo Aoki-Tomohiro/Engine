@@ -53,7 +53,7 @@ void EnemyStateLaserBeam::UpdateAnimationPhase(const float currentAnimationTime)
 		if (animationState_.phases[phaseIndex_].name == "Attack")
 		{
 			//回転の補間速度を遅くする
-			enemy_->SetQuaternionInterpolationSpeed(0.08f);
+			enemy_->SetQuaternionInterpolationSpeed(0.06f);
 
 			//レーザーを生成する
 			CreateLaser();
