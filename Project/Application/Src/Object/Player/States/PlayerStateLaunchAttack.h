@@ -59,7 +59,7 @@ private:
 	bool isAttackStateTransitionRequested_ = false;
 
 	//パーティクルのオフセット値
-	Vector3 launchParticleOffset_{ 0.0f, 0.0f, 3.0f };
+	Vector3 launchParticleOffset_{ 0.0f, 0.0f, 2.6f };
 
 	//パーティクルの速度
 	Vector3 launchParticleVelocity_{ 0.0f, 0.06f, 0.2f };

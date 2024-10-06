@@ -148,6 +148,26 @@ public:
         float riseHeight = 4.0f;
     };
 
+    //攻撃用定数
+    struct ConstGroundAttack
+    {
+        //振りかぶりの時間
+        float anticipationTime;
+        //溜めの時間
+        float chargeTime;
+        //攻撃振りの時間
+        float swingTime;
+        //硬直時間
+        float recoveryTime;
+        //振りかぶりの移動速さ
+        Vector3 anticipationSpeed;
+        //溜めの移動速さ
+        Vector3 chargeSpeed;
+        //攻撃振りの移動速さ
+        Vector3 swingSpeed;
+    };
+
+
     //初期化処理
     void Initialize() override;
 

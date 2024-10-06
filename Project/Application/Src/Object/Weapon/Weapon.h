@@ -149,6 +149,12 @@ private:
 	//軌跡のアクティブフラグ
 	bool isTrailActive_ = false;
 
+	//軌跡の頂点を追加するためのタイマー
+	float addVertexTimer_ = 0.0f;
+
+	//軌跡の頂点を追加する間隔
+	float trailVertexInterval_ = 0.01f;
+
 	//軌跡の色
 	Vector4 trailColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
 

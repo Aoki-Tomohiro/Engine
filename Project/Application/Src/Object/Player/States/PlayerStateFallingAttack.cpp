@@ -242,7 +242,7 @@ void PlayerStateFallingAttack::CreateSlamAttackParticles()
 			.SetTranslation(player_->GetHipWorldPosition()).SetVelocity(velocity, velocity).Build();
 
 		//パーティクルシステムにエミッターを追加
-		player_->AddParticleEmitter("Smoke", emitter);
+		player_->AddParticleEmitter("Normal", emitter);
 	}
 
 	//エミッターの生成

@@ -73,7 +73,7 @@ public:
 	//ダッシュ状態のパラメーター
 	struct DashParameters
 	{
-		float dashDistance = 20.0f; // ダッシュの距離
+		float dashDistance = 30.0f; // ダッシュの距離
 	};
 
 	//ジャンプ攻撃のパラメーター

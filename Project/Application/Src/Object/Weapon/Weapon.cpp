@@ -221,12 +221,29 @@ void Weapon::UpdateTrail()
 	//軌跡が有効な場合
 	if (isTrailActive_)
 	{
-		//軌跡の座標と色を更新
-		Vector3 worldPosition = transform_->GetWorldPosition();
-		Vector3 headOffset = Mathf::TransformNormal(headOffset_, transform_->worldTransform_.matWorld_);
-		Vector3 frontOffset = Mathf::TransformNormal(frontOffset_, transform_->worldTransform_.matWorld_);
-		trail_->AddVertex(worldPosition + headOffset, worldPosition + frontOffset);
+		//タイマーを進める
+		addVertexTimer_ += GameTimer::GetDeltaTime();
+
+		//タイマーが一定値を超えていた場合
+		if (addVertexTimer_ > trailVertexInterval_)
+		{
+			//タイマーのリセット
+			addVertexTimer_ = 0.0f;
+
+			//軌跡の頂点を追加
+			Vector3 worldPosition = transform_->GetWorldPosition();
+			Vector3 headOffset = Mathf::TransformNormal(headOffset_, transform_->worldTransform_.matWorld_);
+			Vector3 frontOffset = Mathf::TransformNormal(frontOffset_, transform_->worldTransform_.matWorld_);
+			trail_->AddVertex(worldPosition + headOffset, worldPosition + frontOffset);
+		}
+
+		//軌跡の色を更新
 		trail_->SetColor(trailColor_);
+	}
+	else
+	{
+		//タイマーのリセット
+		addVertexTimer_ = 0.0f;
 	}
 }
 

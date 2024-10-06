@@ -94,7 +94,7 @@ void PlayerStateDodge::UpdateAnimationPhase()
 		CalculateVelocity();
 
 		//回避状態になったら回転させる
-		if (animationState_.phases[phaseIndex_].name == "DodgeMove")
+		if (animationState_.phases[phaseIndex_].name == "DodgeMove" && dodgeState_ == DodgeState::kForward)
 		{
 			player_->Rotate(Mathf::Normalize(velocity_));
 		}

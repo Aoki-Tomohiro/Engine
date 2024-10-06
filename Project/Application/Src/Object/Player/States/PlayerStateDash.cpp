@@ -199,7 +199,7 @@ void PlayerStateDash::SpawnDashParticles()
 	ParticleEmitter* newEmitter = new ParticleEmitter();
 	newEmitter->Initialize("Dash", 100.0f);
 	newEmitter->SetTranslate(player_->GetHipWorldPosition());
-	newEmitter->SetCount(40);
+	newEmitter->SetCount(20);
 	newEmitter->SetColorMin({ 1.0f, 0.2f, 0.2f, 1.0f });
 	newEmitter->SetColorMax({ 1.0f, 0.2f, 0.2f, 1.0f });
 	newEmitter->SetFrequency(0.001f);

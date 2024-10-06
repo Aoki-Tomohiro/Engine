@@ -68,7 +68,7 @@ void EnemyStateDash::FinishDash()
 {
 	//ダッシュの終了をフラグを立てて、次のアニメーションを再生
 	isDashFinished_ = true;
-	enemy_->SetBlendDuration(0.6f);
+	enemy_->SetBlendDuration(0.4f);
 	enemy_->PlayAnimation("Idle", 1.0f, true);
 }
 
