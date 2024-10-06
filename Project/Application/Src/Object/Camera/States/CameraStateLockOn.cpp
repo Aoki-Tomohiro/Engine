@@ -12,8 +12,14 @@ void CameraStateLockon::Initialize()
 	//オフセット値の初期化
 	cameraController_->SetDestinationOffset(cameraController_->GetLockonCameraParameters().offset);
 
-    //カメラパスの初期化
-    dashCameraPath_ = cameraController_->GetCameraPathManager()->GetPath("Dash");
+    //ロックオン対象の位置を取得
+    Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
+
+    //現在のカメラ位置からロックオン対象までの方向ベクトルを計算
+    currentDirection_ = Mathf::Normalize(lockOnPosition - cameraController_->GetPosition());
+
+    //前のフレームの方向ベクトルを更新
+    previousDirection_ = currentDirection_;
 }
 
 void CameraStateLockon::Update()

@@ -72,9 +72,6 @@ void PlayerStateMagicAttack::UpdateAnimationPhase(float currentAnimationTime)
         {
             //魔法生成
             CreateMagicProjectile();
-
-            //音声データを再生
-            audio_->PlayAudio(fireAudioHandle_, false, 0.2f);
         }
     }
 }
@@ -121,6 +118,9 @@ void PlayerStateMagicAttack::CreateMagicProjectile()
 
     //魔法の位置と向き設定
     SetMagicProjectileTransform(magicProjectile);
+
+    //音声データを再生
+    audio_->PlayAudio(fireAudioHandle_, false, 0.2f);
 }
 
 const Vector3 PlayerStateMagicAttack::GetMagicProjectileVelocity()

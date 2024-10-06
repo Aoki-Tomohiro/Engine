@@ -16,16 +16,16 @@ public:
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
 		float rotationRangeMin = 1.6f;
-		float rotationRangeMax = 2.4f;
-		float rotationSpeedX = 0.04f;
+		float rotationRangeMax = 1.8f;
+		float rotationSpeedX = 0.02f;
 		float rotationSpeedY = 0.06f;
 	};
 
 	//ロックオンカメラ時のパラメーター
 	struct LockonCameraParameters
 	{
-		Vector3 offset = { 2.0f, 2.0f, -12.0f }; //オフセット値
-		float rotationRangeMin = 1.0f;
+		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
+		float rotationRangeMin = 1.2f;
 		float rotationRangeMax = 1.8f;
 	};
 

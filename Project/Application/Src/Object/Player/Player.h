@@ -112,7 +112,7 @@ public:
     //ダッシュ用のパラメーター
     struct DashParameters
     {
-        float proximityDistance = 4.0f;           // 移動を止める距離
+        float proximityDistance = 6.0f;           // 移動を止める距離
         float verticalAlignmentTolerance = 0.1f;  // プレイヤーと敵のY軸方向の許容誤差
     };
 

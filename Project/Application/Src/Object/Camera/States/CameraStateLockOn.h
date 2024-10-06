@@ -1,7 +1,6 @@
 #pragma once
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
-#include "Application/Src/Object/Camera/CameraPathManager.h"
 
 class Player;
 
@@ -29,14 +28,5 @@ private:
 
 	//現在の方向ベクトル
 	Vector3 currentDirection_{};
-
-	//カメラパス
-	CameraPath dashCameraPath_{};
-
-	//アニメーションの時間
-	float dashAnimationTime_ = 0.0f;
-
-	//ダッシュのアニメーションがアクティブかどうか
-	bool isDashCameraAnimationActive_ = false;
 };
 
