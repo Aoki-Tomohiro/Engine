@@ -1,9 +1,5 @@
 #include "GameObject.h"
 
-void GameObject::Initialize()
-{
-}
-
 void GameObject::Update()
 {
 	for (const std::unique_ptr<Component>& component : components_)
@@ -21,17 +17,4 @@ void GameObject::Draw(const Camera& camera)
 			renderComponent->Draw(camera);
 		}
 	}
-}
-
-void GameObject::DrawUI()
-{
-
-}
-
-void GameObject::Reset()
-{
-	//フラグのリセット
-	isActive_ = true;
-	isVisible_ = true;
-	isDestroy_ = false;
 }

@@ -3,7 +3,7 @@
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockOn.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void CameraStateLaunchAttack::Initialize()
 {
@@ -14,7 +14,7 @@ void CameraStateLaunchAttack::Initialize()
 void CameraStateLaunchAttack::Update()
 {
 	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player");
+	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
 	//アニメーション時間を更新
 	UpdateAnimationTime();

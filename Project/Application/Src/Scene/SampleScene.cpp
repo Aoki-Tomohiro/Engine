@@ -13,13 +13,10 @@ void SampleScene::Initialize()
 	gameObjectManager_->Clear();
 
 	//LevelDataの読み込み
-	LevelLoader::Load("SampleScene");
+	LevelManager::LoadLevelAndCreateObjects("SampleScene");
 
 	//カメラを取得
 	camera_ = CameraManager::GetCamera("Camera");
-
-	//カメラを設定
-	gameObjectManager_->SetCamera(camera_);
 }
 
 void SampleScene::Finalize()
@@ -64,7 +61,7 @@ void SampleScene::Draw()
 
 #pragma region 3Dオブジェクト描画
 	//GameObjectの描画
-	gameObjectManager_->Draw();
+	gameObjectManager_->Draw(*camera_);
 
 	//3Dオブジェクト描画
 	renderer_->Render();

@@ -3,9 +3,17 @@
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Framework/Object/GameObject.h"
 
+ModelComponent::~ModelComponent()
+{
+	if (model_)
+	{
+		model_->Release();
+	}
+}
+
 void ModelComponent::Initialize()
 {
-	model_.reset(ModelManager::CreateFromModelFile("Cube", Opaque));
+	model_ = ModelManager::CreateFromModelFile("Cube", Opaque);
 }
 
 void ModelComponent::Update()

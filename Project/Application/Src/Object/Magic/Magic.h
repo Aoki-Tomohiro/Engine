@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 
-class Skydome : public GameObject
+class Magic : public GameObject
 {
 };
 

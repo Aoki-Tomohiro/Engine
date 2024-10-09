@@ -1,9 +1,5 @@
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
-#include "Engine/Components/Model/ModelComponent.h"
-#include "Engine/Components/Collision/OBBCollider.h"
-#include "Engine/Components/Collision/CollisionAttributeManager.h"
-#include "Engine/Components/Animator/AnimatorComponent.h"
 
 void GamePlayScene::Initialize()
 {
@@ -16,36 +12,82 @@ void GamePlayScene::Initialize()
 	//オーディオのインスタンスを取得
 	audio_ = Audio::GetInstance();
 
+	//ゲームオブジェクトマネージャーの初期化
+	gameObjectManager_ = GameObjectManager::GetInstance();
+	gameObjectManager_->Clear();
+
+	//レベルデータの読み込み
+	LevelManager::LoadLevelAndCreateObjects("GameScene");
+
+	//カメラの初期化
+	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	camera_->rotationType_ = RotationType::Euler;
+
+	//パーティクルマネージャーを初期化
+	particleManager_ = ParticleManager::GetInstance();
+	particleManager_->Clear();
+	particleManager_->SetCamera(camera_);
+
+	//TrailRendererにカメラを設定
+	TrailRenderer::GetInstance()->SetCamera(camera_);
+
+	//衝突マネージャーの生成
+	collisionManager_ = std::make_unique<CollisionManager>();
+
+	//コンバットアニメーションエディターの初期化
+	combatAnimationEditor_ = std::make_unique<CombatAnimationEditor>();
+	combatAnimationEditor_->Initialize();
+
 	//ヒットストップの生成
 	hitStop_ = std::make_unique<HitStop>();
+
+	//ロックオンの初期化
+	lockon_ = std::make_unique<Lockon>();
+	lockon_->Initialize();
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
-	//ゲームオブジェクトマネージャー、パーティクルマネージャー、コリジョンマネージャーの初期化
-	InitializeManagers();
-
-	//カメラとロックオンシステムの初期化
-	InitializeCameraAndLockon();
-
-	//プレイヤーとの初期化
-	InitializePlayer();
+	//プレイヤーの初期化
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
+	//カメラ、ロックオン、コンバットアニメーションエディターを設定
+	player_->SetCamera(camera_);
+	player_->SetLockon(lockon_.get());
+	player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
 
 	//プレイヤーの武器の初期化
-	InitializePlayerWeapon();
+	Weapon* playerWeapon = gameObjectManager_->CreateGameObject<Weapon>("PlayerWeapon");
+	//ヒットストップを設定
+	playerWeapon->SetHitStop(hitStop_.get());
+	//プレイヤーの右手に親子付け
+	TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
+	playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//敵の初期化
-	InitializeEnemy();
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	//コンバットアニメーションエディターを設定
+	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
 
 	//敵の武器の初期化
-	InitializeEnemyWeapon();
+	Weapon* enemyWeapon = gameObjectManager_->CreateGameObject<Weapon>("EnemyWeapon");
+	//ヒットストップを設定
+	enemyWeapon->SetHitStop(hitStop_.get());
+	//敵の右手に親子付け
+	TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
+	enemyWeaponTransform->worldTransform_.SetParent(&enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+
+	//カメラパスマネージャーの初期化
+	cameraPathManager_ = std::make_unique<CameraPathManager>();
+	cameraPathManager_->Initialize();
 
 	//カメラコントローラーの初期化
-	InitializeCameraController();
-
-	//スカイボックスの初期化
-	skybox_.reset(Skybox::Create());
+	cameraController_ = std::make_unique<CameraController>();
+	cameraController_->Initialize();
+	//カメラパスマネージャー、ロックオン、ロックオンターゲットを設定
+	cameraController_->SetCameraPathManager(cameraPathManager_.get());
+	cameraController_->SetLockon(lockon_.get());
+	cameraController_->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
 
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");
@@ -73,7 +115,7 @@ void GamePlayScene::Update()
 	//コライダーをクリアし、必要なオブジェクトを追加
 	UpdateColliders();
 
-	//ヒット判定とカメラシェイクの処理
+	//カメラシェイクの処理
 	HandleCameraShake();
 
 	//カメラとロックオンの更新
@@ -96,9 +138,6 @@ void GamePlayScene::Draw()
 	//Skybox描画前処理
 	renderer_->PreDrawSkybox();
 
-	//スカイボックスの描画
-	skybox_->Draw(*camera_);
-
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();
 #pragma endregion
@@ -116,10 +155,18 @@ void GamePlayScene::Draw()
 
 #pragma region 3Dオブジェクト描画
 	//ゲームオブジェクトマネージャーの描画
-	gameObjectManager_->Draw();
+	gameObjectManager_->Draw(*camera_);
 
 	//3Dオブジェクト描画
 	renderer_->Render();
+#pragma endregion
+
+#pragma region 前景スプライト描画
+	//前景スプライト描画前処理
+	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//前景スプライト描画後処理
+	renderer_->PostDrawSprites();
 #pragma endregion
 }
 
@@ -130,7 +177,10 @@ void GamePlayScene::DrawUI()
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
 	//プレイヤーのUIの描画
-	gameObjectManager_->DrawUI();
+	player_->DrawUI();
+
+	//敵のUIの描画
+	enemy_->DrawUI();
 
 	//ロックオンの描画
 	lockon_->Draw();
@@ -153,85 +203,6 @@ void GamePlayScene::DrawUI()
 #pragma endregion
 }
 
-void GamePlayScene::InitializeManagers()
-{
-	//ゲームオブジェクトマネージャーとパーティクルマネージャーを初期化
-	gameObjectManager_ = GameObjectManager::GetInstance();
-	gameObjectManager_->Clear();
-
-	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->Clear();
-
-	//コリジョンマネージャーの生成
-	collisionManager_ = std::make_unique<CollisionManager>();
-
-	//レベルデータの読み込み
-	LevelLoader::Load("GameScene");
-}
-
-void GamePlayScene::InitializeCameraAndLockon()
-{
-	//カメラの設定
-	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
-	gameObjectManager_->SetCamera(camera_);
-	particleManager_->SetCamera(camera_);
-	TrailRenderer::GetInstance()->SetCamera(camera_);
-
-	//CombatAnimationEditorとロックオンシステムの初期化
-	combatAnimationEditor_ = std::make_unique<CombatAnimationEditor>();
-	combatAnimationEditor_->Initialize();
-
-	lockon_ = std::make_unique<Lockon>();
-	lockon_->Initialize();
-}
-
-void GamePlayScene::InitializePlayer()
-{
-	//プレイヤーの初期化
-	player_ = gameObjectManager_->GetMutableGameObject<Player>("Player");
-	player_->SetIsInTitleScene(false);
-	player_->SetCamera(camera_);
-	player_->SetLockon(lockon_.get());
-	player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-}
-
-void GamePlayScene::InitializePlayerWeapon()
-{    
-	//プレイヤーの武器の生成と設定
-	playerWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
-	playerWeapon_->SetName("PlayerWeapon");
-	playerWeapon_->SetHitStop(hitStop_.get());
-}
-
-void GamePlayScene::InitializeEnemy()
-{
-	//敵の初期化
-	enemy_ = gameObjectManager_->GetMutableGameObject<Enemy>("Enemy");
-	enemy_->SetIsInTitleScene(false);
-	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-}
-
-void GamePlayScene::InitializeEnemyWeapon()
-{
-	//敵の武器の生成と設定
-	enemyWeapon_ = GameObjectManager::CreateGameObject<Weapon>();
-	enemyWeapon_->SetName("EnemyWeapon");
-	enemyWeapon_->SetHitStop(hitStop_.get());
-}
-
-void GamePlayScene::InitializeCameraController()
-{
-	//カメラパスマネージャーとカメラコントローラーの初期化
-	cameraPathManager_ = std::make_unique<CameraPathManager>();
-	cameraPathManager_->Initialize();
-
-	cameraController_ = std::make_unique<CameraController>();
-	cameraController_->Initialize();
-	cameraController_->SetCameraPathManager(cameraPathManager_.get());
-	cameraController_->SetLockon(lockon_.get());
-	cameraController_->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
-}
-
 void GamePlayScene::UpdateColliders()
 {
 	//コライダーをクリア
@@ -244,7 +215,7 @@ void GamePlayScene::UpdateColliders()
 	}
 
 	//プレイヤーの武器を衝突マネージャーに追加
-	if (Collider* collider = playerWeapon_->GetComponent<Collider>())
+	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon")->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
@@ -256,14 +227,14 @@ void GamePlayScene::UpdateColliders()
 	}
 
 	//敵の武器を衝突マネージャーに追加
-	if (Collider* collider = enemyWeapon_->GetComponent<Collider>())
+	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("EnemyWeapon")->GetComponent<Collider>())
 	{
 		collisionManager_->SetColliderList(collider);
 	}
 
 	//魔法を衝突マネージャーに追加
-	std::vector<MagicProjectile*> magicProjectiles = gameObjectManager_->GetMutableGameObjects<MagicProjectile>("");
-	for (MagicProjectile* magicProjectile : magicProjectiles)
+	std::vector<Magic*> magicProjectiles = gameObjectManager_->GetGameObjects<Magic>("Magic");
+	for (Magic* magicProjectile : magicProjectiles)
 	{
 		if (Collider* collider = magicProjectile->GetComponent<Collider>())
 		{
@@ -272,7 +243,7 @@ void GamePlayScene::UpdateColliders()
 	}
 
 	//レーザーを衝突マネージャーに追加
-	std::vector<Laser*> lasers = gameObjectManager_->GetMutableGameObjects<Laser>("");
+	std::vector<Laser*> lasers = gameObjectManager_->GetGameObjects<Laser>("Laser");
 	for (Laser* laser : lasers)
 	{
 		if (Collider* collider = laser->GetComponent<Collider>())
@@ -282,7 +253,7 @@ void GamePlayScene::UpdateColliders()
 	}
 
 	//柱を衝突マネージャーに追加
-	std::vector<Pillar*> pillars = gameObjectManager_->GetMutableGameObjects<Pillar>("");
+	std::vector<Pillar*> pillars = gameObjectManager_->GetGameObjects<Pillar>("Pillar");
 	for (Pillar* pillar : pillars)
 	{
 		if (Collider* collider = pillar->GetComponent<Collider>())
@@ -298,9 +269,10 @@ void GamePlayScene::UpdateColliders()
 void GamePlayScene::HandleCameraShake()
 {
 	//プレイヤーの武器がヒットした場合、カメラシェイクを開始
-	if (playerWeapon_->GetIsHit())
+	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon");
+	if (weapon->GetIsHit())
 	{
-		cameraController_->StartCameraShake(playerWeapon_->GetEffectSettings().cameraShakeIntensity, playerWeapon_->GetEffectSettings().cameraShakeDuration);
+		cameraController_->StartCameraShake(weapon->GetEffectSettings().cameraShakeIntensity, weapon->GetEffectSettings().cameraShakeDuration);
 	}
 }
 
@@ -337,7 +309,7 @@ void GamePlayScene::HandleTransition()
 			enemy_->SetIsGameFinished(true);
 		}
 		//プレイヤーが死亡状態かつアニメーションが終了していた場合ゲームオーバーのフラグを立てる
-		else if (player_->GetIsDead() && player_->GetIsAnimationFinished())
+		else if (player_->GetIsDead())
 		{
 			isGameOver_ = true;
 			player_->SetIsGameFinished(true);

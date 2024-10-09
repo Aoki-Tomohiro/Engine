@@ -5,7 +5,7 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 
 class Lockon
 {

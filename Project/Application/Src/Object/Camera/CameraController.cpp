@@ -1,6 +1,6 @@
 #include "CameraController.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateClear.h"
 
@@ -57,7 +57,7 @@ void CameraController::Update()
 	//クリアアニメーション状態に遷移するかを確認
 	if (!isClearAnimationActive_)
 	{
-		const Enemy* enemy = GameObjectManager::GetInstance()->GetConstGameObject<Enemy>("Enemy");
+		const Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy");
 		if (enemy->GetIsDead())
 		{
 			isClearAnimationActive_ = true;
@@ -156,7 +156,7 @@ void CameraController::UpdateEditing()
 void CameraController::UpdateCameraTransform(const Quaternion& rotation, float fovDegrees)
 {
 	//プレイヤーの情報を取得
-	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
+	const Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
 	//プレイヤーのクォータニオンと指定された回転を合成してカメラの目標クォータニオンを設定
 	destinationQuaternion_ = player->GetDestinationQuaternion() * rotation;

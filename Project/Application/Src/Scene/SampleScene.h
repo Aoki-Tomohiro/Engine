@@ -6,7 +6,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/LevelLoader/LevelLoader.h"
+#include "Engine/LevelManager/LevelManager.h"
 
 class SampleScene : public IScene
 {

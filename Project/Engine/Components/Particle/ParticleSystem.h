@@ -53,7 +53,7 @@ public:
 
 	std::vector<GravityField*> GetGravityFields(const std::string& name);
 
-	void SetModel(Model* model) { model_ = model; };
+	void SetModel(const std::string& name);
 
 	void SetTexture(const std::string& name);
 
@@ -109,8 +109,7 @@ private:
 	//PerViewResource
 	std::unique_ptr<UploadBuffer> perViewResource_ = nullptr;
 
-	//Model
-	std::unique_ptr<Model> defaultModel_ = nullptr;
+	//モデル
 	Model* model_ = nullptr;
 
 	//Emitter

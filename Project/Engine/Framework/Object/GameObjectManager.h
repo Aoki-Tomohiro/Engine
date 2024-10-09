@@ -1,11 +1,8 @@
 #pragma once
-#include "AbstractGameObjectFactory.h"
-#include "GameObject.h"
+#include "Engine/Framework/Object/AbstractGameObjectFactory.h"
+#include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Transform/TransformComponent.h"
-#include <queue>
-#include <unordered_map>
 #include <vector>
-#include <typeindex>
 
 class GameObjectManager
 {
@@ -14,34 +11,24 @@ public:
 
     static void Destroy();
 
-    static GameObject* CreateGameObject(const std::string& objectName);
-
     template <typename Type>
-    static Type* CreateGameObject();
+    static Type* CreateGameObject(const std::string& objectName);
+
+    static GameObject* CreateGameObject(const std::string& objectName);
+    
+	void Clear();
 
     void Update();
 
-    void Draw();
+	void Draw(const Camera& camera);
 
-    void DrawUI();
+	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
-    void Clear();
+	template <typename Type>
+	Type* GetGameObject(const std::string& objectName) const;
 
-    void SetCamera(const Camera* camera) { camera_ = camera; }
-
-    void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; }
-
-    template <typename Type>
-    const Type* GetConstGameObject(const std::string& name) const;
-
-    template <typename Type>
-    const std::vector<Type*> GetConstGameObjects(const std::string& name) const;
-
-    template <typename Type>
-    Type* GetMutableGameObject(const std::string& name) const;
-
-    template <typename Type>
-    std::vector<Type*> GetMutableGameObjects(const std::string& name) const;
+	template <typename Type>
+	std::vector<Type*> GetGameObjects(const std::string& objectName) const;
 
 private:
     GameObjectManager() = default;
@@ -49,186 +36,100 @@ private:
     GameObjectManager(const GameObjectManager&) = delete;
     const GameObjectManager& operator=(const GameObjectManager&) = delete;
 
+    template <typename Type>
+	Type* CreateGameObjectInternal(const std::string& objectName);
+
     GameObject* CreateGameObjectInternal(const std::string& objectName);
 
-    template <typename Type>
-    Type* CreateGameObjectInternal();
+    void RemoveDestroyedGameObjects();
 
-    template <typename Type>
-    Type* AcquireObjectFromPool();
+    void ProcessPendingGameObjects();
 
-    template <typename Type>
-    void ReleaseObjectToPool(std::unique_ptr<Type> object);
+	template <typename Type>
+	Type* FindGameObjectByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName) const;
 
-    template <typename Type>
-    Type* FindGameObject(const std::string& name, const std::vector<std::unique_ptr<GameObject>>& gameObjectList) const;
-
-    template <typename Type>
-    std::vector<Type*> FindGameObjects(const std::string& name, const std::vector<std::unique_ptr<GameObject>>& gameObjectList) const;
-
-    void RemoveDestroyedObjects();
-
-    void InitializeNewObjects();
+	template <typename Type>
+	void CollectGameObjectsByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName, std::vector<Type*>& result) const;
 
 private:
     static GameObjectManager* instance_;
 
     std::vector<std::unique_ptr<GameObject>> gameObjects_;
 
-    std::vector<std::unique_ptr<GameObject>> newGameObjectsBuffer_;
-
-    std::vector<std::unique_ptr<GameObject>> reusedObjectsBuffer_;
-
-    std::unordered_map<std::type_index, std::queue<std::unique_ptr<GameObject>>> gameObjectPool_;
-
-    const Camera* camera_ = nullptr;
+    std::vector<std::unique_ptr<GameObject>> pendingGameObjects_;
 
     AbstractGameObjectFactory* gameObjectFactory_ = nullptr;
 };
 
+
 template<typename Type>
-Type* GameObjectManager::CreateGameObject()
+Type* GameObjectManager::CreateGameObject(const std::string& objectName)
 {
     //新しいゲームオブジェクトを内部で生成し、返す
-    return GetInstance()->CreateGameObjectInternal<Type>();
+    return GetInstance()->CreateGameObjectInternal<Type>(objectName);
 }
 
 template<typename Type>
-Type* GameObjectManager::CreateGameObjectInternal()
+Type* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
 {
-    //オブジェクトプールからオブジェクトを取得
-    Type* newObject = AcquireObjectFromPool<Type>();
-
-    //プールにオブジェクトが存在しない場合、新規に生成
-    if (!newObject)
-    {
-        newObject = new Type();
-        newObject->AddComponent<TransformComponent>();
-        newObject->SetGameObjectManager(this);
-        newGameObjectsBuffer_.emplace_back(newObject);
-    }
-    else
-    {
-        //既存オブジェクトを再利用
-        newObject->SetGameObjectManager(this);
-        newObject->SetIsDestroy(false);
-        reusedObjectsBuffer_.emplace_back(newObject);
-    }
+    //ゲームオブジェクトを生成
+    Type* newObject = new Type();
+	newObject->SetName(objectName);
+	newObject->SetGameObjectManager(this);
+	newObject->AddComponent<TransformComponent>();
+    pendingGameObjects_.push_back(std::unique_ptr<GameObject>(newObject));
     return newObject;
 }
 
-template<typename Type>
-Type* GameObjectManager::AcquireObjectFromPool()
+template <typename Type>
+Type* GameObjectManager::GetGameObject(const std::string& objectName) const
 {
-    //オブジェクトプールから指定された型のオブジェクトを取得
-    auto it = gameObjectPool_.find(std::type_index(typeid(Type)));
-    if (it != gameObjectPool_.end() && !it->second.empty())
-    {
-        std::unique_ptr<GameObject> obj = std::move(it->second.front());
-        it->second.pop();
-        return static_cast<Type*>(obj.release());
-    }
-    return nullptr;
-}
-
-template<typename Type>
-void GameObjectManager::ReleaseObjectToPool(std::unique_ptr<Type> object)
-{
-    //使用しなくなったオブジェクトをオブジェクトプールに戻す
-    gameObjectPool_[std::type_index(typeid(*object))].emplace(std::move(object));
+	//ゲームオブジェクトを検索し名前に一致するものがあれば返す
+	if (Type* foundObject = FindGameObjectByName<Type>(pendingGameObjects_, objectName))
+	{
+		return foundObject;
+	}
+	return FindGameObjectByName<Type>(gameObjects_, objectName);
 }
 
 template <typename Type>
-const Type* GameObjectManager::GetConstGameObject(const std::string& name) const
+Type* GameObjectManager::FindGameObjectByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName) const
 {
-    //名前でゲームオブジェクトを検索 (const版)
-    const Type* obj = FindGameObject<Type>(name, newGameObjectsBuffer_);
-    if (obj) return obj;
-
-    obj = FindGameObject<Type>(name, reusedObjectsBuffer_);
-    if (obj) return obj;
-
-    return FindGameObject<Type>(name, gameObjects_);
+	for (const auto& gameObject : objects)
+	{
+		if (gameObject->GetName() == objectName)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
+		}
+	}
+	return nullptr;
 }
 
 template <typename Type>
-const std::vector<Type*> GameObjectManager::GetConstGameObjects(const std::string& name) const
+std::vector<Type*> GameObjectManager::GetGameObjects(const std::string& objectName) const
 {
-    //名前で複数のゲームオブジェクトを検索 (const版)
-    std::vector<Type*> result = FindGameObjects<Type>(name, newGameObjectsBuffer_);
-
-    //プールから取得したゲームオブジェクトも追加
-    const auto reusedObjects = FindGameObjects<Type>(name, reusedObjectsBuffer_);
-    result.insert(result.end(), reusedObjects.begin(), reusedObjects.end());
-
-    //既存のゲームオブジェクトも追加
-    const auto mutableObjects = FindGameObjects<Type>(name, gameObjects_);
-    result.insert(result.end(), mutableObjects.begin(), mutableObjects.end());
-
-    return result;
+	std::vector<Type*> gameObjects;
+	//保留中のゲームオブジェクトから名前に一致するものを収集
+	CollectGameObjectsByName<Type>(pendingGameObjects_, objectName, gameObjects);
+	//既存のゲームオブジェクトからも収集
+	CollectGameObjectsByName<Type>(gameObjects_, objectName, gameObjects);
+	return gameObjects;
 }
 
 template <typename Type>
-Type* GameObjectManager::GetMutableGameObject(const std::string& name) const
+void GameObjectManager::CollectGameObjectsByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName, std::vector<Type*>& result) const
 {
-    //名前でゲームオブジェクトを検索
-    Type* obj = FindGameObject<Type>(name, newGameObjectsBuffer_);
-    if (obj) return obj;
-
-    obj = FindGameObject<Type>(name, reusedObjectsBuffer_);
-    if (obj) return obj;
-
-    return FindGameObject<Type>(name, gameObjects_);
-}
-
-template <typename Type>
-std::vector<Type*> GameObjectManager::GetMutableGameObjects(const std::string& name) const
-{
-    //名前で複数のゲームオブジェクトを検索
-    std::vector<Type*> result = FindGameObjects<Type>(name, newGameObjectsBuffer_);
-
-    //プールから取得したゲームオブジェクトも追加
-    const auto reusedObjects = FindGameObjects<Type>(name, reusedObjectsBuffer_);
-    result.insert(result.end(), reusedObjects.begin(), reusedObjects.end());
-
-    //既存のゲームオブジェクトも追加
-    const auto mutableObjects = FindGameObjects<Type>(name, gameObjects_);
-    result.insert(result.end(), mutableObjects.begin(), mutableObjects.end());
-
-    return result;
-}
-
-template <typename Type>
-Type* GameObjectManager::FindGameObject(const std::string& name, const std::vector<std::unique_ptr<GameObject>>& gameObjectList) const
-{
-    //指定されたリストから名前でゲームオブジェクトを検索
-    for (const auto& gameObject : gameObjectList)
-    {
-        if (gameObject->GetName() == name)
-        {
-            if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
-            {
-                return castedObject;
-            }
-        }
-    }
-    return nullptr;
-}
-
-template <typename Type>
-std::vector<Type*> GameObjectManager::FindGameObjects(const std::string& name, const std::vector<std::unique_ptr<GameObject>>& gameObjectList) const
-{
-    //指定されたリストから名前で複数のゲームオブジェクトを検索
-    std::vector<Type*> gameObjects;
-    for (const auto& gameObject : gameObjectList)
-    {
-        if (gameObject->GetName() == name)
-        {
-            if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
-            {
-                gameObjects.push_back(castedObject);
-            }
-        }
-    }
-    return gameObjects;
+	for (const auto& gameObject : objects)
+	{
+		if (gameObject->GetName() == objectName)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				result.push_back(castedObject);
+			}
+		}
+	}
 }

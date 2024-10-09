@@ -28,6 +28,9 @@ void Material::Initialize(const MaterialData& materialData)
 	//マスクテクスチャを設定
 	TextureManager::Load("noise.png");
 	SetMaskTexture("noise.png");
+
+	//リソースに書き込む
+	Update();
 }
 
 void Material::Update()

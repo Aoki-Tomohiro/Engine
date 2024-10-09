@@ -30,39 +30,73 @@ Model* ModelManager::CreateFromModelFile(const std::string& modelName, DrawPass 
 
 Model* ModelManager::CreateInternal(const std::string& modelName, DrawPass drawPass)
 {
-	//同じモデルデータがないかチェック
-	auto it = modelDatas_.find(modelName);
-	if (it != modelDatas_.end())
+	//既存のモデルから再利用可能なものを探す
+	Model* reusableModel = FindReusableModel(modelName);
+	if (reusableModel)
 	{
-		//モデルの生成
-		Model* model = new Model();
-		model->Initialize(it->second, drawPass);
-		return model;
+		return reusableModel;
 	}
 
-	//ファイルパスを設定
-	std::string directoryPath = kBaseDirectory + "/" + modelName;
-	std::string fileName;
-	if (std::filesystem::exists(directoryPath + "/" + modelName + ".gltf"))
+	//モデルデータが存在するか確認
+	auto modelDataIt = modelDatas_.find(modelName);
+	if (modelDataIt != modelDatas_.end())
 	{
-		fileName = modelName + ".gltf";
-	}
-	else if (std::filesystem::exists(directoryPath + "/" + modelName + ".obj"))
-	{
-		fileName = modelName + ".obj";
+		return CreateModelFromData(modelDataIt->second, modelName, drawPass);
 	}
 
-	//モデルデータの読み込み
-	Model::ModelData modelData = LoadModelFile(directoryPath, fileName);
+	//モデルファイルを探索してロード
+	std::string fileName = FindModelFile(modelName);
 
-	//モデルの生成
-	Model* model = new Model();
-	model->Initialize(modelData, drawPass);
-
+	//モデルデータを読み込み
+	Model::ModelData modelData = LoadModelFile(kBaseDirectory + "/" + modelName, fileName);
 	//モデルデータを保存
 	modelDatas_[modelName] = modelData;
 
+	//モデルを生成して返す
+	return CreateModelFromData(modelData, modelName, drawPass);
+}
+
+Model* ModelManager::FindReusableModel(const std::string& modelName)
+{
+	auto it = models_.find(modelName);
+	if (it != models_.end())
+	{
+		for (const auto& model : it->second)
+		{
+			//モデルが使用されていないかどうかを確認
+			if (!model->GetIsInUse())
+			{
+				//使用されていないモデルを返す
+				model->Acquire();
+				return model.get();
+			}
+		}
+	}
+
+	//見つからなかった場合はnullptrを返す
+	return nullptr;
+}
+
+Model* ModelManager::CreateModelFromData(const Model::ModelData& modelData, const std::string& modelName, DrawPass drawPass)
+{
+	Model* model = new Model();
+	model->Initialize(modelData, drawPass);
+	models_[modelName].emplace_back(std::unique_ptr<Model>(model));
 	return model;
+}
+
+std::string ModelManager::FindModelFile(const std::string& modelName)
+{
+	std::string directoryPath = kBaseDirectory + "/" + modelName;
+	if (std::filesystem::exists(directoryPath + "/" + modelName + ".gltf"))
+	{
+		return modelName + ".gltf";
+	}
+	else if (std::filesystem::exists(directoryPath + "/" + modelName + ".obj"))
+	{
+		return modelName + ".obj";
+	}
+	return "";
 }
 
 Model::ModelData ModelManager::LoadModelFile(const std::string& directoryPath, const std::string& filename)
