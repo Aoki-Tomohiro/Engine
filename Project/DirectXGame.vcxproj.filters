@@ -175,17 +175,8 @@
     <Filter Include="ヘッダー ファイル\Engine\3D\Transform">
       <UniqueIdentifier>{e1fac954-aebd-4e44-9755-8293a1ec41fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Enemy">
-      <UniqueIdentifier>{5b976440-2fef-4e80-8b29-d4ab8d155a52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Player">
       <UniqueIdentifier>{a99df4b4-295f-4778-93de-7aa42630c89c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Player">
-      <UniqueIdentifier>{1a6e4817-8176-4c51-a049-089293af8ffc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Enemy">
-      <UniqueIdentifier>{f6c62f99-0426-4a2b-829d-dce0c7f970f6}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Engine\3D\Primitive">
       <UniqueIdentifier>{3a34086a-bd5c-48fc-9169-48ce91d646cc}</UniqueIdentifier>
@@ -208,17 +199,8 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Ground">
       <UniqueIdentifier>{fd4d4687-ba0e-4025-aac6-a8203abbaff3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Player\States">
-      <UniqueIdentifier>{263438c4-2b14-4867-a282-ddc5f312b00d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Enemy\States">
-      <UniqueIdentifier>{b022269a-7116-412f-820e-d189dd7eb97c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Weapon">
       <UniqueIdentifier>{d49fe143-68b8-4f00-bbaa-bad02ebc09d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Enemy\States">
-      <UniqueIdentifier>{cf9d8c5b-71d7-4ca3-a25a-34ba02e5d430}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Weapon">
       <UniqueIdentifier>{3f6f9d58-4df4-4853-b40d-b23f63bc5635}</UniqueIdentifier>
@@ -280,17 +262,11 @@
     <Filter Include="ソース ファイル\Application\Object\HitStop">
       <UniqueIdentifier>{4e189a24-8956-4e2e-8eff-96e8532e0969}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\MagicProjectile">
-      <UniqueIdentifier>{86b386de-56d2-4ede-9b1e-ef970fcecadf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\CombatAnimationEditor">
       <UniqueIdentifier>{e8d04e06-2c22-443d-b0bd-90edab22405e}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\HitStop">
       <UniqueIdentifier>{1067b2b0-aac0-4eed-a4a7-f32cdbcaff66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\MagicProjectile">
-      <UniqueIdentifier>{d97079b0-4af7-4159-a88d-a452700c8657}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Application\Object\Laser">
       <UniqueIdentifier>{006520c6-79a0-4c2a-b196-3fc21b70098d}</UniqueIdentifier>
@@ -303,6 +279,60 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Pillar">
       <UniqueIdentifier>{5472f646-3570-416f-9ea3-ba880e4c83c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character">
+      <UniqueIdentifier>{1508a397-b1da-4163-a22e-1b397e463c10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\Player">
+      <UniqueIdentifier>{519708ac-857e-4d6b-aae1-a402ed72af2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\Enemy">
+      <UniqueIdentifier>{942476ee-b1c7-47a5-8b26-45043914faff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\States">
+      <UniqueIdentifier>{55ce9604-4905-467e-85ff-aca60c2b6e5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\States\EnemyStates">
+      <UniqueIdentifier>{5d7ead75-a524-4a50-8537-779f40040a66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\States\PlayerStates">
+      <UniqueIdentifier>{ffd072b4-c4ca-4199-bf08-da0b7e59c0dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Magic">
+      <UniqueIdentifier>{86b386de-56d2-4ede-9b1e-ef970fcecadf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Pillar\States">
+      <UniqueIdentifier>{0325c72c-f228-4201-b01f-dde9de90b5f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Skydome">
+      <UniqueIdentifier>{1e0ac778-30e9-4bf6-b865-23c02b0fdd67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character">
+      <UniqueIdentifier>{34dbdeed-b651-4bb6-9493-50024751ff36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\Enemy">
+      <UniqueIdentifier>{528f2274-3ed0-480d-aee5-65035f153bb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\Player">
+      <UniqueIdentifier>{f7dde1f9-f802-4c67-a6a5-56d1e35b37ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\States">
+      <UniqueIdentifier>{7cf0b4dc-f5ca-4b8a-8b62-bb93e8fe7a3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\States\PlayerStates">
+      <UniqueIdentifier>{a1139873-cb91-46cd-973b-6d807a9b65d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\States\EnemyStates">
+      <UniqueIdentifier>{82a9ae70-b0d2-4584-8ef9-6b089abdf5aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Pillar\States">
+      <UniqueIdentifier>{aac19873-fe23-4c1a-b6df-efb63acacd13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Magic">
+      <UniqueIdentifier>{d97079b0-4af7-4159-a88d-a452700c8657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Skydome">
+      <UniqueIdentifier>{8cdc7f9a-d405-427d-a247-866bfc9f4a97}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -582,158 +612,158 @@
     <ClCompile Include="Engine\3D\Primitive\TrailRenderer.cpp">
       <Filter>ソース ファイル\Engine\3D\Primitive</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\Player\Player.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Pillar\Pillar.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Magic\Magic.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Lockon\Lockon.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\Enemy\Enemy.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Laser\Laser.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\HitStop\HitStop.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackGroundObject.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\ICharacter.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\BackGround</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraPath.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraPathManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\CameraShake.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateClear.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockOn.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateInactive.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.cpp">
+      <Filter>ソース ファイル\Application\Object\CombatAnimationEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateSpawning.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateDespawning.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateChargeMagicAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDeath.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFallingAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateLaunchAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateSpinAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\Player\SkillCooldownManager.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Character\Enemy\Enemy.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateComboAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDeath.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateEarthSpikeAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateJumpAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateLaserBeam.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRoot.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRunTowardsPlayer.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateTackle.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Ground\Ground.cpp">
+      <Filter>ソース ファイル\Application\Object\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\HitStop\HitStop.cpp">
+      <Filter>ソース ファイル\Application\Object\HitStop</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\ICharacter.cpp">
+      <Filter>ソース ファイル\Application\Object\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Laser\Laser.cpp">
+      <Filter>ソース ファイル\Application\Object\Laser</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Lockon\Lockon.cpp">
+      <Filter>ソース ファイル\Application\Object\Lockon</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Magic\Magic.cpp">
+      <Filter>ソース ファイル\Application\Object\Magic</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Pillar\Pillar.cpp">
+      <Filter>ソース ファイル\Application\Object\Pillar</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateDespawning.cpp">
+      <Filter>ソース ファイル\Application\Object\Pillar\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateInactive.cpp">
+      <Filter>ソース ファイル\Application\Object\Pillar\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Pillar\States\PillarStateSpawning.cpp">
+      <Filter>ソース ファイル\Application\Object\Pillar\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\Player\Player.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateChargeMagicAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDeath.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFallingAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateLaunchAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateSpinAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\Player\SkillCooldownManager.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp">
+      <Filter>ソース ファイル\Application\Object\Skydome</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Transition\Transition.cpp">
+      <Filter>ソース ファイル\Application\Object\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp">
+      <Filter>ソース ファイル\Application\Object\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1067,170 +1097,170 @@
     <ClInclude Include="Engine\3D\Primitive\Trail.h">
       <Filter>ヘッダー ファイル\Engine\3D\Primitive</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Transition\Transition.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Skydome\Skydome.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\Player\Player.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Pillar\Pillar.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Magic\Magic.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Lockon\Lockon.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\Enemy\Enemy.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Laser\Laser.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\HitStop\HitStop.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\BackGroundObject\BackGroundObject.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\ICharacter.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\BackGround</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraController.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraPath.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraPathManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\CameraShake.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateClear.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFollow.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockOn.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.h">
+      <Filter>ヘッダー ファイル\Application\Object\CombatAnimationEditor</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Pillar\States\IPillarState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateInactive.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateSpawning.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateDespawning.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateChargeMagicAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDeath.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFallingAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateLaunchAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateSpinAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\Player\SkillCooldownManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Character\Enemy\Enemy.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateComboAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDeath.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateEarthSpikeAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateJumpAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateLaserBeam.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRoot.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRunTowardsPlayer.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateTackle.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Ground\Ground.h">
+      <Filter>ヘッダー ファイル\Application\Object\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\HitStop\HitStop.h">
+      <Filter>ヘッダー ファイル\Application\Object\HitStop</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\ICharacter.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Pillar\States\IPillarState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Pillar\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Laser\Laser.h">
+      <Filter>ヘッダー ファイル\Application\Object\Laser</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Lockon\Lockon.h">
+      <Filter>ヘッダー ファイル\Application\Object\Lockon</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Magic\Magic.h">
+      <Filter>ヘッダー ファイル\Application\Object\Magic</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Pillar\Pillar.h">
+      <Filter>ヘッダー ファイル\Application\Object\Pillar</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateDespawning.h">
+      <Filter>ヘッダー ファイル\Application\Object\Pillar\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateInactive.h">
+      <Filter>ヘッダー ファイル\Application\Object\Pillar\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Pillar\States\PillarStateSpawning.h">
+      <Filter>ヘッダー ファイル\Application\Object\Pillar\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\Player\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateChargeMagicAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDeath.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFallingAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateLaunchAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateSpinAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\Player\SkillCooldownManager.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Skydome\Skydome.h">
+      <Filter>ヘッダー ファイル\Application\Object\Skydome</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Transition\Transition.h">
+      <Filter>ヘッダー ファイル\Application\Object\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
+      <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
