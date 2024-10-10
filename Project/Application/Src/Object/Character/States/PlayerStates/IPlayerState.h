@@ -1,25 +1,19 @@
 #pragma once
-#include "Engine/Components/Input/Input.h"
-#include "Application/Src/Object/Character/States/ICharacterState.h"
 
 class Player;
+class GameObject;
 
-class IPlayerState : public ICharacterState
+class IPlayerState
 {
 public:
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~IPlayerState() = default;
+	virtual void Initialize() = 0;
 
-	/// <summary>
-	/// プレイヤーを設定
-	/// </summary>
-	/// <param name="player">プレイヤー</param>
+	virtual void Update() = 0;
+
+	virtual void OnCollision(GameObject* other) = 0;
+
 	void SetPlayer(Player* player) { player_ = player; };
 
 protected:
-	//プレイヤー
 	Player* player_ = nullptr;
 };
-

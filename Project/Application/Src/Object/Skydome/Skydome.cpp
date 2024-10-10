@@ -4,6 +4,9 @@ void Skydome::Initialize()
 {
 	//モデルを取得
 	model_ = GetComponent<ModelComponent>();
+
+	//基底クラスの初期化
+	GameObject::Initialize();
 }
 
 void Skydome::Update()
@@ -18,4 +21,7 @@ void Skydome::Update()
 		model_->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(environmentCoefficient_);
 		model_->GetModel()->GetMaterial(i)->SetUVScale(uvScale_);
 	}
+
+	//基底クラスの更新
+	GameObject::Update();
 }

@@ -1,6 +1,9 @@
 #include "ICharacter.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Magic/Magic.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void ICharacter::Initialize()
 {
@@ -18,6 +21,9 @@ void ICharacter::Initialize()
 
     //コライダーの初期化
     InitializeCollider();
+
+    //パーティクルシステムの初期化
+    InitializeParticleSystems();
 
     //UIスプライトの初期化
     InitializeUISprites();
@@ -39,6 +45,12 @@ void ICharacter::Update()
 
     //HPの更新
     UpdateHP();
+
+    //デバッグの更新
+    UpdateDebug();
+
+    //ImGuiの更新
+    UpdateImGui();
 
     //基底クラスの更新
     GameObject::Update();
@@ -139,7 +151,7 @@ void ICharacter::ApplyParametersToWeapon(const std::string& weaponName, const Co
     weapon->SetKnockbackSettings(knockbackSettings);
 }
 
-void ICharacter::CorrentAnimationOffset()
+void ICharacter::CorrectAnimationOffset()
 {
     Vector3 hipPositionOffset = GetJointLocalPosition("mixamorig:Hips") - preAnimationHipPosition_;
     hipPositionOffset.y = 0.0f;
@@ -154,6 +166,23 @@ void ICharacter::ProcessCollisionImpact(GameObject* gameObject, const bool trans
         //ダメージを食らった時の処理を実行
         ApplyDamageAndKnockback(weapon->GetKnockbackSettings(), weapon->GetDamage(), transitionToStun);
     }
+    //衝突相手が魔法だった場合
+    else if (Magic* magic = dynamic_cast<Magic*>(gameObject))
+    {
+        ApplyDamageAndKnockback(magic->GetKnockbackSettings(), magic->GetDamage(), magic->GetMagicType() == Magic::MagicType::kCharged);
+    }
+    //衝突相手がレーザーだった場合
+    else if (Laser* laser = dynamic_cast<Laser*>(gameObject))
+    {
+        //ダメージを食らった処理を実行
+        ApplyDamageAndKnockback(KnockbackSettings{}, laser->GetDamage(), transitionToStun);
+    }
+    //衝突相手が柱だった場合
+    else if (Pillar* pillar = dynamic_cast<Pillar*>(gameObject))
+    {
+        //ダメージを食らった処理を実行
+        ApplyDamageAndKnockback(KnockbackSettings{}, pillar->GetDamage(), transitionToStun);
+    }
 }
 
 void ICharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
@@ -163,6 +192,12 @@ void ICharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSetti
 
     //HPを減らす
     hp_ -= damage;
+
+    //スタン状態に遷移するかどうかをチェック
+    if (transitionToStun)
+    {
+        TransitionToStunState();
+    }
 }
 
 const Vector3 ICharacter::GetJointWorldPosition(const std::string& jointName)
@@ -182,6 +217,90 @@ const Vector3 ICharacter::GetJointLocalPosition(const std::string& jointName)
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition("mixamorig:Hips") - transform_->GetWorldPosition();
+}
+
+void ICharacter::AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(name);
+    if (it != particleSystems_.end())
+    {
+        //パーティクルシステムにエミッターを追加する
+        if (it->second != nullptr)
+        {
+            it->second->AddParticleEmitter(particleEmitter);
+        }
+    }
+}
+
+void ICharacter::RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(particleName);
+    if (it != particleSystems_.end())
+    {
+        //パーティクルシステムのエミッターを削除する
+        if (it->second)
+        {
+            it->second->RemoveParticleEmitter(emitterName);
+        }
+    }
+}
+
+ParticleEmitter* ICharacter::GetParticleEmitter(const std::string& particleName, const std::string& emitterName)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(particleName);
+    if (it != particleSystems_.end())
+    {
+        if (ParticleEmitter* emitter = it->second->GetParticleEmitter(emitterName))
+        {
+            return emitter;
+        }
+    }
+    return nullptr;
+}
+
+void ICharacter::AddAccelerationField(const std::string& name, AccelerationField* accelerationField)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(name);
+    if (it != particleSystems_.end())
+    {
+        //パーティクルシステムに加速フィールドを追加する
+        if (it->second != nullptr)
+        {
+            it->second->AddAccelerationField(accelerationField);
+        }
+    }
+}
+
+void ICharacter::RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(particleName);
+    if (it != particleSystems_.end())
+    {
+        //パーティクルシステムの加速フィールドを削除する
+        if (it->second)
+        {
+            it->second->RemoveAccelerationField(accelerationFieldName);
+        }
+    }
+}
+
+AccelerationField* ICharacter::GetAccelerationField(const std::string& particleName, const std::string& fieldName)
+{
+    //パーティクルシステムを検索する
+    auto it = particleSystems_.find(particleName);
+    if (it != particleSystems_.end())
+    {
+        if (AccelerationField* accelerationField = it->second->GetAccelerationField(fieldName))
+        {
+            return accelerationField;
+        }
+    }
+    return nullptr;
 }
 
 void ICharacter::InitializeTransform()
@@ -216,6 +335,12 @@ void ICharacter::InitializeCollider()
 {
     //コライダーコンポーネントを取得
     collider_ = GetComponent<AABBCollider>();
+}
+
+void ICharacter::InitializeParticleSystems()
+{
+    //パーティクルシステムの生成
+    particleSystems_["Normal"] = ParticleManager::Create("Normal");
 }
 
 void ICharacter::InitializeUISprites()
@@ -287,4 +412,68 @@ void ICharacter::UpdateHP()
     Vector2 currentRightHpBarSegmentPosition = hpSprites_[kFront][kMiddle]->GetPosition();
     currentRightHpBarSegmentPosition.x += hpSprites_[kFront][kMiddle]->GetTextureSize().x;
     hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
+}
+
+void ICharacter::UpdateDebug()
+{
+    //デバッグ状態が変わった場合のみ処理を行う
+    if (isDebug_ != wasDebugActive_)
+    {
+        //現在のデバッグの状態に応じてアニメーションを設定
+        isDebug_ ? animator_->PauseAnimation() : animator_->ResumeAnimation();
+
+        //現在のデバッグ状態を更新
+        wasDebugActive_ = isDebug_;
+    }
+
+    //アニメーションの時間を設定
+    if (isDebug_)
+    {
+        animator_->SetAnimationTime(currentAnimationName_, animationTime_);
+    }
+}
+
+void ICharacter::UpdateImGui()
+{
+    //ImGuiのウィンドウを開始
+    ImGui::Begin(name_.c_str());
+
+    //デバッグモードのチェックボックス
+    ImGui::Checkbox("IsDebug", &isDebug_);
+
+    //デバッグ状態の場合
+    if (isDebug_)
+    {
+        //アニメーション時間のスライダー
+        ImGui::DragFloat("AnimationTime", &animationTime_, 0.01f, 0.0f, animator_->GetAnimation(currentAnimationName_)->GetDuration());
+
+        //アニメーション名のコンボボックス
+        if (ImGui::BeginCombo("AnimationName", currentAnimationName_.c_str()))
+        {
+            //アニメーション名のリストを表示
+            for (const auto& animation : animationNames_)
+            {
+                //現在のアニメーション名とリストのアニメーションが一致するか確認
+                bool isSelected = (currentAnimationName_ == animation);
+
+                //アニメーション名を選択できる項目として表示
+                if (ImGui::Selectable(animation.c_str(), isSelected))
+                {
+                    //選択されたアニメーション名を現在のアニメーション名として設定
+                    currentAnimationName_ = animation;
+                    animator_->PlayAnimation(currentAnimationName_, 1.0f, true);
+                }
+
+                //選択された項目にフォーカスを設定
+                if (isSelected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    //ImGuiのウィンドウを終了
+    ImGui::End();
 }

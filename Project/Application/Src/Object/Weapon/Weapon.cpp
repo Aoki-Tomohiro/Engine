@@ -144,7 +144,7 @@ void Weapon::CreateAccelerationField()
 	//加速フィールドの作成
 	AccelerationField* accelerationField = new AccelerationField();
 	accelerationField->Initialize("Weapon", 600.0f);
-	accelerationField->SetAcceleration({ 0.0f, -3.8f, 0.0f });
+	accelerationField->SetAcceleration({ 0.0f, -0.2f, 0.0f });
 	accelerationField->SetMin({ -50.0f, -50.0f, -50.0f });
 	accelerationField->SetMax({ 50.0f, 50.0f, 50.0f });
 	particleSystems_["Spark"]->AddAccelerationField(accelerationField);

@@ -1,5 +1,14 @@
 #include "PlayerStateRoot.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateMagicAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateChargeMagicAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateLaunchAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateSpinAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -48,7 +57,8 @@ void PlayerStateRoot::Update()
 
 void PlayerStateRoot::OnCollision(GameObject* gameObject)
 {
-
+	//衝突処理
+	player_->ProcessCollisionImpact(gameObject, true);
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
@@ -169,5 +179,68 @@ void PlayerStateRoot::UpdateRotation(const Vector3& velocity)
 
 void PlayerStateRoot::ProcessStateTransition()
 {
+	//RTの入力の閾値
+	const float kRightTriggerThreshold = 0.7f;
 
+	//Aボタンを押したとき
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	{
+		//ジャンプ状態に遷移
+		player_->ChangeState(new PlayerStateJump());
+		return;
+	}
+	//RBを押したとき
+	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+	{
+		//回避状態に遷移
+		player_->ChangeState(new PlayerStateDodge());
+		return;
+	}
+	//Bボタンを押したとき
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	{
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
+		return;
+	}
+
+	//RTが押されていない場合
+	if (input_->GetRightTriggerValue() < kRightTriggerThreshold)
+	{
+		//Xボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		{
+			//攻撃状態に遷移
+			player_->ChangeState(new PlayerStateAttack());
+		}
+		//Yボタンを離した時
+		else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+		{
+			//魔法攻撃状態に遷移
+			if (player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
+			{
+				player_->ChangeState(new PlayerStateMagicAttack());
+			}
+			//溜め魔法攻撃状態に遷移
+			else if (player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+			{
+				player_->ChangeState(new PlayerStateChargeMagicAttack());
+			}
+		}
+	}
+	else
+	{
+		//Xボタンを押したとき
+		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
+		{
+			//打ち上げ攻撃状態に遷移
+			player_->ChangeState(new PlayerStateLaunchAttack());
+		}
+		//Yボタンを押したとき
+		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+		{
+			//回転攻撃状態に遷移
+			player_->ChangeState(new PlayerStateSpinAttack());
+		}
+	}
 }

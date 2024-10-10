@@ -59,7 +59,7 @@ void Lockon::UpdateTargeting()
 	}
 }
 
-Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera)
+const Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera) const
 {
 	//ビューポート行列
 	Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);

@@ -4,11 +4,11 @@
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
-#include "Application/Src/Object/Character/States/ICharacterState.h"
 #include <array>
 
 /// <summary>
@@ -38,6 +38,14 @@ public:
     virtual void DrawUI() override;
 
     /// <summary>
+    /// ダメージとノックバックを適用
+    /// </summary>
+    /// <param name="knockbackSettings">ノックバックの設定</param>
+    /// <param name="damage">ダメージ</param>
+    /// <param name="transitionToStun">スタン状態に遷移するかどうか</param>
+    virtual void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
+
+    /// <summary>
     /// 移動処理
     /// </summary>
     /// <param name="velocity">速度</param>
@@ -64,7 +72,7 @@ public:
     /// <summary>
     /// アニメーションによる座標のずれを補正
     /// </summary>
-    void CorrentAnimationOffset();
+    void CorrectAnimationOffset();
 
     /// <summary>
     /// ダメージを食らった時の処理
@@ -72,14 +80,6 @@ public:
     /// <param name="gameObject">衝突相手</param>
     /// <param name="transitionToStun">スタンに遷移するかどうか</param>
     void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
-
-    /// <summary>
-    /// ダメージとノックバックを適用
-    /// </summary>
-    /// <param name="knockbackSettings">ノックバックの設定</param>
-    /// <param name="damage">ダメージ</param>
-    /// <param name="transitionToStun">スタン状態に遷移するかどうか</param>
-    void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
 
     /// <summary>
     /// ジョイントのワールド座標を取得
@@ -94,6 +94,16 @@ public:
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのローカル座標<</returns>
     const Vector3 GetJointLocalPosition(const std::string& jointName);
+
+    //パーティクルエミッターの追加・削除・取得
+    void AddParticleEmitter(const std::string& particleName, ParticleEmitter* emitter);
+    void RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName);
+    ParticleEmitter* GetParticleEmitter(const std::string& particleName, const std::string& emitterName);
+
+    //加速フィールドの追加・削除・取得
+    void AddAccelerationField(const std::string& particleName, AccelerationField* field);
+    void RemoveAccelerationField(const std::string& particleName, const std::string& fieldName);
+    AccelerationField* GetAccelerationField(const std::string& particleName, const std::string& fieldName);
 
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
@@ -121,6 +131,9 @@ public:
 
     //死亡フラグの取得
     const bool GetIsDead() const { return isDead_; };
+
+    //重力加速度を取得
+    const float GetGravityAcceleration() const { return gravityAcceleration_; };
 
     //アニメーション補正フラグの設定
     void SetIsAnimationCorrectionActive(const float isAnimationCorrectionActive) { isAnimationCorrectionActive_ = isAnimationCorrectionActive; };
@@ -171,6 +184,11 @@ protected:
     virtual void InitializeCollider();
 
     /// <summary>
+    /// パーティクルシステムの初期化
+    /// </summary>
+    virtual void InitializeParticleSystems();
+
+    /// <summary>
     /// UIのスプライトの初期化
     /// </summary>
     virtual void InitializeUISprites();
@@ -194,6 +212,21 @@ protected:
     /// HPの更新
     /// </summary>
     virtual void UpdateHP();
+
+    /// <summary>
+    /// デバッグの更新
+    /// </summary>
+    virtual void UpdateDebug();
+
+    /// <summary>
+    /// ImGuiの更新
+    /// </summary>
+    virtual void UpdateImGui();
+
+    /// <summary>
+    /// スタン状態への遷移処理
+    /// </summary>
+    virtual void TransitionToStunState() = 0;
 
 protected:
     //移動制限
@@ -223,6 +256,9 @@ protected:
     //コライダー
     AABBCollider* collider_ = nullptr;
 
+    //パーティクル関連
+    std::map<std::string, ParticleSystem*> particleSystems_{};
+
     //コンバットアニメーションエディター
     const CombatAnimationEditor* combatAnimationEditor_ = nullptr;
 
@@ -230,7 +266,7 @@ protected:
     KnockbackSettings knockbackSettings_{};
 
     //重力加速度
-    float gravityAcceleration_ = -148.0f;
+    float gravityAcceleration_ = -75.0f;
 
     //体力の最大値
     float maxHp_ = 0.0f;
@@ -264,6 +300,9 @@ protected:
 
     //デバッグのフラグ
     bool isDebug_ = false;
+
+    //前回のデバッグのフラグ
+    bool wasDebugActive_ = false;
 
     //アニメーションの時間
     float animationTime_ = 0.0f;

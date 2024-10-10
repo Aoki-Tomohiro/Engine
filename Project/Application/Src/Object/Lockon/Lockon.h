@@ -7,31 +7,68 @@
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 
+/// <summary>
+/// ロックオン
+/// </summary>
 class Lockon
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
+	/// <param name="camera">カメラ</param>
 	void Update(const Camera* camera);
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// ロックオンターゲットの座標を取得
+	/// </summary>
+	/// <returns>ロックオンターゲットの座標</returns>
 	const Vector3 GetTargetPosition() const;
 
+	/// <summary>
+	/// ロックオンされているかどうか
+	/// </summary>
+	/// <returns>ロックオンされているかどうか</returns>
 	bool ExistTarget() const { return target_ ? true : false; };
 
 private:
+	/// <summary>
+	/// ロックオンの更新
+	/// </summary>
 	void UpdateTargeting();
 
-	Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera);
+	/// <summary>
+	/// ロックオンターゲットの座標をワールド座標からスクリーン座標に変換
+	/// </summary>
+	/// <param name="worldPosition">ロックオンターゲットの座標</param>
+	/// <param name="camera">カメラ</param>
+	/// <returns>スクリーン座標</returns>
+	const Vector2 WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera) const;
 
+	/// <summary>
+	/// ロックオンのスプライトに座標を設定
+	/// </summary>
+	/// <param name="camera">カメラ</param>
 	void SetLockonMarkPosition(const Camera* camera);
 
 private:
+	//インプット
 	Input* input_ = nullptr;
 
+	//ロックオンのスプライト
 	std::unique_ptr<Sprite> lockonMark_ = nullptr;
 
+	//ロックオンターゲット
 	Enemy* target_ = nullptr;
 };
 
