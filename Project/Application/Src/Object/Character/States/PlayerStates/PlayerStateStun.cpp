@@ -4,6 +4,9 @@
 
 void PlayerStateStun::Initialize()
 {
+	//アニメーションブレンドを無効にする
+	player_->GetAnimator()->SetIsBlending(false);
+
 	//アニメーションを再生する
 	player_->GetAnimator()->PlayAnimation("Impact", 2.0f, false);
 }
@@ -38,8 +41,4 @@ void PlayerStateStun::Update()
 		//通常状態に戻す
 		player_->ChangeState(new PlayerStateRoot());
 	}
-}
-
-void PlayerStateStun::OnCollision(GameObject* other)
-{
 }

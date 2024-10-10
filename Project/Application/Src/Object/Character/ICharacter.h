@@ -82,6 +82,11 @@ public:
     void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
 
     /// <summary>
+    /// モデルシェイク開始
+    /// </summary>
+    void StartModelShake();
+
+    /// <summary>
     /// ジョイントのワールド座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
@@ -148,6 +153,16 @@ public:
     AnimatorComponent* GetAnimator() const { return animator_; };
 
 protected:
+    //モデルシェイク用の構造体
+    struct ModelShake
+    {
+        bool isActive = false;                   // モデルシェイクが有効かどうか
+        float duration = 0.1f;                   // シェイクの継続時間
+        float elapsedTime = 0.0f;                // 経過したシェイク時間
+        Vector3 originalPosition{};              // 元のモデルの位置
+        Vector3 intensity{ 30.0f, 0.0f, 30.0f }; // シェイクの強度
+    };
+
     //体力バーの種類
     enum HealthBarType
     {
@@ -214,6 +229,11 @@ protected:
     virtual void UpdateHP();
 
     /// <summary>
+    /// 死亡状態に遷移するかを確認
+    /// </summary>
+    virtual void CheckAndTransitionToDeath();
+
+    /// <summary>
     /// デバッグの更新
     /// </summary>
     virtual void UpdateDebug();
@@ -227,6 +247,26 @@ protected:
     /// スタン状態への遷移処理
     /// </summary>
     virtual void TransitionToStunState() = 0;
+
+    /// <summary>
+    /// 死亡状態への遷移処理
+    /// </summary>
+    virtual void TransitionToDeathState() = 0;
+
+    /// <summary>
+    /// モデルシェイクの更新
+    /// </summary>
+    void UpdateModelShake();
+
+    /// <summary>
+    /// モデルシェイクを適用
+    /// </summary>
+    void ApplyModelShake();
+
+    /// <summary>
+    /// モデルシェイクでズレた分の座標をリセット
+    /// </summary>
+    void ResetToOriginalPosition();
 
 protected:
     //移動制限
@@ -265,8 +305,11 @@ protected:
     //ノックバックの設定
     KnockbackSettings knockbackSettings_{};
 
+    //モデルシェイク
+    ModelShake modelShake_{};
+
     //重力加速度
-    float gravityAcceleration_ = -75.0f;
+    float gravityAcceleration_ = -42.0f;
 
     //体力の最大値
     float maxHp_ = 0.0f;

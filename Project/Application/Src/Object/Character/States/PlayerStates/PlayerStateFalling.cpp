@@ -73,7 +73,7 @@ void PlayerStateFalling::OnCollision(GameObject* other)
 void PlayerStateFalling::ApplyGravity()
 {
 	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f, player_->GetGravityAcceleration(), 0.0f};
+	Vector3 accelerationVector = { 0.0f, player_->GetJumpParameters().gravityAcceleration, 0.0f};
 
 	//速度に重力加速度を加算
 	velocity_ += accelerationVector * GameTimer::GetDeltaTime();

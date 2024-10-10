@@ -9,6 +9,6 @@ public:
 
 	void Update() override;
 
-	void OnCollision(GameObject* other) override;
+	void OnCollision(GameObject* other) override {};
 };
 

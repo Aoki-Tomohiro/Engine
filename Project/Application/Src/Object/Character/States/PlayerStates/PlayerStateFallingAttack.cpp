@@ -12,11 +12,14 @@ void PlayerStateFallingAttack::Initialize()
 	//アニメーションの状態を取得して設定
 	animationState_ = player_->GetCombatAnimationEditor()->GetAnimationState("FallingAttack");
 
+	//アニメーションブレンドを無効にする
+	player_->GetAnimator()->SetIsBlending(false);
+
 	//アニメーションを再生
 	player_->GetAnimator()->PlayAnimation("FallingAttack", 2.0f, false);
 
 	//アニメーション時間を設定
-	player_->GetAnimator()->SetNextAnimationTime(animationState_.phases[phaseIndex_].duration);
+	player_->GetAnimator()->SetCurrentAnimationTime(animationState_.phases[phaseIndex_].duration);
 
 	//落下攻撃のフラグを立てる
 	player_->SetActionFlag(Player::ActionFlag::kFallingAttack, true);

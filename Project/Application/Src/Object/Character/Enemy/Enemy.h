@@ -54,16 +54,6 @@ public:
 		float closeRangeDistance = 20.0f;       // 遠距離の行動をする距離
 	};
 
-	//モデルシェイク用の構造体
-	struct ModelShake
-	{
-		bool isActive = false;                   // モデルシェイクが有効かどうか
-		float duration = 0.1f;                   // シェイクの継続時間
-		float elapsedTime = 0.0f;                // 経過したシェイク時間
-		Vector3 originalPosition{};              // 元のモデルの位置
-		Vector3 intensity{ 30.0f, 0.0f, 30.0f }; // シェイクの強度
-	};
-
 	//走り状態のパラメーター
 	struct RunTowardsPlayerParameters
 	{
@@ -121,11 +111,6 @@ public:
 	/// <param name="newState">新しい状態</param>
 	void ChangeState(IEnemyState* newState);
 
-	/// <summary>
-	/// モデルシェイク開始
-	/// </summary>
-	void StartModelShake();
-
 	//HPの取得・設定
 	const float GetHP() const { return hp_; };
 	void SetHP(const float hp) { hp_ = hp; };
@@ -169,29 +154,14 @@ private:
     void InitializeUISprites() override;
 
 	/// <summary>
-	/// モデルシェイクの更新
-	/// </summary>
-	void UpdateModelShake();
-
-	/// <summary>
-	/// モデルシェイクを適用
-	/// </summary>
-	void ApplyModelShake();
-
-	/// <summary>
-	/// モデルシェイクでズレた分の座標をリセット
-	/// </summary>
-	void ResetToOriginalPosition();
-
-	/// <summary>
-	/// 死亡状態に遷移するかを確認
-	/// </summary>
-	void CheckAndTransitionToDeath();
-
-	/// <summary>
 	/// スタン状態への遷移処理
 	/// </summary>
 	void TransitionToStunState() override;
+
+	/// <summary>
+	/// 死亡状態への遷移処理
+	/// </summary>
+	void TransitionToDeathState() override;
 
 private:
 	//状態
@@ -202,9 +172,6 @@ private:
 
 	//前の遠距離攻撃
 	RangedAttack previousRangedAttack_ = RangedAttack::kMaxRangedAttacks;
-
-	//モデルシェイク
-	ModelShake modelShake_{};
 
 	//タイムスケール
 	float timeScale_ = 1.0f;

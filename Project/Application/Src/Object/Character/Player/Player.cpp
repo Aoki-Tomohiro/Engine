@@ -39,6 +39,12 @@ void Player::Initialize()
 
 void Player::Update()
 {
+	//モデルシェイクでずれた分の座標をリセット
+	ResetToOriginalPosition();
+
+	//モデルシェイクの更新
+	UpdateModelShake();
+
 	//タイトルシーンにいない場合
 	if (!isInTitleScene_)
 	{
@@ -52,9 +58,6 @@ void Player::Update()
 	//スキルのクールダウンの更新
 	UpdateSkillCooldowns();
 
-	//死亡状態かどうかを確認する
-	CheckAndTransitionToDeath();
-
 	//ダメージエフェクトの更新
 	UpdateDamageEffect();
 
@@ -64,6 +67,7 @@ void Player::Update()
 	//ImGui
 	ImGui::Begin("Player");
 	ImGui::DragFloat("JumpFirstSpeed", &jumpParameters_.jumpFirstSpeed, 0.1f);
+	ImGui::DragFloat("GravityAcceleration", &gravityAcceleration_, 0.1f);
 	ImGui::End();
 }
 
@@ -370,22 +374,6 @@ void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConf
 	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
 }
 
-void Player::CheckAndTransitionToDeath()
-{
-	//敵の体力が0を下回っていた場合
-	if (hp_ <= 0.0f)
-	{
-		//死亡状態に遷移
-		if (!isDead_)
-		{
-			ChangeState(new PlayerStateDeath());
-		}
-
-		//死亡フラグを立てる
-		isDead_ = true;
-	}
-}
-
 void Player::UpdateDamageEffect()
 {
 	//エフェクトがアクティブな場合のみ処理
@@ -426,4 +414,10 @@ void Player::TransitionToStunState()
 {
 	//スタン状態に遷移
 	ChangeState(new PlayerStateStun());
+}
+
+void Player::TransitionToDeathState()
+{
+	//死亡状態に遷移
+	ChangeState(new PlayerStateDeath());
 }

@@ -43,8 +43,14 @@ void ICharacter::Update()
     //移動制限の処理
     RestrictMovement();
 
+    //モデルシェイクを適用
+    ApplyModelShake();
+
     //HPの更新
     UpdateHP();
+
+    //死亡状態かどうかを確認する
+    CheckAndTransitionToDeath();
 
     //デバッグの更新
     UpdateDebug();
@@ -193,11 +199,21 @@ void ICharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSetti
     //HPを減らす
     hp_ -= damage;
 
+    //モデルシェイクを有効にする
+    StartModelShake();
+
     //スタン状態に遷移するかどうかをチェック
     if (transitionToStun)
     {
         TransitionToStunState();
     }
+}
+
+void ICharacter::StartModelShake()
+{
+    modelShake_.isActive = true;
+    modelShake_.elapsedTime = 0.0f;
+    modelShake_.originalPosition = GetPosition();
 }
 
 const Vector3 ICharacter::GetJointWorldPosition(const std::string& jointName)
@@ -414,6 +430,22 @@ void ICharacter::UpdateHP()
     hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
 }
 
+void ICharacter::CheckAndTransitionToDeath()
+{
+    //敵の体力が0を下回っていた場合
+    if (hp_ <= 0.0f)
+    {
+        //死亡状態に遷移
+        if (!isDead_)
+        {
+            TransitionToDeathState();
+        }
+
+        //死亡フラグを立てる
+        isDead_ = true;
+    }
+}
+
 void ICharacter::UpdateDebug()
 {
     //デバッグ状態が変わった場合のみ処理を行う
@@ -476,4 +508,44 @@ void ICharacter::UpdateImGui()
 
     //ImGuiのウィンドウを終了
     ImGui::End();
+}
+
+void ICharacter::UpdateModelShake()
+{
+    //モデルシェイクの経過時間を進める
+    modelShake_.elapsedTime += GameTimer::GetDeltaTime();
+
+    //モデルシェイクの経過時間が一定値を超えていたら終了させる
+    if (modelShake_.elapsedTime > modelShake_.duration)
+    {
+        modelShake_.isActive = false;
+    }
+}
+
+void ICharacter::ApplyModelShake()
+{
+    //モデルシェイクが有効な場合
+    if (modelShake_.isActive)
+    {
+        //モデルシェイクの強度をランダムで決める
+        Vector3 intensity = {
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.x,modelShake_.intensity.x),
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.y,modelShake_.intensity.y),
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.z,modelShake_.intensity.z),
+        };
+
+        //座標をずらす
+        Vector3 currentPosition = GetPosition();
+        modelShake_.originalPosition = currentPosition;
+        currentPosition += intensity * GameTimer::GetDeltaTime();
+        SetPosition(currentPosition);
+    }
+}
+
+void ICharacter::ResetToOriginalPosition()
+{
+    if (modelShake_.isActive)
+    {
+        SetPosition(modelShake_.originalPosition);
+    }
 }

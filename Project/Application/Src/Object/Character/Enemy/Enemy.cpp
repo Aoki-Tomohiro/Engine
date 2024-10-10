@@ -31,14 +31,13 @@ void Enemy::Update()
 		state_->Update();
 	}
 
-	//モデルシェイクを適用
-	ApplyModelShake();
-
-	//死亡状態かどうかを確認する
-	CheckAndTransitionToDeath();
-
 	//基底クラスの更新
 	ICharacter::Update();
+
+	//ImGui
+	ImGui::Begin("Enemy");
+	ImGui::DragFloat("GravityAcceleration", &gravityAcceleration_, 0.1f);
+	ImGui::End();
 }
 
 void Enemy::OnCollision(GameObject* gameObject)
@@ -57,69 +56,6 @@ void Enemy::ChangeState(IEnemyState* newState)
 
 	//現在の状態を新しい状態に更新
 	state_.reset(newState);
-}
-
-void Enemy::StartModelShake()
-{
-	modelShake_.isActive = true;
-	modelShake_.elapsedTime = 0.0f;
-	modelShake_.originalPosition = GetPosition();
-}
-
-void Enemy::UpdateModelShake()
-{
-	//モデルシェイクの経過時間を進める
-	modelShake_.elapsedTime += GameTimer::GetDeltaTime();
-
-	//モデルシェイクの経過時間が一定値を超えていたら終了させる
-	if (modelShake_.elapsedTime > modelShake_.duration)
-	{
-		modelShake_.isActive = false;
-	}
-}
-
-void Enemy::ApplyModelShake()
-{
-	//モデルシェイクが有効な場合
-	if (modelShake_.isActive)
-	{
-		//モデルシェイクの強度をランダムで決める
-		Vector3 intensity = {
-			RandomGenerator::GetRandomFloat(-modelShake_.intensity.x,modelShake_.intensity.x),
-			RandomGenerator::GetRandomFloat(-modelShake_.intensity.y,modelShake_.intensity.y),
-			RandomGenerator::GetRandomFloat(-modelShake_.intensity.z,modelShake_.intensity.z),
-		};
-
-		//座標をずらす
-		Vector3 currentPosition = GetPosition();
-		modelShake_.originalPosition = currentPosition;
-		currentPosition += intensity * GameTimer::GetDeltaTime();
-		SetPosition(currentPosition);
-	}
-}
-
-void Enemy::ResetToOriginalPosition()
-{
-	if (modelShake_.isActive)
-	{
-		SetPosition(modelShake_.originalPosition);
-	}
-}
-
-void Enemy::CheckAndTransitionToDeath()
-{
-	//敵の体力が0を下回っていた場合
-	if (hp_ <= 0.0f)
-	{
-		//死亡状態に遷移
-		if (!isDead_)
-		{
-			ChangeState(new EnemyStateDeath());
-		}
-
-		//死亡フラグを立てる
-		isDead_ = true;
-	}
 }
 
 void Enemy::InitializeAnimator()
@@ -170,4 +106,10 @@ void Enemy::TransitionToStunState()
 {
 	//スタン状態に遷移
 	ChangeState(new EnemyStateStun());
+}
+
+void Enemy::TransitionToDeathState()
+{
+	//死亡状態に遷移
+	ChangeState(new EnemyStateDeath());
 }

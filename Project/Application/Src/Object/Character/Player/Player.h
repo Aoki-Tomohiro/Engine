@@ -8,7 +8,7 @@
 #include "Application/Src/Object/Character/Player/SkillCooldownManager.h"
 #include <numbers>
 
-//TODO:各状態に同じ処理が多いのでまとめる
+//TODO:各状態にコピペコードが多いのでまとめる
 
 class Player : public ICharacter
 {
@@ -104,8 +104,8 @@ public:
     //ジャンプ状態のパラメーター
     struct JumpParameters
     {
-        float jumpFirstSpeed = 35.0f;        // 初速度
-        //float gravityAcceleration = -148.0f; // 重力加速度
+        float jumpFirstSpeed = 50.0f;        // 初速度
+        float gravityAcceleration = -150.0f; // 重力加速度
     };
 
     //ダッシュ用のパラメーター
@@ -258,11 +258,6 @@ private:
     void UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration);
 
     /// <summary>
-    /// 死亡状態に遷移するかを確認
-    /// </summary>
-    void CheckAndTransitionToDeath();
-
-    /// <summary>
     /// ダメージエフェクトの更新
     /// </summary>
     void UpdateDamageEffect();
@@ -283,6 +278,11 @@ private:
     /// スタン状態への遷移処理
     /// </summary>
     void TransitionToStunState() override;
+
+    /// <summary>
+    /// 死亡状態への遷移処理
+    /// </summary>
+    void TransitionToDeathState() override;
 
 private:
     //インプット
