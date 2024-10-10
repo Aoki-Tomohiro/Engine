@@ -5,7 +5,7 @@
 #include "Application/Src/Object/Camera/States/CameraStateDash.h"
 #include "Application/Src/Object/Camera/States/CameraStateLaunchAttack.h"
 #include "Application/Src/Object/Camera/States/CameraStateFallingAttack.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void CameraStateLockon::Initialize()
 {
@@ -103,7 +103,7 @@ Quaternion CameraStateLockon::CalculateNewRotation() const
 void CameraStateLockon::ManageCameraStateTransition()
 {
     //プレイヤーを取得
-    const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
+    Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
     //ロックオン対象がいない場合、追従カメラに切り替え
     if (!cameraController_->GetLockon()->ExistTarget())

@@ -1,28 +1,27 @@
 #include "Skydome.h"
-#include "Engine/Components/Model/ModelComponent.h"
 
 void Skydome::Initialize()
 {
 	//モデルを取得
-	ModelComponent* modelComponent = GetComponent<ModelComponent>();
+	model_ = GetComponent<ModelComponent>();
+
+	//基底クラスの初期化
+	GameObject::Initialize();
+}
+
+void Skydome::Update()
+{
+	//影を描画するかどうかを設定
+	model_->GetModel()->SetCastShadows(castShadows_);
+
 	//マテリアルの更新
-	modelComponent->GetModel()->SetCastShadows(false);
-	for (int32_t i = 0; i < modelComponent->GetModel()->GetNumMaterials(); ++i)
+	for (int32_t i = 0; i < model_->GetModel()->GetNumMaterials(); ++i)
 	{
-		modelComponent->GetModel()->GetMaterial(i)->SetEnableLighting(false);
-		modelComponent->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(0.0f);
-		modelComponent->GetModel()->GetMaterial(i)->SetUVScale({ 10.0f,10.0f });
+		model_->GetModel()->GetMaterial(i)->SetEnableLighting(isEnableLighting_);
+		model_->GetModel()->GetMaterial(i)->SetEnvironmentCoefficient(environmentCoefficient_);
+		model_->GetModel()->GetMaterial(i)->SetUVScale(uvScale_);
 	}
-}
 
-void Skydome::OnCollision(GameObject* gameObject)
-{
-}
-
-void Skydome::OnCollisionEnter(GameObject* gameObject)
-{
-}
-
-void Skydome::OnCollisionExit(GameObject* gameObject)
-{
+	//基底クラスの更新
+	GameObject::Update();
 }

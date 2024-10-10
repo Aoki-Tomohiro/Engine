@@ -71,21 +71,6 @@ void GameCore::Initialize()
 
 void GameCore::Finalize()
 {
-	//LightManagerの解放
-	LightManager::Destroy();
-
-	//TrailRendererの解放
-	TrailRenderer::Destroy();
-
-	//LineRendererの解放
-	LineRenderer::Destroy();
-
-	//CameraManagerの解放
-	CameraManager::Destroy();
-
-	//ModelManagerの解放
-	ModelManager::Destroy();
-
 	//PostEffectsの解放
 	PostEffects::Destroy();
 
@@ -103,6 +88,21 @@ void GameCore::Finalize()
 
 	//SceneManagerの解放
 	SceneManager::Destroy();
+
+	//LightManagerの解放
+	LightManager::Destroy();
+
+	//TrailRendererの解放
+	TrailRenderer::Destroy();
+
+	//LineRendererの解放
+	LineRenderer::Destroy();
+
+	//CameraManagerの解放
+	CameraManager::Destroy();
+
+	//ModelManagerの解放
+	ModelManager::Destroy();
 
 	//Rendererの解放
 	Renderer::Destroy();
@@ -185,11 +185,11 @@ void GameCore::Draw()
 	//PostEffectsの描画
 	postEffects_->Draw();
 
+	//SceneManagerのUIを描画
+	sceneManager_->DrawUI();
+
 	//ラインの描画
 	lineRenderer_->Draw();
-
-	//SceneManagerのスプライト描画
-	sceneManager_->DrawUI();
 
 	//ImGuiの描画
 	imguiManager_->Draw();
@@ -222,8 +222,7 @@ void GameCore::Run()
 				isLoading_ = false;
 			}
 		}
-		});
-
+	});
 
 	//ゲームループ
 	while (true)

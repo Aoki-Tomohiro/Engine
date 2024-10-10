@@ -23,7 +23,7 @@ void GameManager::Initialize()
 	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
 	collisionAttributeManager_->AddAttribute("Pillar",       0b1000000, 0b0000001);
 
-	//PostEffectsの有効化
+	//ポストエフェクトの設定
 	postEffects_->SetIsEnable(true);
 	postEffects_->GetFog()->SetIsEnable(true);
 	postEffects_->GetBloom()->SetIsEnable(true);
@@ -34,22 +34,4 @@ void GameManager::Initialize()
 	postEffects_->GetBloom()->SetBlurTextureWeight(1, 0.1f);
 	postEffects_->GetBloom()->SetBlurTextureWeight(2, 0.2f);
 	postEffects_->GetBloom()->SetBlurTextureWeight(3, 0.4f);
-}
-
-void GameManager::Finalize()
-{
-	//基底クラスの終了処理
-	GameCore::Finalize();
-}
-
-void GameManager::Update()
-{
-	//基底クラスの更新
-	GameCore::Update();
-}
-
-void GameManager::Draw()
-{
-	//基底クラスの描画
-	GameCore::Draw();
 }

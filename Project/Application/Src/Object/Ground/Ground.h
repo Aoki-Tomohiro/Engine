@@ -1,25 +1,27 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
-#include "Engine/Base/ImGuiManager.h"
+#include "Engine/Components/Model/ModelComponent.h"
 
+/// <summary>
+/// 地面
+/// </summary>
 class Ground : public GameObject
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
-	void Draw(const Camera& camera) override;
-
-	void DrawUI() override;
-
-	void OnCollision(GameObject* gameObject) override;
-
-	void OnCollisionEnter(GameObject* gameObject) override;
-
-	void OnCollisionExit(GameObject* gameObject) override;
-
 private:
+	//モデル
+	ModelComponent* model_ = nullptr;
+
 	//色
 	Vector4 color_ = { 0.118f,0.118f,0.118f,1.0f };
 

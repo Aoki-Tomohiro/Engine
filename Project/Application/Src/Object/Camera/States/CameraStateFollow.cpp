@@ -2,7 +2,7 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void CameraStateFollow::Initialize()
 {
@@ -13,7 +13,7 @@ void CameraStateFollow::Initialize()
 	cameraController_->SetDestinationOffset(cameraController_->GetFollowCameraParameters().offset);
 
 	//Quaternionの初期化
-	if (const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player"))
+	if (const Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player"))
 	{
 		quaternionY = player->GetDestinationQuaternion();
 		cameraController_->SetDestinationQuaternion(quaternionY);
@@ -35,7 +35,7 @@ void CameraStateFollow::Update()
 const bool CameraStateFollow::IsPlayerPerformingAction() const
 {
 	//プレイヤーを取得
-	const Player* player = GameObjectManager::GetInstance()->GetConstGameObject<Player>("Player");
+	const Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
 	//いずれかのフラグが立っていたらtrueを返す
 	return player->GetActionFlag(Player::ActionFlag::kDashing) ||

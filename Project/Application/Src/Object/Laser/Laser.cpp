@@ -27,35 +27,6 @@ void Laser::Update()
 	GameObject::Update();
 }
 
-void Laser::Draw(const Camera& camera)
-{
-	//基底クラスの描画
-	GameObject::Draw(camera);
-}
-
-void Laser::DrawUI()
-{
-}
-
-void Laser::OnCollision(GameObject* gameObject)
-{
-}
-
-void Laser::OnCollisionEnter(GameObject* gameObject)
-{
-}
-
-void Laser::OnCollisionExit(GameObject* gameObject)
-{
-}
-
-void Laser::Reset()
-{
-	isLaserFading_ = false;
-	laserFadingTimer_ = 0.0f;
-	easingParameter_ = 0.0f;
-}
-
 void Laser::InitializeTransform()
 {
 	//トランスフォームの初期化
@@ -65,10 +36,16 @@ void Laser::InitializeTransform()
 
 void Laser::InitializeModel()
 {
-	//モデルの追加
-	model_ = AddComponent<ModelComponent>();
+	//モデルコンポーネントを追加
+	modelComponent_ = AddComponent<ModelComponent>();
+
+	//モデルを生成
 	Model* model = ModelManager::CreateFromModelFile("Laser", Opaque);
-	model->SetCastShadows(false);
+
+	//モデルコンポーネントにモデルを設定
+	modelComponent_->SetModel(model);
+
+	//マテリアルの初期化
 	for (size_t i = 0; i < model->GetNumMaterials(); ++i)
 	{
 		Material* material = model->GetMaterial(i);
@@ -76,7 +53,6 @@ void Laser::InitializeModel()
 		material->SetEnableLighting(false); //ライティングをしない
 		material->SetEnvironmentCoefficient(0.0f); //環境係数の設定
 	}
-	model_->SetModel(model);
 }
 
 void Laser::InitializeCollider()
@@ -106,7 +82,9 @@ void Laser::UpdateLaserFading()
 		//フェードアウト時間が生存時間を超えたら徐々にレーザーを消す
 		if (laserFadingTimer_ > lifeTime_)
 		{
-			BeginLaserFading();
+			//レーザーが消えかけている状態に切り替え
+			isLaserFading_ = true;
+			easingParameter_ = 0.0f;
 		}
 	}
 	else
@@ -114,13 +92,6 @@ void Laser::UpdateLaserFading()
 		//レーザーの消失処理
 		FadeOutLaser();
 	}
-}
-
-void Laser::BeginLaserFading()
-{
-	//レーザーが消えかけている状態に切り替え
-	isLaserFading_ = true;
-	easingParameter_ = 0.0f;
 }
 
 void Laser::FadeOutLaser()

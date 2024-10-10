@@ -1,25 +1,46 @@
 #pragma once
 #include "Engine/2D/Sprite.h"
 
+/// <summary>
+/// トランジション
+/// </summary>
 class Transition
 {
 public:
+	/// <summary>
+	/// トランジションのの状態
+	/// </summary>
 	enum FadeState { In, Out };
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// トランジションの速度を設定
+	/// </summary>
+	/// <param name="transitionSpeed">トランジションの速度</param>
 	void SetTransitionSpeed(const float transitionSpeed) { transitionSpeed_ = transitionSpeed; };
 
+	//トランジションの状態の取得・設定
 	const FadeState& GetFadeState() const { return fadeState_; };
-
 	void SetFadeState(const FadeState& fadeState) { fadeState_ = fadeState; };
 
+	//フェードインが完了したかどうかを取得
 	const bool GetIsFadeInComplete() const { return isFadeInComplete_; };
 
+	//フェードアウトが完了したかどうかを取得
 	const bool GetIsFadeOutComplete() const { return isFadeOutComplete_; };
 
 private:

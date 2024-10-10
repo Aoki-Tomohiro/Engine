@@ -6,9 +6,9 @@ void HitStop::Start(const float duration)
     if (!isActive_ && duration != 0.0f)
     {
         //ヒットストップをアクティブにする
-        isActive_ = true;              
+        isActive_ = true;
         //残り時間を設定
-        remainingTime_ = duration;      
+        remainingTime_ = duration;
         //ゲームタイムスケールを0にしてゲームの進行を一時停止
         GameTimer::SetTimeScale(0.0f);
     }
@@ -27,7 +27,7 @@ void HitStop::Update()
         if (remainingTime_ <= 0.0f)
         {
             //ヒットストップを無効にする
-            isActive_ = false;            
+            isActive_ = false;
             //残り時間をリセット
             remainingTime_ = 0.0f;
             //ゲームタイムスケールを通常に戻してゲームの進行を再開

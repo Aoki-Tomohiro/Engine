@@ -2,8 +2,6 @@
 #include "Engine/Framework/Scene/AbstractSceneFactory.h"
 #include "GameTitleScene.h"
 #include "GamePlayScene.h"
-#include "GameClearScene.h"
-#include "GameOverScene.h"
 #include "SampleScene.h"
 #include "LoadScene.h"
 

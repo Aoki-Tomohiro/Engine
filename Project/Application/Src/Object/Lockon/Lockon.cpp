@@ -37,7 +37,7 @@ void Lockon::Draw()
 const Vector3 Lockon::GetTargetPosition() const
 {
 	//ターゲットがいる場合は腰のジョイントのワールド座標を返す
-	return target_ ? target_->GetHipWorldPosition() : Vector3();
+	return target_ ? target_->GetJointWorldPosition("mixamorig:Hips") : Vector3();
 }
 
 void Lockon::UpdateTargeting()
@@ -54,12 +54,12 @@ void Lockon::UpdateTargeting()
 		else
 		{
 			//ターゲットを設定
-			target_ = GameObjectManager::GetInstance()->GetMutableGameObject<Enemy>("Enemy");
+			target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy");
 		}
 	}
 }
 
-Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera)
+const Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera) const
 {
 	//ビューポート行列
 	Matrix4x4 matViewport = Mathf::MakeViewportMatrix(0, 0, Application::kClientWidth, Application::kClientHeight, 0, 1);
@@ -74,7 +74,7 @@ Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera
 void Lockon::SetLockonMarkPosition(const Camera* camera)
 {
 	//敵のロックオン座標取得
-	Vector2 positionScreenV2 = WorldToScreenPosition(target_->GetHipWorldPosition(), camera);
+	Vector2 screenPosition = WorldToScreenPosition(target_->GetJointWorldPosition("mixamorig:Hips"), camera);
 	//スプライトの座標を設定
-	lockonMark_->SetPosition(positionScreenV2);
+	lockonMark_->SetPosition(screenPosition);
 }

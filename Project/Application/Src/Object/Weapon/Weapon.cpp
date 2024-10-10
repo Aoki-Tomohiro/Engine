@@ -96,8 +96,8 @@ void Weapon::InitializeTransform()
 
 	//武器の親オブジェクトを取得し、親子付け
 	GameObject* parentGameObject = (name_ == "PlayerWeapon") ?
-		GameObjectManager::GetInstance()->GetMutableGameObject<GameObject>("Player") :
-		GameObjectManager::GetInstance()->GetMutableGameObject<GameObject>("Enemy");
+		gameObjectManager_->GetGameObject<GameObject>("Player") :
+		gameObjectManager_->GetGameObject<GameObject>("Enemy");
 
 	//親オブジェクトの右手に武器を設定
 	transform_->worldTransform_.SetParent(&parentGameObject->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
@@ -127,15 +127,12 @@ void Weapon::InitializeParticleSystem()
 	//テクスチャの読み込み
 	TextureManager::Load("star_08.png");
 
-	//モデルの生成
-	sparkParticleModel_.reset(ModelManager::CreateFromModelFile("Cube", Transparent));
-
 	//衝撃波パーティクルの生成
 	particleSystems_["ShockWave"] = ParticleManager::Create("ShockWave");
 
 	//火花のパーティクル生成
 	particleSystems_["Spark"] = ParticleManager::Create("Spark");
-	particleSystems_["Spark"]->SetModel(sparkParticleModel_.get());
+	particleSystems_["Spark"]->SetModel("Cube");
 
 	//光のパーティクル生成
 	particleSystems_["Light"] = ParticleManager::Create("Light");
@@ -147,7 +144,7 @@ void Weapon::CreateAccelerationField()
 	//加速フィールドの作成
 	AccelerationField* accelerationField = new AccelerationField();
 	accelerationField->Initialize("Weapon", 600.0f);
-	accelerationField->SetAcceleration({ 0.0f, -3.8f, 0.0f });
+	accelerationField->SetAcceleration({ 0.0f, -0.2f, 0.0f });
 	accelerationField->SetMin({ -50.0f, -50.0f, -50.0f });
 	accelerationField->SetMax({ 50.0f, 50.0f, 50.0f });
 	particleSystems_["Spark"]->AddAccelerationField(accelerationField);
@@ -183,8 +180,8 @@ void Weapon::UpdateCollider()
 {
 	//親オブジェクトを取得してコライダーを更新
 	GameObject* parentGameObject = (name_ == "PlayerWeapon") ?
-		GameObjectManager::GetInstance()->GetMutableGameObject<GameObject>("Player") :
-		GameObjectManager::GetInstance()->GetMutableGameObject<GameObject>("Enemy");
+		gameObjectManager_->GetGameObject<GameObject>("Player") :
+		gameObjectManager_->GetGameObject<GameObject>("Enemy");
 
 	//コライダーの有効状態を設定
 	collider_->SetCollisionEnabled(isAttack_);
@@ -300,7 +297,7 @@ void Weapon::CreateParticleEmitters()
 	CreateSparkEmitter(emitterTranslation);
 
 	//光のエミッターの生成
-	CreateStarEmitter(emitterTranslation);
+	CreateLightEmitter(emitterTranslation);
 }
 
 void Weapon::CreateShockWaveEmitters(const Vector3& emitterTranslation, Camera* camera)
@@ -368,7 +365,7 @@ void Weapon::CreateSparkEmitter(const Vector3& emitterTranslation)
 	particleSystems_["Spark"]->AddParticleEmitter(emitter);
 }
 
-void Weapon::CreateStarEmitter(const Vector3& position)
+void Weapon::CreateLightEmitter(const Vector3& position)
 {
 	//エミッターを生成
 	ParticleEmitter* emitter = EmitterBuilder()

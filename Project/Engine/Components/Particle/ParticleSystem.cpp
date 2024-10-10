@@ -6,8 +6,8 @@
 void ParticleSystem::Initialize()
 {
 	//モデルの作成
-	defaultModel_.reset(ModelManager::CreateFromModelFile("Plane", Transparent));
-	defaultModel_->GetMaterial(0)->SetTexture("DefaultParticle.png");
+	model_ = ModelManager::CreateFromModelFile("Plane", Transparent);
+	model_->GetMaterial(0)->SetTexture("DefaultParticle.png");
 
 	//ParticleResourceの作成
 	particleResource_ = std::make_unique<RWStructuredBuffer>();
@@ -130,9 +130,6 @@ void ParticleSystem::Draw(const Camera* camera)
 	//PerViewResourceの更新
 	UpdatePerViewResource(camera);
 
-	//モデルを設定
-	Model* currentModel = model_ ? model_ : defaultModel_.get();
-
 	//コマンドリストを取得
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
 
@@ -140,22 +137,22 @@ void ParticleSystem::Draw(const Camera* camera)
 	commandContext->TransitionResource(*particleResource_, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	//モデルの描画
-	for (uint32_t i = 0; i < currentModel->meshes_.size(); ++i)
+	for (uint32_t i = 0; i < model_->GetNumMeshes(); ++i)
 	{
 		//マテリアルのインデックスを取得
-		uint32_t materialIndex = currentModel->meshes_[i]->GetMaterialIndex();
+		uint32_t materialIndex = model_->GetMesh(i)->GetMaterialIndex();
 
 		//IndexBufferを設定
-		commandContext->SetIndexBuffer(currentModel->GetMesh(i)->GetIndexBufferView());
+		commandContext->SetIndexBuffer(model_->GetMesh(i)->GetIndexBufferView());
 
 		//VertexBufferを設定
-		commandContext->SetVertexBuffer(currentModel->GetMesh(i)->GetVertexBufferView());
+		commandContext->SetVertexBuffer(model_->GetMesh(i)->GetVertexBufferView());
 
 		//形状を設定
 		commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//Materialを設定
-		commandContext->SetConstantBuffer(0, currentModel->GetMaterial(materialIndex)->GetConstantBuffer()->GetGpuVirtualAddress());
+		commandContext->SetConstantBuffer(0, model_->GetMaterial(materialIndex)->GetConstantBuffer()->GetGpuVirtualAddress());
 
 		//Particleを設定
 		commandContext->SetDescriptorTable(1, particleResource_->GetSRVHandle());
@@ -164,10 +161,10 @@ void ParticleSystem::Draw(const Camera* camera)
 		commandContext->SetConstantBuffer(2, perViewResource_->GetGpuVirtualAddress());
 
 		//Textureを設定
-		commandContext->SetDescriptorTable(3, currentModel->GetMaterial(materialIndex)->GetTexture()->GetSRVHandle());
+		commandContext->SetDescriptorTable(3, model_->GetMaterial(materialIndex)->GetTexture()->GetSRVHandle());
 
 		//描画
-		commandContext->DrawIndexedInstanced(UINT(currentModel->meshes_[i]->GetIndicesSize()), kMaxParticles);
+		commandContext->DrawIndexedInstanced(UINT(model_->GetMesh(i)->GetIndicesSize()), kMaxParticles);
 	}
 
 	//ParticleResourceの状態を遷移
@@ -342,15 +339,17 @@ std::vector<GravityField*> ParticleSystem::GetGravityFields(const std::string& n
 	return gravityFields;
 }
 
+void ParticleSystem::SetModel(const std::string& name)
+{
+	model_->Release();
+	model_ = ModelManager::CreateFromModelFile(name, Transparent);
+}
+
 void ParticleSystem::SetTexture(const std::string& name)
 {
-	defaultModel_->GetMaterial(0)->SetTexture(name);
-	if (model_)
+	for (uint32_t i = 0; i < model_->GetNumMaterials(); ++i)
 	{
-		for (uint32_t i = 0; i < model_->GetNumMaterials(); ++i)
-		{
-			model_->GetMaterial(i)->SetTexture(name);
-		}
+		model_->GetMaterial(i)->SetTexture(name);
 	}
 }
 

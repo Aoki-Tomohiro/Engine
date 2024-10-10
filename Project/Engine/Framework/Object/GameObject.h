@@ -13,21 +13,19 @@ class GameObject
 public:
 	virtual ~GameObject() = default;
 
-	virtual void Initialize();
+	virtual void Initialize() {};
 
 	virtual void Update();
 
 	virtual void Draw(const Camera& camera);
 
-	virtual void DrawUI();
+	virtual void DrawUI() {};
 
-	virtual void Reset();
+	virtual void OnCollision(GameObject* gameObject) {};
 
-	virtual void OnCollision(GameObject* collider) = 0;
+	virtual void OnCollisionEnter(GameObject* gameObject) {};
 
-	virtual void OnCollisionEnter(GameObject* collider) = 0;
-
-	virtual void OnCollisionExit(GameObject* collider) = 0;
+	virtual void OnCollisionExit(GameObject* gameObject) {};
 
 	const std::string& GetName() const { return name_; };
 
@@ -45,7 +43,10 @@ public:
 
 	void SetIsDestroy(bool isDestroy) { isDestroy_ = isDestroy; };
 
-	void SetGameObjectManager(const GameObjectManager* gameObjectManager) { gameObjectManager_ = gameObjectManager; };
+	void SetGameObjectManager(GameObjectManager* gameObjectManager) { gameObjectManager_ = gameObjectManager; };
+
+	template<class Type>
+	Type* AddComponent();
 
 	template<class Type>
 	Type* GetComponent();
@@ -53,12 +54,9 @@ public:
 	template <typename Type>
 	std::vector<Type*> GetComponents();
 
-	template<class Type>
-	Type* AddComponent();
-
 protected:
 	//ゲームオブジェクトマネージャー
-	const GameObjectManager* gameObjectManager_ = nullptr;
+	GameObjectManager* gameObjectManager_ = nullptr;
 
 	//コンポーネント
 	std::list<std::unique_ptr<Component>> components_{};
@@ -76,8 +74,19 @@ protected:
 	bool isDestroy_ = false;
 };
 
+
 template<class Type>
-inline Type* GameObject::GetComponent()
+Type* GameObject::AddComponent()
+{
+	Type* component = new Type();
+	component->Initialize();
+	component->owner_ = this;
+	components_.push_back(std::unique_ptr<Type>(component));
+	return component;
+}
+
+template<class Type>
+Type* GameObject::GetComponent()
 {
 	for (const auto& component : components_)
 	{
@@ -101,14 +110,4 @@ std::vector<Type*> GameObject::GetComponents()
 		}
 	}
 	return result;
-}
-
-template<class Type>
-inline Type* GameObject::AddComponent()
-{
-	Type* component = new Type();
-	component->Initialize();
-	component->owner_ = this;
-	components_.push_back(std::unique_ptr<Type>(component));
-	return component;
 }

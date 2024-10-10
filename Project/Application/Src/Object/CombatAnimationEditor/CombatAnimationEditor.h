@@ -26,8 +26,8 @@ struct AttackSettings
 //ヒットボックスの設定
 struct Hitbox
 {
-	Vector3 center{0.0f, 0.0f,  3.0f}; // 中心位置
-	Vector3 size{2.0f, 2.0f, 2.0f};    // サイズ（幅、高さ、奥行き）
+	Vector3 center{ 0.0f, 0.0f,  3.0f }; // 中心位置
+	Vector3 size{ 2.0f, 2.0f, 2.0f };    // サイズ（幅、高さ、奥行き）
 };
 
 //ノックバックとその関連設定をまとめる構造体
@@ -68,7 +68,7 @@ struct CombatAnimationState
 
 class CombatAnimationEditor
 {
-public:	
+public:
 	void Initialize();
 
 	void Update();

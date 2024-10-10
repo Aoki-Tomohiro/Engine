@@ -44,6 +44,28 @@ void Model::Update(WorldTransform& worldTransform)
 	ApplyRootTransform(worldTransform);
 }
 
+void Model::Release()
+{
+	//使用されていない状態のフラグを立てる
+	isInUse_ = false;
+}
+
+void Model::Acquire()
+{
+	//スケルトンの再初期化
+	skeleton_.Reset();
+	CreateSkeleton();
+
+	//マテリアルの再作成
+	materials_.clear();
+	CreateMaterials();
+
+	//フラグをリセット
+	isInUse_ = true;
+	castShadows_ = true;
+	isBoneVisible_ = false;
+}
+
 void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 {
 	//レンダラーのインスタンスを取得
@@ -129,6 +151,7 @@ void Model::CreateJointWorldTransforms()
 	jointWorldTransforms_.resize(skeleton_.joints.size());
 	for (uint32_t i = 0; i < skeleton_.joints.size(); ++i)
 	{
+		jointWorldTransforms_[i].matWorld_ = Mathf::MakeIdentity4x4();
 		jointWorldTransforms_[i].rotationType_ = RotationType::Quaternion;
 	}
 }
@@ -211,7 +234,6 @@ void Model::CreateMaterials()
 	{
 		Material* material = new Material();
 		material->Initialize(modelData_.materialData[i]);
-		material->Update();
 		materials_.push_back(std::unique_ptr<Material>(material));
 	}
 }

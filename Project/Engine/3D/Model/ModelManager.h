@@ -24,6 +24,12 @@ private:
 
 	Model* CreateInternal(const std::string& modelName, DrawPass drawPass);
 
+	Model* FindReusableModel(const std::string& modelName);
+
+	Model* CreateModelFromData(const Model::ModelData& modelData, const std::string& modelName, DrawPass drawPass);
+
+	std::string FindModelFile(const std::string& modelName);
+
 	Model::ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
 	Model::Node ReadNode(aiNode* node);
@@ -32,5 +38,7 @@ private:
 	static ModelManager* instance_;
 
 	std::map<std::string, Model::ModelData> modelDatas_{};
+
+	std::map<std::string, std::vector<std::unique_ptr<Model>>> models_{};
 };
 

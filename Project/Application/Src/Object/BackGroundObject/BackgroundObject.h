@@ -1,15 +1,10 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 
+/// <summary>
+/// 背景オブジェクト
+/// </summary>
 class BackGroundObject : public GameObject
 {
-public:
-	void OnCollision(GameObject* gameObject) override;
-
-	void OnCollisionEnter(GameObject* gameObject) override;
-
-	void OnCollisionExit(GameObject* gameObject) override;
-
-private:
 };
 

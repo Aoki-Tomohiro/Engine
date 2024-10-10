@@ -1,17 +1,14 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Engine/3D/Model/AnimationManager.h"
-#include "Engine/3D/Primitive/TrailRenderer.h"
-#include "Engine/3D/Skybox/Skybox.h"
-#include "Engine/Base/Renderer.h"
+#include "Engine/2D/Sprite.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Particle/ParticleManager.h"
-#include "Engine/LevelLoader/LevelLoader.h"
-#include "Application/Src/Object/Player/Player.h"
-#include "Application/Src/Object/Enemy/Enemy.h"
-#include "Application/Src/Object/Weapon/Weapon.h"
+#include "Engine/LevelManager/LevelManager.h"
+#include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Transition/Transition.h"
 #include <numbers>
 
@@ -34,10 +31,13 @@ private:
 	void TriggerFadeInAndChangeScene();
 
 private:
+	//レンダラー
 	Renderer* renderer_ = nullptr;
 
+	//インプット
 	Input* input_ = nullptr;
 
+	//オーディオ
 	Audio* audio_ = nullptr;
 
 	//カメラ
@@ -51,9 +51,6 @@ private:
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
-
-	//スカイボックス
-	std::unique_ptr<Skybox> skybox_ = nullptr;
 
 	//タイトルのスプライト
 	std::unique_ptr<Sprite> titleSprite_ = nullptr;

@@ -3,7 +3,7 @@
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockOn.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void CameraStateFallingAttack::Initialize()
 {
@@ -14,7 +14,7 @@ void CameraStateFallingAttack::Initialize()
 void CameraStateFallingAttack::Update()
 {
 	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player");
+	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
 	//アニメーション時間を更新
 	UpdateAnimationTime(player);
@@ -31,8 +31,11 @@ void CameraStateFallingAttack::Update()
 
 void CameraStateFallingAttack::UpdateAnimationTime(Player* player)
 {
+	//プレイヤーのアニメーターを取得
+	AnimatorComponent* animator = player->GetAnimator();
+
 	//プレイヤーのアニメーション時間を設定
-	animationTime_ = player->GetIsBlendingCompleted() ? player->GetCurrentAnimationTime() : player->GetNextAnimationTime();
+	animationTime_ = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
 
 	//アニメーション時間をカメラパスの持続時間にクランプ
 	animationTime_ = std::min<float>(animationTime_, cameraPath_.GetDuration());

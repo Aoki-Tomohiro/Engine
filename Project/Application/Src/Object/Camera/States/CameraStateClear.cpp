@@ -1,7 +1,7 @@
 #include "CameraStateClear.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/CameraController.h"
-#include "Application/Src/Object/Player/Player.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void CameraStateClear::Initialize()
 {
@@ -12,7 +12,7 @@ void CameraStateClear::Initialize()
 void CameraStateClear::Update()
 {
 	//プレイヤーを取得
-	Player* player = GameObjectManager::GetInstance()->GetMutableGameObject<Player>("Player");
+	Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
 
 	//アニメーション時間を更新
 	UpdateAnimationTime();

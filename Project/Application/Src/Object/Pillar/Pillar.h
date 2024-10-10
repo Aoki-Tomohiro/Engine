@@ -1,66 +1,70 @@
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/3D/Model/ModelManager.h"
-#include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Collision/OBBCollider.h"
 #include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/GameTimer.h"
+#include "Application/Src/Object/Pillar/States/PillarStateInactive.h"
 
+/// <summary>
+/// 柱
+/// </summary>
 class Pillar : public GameObject
 {
 public:
-	enum class PillarState
-	{
-		kInactive,   // 非アクティブ
-		kSpawning,   // 出現中
-		kDespawning, // 消失中
-	};
-
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
-	void Draw(const Camera& camera) override;
+	/// <summary>
+	/// 状態遷移
+	/// </summary>
+	/// <param name="newState">新しい状態</param>
+	void ChangeState(IPillarState* newState);
 
-	void DrawUI() override;
+	/// <summary>
+	/// イージングによって座標を更新する
+	/// </summary>
+	/// <param name="easingParameter">イージング係数</param>
+	void UpdatePositionWithEasing(const float easingParameter);
 
-	void OnCollision(GameObject* gameObject) override;
-
-	void OnCollisionEnter(GameObject* gameObject) override;
-
-	void OnCollisionExit(GameObject* gameObject) override;
-
-	void Reset() override;
-
+	//出現するまでの時間を取得・設定
+	const float GetInactiveDuration() const { return inactiveDuration_; };
 	void SetInactiveDuration(const float inactiveDuration) { inactiveDuration_ = inactiveDuration; };
 
+	//出現前の座標を設定
 	void SetPreSpawnPosition(const Vector3& preSpawnPosition) { preSpawnPosition_ = preSpawnPosition; };
 
+	//出現後の座標を設定
 	void SetSpawnedPosition(const Vector3& spawnedPosition) { spawnedPosition_ = spawnedPosition; };
 
+	//モデルコンポーネントを取得
+	ModelComponent* GetModelComponent() const { return model_; };
+
+	//コライダーを取得
+	OBBCollider* GetCollider() const { return collider_; };
+
+	//ダメージを取得
 	const float GetDamage() const { return damage_; };
 
 private:
-	void InitializeTransform();
-
-	void InitializeModel();
-
-	void InitializeCollider();
-
-	void UpdatePillarState();
-
-	void InactiveUpdate();
-
-	void SpawnUpdate();
-
-	void DespawnUpdate();
-
+	/// <summary>
+	/// コライダーの更新
+	/// </summary>
 	void UpdateCollider();
 
 private:
+	//状態
+	std::unique_ptr<IPillarState> state_ = nullptr;
+
 	//トランスフォーム
 	TransformComponent* transform_ = nullptr;
 
@@ -79,23 +83,8 @@ private:
 	//コライダーのサイズ
 	Vector3 colliderSize_ = { 2.0f,14.0f,2.0f };
 
-	//状態
-	PillarState pillarState_ = PillarState::kInactive;
-
-	//非アクティブの時間とタイマー
+	//非アクティブの時間
 	float inactiveDuration_ = 1.0f;
-	float inactiveTimer_ = 0.0f;
-
-	//完全に出現するまでの時間とタイマー
-	float spawnDuration_ = 0.2f;
-	float spawnTimer_ = 0.0f;
-
-	//消失するまでの時間とタイマー
-	float despawnDuration_ = 1.0f;
-	float despawnTimer_ = 0.0f;
-
-	//透明度
-	float alpha_ = 1.0f;
 
 	//ダメージ
 	float damage_ = 6.0f;

@@ -42,6 +42,13 @@ public:
 		int32_t root;//RootJointのIndex
 		std::map<std::string, int32_t> jointMap;//Joint名とIndexとの辞書
 		std::vector<Joint> joints;//所属しているジョイント
+
+		void Reset()
+		{
+			root = -1;
+			jointMap.clear();
+			joints.clear();
+		}
 	};
 
 	//頂点のウェイトデータを保持する構造体
@@ -100,6 +107,10 @@ public:
 
 	void Draw(const WorldTransform& worldTransform, const Camera& camera);
 
+	void Acquire();
+
+	void Release();
+
 	const bool GetIsBoneVisible() const { return isBoneVisible_; };
 
 	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
@@ -107,6 +118,10 @@ public:
 	const bool GetCastShadows() const { return castShadows_; };
 
 	void SetCastShadows(const bool castShadows) { castShadows_ = castShadows; };
+
+	const bool GetIsInUse() const { return isInUse_; };
+
+	void SetIsInUse(const bool isInUse) { isInUse_ = isInUse; };
 
 	const size_t GetNumMeshes() { return meshes_.size(); };
 
@@ -190,7 +205,7 @@ private:
 	//ボーンを描画するかどうか
 	bool isBoneVisible_ = false;
 
-	//パーティクルをフレンドクラスに登録
-	friend class ParticleSystem;
+	//現在使われているかどうか
+	bool isInUse_ = false;
 };
 

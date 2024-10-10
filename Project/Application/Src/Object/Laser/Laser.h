@@ -8,52 +8,70 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 
+/// <summary>
+/// レーザー
+/// </summary>
 class Laser : public GameObject
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
-	void Draw(const Camera& camera) override;
+	//ダメージを設定・取得
+	const float GetDamage() const { return damage_; };
+	void SetDamage(const float damage) { damage_ = damage; };
 
-	void DrawUI() override;
-
-	void OnCollision(GameObject* gameObject) override;
-
-	void OnCollisionEnter(GameObject* gameObject) override;
-
-	void OnCollisionExit(GameObject* gameObject) override;
-
-	void Reset() override;
-
+	//座標を設定
 	void SetPosition(const Vector3& position) { transform_->worldTransform_.translation_ = position; };
 
+	//回転を設定
 	void SetRotation(const Quaternion& quaternion) { transform_->worldTransform_.quaternion_ = quaternion; };
 
+	//目標スケールを設定
 	void SetTargetScale(const Vector3& targetScale) { targetScale_ = targetScale; };
 
+	//寿命を設定
 	void SetLifeTime(const float lifeTime) { lifeTime_ = lifeTime; };
 
+	//イージングの速度を設定
 	void SetEasingSpeed(const float easingSpeed) { easingSpeed_ = easingSpeed; };
 
-	const float GetDamage() const { return damage_; };
-
-	void SetDamage(const float damage) { damage_ = damage; }
-
 private:
+	/// <summary>
+	/// トランスフォームの初期化
+	/// </summary>
 	void InitializeTransform();
 
+	/// <summary>
+	/// モデルの初期化
+	/// </summary>
 	void InitializeModel();
 
+	/// <summary>
+	/// コライダーの初期化
+	/// </summary>
 	void InitializeCollider();
 
+	/// <summary>
+	/// レーザーのフェード処理
+	/// </summary>
 	void UpdateLaserFading();
 
-	void BeginLaserFading();
-
+	/// <summary>
+	/// レーザーのフェードアウト処理
+	/// </summary>
 	void FadeOutLaser();
 
+	/// <summary>
+	/// コライダーの更新
+	/// </summary>
 	void UpdateCollider();
 
 private:
@@ -61,7 +79,7 @@ private:
 	TransformComponent* transform_ = nullptr;
 
 	//モデル
-	ModelComponent* model_ = nullptr;
+	ModelComponent* modelComponent_ = nullptr;
 
 	//コライダー
 	OBBCollider* collider_ = nullptr;
@@ -69,7 +87,7 @@ private:
 	//目標スケール
 	Vector3 targetScale_ = { 1.0f,1.0f,50.0f };
 
-	//レーザーが徐々に消えているフラグ
+	//レーザーが消えている状態かどうか
 	bool isLaserFading_ = false;
 
 	//寿命

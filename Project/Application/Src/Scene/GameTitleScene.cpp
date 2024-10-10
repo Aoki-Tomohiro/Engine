@@ -4,67 +4,50 @@
 
 void GameTitleScene::Initialize()
 {
+	//レンダラーのインスタンスを取得
 	renderer_ = Renderer::GetInstance();
 
+	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//オーディオのインスタンスを取得
 	audio_ = Audio::GetInstance();
 
 	//ゲームオブジェクトマネージャーの初期化
 	gameObjectManager_ = GameObjectManager::GetInstance();
 	gameObjectManager_->Clear();
 
+	//レベルデータの読み込み
+	LevelManager::LoadLevelAndCreateObjects("TitleScene");
+
+	//カメラの初期化
+	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
+	camera_->rotationType_ = RotationType::Euler;
+
 	//パーティクルマネージャーを初期化
 	particleManager_ = ParticleManager::GetInstance();
 	particleManager_->Clear();
-
-	//レベルデータの読み込み
-	LevelLoader::Load("TitleScene");
-
-	//カメラを取得
-	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
-	camera_->rotationType_ = RotationType::Euler;
-	//ゲームオブジェクトマネージャーにカメラを設定
-	gameObjectManager_->SetCamera(camera_);
-	//パーティクルマネージャーにカメラを設定
 	particleManager_->SetCamera(camera_);
-	//トレイルレンダラーにカメラを設定
-	TrailRenderer::GetInstance()->SetCamera(camera_);
 
 	//プレイヤーを取得
-	Player* player = gameObjectManager_->GetMutableGameObject<Player>("Player");
+	Player* player = gameObjectManager_->GetGameObject<Player>("Player");
 	//タイトルシーンのフラグを設定
 	player->SetIsInTitleScene(true);
 
-	//プレイヤーの武器の生成と設定
-	Weapon* playerWeapon = GameObjectManager::CreateGameObject<Weapon>();
-	playerWeapon->SetName("PlayerWeapon");
-	//トランスフォームの設定
-	TransformComponent* playerWeaponTransformComponent = playerWeapon->GetComponent<TransformComponent>();
-	playerWeaponTransformComponent->worldTransform_.parent_ = &player->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
-
 	//敵を取得
-	Enemy* enemy = gameObjectManager_->GetMutableGameObject<Enemy>("Enemy");
+	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>("Enemy");
 	//タイトルシーンのフラグを設定
 	enemy->SetIsInTitleScene(true);
-
-	//敵の武器の生成と設定
-	Weapon* enemyWeapon = GameObjectManager::CreateGameObject<Weapon>();
-	enemyWeapon->SetName("EnemyWeapon");
-	//トランスフォームの設定
-	TransformComponent* enemyWeaponTransformComponent = enemyWeapon->GetComponent<TransformComponent>();
-	enemyWeaponTransformComponent->worldTransform_.parent_ = &enemy->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand");
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
-	//スカイボックスの初期化
-	skybox_.reset(Skybox::Create());
-
-	//タイトルのスプライトの生成
+	//ゲームタイトルのスプライトの生成
 	TextureManager::Load("GameTitle.png");
 	titleSprite_.reset(Sprite::Create("GameTitle.png", { 0.0f,0.0f }));
+
+	//PressAのスプライトの生成
 	TextureManager::Load("PressA.png");
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
 
@@ -91,11 +74,6 @@ void GameTitleScene::Update()
 
 	//入力に基づいてフェードインをトリガーしフェードインが完了したらシーンを遷移させる
 	TriggerFadeInAndChangeScene();
-
-	ImGui::Begin("GameTitleScene");
-	ImGui::DragFloat3("CameraTranslation", &camera_->translation_.x, 0.01f);
-	ImGui::DragFloat3("CameraRotation", &camera_->rotation_.x, 0.01f);
-	ImGui::End();
 }
 
 void GameTitleScene::Draw()
@@ -103,9 +81,6 @@ void GameTitleScene::Draw()
 #pragma region Skybox描画
 	//Skybox描画前処理
 	renderer_->PreDrawSkybox();
-
-	//スカイボックスの描画
-	skybox_->Draw(*camera_);
 
 	//Skybox描画後処理
 	renderer_->PostDrawSkybox();
@@ -124,10 +99,18 @@ void GameTitleScene::Draw()
 
 #pragma region 3Dオブジェクト描画
 	//ゲームオブジェクトマネージャーの描画
-	gameObjectManager_->Draw();
+	gameObjectManager_->Draw(*camera_);
 
 	//3Dオブジェクト描画
 	renderer_->Render();
+#pragma endregion
+
+#pragma region 前景スプライト描画
+	//前景スプライト描画前処理
+	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//前景スプライト描画後処理
+	renderer_->PostDrawSprites();
 #pragma endregion
 }
 
