@@ -151,6 +151,7 @@ void Model::CreateJointWorldTransforms()
 	jointWorldTransforms_.resize(skeleton_.joints.size());
 	for (uint32_t i = 0; i < skeleton_.joints.size(); ++i)
 	{
+		jointWorldTransforms_[i].matWorld_ = Mathf::MakeIdentity4x4();
 		jointWorldTransforms_[i].rotationType_ = RotationType::Quaternion;
 	}
 }

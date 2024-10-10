@@ -1,11 +1,21 @@
 #pragma once
 #include "Engine/Utilities/GameTimer.h"
 
+/// <summary>
+/// ヒットストップ
+/// </summary>
 class HitStop
 {
 public:
+	/// <summary>
+	/// ヒットストップを開始
+	/// </summary>
+	/// <param name="duration">持続時間</param>
 	void Start(const float duration);
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
 private:

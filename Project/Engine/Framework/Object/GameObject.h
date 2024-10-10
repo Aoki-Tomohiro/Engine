@@ -19,6 +19,8 @@ public:
 
 	virtual void Draw(const Camera& camera);
 
+	virtual void DrawUI() {};
+
 	virtual void OnCollision(GameObject* gameObject) {};
 
 	virtual void OnCollisionEnter(GameObject* gameObject) {};

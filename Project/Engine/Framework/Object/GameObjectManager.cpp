@@ -65,6 +65,18 @@ void GameObjectManager::Draw(const Camera& camera)
 	}
 }
 
+void GameObjectManager::DrawUI()
+{
+	//ゲームオブジェクトのUIを描画
+	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
+	{
+		if (gameObject->GetIsVisible())
+		{
+			gameObject->DrawUI();
+		}
+	}
+}
+
 GameObject* GameObjectManager::CreateGameObjectInternal(const std::string& objectName)
 {
 	//ゲームオブジェクトファクトリが存在することを確認

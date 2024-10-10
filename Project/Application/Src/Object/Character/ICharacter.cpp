@@ -18,6 +18,9 @@ void ICharacter::Initialize()
 
     //コライダーの初期化
     InitializeCollider();
+
+    //UIスプライトの初期化
+    InitializeUISprites();
 }
 
 void ICharacter::Update()
@@ -35,28 +38,22 @@ void ICharacter::Update()
     RestrictMovement();
 
     //HPの更新
-    //UpdateHP();
+    UpdateHP();
 
     //基底クラスの更新
     GameObject::Update();
 }
 
-void ICharacter::Draw(const Camera& camera)
-{
-    //基底クラスの描画
-    GameObject::Draw(camera);
-}
-
 void ICharacter::DrawUI()
 {
-    ////体力バーの描画
-    //for (int32_t i = 0; i < hpBarSegments_.size(); ++i)
-    //{
-    //    for (int32_t j = 0; j < hpBarSegments_[i].size(); ++j)
-    //    {
-    //        hpBarSegments_[i][j]->Draw();
-    //    }
-    //}
+    //体力バーの描画
+    for (int32_t i = 0; i < hpSprites_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
+        {
+            hpSprites_[i][j]->Draw();
+        }
+    }
 }
 
 void ICharacter::Move(const Vector3& velocity)
@@ -221,6 +218,20 @@ void ICharacter::InitializeCollider()
     collider_ = GetComponent<AABBCollider>();
 }
 
+void ICharacter::InitializeUISprites()
+{
+    //テクスチャの読み込みとスプライトの生成
+    for (int32_t i = 0; i < hpSprites_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
+        {
+            TextureManager::Load(hpTextureNames_[i][j]);
+            hpSprites_[i][j].reset(Sprite::Create(hpTextureNames_[i][j], hpBarSegmentPositions_[i][j]));
+        }
+    }
+    hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
+}
+
 void ICharacter::UpdateRotation()
 {
     //現在のクォータニオンを補間
@@ -270,10 +281,10 @@ void ICharacter::UpdateHP()
 
     //体力バーの中央部分のサイズを更新
     Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / maxHp_), hpBarSegmentTextureSize_.y };
-    hpBarSegments_[kFront][kMiddle]->SetTextureSize(currentHpSize);
+    hpSprites_[kFront][kMiddle]->SetTextureSize(currentHpSize);
 
     //体力バーの右側部分の位置を調整
-    Vector2 currentRightHpBarSegmentPosition = hpBarSegments_[kFront][kMiddle]->GetPosition();
-    currentRightHpBarSegmentPosition.x += hpBarSegments_[kFront][kMiddle]->GetTextureSize().x;
-    hpBarSegments_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
+    Vector2 currentRightHpBarSegmentPosition = hpSprites_[kFront][kMiddle]->GetPosition();
+    currentRightHpBarSegmentPosition.x += hpSprites_[kFront][kMiddle]->GetTextureSize().x;
+    hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
 }

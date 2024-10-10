@@ -176,11 +176,8 @@ void GamePlayScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
-	//プレイヤーのUIの描画
-	player_->DrawUI();
-
-	//敵のUIの描画
-	enemy_->DrawUI();
+	//ゲームオブジェクトのUIを描画
+	gameObjectManager_->DrawUI();
 
 	//ロックオンの描画
 	lockon_->Draw();

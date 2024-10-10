@@ -8,6 +8,7 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/Character/States/ICharacterState.h"
 #include <array>
 
 /// <summary>
@@ -24,23 +25,17 @@ public:
     /// <summary>
     /// 初期化
     /// </summary>
-    void Initialize();
+    virtual void Initialize();
 
     /// <summary>
     /// 更新処理
     /// </summary>
-    void Update();
-
-    /// <summary>
-    /// 描画
-    /// </summary>
-    /// <param name="camera">カメラ</param>
-    void Draw(const Camera& camera);
+    virtual void Update();
 
     /// <summary>
     /// UIの描画
     /// </summary>
-    void DrawUI();
+    virtual void DrawUI() override;
 
     /// <summary>
     /// 移動処理
@@ -158,42 +153,47 @@ protected:
     /// <summary>
     /// トランスフォームの初期化
     /// </summary>
-    void InitializeTransform();
+    virtual void InitializeTransform();
 
     /// <summary>
     /// モデルの初期化
     /// </summary>
-    void InitializeModel();
+    virtual void InitializeModel();
 
     /// <summary>
     /// アニメーターの初期化
     /// </summary>
-    void InitializeAnimator();
+    virtual void InitializeAnimator();
 
     /// <summary>
     /// コライダーの初期化
     /// </summary>
-    void InitializeCollider();
+    virtual void InitializeCollider();
+
+    /// <summary>
+    /// UIのスプライトの初期化
+    /// </summary>
+    virtual void InitializeUISprites();
 
     /// <summary>
     /// 回転の更新処理
     /// </summary>
-    void UpdateRotation();
+    virtual void UpdateRotation();
 
     /// <summary>
     /// コライダーの更新
     /// </summary>
-    void UpdateCollider();
+    virtual void UpdateCollider();
 
     /// <summary>
     /// 移動制限
     /// </summary>
-    void RestrictMovement();
+    virtual void RestrictMovement();
 
     /// <summary>
     /// HPの更新
     /// </summary>
-    void UpdateHP();
+    virtual void UpdateHP();
 
 protected:
     //移動制限
@@ -238,11 +238,14 @@ protected:
     //体力
     float hp_ = 0.0f;
 
+    //体力のスプライトの名前
+    std::array<std::array<std::string, 3>, 2> hpTextureNames_{};
+
     //体力のスプライト
-    std::array<std::array<std::unique_ptr<Sprite>, 3>, 2> hpBarSegments_{};
+    std::array<std::array<std::unique_ptr<Sprite>, 3>, 2> hpSprites_{};
 
     //体力のスプライト座標
-    std::vector<std::vector<Vector2>> hpBarSegmentPositions_{};
+    std::array<std::array<Vector2, 3>, 2> hpBarSegmentPositions_{};
 
     //体力のスプライトサイズ
     Vector2 hpBarSegmentTextureSize_ = { 480.0f,18.0f };

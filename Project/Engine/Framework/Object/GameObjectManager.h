@@ -22,6 +22,8 @@ public:
 
 	void Draw(const Camera& camera);
 
+	void DrawUI();
+
 	void SetGameObjectFactory(AbstractGameObjectFactory* gameObjectFactory) { gameObjectFactory_ = gameObjectFactory; };
 
 	template <typename Type>

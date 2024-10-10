@@ -24,6 +24,8 @@
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockOn.cpp" />
     <ClCompile Include="Application\Src\Object\Character\ICharacter.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\ICharacterState.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp" />
     <ClCompile Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Application\Src\Object\GameObjectFactory.cpp" />
@@ -157,6 +159,10 @@
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockOn.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h" />
     <ClInclude Include="Application\Src\Object\Character\ICharacter.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\ICharacterState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h" />
     <ClInclude Include="Application\Src\Object\CombatAnimationEditor\CombatAnimationEditor.h" />
     <ClInclude Include="Application\Src\Object\Character\Enemy\Enemy.h" />
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
