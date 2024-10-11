@@ -11,7 +11,7 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~IPillarState() = default;
+	virtual ~IPillarState() = default;
 
 	/// <summary>
 	/// 更新

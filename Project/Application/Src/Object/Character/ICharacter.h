@@ -20,7 +20,7 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~ICharacter() = default;
+	virtual ~ICharacter() = default;
 
     /// <summary>
     /// 初期化
