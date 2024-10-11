@@ -6,7 +6,7 @@
 void Enemy::Initialize()
 {
 	//基底クラスの初期化
-	ICharacter::Initialize();
+	BaseCharacter::Initialize();
 
 	//HPの初期化
 	maxHp_ = 800.0f;
@@ -32,12 +32,7 @@ void Enemy::Update()
 	}
 
 	//基底クラスの更新
-	ICharacter::Update();
-
-	//ImGui
-	ImGui::Begin("Enemy");
-	ImGui::DragFloat("GravityAcceleration", &gravityAcceleration_, 0.1f);
-	ImGui::End();
+	BaseCharacter::Update();
 }
 
 void Enemy::OnCollision(GameObject* gameObject)
@@ -61,7 +56,7 @@ void Enemy::ChangeState(IEnemyState* newState)
 void Enemy::InitializeAnimator()
 {
 	//基底クラスの呼び出し
-	ICharacter::InitializeAnimator();
+	BaseCharacter::InitializeAnimator();
 
 	//アニメーション名とファイルパス
 	std::vector<std::pair<std::string, std::string>> animations = {
@@ -99,7 +94,7 @@ void Enemy::InitializeUISprites()
 	};
 
 	//基底クラスの呼び出し
-	ICharacter::InitializeUISprites();
+	BaseCharacter::InitializeUISprites();
 }
 
 void Enemy::TransitionToStunState()

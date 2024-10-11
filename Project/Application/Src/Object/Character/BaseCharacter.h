@@ -14,13 +14,13 @@
 /// <summary>
 /// キャラクターの基底クラス
 /// </summary>
-class ICharacter : public GameObject
+class BaseCharacter : public GameObject
 {
 public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	virtual ~ICharacter() = default;
+	virtual ~BaseCharacter() = default;
 
     /// <summary>
     /// 初期化

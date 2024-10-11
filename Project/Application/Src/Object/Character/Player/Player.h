@@ -2,15 +2,16 @@
 #include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
-#include "Application/Src/Object/Character/ICharacter.h"
+#include "Application/Src/Object/Character/BaseCharacter.h"
 #include "Application/Src/Object/Character/States/PlayerStates/IPlayerState.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Character/Player/SkillCooldownManager.h"
 #include <numbers>
 
-//TODO:各状態にコピペコードが多いのでまとめる
-
-class Player : public ICharacter
+/// <summary>
+/// プレイヤー
+/// </summary>
+class Player : public BaseCharacter
 {
 public:
     //スキルの最大数

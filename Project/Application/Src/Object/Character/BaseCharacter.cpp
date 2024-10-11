@@ -1,11 +1,11 @@
-#include "ICharacter.h"
+#include "BaseCharacter.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Magic/Magic.h"
 #include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Pillar/Pillar.h"
 
-void ICharacter::Initialize()
+void BaseCharacter::Initialize()
 {
     //基底クラスの初期化
     GameObject::Initialize();
@@ -29,7 +29,7 @@ void ICharacter::Initialize()
     InitializeUISprites();
 }
 
-void ICharacter::Update()
+void BaseCharacter::Update()
 {
     //アニメーション後の座標を代入
     preAnimationHipPosition_ = GetJointLocalPosition("mixamorig:Hips");
@@ -62,7 +62,7 @@ void ICharacter::Update()
     GameObject::Update();
 }
 
-void ICharacter::DrawUI()
+void BaseCharacter::DrawUI()
 {
     //体力バーの描画
     for (int32_t i = 0; i < hpSprites_.size(); ++i)
@@ -74,12 +74,12 @@ void ICharacter::DrawUI()
     }
 }
 
-void ICharacter::Move(const Vector3& velocity)
+void BaseCharacter::Move(const Vector3& velocity)
 {
     transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
 }
 
-void ICharacter::Rotate(const Vector3& vector)
+void BaseCharacter::Rotate(const Vector3& vector)
 {
     //回転軸を計算
     Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
@@ -91,7 +91,7 @@ void ICharacter::Rotate(const Vector3& vector)
     destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
 }
 
-void ICharacter::ApplyKnockback()
+void BaseCharacter::ApplyKnockback()
 {
     if (knockbackSettings_.knockbackDuration > 0.0f)
     {
@@ -126,7 +126,7 @@ void ICharacter::ApplyKnockback()
     }
 }
 
-void ICharacter::ApplyParametersToWeapon(const std::string& weaponName, const CombatPhase& combatPhase)
+void BaseCharacter::ApplyParametersToWeapon(const std::string& weaponName, const CombatPhase& combatPhase)
 {
     //武器を取得
     Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>(weaponName);
@@ -157,14 +157,14 @@ void ICharacter::ApplyParametersToWeapon(const std::string& weaponName, const Co
     weapon->SetKnockbackSettings(knockbackSettings);
 }
 
-void ICharacter::CorrectAnimationOffset()
+void BaseCharacter::CorrectAnimationOffset()
 {
     Vector3 hipPositionOffset = GetJointLocalPosition("mixamorig:Hips") - preAnimationHipPosition_;
     hipPositionOffset.y = 0.0f;
     SetPosition(GetPosition() - hipPositionOffset);
 }
 
-void ICharacter::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
+void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
 {
     //衝突相手が武器だった場合
     if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
@@ -191,7 +191,7 @@ void ICharacter::ProcessCollisionImpact(GameObject* gameObject, const bool trans
     }
 }
 
-void ICharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
+void BaseCharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
 {
     //ノックバックの速度を設定
     knockbackSettings_ = knockbackSettings;
@@ -209,14 +209,14 @@ void ICharacter::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSetti
     }
 }
 
-void ICharacter::StartModelShake()
+void BaseCharacter::StartModelShake()
 {
     modelShake_.isActive = true;
     modelShake_.elapsedTime = 0.0f;
     modelShake_.originalPosition = GetPosition();
 }
 
-const Vector3 ICharacter::GetJointWorldPosition(const std::string& jointName)
+const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName)
 {
     //ジョイントのワールドトランスフォームを取得
     WorldTransform jointWorldTransform = model_->GetModel()->GetJointWorldTransform(jointName);
@@ -229,13 +229,13 @@ const Vector3 ICharacter::GetJointWorldPosition(const std::string& jointName)
     };
 }
 
-const Vector3 ICharacter::GetJointLocalPosition(const std::string& jointName)
+const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName)
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition("mixamorig:Hips") - transform_->GetWorldPosition();
 }
 
-void ICharacter::AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter)
+void BaseCharacter::AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(name);
@@ -249,7 +249,7 @@ void ICharacter::AddParticleEmitter(const std::string& name, ParticleEmitter* pa
     }
 }
 
-void ICharacter::RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName)
+void BaseCharacter::RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(particleName);
@@ -263,7 +263,7 @@ void ICharacter::RemoveParticleEmitter(const std::string& particleName, const st
     }
 }
 
-ParticleEmitter* ICharacter::GetParticleEmitter(const std::string& particleName, const std::string& emitterName)
+ParticleEmitter* BaseCharacter::GetParticleEmitter(const std::string& particleName, const std::string& emitterName)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(particleName);
@@ -277,7 +277,7 @@ ParticleEmitter* ICharacter::GetParticleEmitter(const std::string& particleName,
     return nullptr;
 }
 
-void ICharacter::AddAccelerationField(const std::string& name, AccelerationField* accelerationField)
+void BaseCharacter::AddAccelerationField(const std::string& name, AccelerationField* accelerationField)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(name);
@@ -291,7 +291,7 @@ void ICharacter::AddAccelerationField(const std::string& name, AccelerationField
     }
 }
 
-void ICharacter::RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName)
+void BaseCharacter::RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(particleName);
@@ -305,7 +305,7 @@ void ICharacter::RemoveAccelerationField(const std::string& particleName, const 
     }
 }
 
-AccelerationField* ICharacter::GetAccelerationField(const std::string& particleName, const std::string& fieldName)
+AccelerationField* BaseCharacter::GetAccelerationField(const std::string& particleName, const std::string& fieldName)
 {
     //パーティクルシステムを検索する
     auto it = particleSystems_.find(particleName);
@@ -319,7 +319,7 @@ AccelerationField* ICharacter::GetAccelerationField(const std::string& particleN
     return nullptr;
 }
 
-void ICharacter::InitializeTransform()
+void BaseCharacter::InitializeTransform()
 {
     //トランスフォームコンポーネントを取得
     transform_ = GetComponent<TransformComponent>();
@@ -329,7 +329,7 @@ void ICharacter::InitializeTransform()
     destinationQuaternion_ = transform_->worldTransform_.quaternion_;
 }
 
-void ICharacter::InitializeModel()
+void BaseCharacter::InitializeModel()
 {
     //モデルコンポーネントを取得
     model_ = GetComponent<ModelComponent>();
@@ -341,25 +341,25 @@ void ICharacter::InitializeModel()
     }
 }
 
-void ICharacter::InitializeAnimator()
+void BaseCharacter::InitializeAnimator()
 {
     //アニメーターコンポーネントの初期化
     animator_ = AddComponent<AnimatorComponent>();
 }
 
-void ICharacter::InitializeCollider()
+void BaseCharacter::InitializeCollider()
 {
     //コライダーコンポーネントを取得
     collider_ = GetComponent<AABBCollider>();
 }
 
-void ICharacter::InitializeParticleSystems()
+void BaseCharacter::InitializeParticleSystems()
 {
     //パーティクルシステムの生成
     particleSystems_["Normal"] = ParticleManager::Create("Normal");
 }
 
-void ICharacter::InitializeUISprites()
+void BaseCharacter::InitializeUISprites()
 {
     //テクスチャの読み込みとスプライトの生成
     for (int32_t i = 0; i < hpSprites_.size(); ++i)
@@ -373,7 +373,7 @@ void ICharacter::InitializeUISprites()
     hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
 }
 
-void ICharacter::UpdateRotation()
+void BaseCharacter::UpdateRotation()
 {
     //現在のクォータニオンを補間
     if (!isInTitleScene_)
@@ -382,7 +382,7 @@ void ICharacter::UpdateRotation()
     }
 }
 
-void ICharacter::UpdateCollider()
+void BaseCharacter::UpdateCollider()
 {
     //腰のジョイントの位置を取得
     Vector3 hipPosition = GetJointLocalPosition("mixamorig:Hips");
@@ -401,7 +401,7 @@ void ICharacter::UpdateCollider()
     collider_->SetCenter(hipPosition + colliderOffset_);
 }
 
-void ICharacter::RestrictMovement()
+void BaseCharacter::RestrictMovement()
 {
     //敵の現在位置から原点までの距離を計算
     float distance = Mathf::Length(transform_->worldTransform_.translation_);
@@ -415,7 +415,7 @@ void ICharacter::RestrictMovement()
     }
 }
 
-void ICharacter::UpdateHP()
+void BaseCharacter::UpdateHP()
 {
     //HPが0を下回らないようにする
     hp_ = std::max<float>(hp_, 0.0f);
@@ -430,7 +430,7 @@ void ICharacter::UpdateHP()
     hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
 }
 
-void ICharacter::CheckAndTransitionToDeath()
+void BaseCharacter::CheckAndTransitionToDeath()
 {
     //敵の体力が0を下回っていた場合
     if (hp_ <= 0.0f)
@@ -446,7 +446,7 @@ void ICharacter::CheckAndTransitionToDeath()
     }
 }
 
-void ICharacter::UpdateDebug()
+void BaseCharacter::UpdateDebug()
 {
     //デバッグ状態が変わった場合のみ処理を行う
     if (isDebug_ != wasDebugActive_)
@@ -465,7 +465,7 @@ void ICharacter::UpdateDebug()
     }
 }
 
-void ICharacter::UpdateImGui()
+void BaseCharacter::UpdateImGui()
 {
     //ImGuiのウィンドウを開始
     ImGui::Begin(name_.c_str());
@@ -510,7 +510,7 @@ void ICharacter::UpdateImGui()
     ImGui::End();
 }
 
-void ICharacter::UpdateModelShake()
+void BaseCharacter::UpdateModelShake()
 {
     //モデルシェイクの経過時間を進める
     modelShake_.elapsedTime += GameTimer::GetDeltaTime();
@@ -522,7 +522,7 @@ void ICharacter::UpdateModelShake()
     }
 }
 
-void ICharacter::ApplyModelShake()
+void BaseCharacter::ApplyModelShake()
 {
     //モデルシェイクが有効な場合
     if (modelShake_.isActive)
@@ -542,7 +542,7 @@ void ICharacter::ApplyModelShake()
     }
 }
 
-void ICharacter::ResetToOriginalPosition()
+void BaseCharacter::ResetToOriginalPosition()
 {
     if (modelShake_.isActive)
     {

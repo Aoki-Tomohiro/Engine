@@ -8,7 +8,7 @@
 void Player::Initialize()
 {
 	//基底クラスの初期化
-	ICharacter::Initialize();
+	BaseCharacter::Initialize();
 
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
@@ -62,13 +62,7 @@ void Player::Update()
 	UpdateDamageEffect();
 
 	//基底クラスの更新
-	ICharacter::Update();
-
-	//ImGui
-	ImGui::Begin("Player");
-	ImGui::DragFloat("JumpFirstSpeed", &jumpParameters_.jumpFirstSpeed, 0.1f);
-	ImGui::DragFloat("GravityAcceleration", &gravityAcceleration_, 0.1f);
-	ImGui::End();
+	BaseCharacter::Update();
 }
 
 void Player::DrawUI()
@@ -95,7 +89,7 @@ void Player::DrawUI()
 	}
 
 	//基底クラスの描画
-	ICharacter::DrawUI();
+	BaseCharacter::DrawUI();
 
 	//ダメージエフェクトのスプライトを描画
 	damageEffect_.sprite->Draw();
@@ -186,7 +180,7 @@ void Player::LookAtEnemy()
 void Player::InitializeAnimator()
 {
 	//基底クラスの呼び出し
-	ICharacter::InitializeAnimator();
+	BaseCharacter::InitializeAnimator();
 
 	//アニメーション名とファイルパス
 	std::vector<std::pair<std::string, std::string>> animations = {
@@ -241,13 +235,13 @@ void Player::InitializeUISprites()
 	};
 
 	//基底クラスの呼び出し
-	ICharacter::InitializeUISprites();
+	BaseCharacter::InitializeUISprites();
 }
 
 void Player::InitializeParticleSystems()
 {
 	//基底クラスの呼び出し
-	ICharacter::InitializeParticleSystems();
+	BaseCharacter::InitializeParticleSystems();
 
 	//テクスチャの読み込み
 	TextureManager::Load("smoke_01.png");
@@ -294,7 +288,7 @@ void Player::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings,
 	damageEffect_.color.w = 0.2f;
 
 	//基底クラスの呼び出し
-	ICharacter::ApplyDamageAndKnockback(knockbackSettings, damage, transitionToStun);
+	BaseCharacter::ApplyDamageAndKnockback(knockbackSettings, damage, transitionToStun);
 }
 
 void Player::UpdateMagicAttack()

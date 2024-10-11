@@ -23,7 +23,7 @@
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockOn.cpp" />
-    <ClCompile Include="Application\Src\Object\Character\ICharacter.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Player\SkillCooldownManager.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateComboAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDash.cpp" />
@@ -183,7 +183,7 @@
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockOn.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h" />
-    <ClInclude Include="Application\Src\Object\Character\ICharacter.h" />
+    <ClInclude Include="Application\Src\Object\Character\BaseCharacter.h" />
     <ClInclude Include="Application\Src\Object\Character\Player\SkillCooldownManager.h" />
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateComboAttack.h" />
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDash.h" />

@@ -1,11 +1,12 @@
 #pragma once
 #include "Engine/3D/Model/AnimationManager.h"
-#include "Application/Src/Object/Character/ICharacter.h"
+#include "Application/Src/Object/Character/BaseCharacter.h"
 #include "Application/Src/Object/Character/States/EnemyStates/IEnemyState.h"
 
-//TODO:各状態にコピペコードが多いのでまとめる
-
-class Enemy : public ICharacter
+/// <summary>
+/// 敵
+/// </summary>
+class Enemy : public BaseCharacter
 {
 public:
 	//攻撃タイプ
