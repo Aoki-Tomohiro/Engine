@@ -9,6 +9,11 @@ class IPillarState
 {
 public:
 	/// <summary>
+	/// デストラクタ
+	/// </summary>
+	~IPillarState() = default;
+
+	/// <summary>
 	/// 更新
 	/// </summary>
 	virtual void Update() = 0;
