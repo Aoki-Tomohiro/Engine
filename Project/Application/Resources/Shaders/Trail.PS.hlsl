@@ -21,7 +21,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
     float32_t4 startColor = textureColor * gMaterial.startColor;
     float32_t4 endColor = textureColor * gMaterial.endColor;
-    output.color.rgb = lerp(startColor, endColor, input.texcoord.x);
+    output.color.rgb = lerp(startColor.rgb, endColor.rgb, input.texcoord.x);
     output.color.a = lerp(gMaterial.startColor.w, gMaterial.endColor.w, input.texcoord.x);
     return output;
 }

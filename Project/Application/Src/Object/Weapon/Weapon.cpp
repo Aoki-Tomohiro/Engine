@@ -157,9 +157,9 @@ void Weapon::InitializeGlobalVariables()
 void Weapon::InitializeTrail()
 {
 	//軌跡の初期化
-	TextureManager::Load("Trail.png");
+	TextureManager::Load("Trail2.png");
 	trail_ = TrailRenderer::CreateTrail(name_);
-	trail_->SetTexture("Trail.png");
+	trail_->SetTexture("Trail2.png");
 }
 
 void Weapon::InitializeHitAudio()

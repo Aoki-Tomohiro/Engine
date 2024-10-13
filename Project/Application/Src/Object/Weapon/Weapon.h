@@ -244,7 +244,7 @@ private:
 	Vector4 trailEndColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
 
 	//軌跡のオフセット値
-	Vector3 headOffset_ = { 0.0f, 0.0f, -50.0f };
-	Vector3 frontOffset_ = { 0.0f, 0.0f, -150.0f };
+	Vector3 headOffset_ = { 0.0f, 0.0f, -130.0f };
+	Vector3 frontOffset_ = { 0.0f, 0.0f, -50.0f };
 };
 

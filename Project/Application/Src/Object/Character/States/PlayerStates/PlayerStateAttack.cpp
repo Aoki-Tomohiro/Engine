@@ -67,7 +67,7 @@ void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)
 	//アニメーションの名前を設定
 	std::string animationName = (isAerial ? "AerialAttack" : "GroundAttack") + std::to_string(workAttack_.comboIndex + 1);
 	//アニメーションの速度を設定
-	float animationSpeed = isAerial ? 3.0f : 2.4f;
+	float animationSpeed = isAerial ? 2.6f : 2.0f;
 	//アニメーションを再生
 	player_->GetAnimator()->PlayAnimation(animationName, animationSpeed, false);
 }
