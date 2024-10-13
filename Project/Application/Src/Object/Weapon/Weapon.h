@@ -44,16 +44,10 @@ public:
 	void OnCollision(GameObject* gameObject) override;
 
 	/// <summary>
-	/// 衝突した瞬間の処理
+	/// 軌跡エフェクトの有効化を設定
 	/// </summary>
-	/// <param name="gameObject">衝突相手</param>
-	void OnCollisionEnter(GameObject* gameObject) override;
-
-	/// <summary>
-	/// 衝突しなくなった瞬間の処理
-	/// </summary>
-	/// <param name="gameObject">衝突相手</param>
-	void OnCollisionExit(GameObject* gameObject) override;
+	/// <param name="isTrailActive">軌跡エフェクトの有効フラグ</param>
+	void SetIsTrailActive(const bool isTrailActive) { isTrailActive_ = isTrailActive; };
 
 	//ヒットフラグを取得
 	const bool GetIsHit() const { return isHit_; };
@@ -79,9 +73,6 @@ public:
 
 	//ヒットボックスを設定
 	void SetHitbox(const Hitbox& hitbox);
-
-	//軌跡エフェクトの有効化を設定
-	void SetIsTrailActive(const bool isTrailActive) { isTrailActive_ = isTrailActive; };
 
 private:
 	/// <summary>
@@ -249,10 +240,11 @@ private:
 	float trailVertexInterval_ = 0.01f;
 
 	//軌跡の色
-	Vector4 trailColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
+	Vector4 trailStartColor_ = { 1.0f, 0.147f, 0.0f, 0.0f };
+	Vector4 trailEndColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
 
 	//軌跡のオフセット値
-	Vector3 headOffset_ = { 0.0f, 0.0f, -30.0f };
-	Vector3 frontOffset_ = { 0.0f, 0.0f, -110.0f };
+	Vector3 headOffset_ = { 0.0f, 0.0f, -50.0f };
+	Vector3 frontOffset_ = { 0.0f, 0.0f, -150.0f };
 };
 

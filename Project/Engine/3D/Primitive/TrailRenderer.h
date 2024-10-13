@@ -11,7 +11,7 @@ public:
 
 	static void Destroy();
 
-	static Trail* CreateTrail();
+	static Trail* CreateTrail(const std::string& name);
 
 	void Initialize();
 
@@ -29,7 +29,7 @@ private:
 	TrailRenderer(const TrailRenderer&) = delete;
 	TrailRenderer& operator=(const TrailRenderer&) = delete;
 
-	Trail* CreateTrailInternal();
+	Trail* CreateTrailInternal(const std::string& name);
 
 private:
 	static TrailRenderer* instance_;
@@ -38,7 +38,7 @@ private:
 
 	GraphicsPSO pipelineState_{};
 
-	std::vector<std::unique_ptr<Trail>> trails_{};
+	std::unordered_map<std::string, std::unique_ptr<Trail>> trails_;
 
 	const Camera* camera_ = nullptr;
 };

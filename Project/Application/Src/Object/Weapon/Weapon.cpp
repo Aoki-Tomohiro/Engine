@@ -74,14 +74,6 @@ void Weapon::OnCollision(GameObject* gameObject)
 	}
 }
 
-void Weapon::OnCollisionEnter(GameObject* gameObject)
-{
-}
-
-void Weapon::OnCollisionExit(GameObject* gameObject)
-{
-}
-
 void Weapon::SetHitbox(const Hitbox& hitbox)
 {
 	//ヒットボックスのサイズと中心を設定
@@ -166,7 +158,7 @@ void Weapon::InitializeTrail()
 {
 	//軌跡の初期化
 	TextureManager::Load("Trail.png");
-	trail_ = TrailRenderer::CreateTrail();
+	trail_ = TrailRenderer::CreateTrail(name_);
 	trail_->SetTexture("Trail.png");
 }
 
@@ -231,11 +223,12 @@ void Weapon::UpdateTrail()
 			Vector3 worldPosition = transform_->GetWorldPosition();
 			Vector3 headOffset = Mathf::TransformNormal(headOffset_, transform_->worldTransform_.matWorld_);
 			Vector3 frontOffset = Mathf::TransformNormal(frontOffset_, transform_->worldTransform_.matWorld_);
-			trail_->AddVertex(worldPosition + headOffset, worldPosition + frontOffset);
+			trail_->AddTrail(worldPosition + headOffset, worldPosition + frontOffset);
 		}
 
 		//軌跡の色を更新
-		trail_->SetColor(trailColor_);
+		trail_->SetStartColor(trailStartColor_);
+		trail_->SetEndColor(trailEndColor_);
 	}
 	else
 	{
@@ -266,7 +259,10 @@ void Weapon::UpdateImGui()
 	ImGui::DragFloat3("Scale", &transform_->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("HitboxCenter", &hitbox_.center.x, 0.01f);
 	ImGui::DragFloat3("HitboxSize", &hitbox_.size.x, 0.01f);
-	ImGui::ColorEdit4("TrailColor", &trailColor_.x);
+	ImGui::DragFloat3("HeadOffset", &headOffset_.x);
+	ImGui::DragFloat3("FrontOffset", &frontOffset_.x);
+	ImGui::ColorEdit4("TrailStartColor", &trailStartColor_.x);
+	ImGui::ColorEdit4("TrailEndColor", &trailEndColor_.x);
 	ImGui::End();
 }
 

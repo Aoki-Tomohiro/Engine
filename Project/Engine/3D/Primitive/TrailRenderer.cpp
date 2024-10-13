@@ -23,9 +23,9 @@ void TrailRenderer::Destroy()
 	}
 }
 
-Trail* TrailRenderer::CreateTrail()
+Trail* TrailRenderer::CreateTrail(const std::string& name)
 {
-	Trail* trail = TrailRenderer::GetInstance()->CreateTrailInternal();
+	Trail* trail = TrailRenderer::GetInstance()->CreateTrailInternal(name);
 	return trail;
 }
 
@@ -116,9 +116,9 @@ void TrailRenderer::Initialize()
 void TrailRenderer::Update()
 {
 	//全ての軌跡の更新
-	for (const std::unique_ptr<Trail>& trail : trails_)
+	for (const auto& trail : trails_)
 	{
-		trail->Update();
+		trail.second->Update();
 	}
 }
 
@@ -146,26 +146,41 @@ void TrailRenderer::Draw()
 	commandContext->SetConstantBuffer(0, camera_->GetConstantBuffer()->GetGpuVirtualAddress());
 
 	//全ての軌跡を描画
-	for (const std::unique_ptr<Trail>& trail : trails_)
+	for (const auto& trail : trails_)
 	{
+		//頂点数を取得
+		UINT numVertices = (UINT)trail.second->GetNumVertices();
+
+		//頂点が無かったら飛ばす
+		if (numVertices == 0)
+		{
+			continue;
+		}
+
 		//VertexBufferViewを設定
-		commandContext->SetVertexBuffer(trail->GetVertexBufferView());
+		commandContext->SetVertexBuffer(trail.second->GetVertexBufferView());
 
 		//Materialを設定
-		commandContext->SetConstantBuffer(1, trail->GetMaterialResource()->GetGpuVirtualAddress());
+		commandContext->SetConstantBuffer(1, trail.second->GetMaterialResource()->GetGpuVirtualAddress());
 
 		//Textureを設定
-		commandContext->SetDescriptorTable(2, trail->GetTexture()->GetSRVHandle());
+		commandContext->SetDescriptorTable(2, trail.second->GetTexture()->GetSRVHandle());
 
 		//描画!(DrawCall/ドローコール)。3頂点で1つのインスタンス。インスタンスについては今後
-		commandContext->DrawInstanced((UINT)trail->GetNumVertices(), 1);
+		commandContext->DrawInstanced(numVertices, 1);
 	}
 }
 
-Trail* TrailRenderer::CreateTrailInternal()
+Trail* TrailRenderer::CreateTrailInternal(const std::string& name)
 {
+	auto it = trails_.find(name);
+	if (it != trails_.end())
+	{
+		return it->second.get();
+	}
+
 	Trail* newTrail = new Trail();
 	newTrail->Initialize();
-	trails_.push_back(std::unique_ptr<Trail>(newTrail));
+	trails_[name] = std::unique_ptr<Trail>(newTrail);
 	return newTrail;
 }

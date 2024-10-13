@@ -9,22 +9,26 @@
 class Trail
 {
 public:
+	//軌跡の最大数
 	static const uint32_t kMaxTrails = 1024;
 
+	//軌跡データ
 	struct TrailData
 	{
 		Vector3 headPosition{};
 		Vector3 frontPosition{};
-		float dissipationTime = 0.0f;
+		float liefTime = 0.0f;
 	};
 
 	void Initialize();
 
 	void Update();
 
-	void AddVertex(const Vector3& head, const Vector3& front);
+	void AddTrail(const Vector3& head, const Vector3& front);
 
-	void SetColor(const Vector4& color) { color_ = color; };
+	void SetStartColor(const Vector4& startColor) { startColor_ = startColor; };
+
+	void SetEndColor(const Vector4& endColor) { endColor_ = endColor; };
 
 	void SetNumSegments(const int32_t numSegments) { numSegments_ = numSegments; };
 
@@ -45,7 +49,7 @@ private:
 
 	void CreateMaterialResource();
 
-	void UpdateTrailData();
+	void UpdateTrailDatas();
 
 	void GenerateTrailVertices();
 
@@ -55,27 +59,39 @@ private:
 
 	void AddTrailVertexData(const Vector3& point, const Vector2& texcoord);
 
-	void UpdateVertexBuffer(const std::vector<TrailData>& trailDatas);
+	void UpdateVertexBuffer();
 
 	void UpdateMaterialResource();
 
 private:
+	//頂点バッファ
 	std::unique_ptr<UploadBuffer> vertexBuffer_ = nullptr;
 
+	//マテリアル用のリソース
 	std::unique_ptr<UploadBuffer> materialResource_ = nullptr;
 
+	//頂点バッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	std::vector<TrailData> trailDatas_{};
-
+	//軌跡の頂点データ
 	std::vector<VertexDataPosUV> trailVertices_{};
 
-	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
+	//軌跡のデータ
+	std::vector<TrailData> trailDatas_{};
 
-	float dissipationDuration_ = 0.1f;
+	//軌跡の始まりの色
+	Vector4 startColor_ = { 1.0f,1.0f,1.0f,1.0f };
 
-	int32_t numSegments_ = 4;
+	//軌跡の終わりの色
+	Vector4 endColor_ = { 1.0f,1.0f,1.0f,1.0f };
 
+	//消えるまでの時間
+	float dissipationDuration_ = 0.2f;
+
+	//分割数
+	int32_t numSegments_ = 3;
+
+	//テクスチャ
 	const Texture* texture_ = nullptr;
 };
 

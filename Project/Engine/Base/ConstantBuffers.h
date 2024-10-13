@@ -36,6 +36,12 @@ struct ConstBuffDataMaterial
 	int32_t receiveShadows;
 };
 
+struct ConstBuffDataTrailMaterial
+{
+	Vector4 startColor;
+	Vector4 endColor;
+};
+
 enum class RotationType
 {
 	Euler,
