@@ -111,6 +111,8 @@ public:
 
 	void Release();
 
+	void UpdateMaterials();
+
 	const bool GetIsBoneVisible() const { return isBoneVisible_; };
 
 	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
@@ -163,8 +165,6 @@ private:
 	void UpdateSkeleton(const WorldTransform& worldTransform);
 
 	void UpdateSkinClusters();
-
-	void UpdateMaterials();
 
 	void ApplyRootTransform(WorldTransform& worldTransform);
 

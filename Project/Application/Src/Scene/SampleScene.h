@@ -5,6 +5,7 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Components/Audio/Audio.h"
+#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/LevelManager/LevelManager.h"
 
@@ -31,5 +32,9 @@ private:
 	Camera* camera_ = nullptr;
 
 	GameObjectManager* gameObjectManager_ = nullptr;
+
+	ParticleManager* particleManager_ = nullptr;
+
+	ParticleSystem* particleSystem_ = nullptr;
 };
 

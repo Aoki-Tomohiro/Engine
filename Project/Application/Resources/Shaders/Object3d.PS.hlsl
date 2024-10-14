@@ -1,61 +1,6 @@
 #include "Object3d.hlsli"
-
-struct Material
-{
-    float32_t4 color;
-    float32_t4x4 uvTransform;
-    int32_t enableLighting;
-    int32_t diffuseReflectionType;
-    int32_t specularReflectionType;
-    float32_t shininess;
-    float32_t3 specularColor;
-    float32_t environmentCoefficient;
-    float32_t dissolveThreshold;
-    float32_t edgeWidth;
-    float32_t3 edgeColor;
-    int32_t receiveShadows;
-};
-
-struct DirectionLight
-{
-    float32_t4 color; //ライトの色
-    float32_t3 direction; //ライトの向き
-    float32_t intensity; //輝度
-    int32_t isEnable;
-};
-
-struct PointLight
-{
-    float32_t4 color;//ライトの色
-    float32_t3 position;//ライトの位置
-    float32_t intensity; //輝度
-    float32_t radius; //ライトの届く最大距離
-    float32_t decay; //減衰率
-    int32_t isEnable;
-};
-
-struct SpotLight
-{
-    float32_t4 color;//ライトの色
-    float32_t3 position;//ライトの位置
-    float32_t intensity;//輝度
-    float32_t3 direction;//スポットライトの方向
-    float32_t distance;//ライトの届く最大距離
-    float32_t decay;//減衰率
-    float32_t cosFalloffStart;//Falloff開始の角度
-    float32_t cosAngle;//スポットライトの余弦
-    int32_t isEnable;
-};
-
-static const int kNumDirectionalLight = 1;
-static const int kNumPointLight = 1;
-static const int kNumSpotLight = 1;
-struct LightGroup
-{
-    DirectionLight directionalLights[kNumDirectionalLight];
-    PointLight pointLights[kNumPointLight];
-    SpotLight spotLights[kNumSpotLight];
-};
+#include "CommonMaterials.hlsli"
+#include "LightStructs.hlsli"
 
 Texture2D<float32_t4> gTexture : register(t0);
 Texture2D<float32_t> gMaskTexture : register(t1);

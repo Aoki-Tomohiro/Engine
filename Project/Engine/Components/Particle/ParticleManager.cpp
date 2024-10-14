@@ -103,15 +103,32 @@ void ParticleManager::Draw()
 		return;
 	};
 
-	//パーティクルシステムをブレンドモード順にソートするために、一旦ベクターに変換
+	//デプスを書き込むパーティクルシステム
+	std::vector<ParticleSystem*> depthWriteParticleSystems;
+	//デプスを書き込まないパーティクルシステム
+	std::vector<ParticleSystem*> depthNoWriteParticleSystems;
+
+	//パーティクルシステムをブレンドモード順にソートするためにベクターに変換
 	std::vector<ParticleSystem*> sortedParticleSystems;
 	for (const auto& pair : particleSystems_)
 	{
-		sortedParticleSystems.push_back(pair.second.get());
+		if (pair.second->GetEnableDepthWrite())
+		{
+			depthWriteParticleSystems.push_back(pair.second.get());
+		}
+		else
+		{
+			depthNoWriteParticleSystems.push_back(pair.second.get());
+		}
 	}
 
 	//パーティクルシステムをブレンドモード順にソート
-	std::sort(sortedParticleSystems.begin(), sortedParticleSystems.end(),
+	std::sort(depthWriteParticleSystems.begin(), depthWriteParticleSystems.end(),
+		[](const ParticleSystem* lhs, const ParticleSystem* rhs) {
+			return lhs->GetBlendMode() < rhs->GetBlendMode();
+		});
+
+	std::sort(depthNoWriteParticleSystems.begin(), depthNoWriteParticleSystems.end(),
 		[](const ParticleSystem* lhs, const ParticleSystem* rhs) {
 			return lhs->GetBlendMode() < rhs->GetBlendMode();
 		});
@@ -122,11 +139,15 @@ void ParticleManager::Draw()
 	//RootSignatureを設定
 	commandContext->SetRootSignature(particleRootSignature_);
 
+	//Lightを設定
+	LightManager* lightManager = LightManager::GetInstance();
+	commandContext->SetConstantBuffer(4, lightManager->GetConstantBuffer()->GetGpuVirtualAddress());
+
 	//現在のブレンドモードを保存
 	BlendMode currentBlendMode = kBlendModeNone;
 
 	//パーティクルの描画
-	for (auto& particleSystem : sortedParticleSystems)
+	for (auto& particleSystem : depthWriteParticleSystems)
 	{
 		//パーティクルシステムのブレンドモードを取得
 		BlendMode blendMode = particleSystem->GetBlendMode();
@@ -135,7 +156,30 @@ void ParticleManager::Draw()
 		if (blendMode != currentBlendMode)
 		{
 			//PipelineStateを設定
-			commandContext->SetPipelineState(particlePipelineStates_[blendMode]);
+			commandContext->SetPipelineState(particlePipelineStates_[1][blendMode]);
+
+			//現在のブレンドモードを更新
+			currentBlendMode = blendMode;
+		}
+
+		//パーティクルの描画
+		particleSystem->Draw(camera_);
+	}
+
+	//ブレンドモードをリセット
+	currentBlendMode = kBlendModeNone;
+
+	//パーティクルの描画
+	for (auto& particleSystem : depthNoWriteParticleSystems)
+	{
+		//パーティクルシステムのブレンドモードを取得
+		BlendMode blendMode = particleSystem->GetBlendMode();
+
+		//ブレンドモードが変わったらPipelineStateを変更
+		if (blendMode != currentBlendMode)
+		{
+			//PipelineStateを設定
+			commandContext->SetPipelineState(particlePipelineStates_[0][blendMode]);
 
 			//現在のブレンドモードを更新
 			currentBlendMode = blendMode;
@@ -157,11 +201,12 @@ void ParticleManager::Clear()
 void ParticleManager::CreateParticlePipelineState()
 {
 	//RootSignatureの作成
-	particleRootSignature_.Create(4, 1);
+	particleRootSignature_.Create(5, 1);
 	particleRootSignature_[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_PIXEL);
 	particleRootSignature_[1].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_VERTEX);
 	particleRootSignature_[2].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
 	particleRootSignature_[3].InitAsDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 0, 1, D3D12_SHADER_VISIBILITY_PIXEL);
+	particleRootSignature_[4].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	//StaticSamplerを設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1]{};
@@ -258,33 +303,44 @@ void ParticleManager::CreateParticlePipelineState()
 	assert(pixelShaderBlob != nullptr);
 
 	//DepthStencilStateの設定
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	std::vector<D3D12_DEPTH_STENCIL_DESC> depthStencilDescs(2);
 	//Depthの機能を無効化する
-	depthStencilDesc.DepthEnable = false;
+	depthStencilDescs[0].DepthEnable = false;
 	//書き込みしない
-	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDescs[0].DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	//比較関数はLessEqual。つまり、近ければ描画される
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDescs[0].DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	//Depthの機能を有効化する
+	depthStencilDescs[1].DepthEnable = true;
+	//書き込みします
+	depthStencilDescs[1].DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	//比較関数はLessEqual。つまり、近ければ描画される
+	depthStencilDescs[1].DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	//書き込むRTVの情報
 	DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
 	//PipelineStateを作成
-	for (uint32_t i = 0; i < kCountOfBlendMode; i++)
+	for (uint32_t i = 0; i < depthStencilDescs.size(); ++i)
 	{
-		GraphicsPSO newPipelineState;
-		newPipelineState.SetRootSignature(&particleRootSignature_);
-		newPipelineState.SetInputLayout(3, inputElementDescs);
-		newPipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
-		newPipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
-		newPipelineState.SetBlendState(blendDesc[i]);
-		newPipelineState.SetRasterizerState(rasterizerDesc);
-		newPipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
-		newPipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-		newPipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
-		newPipelineState.SetDepthStencilState(depthStencilDesc);
-		newPipelineState.Finalize();
-		particlePipelineStates_.push_back(newPipelineState);
+		std::vector<GraphicsPSO> pipelineStatesForCurrentDepth;
+		for (uint32_t j = 0; j < kCountOfBlendMode; j++)
+		{
+			GraphicsPSO pipelineState;
+			pipelineState.SetRootSignature(&particleRootSignature_);
+			pipelineState.SetInputLayout(3, inputElementDescs);
+			pipelineState.SetVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize());
+			pipelineState.SetPixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize());
+			pipelineState.SetBlendState(blendDesc[j]);
+			pipelineState.SetRasterizerState(rasterizerDesc);
+			pipelineState.SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_D24_UNORM_S8_UINT);
+			pipelineState.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+			pipelineState.SetSampleMask(D3D12_DEFAULT_SAMPLE_MASK);
+			pipelineState.SetDepthStencilState(depthStencilDescs[i]);
+			pipelineState.Finalize();
+			pipelineStatesForCurrentDepth.push_back(pipelineState);
+		}
+		particlePipelineStates_.push_back(pipelineStatesForCurrentDepth);
 	}
 }
 

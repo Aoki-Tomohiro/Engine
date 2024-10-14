@@ -58,7 +58,7 @@ private:
 
 	RootSignature updateParticleRootSignature_{};
 
-	std::vector<GraphicsPSO> particlePipelineStates_{};
+	std::vector<std::vector<GraphicsPSO>> particlePipelineStates_{};
 
 	ComputePSO initializeParticlePipelineState_{};
 

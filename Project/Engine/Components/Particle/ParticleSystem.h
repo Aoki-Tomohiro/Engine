@@ -53,11 +53,17 @@ public:
 
 	std::vector<GravityField*> GetGravityFields(const std::string& name);
 
-	void SetModel(const std::string& name);
-
 	void SetTexture(const std::string& name);
 
 	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
+
+	Model* GetModel()const { return model_; };
+
+	void SetModel(const std::string& name);
+
+	const bool GetEnableDepthWrite() const { return enableDepthWrite_; };
+
+	void SetEnableDepthWrite(const bool enableDepthWrite) { enableDepthWrite_ = enableDepthWrite; };
 
 	const BlendMode& GetBlendMode() const { return blendMode_; };
 
@@ -112,17 +118,20 @@ private:
 	//モデル
 	Model* model_ = nullptr;
 
-	//Emitter
+	//エミッター
 	std::vector<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
-	//AccelerationField
+	//加速フィールド
 	std::vector<std::unique_ptr<AccelerationField>> accelerationFields_{};
 
-	//GravityField
+	//重力フィールド
 	std::vector<std::unique_ptr<GravityField>> gravityFields_{};
 
-	//billBoardFlag
+	//ビルボードフラグ
 	bool isBillboard_ = true;
+
+	//深度を書くかどうか
+	bool enableDepthWrite_ = false;
 
 	//ブレンドモード
 	BlendMode blendMode_ = BlendMode::kBlendModeAdd;

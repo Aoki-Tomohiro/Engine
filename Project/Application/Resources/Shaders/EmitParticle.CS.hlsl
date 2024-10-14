@@ -104,6 +104,7 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                     //回転の初期化
                     gParticles[particleIndex].rotate = lerp(gEmitter[emitterIndex].rotateMin, gEmitter[emitterIndex].rotateMax, generator.Generate3d());
                     
+                    //クォータニオンの初期化
                     gParticles[particleIndex].quaternion = gEmitter[emitterIndex].quaternion;
                 
                     //寿命の初期化

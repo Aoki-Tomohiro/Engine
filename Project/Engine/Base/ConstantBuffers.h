@@ -119,6 +119,7 @@ struct PerView
 	Matrix4x4 viewMatrix;
 	Matrix4x4 projectionMatrix;
 	Matrix4x4 billboardMatrix;
+	Vector3 worldPosition;
 };
 
 struct PerFrame
