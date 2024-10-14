@@ -17,7 +17,7 @@ public:
 	{
 		Vector3 headPosition{};
 		Vector3 frontPosition{};
-		float liefTime = 0.0f;
+		float lifeTime = 0.0f;
 	};
 
 	void Initialize();
@@ -52,8 +52,6 @@ private:
 	void UpdateTrailDatas();
 
 	void GenerateTrailVertices();
-
-	void CalculateTrailVertices(const int32_t trailIndex);
 
 	const std::vector<TrailData> GetControlPoints(const int32_t trailIndex);
 

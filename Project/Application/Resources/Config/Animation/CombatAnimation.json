@@ -1580,7 +1580,7 @@
                 0.0
             ],
             "Damage": 6.0,
-            "Duration": 1.0399999618530273,
+            "Duration": 0.9399999976158142,
             "HitCount": 1,
             "HitInterval": 0.009999999776482582,
             "HitStopDuration": 0.07999999821186066,
@@ -1690,7 +1690,7 @@
                 0.0
             ],
             "Damage": 8.0,
-            "Duration": 0.800000011920929,
+            "Duration": 0.699999988079071,
             "HitCount": 1,
             "HitInterval": 0.009999999776482582,
             "HitStopDuration": 0.10000000149011612,
