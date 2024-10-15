@@ -399,6 +399,14 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].colorMin = particleEmitters_[i]->GetColorMin();
 		emitterSphereData[i].colorMax = particleEmitters_[i]->GetColorMax();
 		emitterSphereData[i].alignToDirection = particleEmitters_[i]->GetAlignToDirection();
+		emitterSphereData[i].enableColorOverLifeTime = particleEmitters_[i]->GetEnableColorOverLifeTime();
+		emitterSphereData[i].targetColor = particleEmitters_[i]->GetTargetColor();
+		emitterSphereData[i].enableAlphaOverLifeTime = particleEmitters_[i]->GetEnableAlphaOverLifeTime();
+		emitterSphereData[i].targetAlpha = particleEmitters_[i]->GetTargetAlpha();
+		emitterSphereData[i].enableSizeOverLifeTime = particleEmitters_[i]->GetEnableSizeOverLifeTime();
+		emitterSphereData[i].targetScale = particleEmitters_[i]->GetTargetScale();
+		emitterSphereData[i].enableRotationOverLifeTime = particleEmitters_[i]->GetEnableRotationOverLifeTime();
+		emitterSphereData[i].rotSpeed = particleEmitters_[i]->GetRotSpeed();
 	}
 
 	//Emitterの数の更新

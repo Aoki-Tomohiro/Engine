@@ -22,6 +22,13 @@ struct Particle
     float32_t currentTime;
     float32_t4 color;
     int32_t alignToDirection;
+    float32_t3 initialColor;
+    float32_t3 targetColor;
+    float32_t initialAlpha;
+    float32_t targetAlpha;
+    float32_t3 initialScale;
+    float32_t3 targetScale;
+    float32_t3 rotSpeed;
 };
 
 struct PerFrame

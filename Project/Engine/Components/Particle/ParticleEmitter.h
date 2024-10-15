@@ -35,10 +35,6 @@ public:
 
 	void SetRotateMax(const Vector3& rotateMax) { rotateMax_ = rotateMax; };
 
-	const Quaternion& GetQuaternion() const { return quaternion_; };
-
-	void SetQuaternion(const Quaternion& quaternion) { quaternion_ = quaternion; };
-
 	const Vector3& GetScaleMin() const { return scaleMin_; };
 
 	void SetScaleMin(const Vector3& scaleMin) { scaleMin_ = scaleMin; };
@@ -75,13 +71,47 @@ public:
 
 	void SetFrequency(const float frequency) { frequency_ = frequency; };
 
-	const float GetAlignToDirection() const { return alignToDirection_; };
+	const bool GetAlignToDirection() const { return alignToDirection_; };
 
-	void SetAlignToDirection(const float alignToDirection) { alignToDirection_ = alignToDirection; };
+	void SetAlignToDirection(const bool alignToDirection) { alignToDirection_ = alignToDirection; };
+
+	const bool GetEnableColorOverLifeTime() const { return enableColorOverLifeTime_; };
+
+	void SetEnableColorOverLifeTime(const bool enableColorOverLifeTime) { enableColorOverLifeTime_ = enableColorOverLifeTime; };
+
+	const Vector3& GetTargetColor() const { return targetColor_; };
+
+	void SetTargetColor(const Vector3& targetColor) { targetColor_ = targetColor; };
+
+	const bool GetEnableAlphaOverLifeTime() const { return enableAlphaOverLifeTime_; };
+
+	void SetEnableAlphaOverLifeTime(const bool enableAlphaOverLifeTime) { enableAlphaOverLifeTime_ = enableAlphaOverLifeTime; };
+
+	const float GetTargetAlpha() const { return targetAlpha_; };
+
+	void SetTargetAlpha(const float targetAlpha) { targetAlpha_ = targetAlpha; };
+
+	const bool GetEnableSizeOverLifeTime() const { return enableSizeOverLifeTime_; };
+
+	void SetEnableSizeOverLifeTime(const bool enableSizeOverLifeTime) { enableSizeOverLifeTime_ = enableSizeOverLifeTime; };
+
+	const Vector3& GetTargetScale()const { return targetScale_; };
+
+	void SetTargetScale(const Vector3& targetScale) { targetScale_ = targetScale; };
+
+	const bool GetEnableRotationOverLifeTime()const { return enableRotationOverLifeTime_; };
+
+	void SetEnableRotationOverLifeTime(const bool enableRotationOverLifeTime) { enableRotationOverLifeTime_ = enableRotationOverLifeTime; };
+
+	const Vector3& GetRotSpeed() const { return rotSpeed_; };
+
+	void SetRotSpeed(const Vector3& rotSpeed) { rotSpeed_ = rotSpeed; };
 
 	const bool GetIsDead() const { return isDead_; };
 
 	void SetIsDead(const bool isDead) { isDead_ = isDead; };
+
+	const Quaternion& GetQuaternion() const { return quaternion_; };
 
 	const uint32_t GetEmit() const { return emit_; };
 
@@ -138,6 +168,30 @@ private:
 
 	//パーティクルを進行方向に向かせるか
 	bool alignToDirection_ = false;
+
+	//寿命に変化に応じて色を変えるかどうか
+	bool enableColorOverLifeTime_ = false;
+
+	//目標の色
+	Vector3 targetColor_ = { 1.0f,1.0f,1.0f };
+
+	//寿命の変化に応じて透明度を変えるかどうか
+	bool enableAlphaOverLifeTime_ = true;
+
+	//目標のアルファ
+	float targetAlpha_ = 0.0f;
+
+	//寿命の変化に応じてサイズを変えるかどうか
+	bool enableSizeOverLifeTime_ = false;
+
+	//目標のサイズ
+	Vector3 targetScale_ = { 0.0f,0.0f,0.0f };
+
+	//寿命の変化に応じて回転させるかどうか
+	bool enableRotationOverLifeTime_ = false;
+
+	//回転速度
+	Vector3 rotSpeed_ = { 0.0f,0.0f,0.0f };
 
 	//死亡フラグ
 	bool isDead_ = false;

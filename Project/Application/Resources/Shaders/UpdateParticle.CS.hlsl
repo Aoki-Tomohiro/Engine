@@ -91,13 +91,28 @@ void main(uint32_t DTid : SV_DispatchThreadID )
             //クォータニオンの更新
             gParticles[particleIndex].quaternion = LookAt(currentTranslate, gParticles[particleIndex].translate);
         }
-
-        //アルファの更新
-        gParticles[particleIndex].currentTime += gPerFrame.deltaTime;
-        gParticles[particleIndex].color.a = saturate(1.0f - (gParticles[particleIndex].currentTime / gParticles[particleIndex].lifeTime));
+        else
+        {
+            //クォータニオンの初期化
+            gParticles[particleIndex].quaternion = float32_t4(0.0f, 0.0f, 0.0f, 1.0f);
+            
+            //回転させる
+            gParticles[particleIndex].rotate += gParticles[particleIndex].rotSpeed;
+        }
         
-        //Alphaが0になったので、ここはFreeとする
-        if(gParticles[particleIndex].color.a == 0.0f)
+        //現在の時間を進める
+        gParticles[particleIndex].currentTime += gPerFrame.deltaTime;
+        //イージング係数を計算
+        float32_t easingParameter = saturate(gParticles[particleIndex].currentTime / gParticles[particleIndex].lifeTime);
+        //色の更新
+        gParticles[particleIndex].color.rgb = lerp(gParticles[particleIndex].initialColor, gParticles[particleIndex].targetColor, easingParameter);
+        //アルファの更新
+        gParticles[particleIndex].color.a = saturate(lerp(gParticles[particleIndex].initialAlpha, gParticles[particleIndex].targetAlpha, easingParameter));
+        //スケールの更新
+        gParticles[particleIndex].scale = lerp(gParticles[particleIndex].initialScale, gParticles[particleIndex].targetScale, easingParameter);
+        
+        //寿命が尽きたので、ここはFreeとする
+        if (gParticles[particleIndex].currentTime >= gParticles[particleIndex].lifeTime)
         {
             //スケールに0を入れておいてVertexShader出力で棄却されるようにする
             gParticles[particleIndex].scale = float32_t3(0.0f, 0.0f, 0.0f);

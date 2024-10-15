@@ -2,22 +2,30 @@
 
 struct EmitterSphere
 {
-    float32_t3 translate;     //位置
-    float32_t radius;         //射出半径
-    uint32_t count;           //射出数
-    uint32_t emit;            //射出許可
-    float32_t3 rotateMin;     //スケールの最小値
-    float32_t3 rotateMax;     //スケールの最大値
-    float32_t4 quaternion;    //Quaternion
-    float32_t3 scaleMin;      //スケールの最小値
-    float32_t3 scaleMax;      //スケールの最大値
-    float32_t3 velocityMin;   //速度の最小値
-    float32_t3 velocityMax;   //速度の最大値
-    float32_t lifeTimeMin;    //寿命の最小値
-    float32_t lifeTimeMax;    //寿命の最大値
-    float32_t4 colorMin;      //色の最小値
-    float32_t4 colorMax;      //色の最大値
-    int32_t alignToDirection; //進行方向に回転させるか
+    float32_t3 translate;               //位置
+    float32_t radius;                   //射出半径
+    uint32_t count;                     //射出数
+    uint32_t emit;                      //射出許可
+    float32_t3 rotateMin;               //スケールの最小値
+    float32_t3 rotateMax;               //スケールの最大値
+    float32_t4 quaternion;              //Quaternion
+    float32_t3 scaleMin;                //スケールの最小値
+    float32_t3 scaleMax;                //スケールの最大値
+    float32_t3 velocityMin;             //速度の最小値
+    float32_t3 velocityMax;             //速度の最大値
+    float32_t lifeTimeMin;              //寿命の最小値
+    float32_t lifeTimeMax;              //寿命の最大値
+    float32_t4 colorMin;                //色の最小値
+    float32_t4 colorMax;                //色の最大値
+    int32_t alignToDirection;           //進行方向に回転させるか
+    int32_t enableColorOverLifeTime;    //パーティクルの寿命に応じて色を変えるかどうか
+    float32_t3 targetColor;             //目標の色
+    int32_t enableAlphaOverLifeTime; //パーティクルの寿命に応じて透明度を変えるかどうか
+    float32_t targetAlpha; //目標の透明度
+    int32_t enableSizeOverLifeTime; //パーティクルの寿命に応じて大きさを変えるかどうか
+    float32_t3 targetScale; //目標のスケール
+    int32_t enableRotationOverLifeTime; //パーティクルの寿命に応じて回転させるかどうか
+    float32_t3 rotSpeed; //各軸の回転速度
 };
 
 struct EmitterInformation
@@ -91,6 +99,8 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                 {
                     uint32_t particleIndex = gFreeList[freeListIndex];
                     
+                    EmitterSphere emitter = gEmitter[emitterIndex];
+                    
                     //位置の初期化
                     float32_t theta = rand3dTo1d(generator.Generate3d()) * 2.0 * 3.141592653589793;
                     float32_t phi = acos(2.0 * rand3dTo1d(generator.Generate3d() + float32_t3(1.0, 1.0, 1.0)) - 1.0);
@@ -121,6 +131,53 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                
                     //進行方向に回転させるかどうかを設定
                     gParticles[particleIndex].alignToDirection = gEmitter[emitterIndex].alignToDirection;
+                    
+                    //初期色を設定
+                    float32_t3 targetColor = gEmitter[emitterIndex].targetColor;
+                    gParticles[particleIndex].initialColor = gParticles[particleIndex].color.rgb;
+                    //目標の色を設定
+                    if (gEmitter[emitterIndex].enableColorOverLifeTime)
+                    {
+                        gParticles[particleIndex].targetColor = targetColor;
+                    }
+                    else
+                    {
+                        gParticles[particleIndex].targetColor = gParticles[particleIndex].color.rgb;
+                    }
+                    
+                    //初期透明度を設定
+                    float32_t targetAlpha = gEmitter[emitterIndex].targetAlpha;
+                    gParticles[particleIndex].initialAlpha = gParticles[particleIndex].color.a;
+                    //目標の透明度を設定
+                    if (gEmitter[emitterIndex].enableAlphaOverLifeTime)
+                    {
+                        gParticles[particleIndex].targetAlpha = targetAlpha;
+                    }
+                    else
+                    {
+                        gParticles[particleIndex].targetAlpha = gParticles[particleIndex].color.a;
+                    }
+                    
+                    //初期サイズを設定
+                    float32_t3 targetScale = gEmitter[emitterIndex].targetScale;
+                    gParticles[particleIndex].initialScale = gParticles[particleIndex].scale;
+                    //目標のサイズを設定
+                    if (gEmitter[emitterIndex].enableSizeOverLifeTime)
+                    {
+                        gParticles[particleIndex].targetScale = targetScale;
+                    }
+                    else
+                    {
+                        gParticles[particleIndex].targetScale = gParticles[particleIndex].scale;
+                    }
+                    
+                    //目標の回転速度を設定
+                    float32_t3 rotSpeed = gEmitter[emitterIndex].rotSpeed;
+                    gParticles[particleIndex].rotSpeed = float32_t3(0.0f, 0.0f, 0.0f);
+                    if (gEmitter[emitterIndex].enableRotationOverLifeTime)
+                    {
+                        gParticles[particleIndex].rotSpeed = rotSpeed;
+                    }
                 }
                 else
                 {

@@ -130,22 +130,30 @@ struct PerFrame
 
 struct EmitterSphere
 {
-	Vector3 translate;     //位置
-	float radius;          //射出半径
-	uint32_t count;        //射出数
-	uint32_t emit;         //射出許可
-	Vector3 rotateMin;     //回転角の最小値
-	Vector3 rotateMax;     //回転角の最大値
-	Quaternion quaternion; //Quaternion
-	Vector3 scaleMin;      //スケールの最小値
-	Vector3 scaleMax;      //スケールの最大値
-	Vector3 velocityMin;   //速度の最小値
-	Vector3 velocityMax;   //速度の最大値
-	float lifeTimeMin;     //寿命の最小値
-	float lifeTimeMax;     //寿命の最大値
-	Vector4 colorMin;      //色の最小値
-	Vector4 colorMax;      //色の最大値
-	bool alignToDirection; //パーティクルを進行方向に向かせるか
+	Vector3 translate;                  //位置
+	float radius;                       //射出半径
+	uint32_t count;                     //射出数
+	uint32_t emit;                      //射出許可
+	Vector3 rotateMin;                  //回転角の最小値
+	Vector3 rotateMax;                  //回転角の最大値
+	Quaternion quaternion;              //Quaternion
+	Vector3 scaleMin;                   //スケールの最小値
+	Vector3 scaleMax;                   //スケールの最大値
+	Vector3 velocityMin;                //速度の最小値
+	Vector3 velocityMax;                //速度の最大値
+	float lifeTimeMin;                  //寿命の最小値
+	float lifeTimeMax;                  //寿命の最大値
+	Vector4 colorMin;                   //色の最小値
+	Vector4 colorMax;                   //色の最大値
+	int32_t alignToDirection;           //パーティクルを進行方向に向かせるか
+	int32_t enableColorOverLifeTime;    //パーティクルの寿命に応じて色を変えるかどうか
+	Vector3 targetColor;                //目標の色
+	int32_t enableAlphaOverLifeTime;    //パーティクルの寿命に応じて透明度を変えるかどうか
+	float targetAlpha;                  //目標の透明度
+	int32_t enableSizeOverLifeTime;     //パーティクルの寿命に応じて大きさを変えるかどうか
+	Vector3 targetScale;                //目標のスケール
+	int32_t enableRotationOverLifeTime; //パーティクルの寿命に応じて回転させるかどうか
+	Vector3 rotSpeed;                   //各軸の回転速度
 };
 
 struct AccelerationFieldData

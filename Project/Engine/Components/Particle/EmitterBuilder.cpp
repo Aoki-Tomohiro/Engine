@@ -52,12 +52,6 @@ EmitterBuilder& EmitterBuilder::SetRotate(const Vector3& min, const Vector3& max
 	return *this;
 }
 
-EmitterBuilder& EmitterBuilder::SetQuaternion(const Quaternion& quaternion)
-{
-	particleEmitter_->quaternion_ = quaternion;
-	return *this;
-}
-
 EmitterBuilder& EmitterBuilder::SetScale(const Vector3& min, const Vector3& max)
 {
 	particleEmitter_->scaleMin_ = min;
@@ -86,9 +80,57 @@ EmitterBuilder& EmitterBuilder::SetColor(const Vector4& min, const Vector4& max)
 	return *this;
 }
 
-EmitterBuilder& EmitterBuilder::SetAlignToDirection(const float alignToDirection)
+EmitterBuilder& EmitterBuilder::SetAlignToDirection(const bool alignToDirection)
 {
 	particleEmitter_->alignToDirection_ = alignToDirection;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetEnableColorOverLifeTime(const bool enableColorOverLifeTime)
+{
+	particleEmitter_->enableColorOverLifeTime_ = enableColorOverLifeTime;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetTargetColor(const Vector3& targetColor)
+{
+	particleEmitter_->targetColor_ = targetColor;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetEnableAlphaOverLifeTime(const bool enableAlphaOverLifeTime)
+{
+	particleEmitter_->enableAlphaOverLifeTime_ = enableAlphaOverLifeTime;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetTargetAlpha(const float targetAlpha)
+{
+	particleEmitter_->targetAlpha_ = targetAlpha;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetEnableSizeOverLifeTime(const bool enableSizeOverLifeTime)
+{
+	particleEmitter_->enableSizeOverLifeTime_ = enableSizeOverLifeTime;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetTargetScale(const Vector3& targetScale)
+{
+	particleEmitter_->targetScale_ = targetScale;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetEnableRotationOverLifeTime(const bool enableRotationOverLifeTime)
+{
+	particleEmitter_->enableRotationOverLifeTime_ = enableRotationOverLifeTime;
+	return *this;
+}
+
+EmitterBuilder& EmitterBuilder::SetRotSpeed(const Vector3& rotSpeed)
+{
+	particleEmitter_->rotSpeed_ = rotSpeed;
 	return *this;
 }
 
