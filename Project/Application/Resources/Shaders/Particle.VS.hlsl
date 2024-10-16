@@ -1,13 +1,5 @@
 #include "Particle.hlsli"
 
-struct PerView
-{
-    float32_t4x4 viewMatrix;
-    float32_t4x4 projectionMatrix;
-    float32_t4x4 billboardMatrix;
-    float32_t3 worldPosition;
-};
-
 StructuredBuffer<Particle> gParticle : register(t0);
 ConstantBuffer<PerView> gPerView : register(b1);
 

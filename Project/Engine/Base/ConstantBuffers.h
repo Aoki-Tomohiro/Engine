@@ -112,6 +112,13 @@ struct ParticleCS
 	float currentTime;
 	Vector4 color;
 	int32_t alignToDirection;
+	Vector3 initialColor;
+	Vector3 targetColor;
+	float initialAlpha;
+	float targetAlpha;
+	Vector3 initialScale;
+	Vector3 targetScale;
+	Vector3 rotSpeed;
 };
 
 struct PerView

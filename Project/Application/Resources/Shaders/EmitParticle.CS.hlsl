@@ -133,51 +133,25 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                     gParticles[particleIndex].alignToDirection = gEmitter[emitterIndex].alignToDirection;
                     
                     //初期色を設定
-                    float32_t3 targetColor = gEmitter[emitterIndex].targetColor;
                     gParticles[particleIndex].initialColor = gParticles[particleIndex].color.rgb;
+                    
                     //目標の色を設定
-                    if (gEmitter[emitterIndex].enableColorOverLifeTime)
-                    {
-                        gParticles[particleIndex].targetColor = targetColor;
-                    }
-                    else
-                    {
-                        gParticles[particleIndex].targetColor = gParticles[particleIndex].color.rgb;
-                    }
+                    gParticles[particleIndex].targetColor = gEmitter[emitterIndex].enableColorOverLifeTime ? gEmitter[emitterIndex].targetColor : gParticles[particleIndex].color.rgb;
                     
                     //初期透明度を設定
-                    float32_t targetAlpha = gEmitter[emitterIndex].targetAlpha;
                     gParticles[particleIndex].initialAlpha = gParticles[particleIndex].color.a;
+                    
                     //目標の透明度を設定
-                    if (gEmitter[emitterIndex].enableAlphaOverLifeTime)
-                    {
-                        gParticles[particleIndex].targetAlpha = targetAlpha;
-                    }
-                    else
-                    {
-                        gParticles[particleIndex].targetAlpha = gParticles[particleIndex].color.a;
-                    }
+                    gParticles[particleIndex].targetAlpha = gEmitter[emitterIndex].enableAlphaOverLifeTime ? gEmitter[emitterIndex].targetAlpha : gParticles[particleIndex].color.a;
                     
                     //初期サイズを設定
-                    float32_t3 targetScale = gEmitter[emitterIndex].targetScale;
                     gParticles[particleIndex].initialScale = gParticles[particleIndex].scale;
-                    //目標のサイズを設定
-                    if (gEmitter[emitterIndex].enableSizeOverLifeTime)
-                    {
-                        gParticles[particleIndex].targetScale = targetScale;
-                    }
-                    else
-                    {
-                        gParticles[particleIndex].targetScale = gParticles[particleIndex].scale;
-                    }
                     
-                    //目標の回転速度を設定
-                    float32_t3 rotSpeed = gEmitter[emitterIndex].rotSpeed;
-                    gParticles[particleIndex].rotSpeed = float32_t3(0.0f, 0.0f, 0.0f);
-                    if (gEmitter[emitterIndex].enableRotationOverLifeTime)
-                    {
-                        gParticles[particleIndex].rotSpeed = rotSpeed;
-                    }
+                    //目標のサイズを設定
+                    gParticles[particleIndex].targetScale = gEmitter[emitterIndex].enableSizeOverLifeTime ? gEmitter[emitterIndex].targetScale : gParticles[particleIndex].scale;
+                    
+                    //回転速度を設定
+                    gParticles[particleIndex].rotSpeed = gEmitter[emitterIndex].enableRotationOverLifeTime ? gEmitter[emitterIndex].rotSpeed : float32_t3(0.0f, 0.0f, 0.0f);
                 }
                 else
                 {

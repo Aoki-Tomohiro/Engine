@@ -37,6 +37,14 @@ struct PerFrame
     float32_t deltaTime;
 };
 
+struct PerView
+{
+    float32_t4x4 viewMatrix;
+    float32_t4x4 projectionMatrix;
+    float32_t4x4 billboardMatrix;
+    float32_t3 worldPosition;
+};
+
 float32_t4x4 MakeRotateXMatrix(float radian)
 {
     float32_t4x4 result;
@@ -62,7 +70,6 @@ float32_t4x4 MakeRotateXMatrix(float radian)
 
     return result;
 }
-
 
 float32_t4x4 MakeRotateYMatrix(float radian)
 {
@@ -90,7 +97,6 @@ float32_t4x4 MakeRotateYMatrix(float radian)
     return result;
 }
 
-
 float32_t4x4 MakeRotateZMatrix(float radian)
 {
     float32_t4x4 result;
@@ -117,7 +123,6 @@ float32_t4x4 MakeRotateZMatrix(float radian)
     return result;
 }
 
-
 float32_t4x4 MakeRotateMatrix(float32_t4 quaternion)
 {
     float32_t4x4 result;
@@ -139,7 +144,6 @@ float32_t4x4 MakeRotateMatrix(float32_t4 quaternion)
     result[3][3] = 1.0f;
     return result;
 }
-
 
 float32_t4x4 MakeIdentity4x4()
 {
@@ -166,7 +170,6 @@ float32_t4x4 MakeIdentity4x4()
 
     return result;
 }
-
 
 float32_t4x4 Inverse(float32_t4x4 m)
 {
@@ -233,7 +236,6 @@ float32_t4x4 Inverse(float32_t4x4 m)
     return result;
 }
 
-
 float32_t4x4 Transpose(float32_t4x4 m)
 {
     float32_t4x4 result;
@@ -260,7 +262,6 @@ float32_t4x4 Transpose(float32_t4x4 m)
     return result;
 }
 
-
 bool AreMatricesEqual(float4x4 matrixA, float4x4 matrixB)
 {
     for (int i = 0; i < 4; i++)
@@ -273,7 +274,6 @@ bool AreMatricesEqual(float4x4 matrixA, float4x4 matrixB)
     return true;
 }
 
-
 bool AreQuaternionEqual(float32_t4 quaternionA, float32_t4 quaternionB)
 {
     for (int i = 0; i < 4; i++)
@@ -285,7 +285,6 @@ bool AreQuaternionEqual(float32_t4 quaternionA, float32_t4 quaternionB)
     }
     return true;
 }
-
 
 float32_t4 GetRotation(float32_t4x4 m)
 {

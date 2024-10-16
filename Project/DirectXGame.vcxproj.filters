@@ -1327,7 +1327,6 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Application\Resources\Shaders\CommonMaterials.hlsli" />
-    <None Include="Application\Resources\Shaders\LightStructs.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">
