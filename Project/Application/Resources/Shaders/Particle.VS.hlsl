@@ -1,12 +1,5 @@
 #include "Particle.hlsli"
 
-struct PerView
-{
-    float32_t4x4 viewMatrix;
-    float32_t4x4 projectionMatrix;
-    float32_t4x4 billboardMatrix;
-};
-
 StructuredBuffer<Particle> gParticle : register(t0);
 ConstantBuffer<PerView> gPerView : register(b1);
 
@@ -48,10 +41,17 @@ VertexShaderOutput main(VertexShaderInput input, uint32_t instanceId : SV_Instan
     worldMatrix[2] *= particle.scale.z;
     worldMatrix[3].xyz = particle.translate;
     
+    //ワールド行列の逆行列を計算
+    float32_t4x4 worldInverseTranspose = Transpose(Inverse(worldMatrix));
+    
     //出力の計算
     output.position = mul(input.position, mul(worldMatrix, mul(gPerView.viewMatrix, gPerView.projectionMatrix)));
     output.texcoord = input.texcoord;
+    output.normal = normalize(mul(input.normal, (float32_t3x3) worldInverseTranspose));
     output.color = particle.color;
+    output.worldPosition = worldMatrix[3].xyz;
+    output.toEye = normalize(gPerView.worldPosition - output.worldPosition);
+    output.cameraToPosition = normalize(output.worldPosition - gPerView.worldPosition);
 
     return output;
 }

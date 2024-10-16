@@ -1326,6 +1326,7 @@
     <None Include="Application\Resources\Shaders\Trail.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Application\Resources\Shaders\CommonMaterials.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Application\Resources\Shaders\Bloom.PS.hlsl">

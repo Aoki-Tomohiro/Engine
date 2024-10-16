@@ -7,7 +7,11 @@ void ParticleSystem::Initialize()
 {
 	//モデルの作成
 	model_ = ModelManager::CreateFromModelFile("Plane", Transparent);
-	model_->GetMaterial(0)->SetTexture("DefaultParticle.png");
+	for (int32_t i = 0; i < model_->GetNumMaterials(); ++i)
+	{
+		model_->GetMaterial(i)->SetTexture("DefaultParticle.png");
+		model_->GetMaterial(i)->SetEnableLighting(false);
+	}
 
 	//ParticleResourceの作成
 	particleResource_ = std::make_unique<RWStructuredBuffer>();
@@ -52,6 +56,9 @@ void ParticleSystem::Initialize()
 
 void ParticleSystem::Update()
 {
+	//マテリアルの更新
+	model_->UpdateMaterials();
+
 	//AccelerationFieldの更新
 	UpdateAccelerationFieldResource();
 
@@ -382,6 +389,7 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].emit = particleEmitters_[i]->GetEmit();
 		emitterSphereData[i].rotateMin = particleEmitters_[i]->GetRotateMin();
 		emitterSphereData[i].rotateMax = particleEmitters_[i]->GetRotateMax();
+		emitterSphereData[i].quaternion = particleEmitters_[i]->GetQuaternion();
 		emitterSphereData[i].scaleMin = particleEmitters_[i]->GetScaleMin();
 		emitterSphereData[i].scaleMax = particleEmitters_[i]->GetScaleMax();
 		emitterSphereData[i].velocityMin = particleEmitters_[i]->GetVelocityMin();
@@ -391,6 +399,14 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].colorMin = particleEmitters_[i]->GetColorMin();
 		emitterSphereData[i].colorMax = particleEmitters_[i]->GetColorMax();
 		emitterSphereData[i].alignToDirection = particleEmitters_[i]->GetAlignToDirection();
+		emitterSphereData[i].enableColorOverLifeTime = particleEmitters_[i]->GetEnableColorOverLifeTime();
+		emitterSphereData[i].targetColor = particleEmitters_[i]->GetTargetColor();
+		emitterSphereData[i].enableAlphaOverLifeTime = particleEmitters_[i]->GetEnableAlphaOverLifeTime();
+		emitterSphereData[i].targetAlpha = particleEmitters_[i]->GetTargetAlpha();
+		emitterSphereData[i].enableSizeOverLifeTime = particleEmitters_[i]->GetEnableSizeOverLifeTime();
+		emitterSphereData[i].targetScale = particleEmitters_[i]->GetTargetScale();
+		emitterSphereData[i].enableRotationOverLifeTime = particleEmitters_[i]->GetEnableRotationOverLifeTime();
+		emitterSphereData[i].rotSpeed = particleEmitters_[i]->GetRotSpeed();
 	}
 
 	//Emitterの数の更新
@@ -500,5 +516,6 @@ void ParticleSystem::UpdatePerViewResource(const Camera* camera)
 	perViewData->viewMatrix = camera->matView_;
 	perViewData->projectionMatrix = camera->matProjection_;
 	perViewData->billboardMatrix = billboardMatrix;
+	perViewData->worldPosition = camera->translation_;
 	perViewResource_->Unmap();
 }

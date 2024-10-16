@@ -4,6 +4,9 @@ struct VertexShaderOutput
     float32_t2 texcoord : TEXCOORD0;
     float32_t3 normal : NORMAL0;
     float32_t4 color : COLOR0;
+    float32_t3 worldPosition : POSITION0;
+    float32_t3 toEye : POSITION1;
+    float32_t3 cameraToPosition : POSITION2;
 };
 
 static const uint32_t kMaxParticles = 1024;
@@ -19,12 +22,27 @@ struct Particle
     float32_t currentTime;
     float32_t4 color;
     int32_t alignToDirection;
+    float32_t3 initialColor;
+    float32_t3 targetColor;
+    float32_t initialAlpha;
+    float32_t targetAlpha;
+    float32_t3 initialScale;
+    float32_t3 targetScale;
+    float32_t3 rotSpeed;
 };
 
 struct PerFrame
 {
     float32_t time;
     float32_t deltaTime;
+};
+
+struct PerView
+{
+    float32_t4x4 viewMatrix;
+    float32_t4x4 projectionMatrix;
+    float32_t4x4 billboardMatrix;
+    float32_t3 worldPosition;
 };
 
 float32_t4x4 MakeRotateXMatrix(float radian)
@@ -53,7 +71,6 @@ float32_t4x4 MakeRotateXMatrix(float radian)
     return result;
 }
 
-
 float32_t4x4 MakeRotateYMatrix(float radian)
 {
     float32_t4x4 result;
@@ -79,7 +96,6 @@ float32_t4x4 MakeRotateYMatrix(float radian)
 
     return result;
 }
-
 
 float32_t4x4 MakeRotateZMatrix(float radian)
 {
@@ -107,7 +123,6 @@ float32_t4x4 MakeRotateZMatrix(float radian)
     return result;
 }
 
-
 float32_t4x4 MakeRotateMatrix(float32_t4 quaternion)
 {
     float32_t4x4 result;
@@ -129,7 +144,6 @@ float32_t4x4 MakeRotateMatrix(float32_t4 quaternion)
     result[3][3] = 1.0f;
     return result;
 }
-
 
 float32_t4x4 MakeIdentity4x4()
 {
@@ -157,6 +171,96 @@ float32_t4x4 MakeIdentity4x4()
     return result;
 }
 
+float32_t4x4 Inverse(float32_t4x4 m)
+{
+    float32_t4x4 result = MakeIdentity4x4();
+    float determinant = m[0][0] * m[1][1] * m[2][2] * m[3][3] +
+			m[0][0] * m[1][2] * m[2][3] * m[3][1] +
+			m[0][0] * m[1][3] * m[2][1] * m[3][2] -
+
+			m[0][0] * m[1][3] * m[2][2] * m[3][1] -
+			m[0][0] * m[1][2] * m[2][1] * m[3][3] -
+			m[0][0] * m[1][1] * m[2][3] * m[3][2] -
+
+			m[0][1] * m[1][0] * m[2][2] * m[3][3] -
+			m[0][2] * m[1][0] * m[2][3] * m[3][1] -
+			m[0][3] * m[1][0] * m[2][1] * m[3][2] +
+
+			m[0][3] * m[1][0] * m[2][2] * m[3][1] +
+			m[0][2] * m[1][0] * m[2][1] * m[3][3] +
+			m[0][1] * m[1][0] * m[2][3] * m[3][2] +
+
+			m[0][1] * m[1][2] * m[2][0] * m[3][3] +
+			m[0][2] * m[1][3] * m[2][0] * m[3][1] +
+			m[0][3] * m[1][1] * m[2][0] * m[3][2] -
+
+			m[0][3] * m[1][2] * m[2][0] * m[3][1] -
+			m[0][2] * m[1][1] * m[2][0] * m[3][3] -
+			m[0][1] * m[1][3] * m[2][0] * m[3][2] -
+
+			m[0][1] * m[1][2] * m[2][3] * m[3][0] -
+			m[0][2] * m[1][3] * m[2][1] * m[3][0] -
+			m[0][3] * m[1][1] * m[2][2] * m[3][0] +
+
+			m[0][3] * m[1][2] * m[2][1] * m[3][0] +
+			m[0][2] * m[1][1] * m[2][3] * m[3][0] +
+			m[0][1] * m[1][3] * m[2][2] * m[3][0];
+   
+    if (determinant == 0.0f)
+    {
+        return result;
+    }
+    
+    float determinantRecp = 1.0f / determinant;
+
+    result[0][0] = (m[1][1] * m[2][2] * m[3][3] + m[1][2] * m[2][3] * m[3][1] + m[1][3] * m[2][1] * m[3][2] - m[1][3] * m[2][2] * m[3][1] - m[1][2] * m[2][1] * m[3][3] - m[1][1] * m[2][3] * m[3][2]) * determinantRecp;
+    result[0][1] = (-m[0][1] * m[2][2] * m[3][3] - m[0][2] * m[2][3] * m[3][1] - m[0][3] * m[2][1] * m[3][2] + m[0][3] * m[2][2] * m[3][1] + m[0][2] * m[2][1] * m[3][3] + m[0][1] * m[2][3] * m[3][2]) * determinantRecp;
+    result[0][2] = (m[0][1] * m[1][2] * m[3][3] + m[0][2] * m[1][3] * m[3][1] + m[0][3] * m[1][1] * m[3][2] - m[0][3] * m[1][2] * m[3][1] - m[0][2] * m[1][1] * m[3][3] - m[0][1] * m[1][3] * m[3][2]) * determinantRecp;
+    result[0][3] = (-m[0][1] * m[1][2] * m[2][3] - m[0][2] * m[1][3] * m[2][1] - m[0][3] * m[1][1] * m[2][2] + m[0][3] * m[1][2] * m[2][1] + m[0][2] * m[1][1] * m[2][3] + m[0][1] * m[1][3] * m[2][2]) * determinantRecp;
+
+    result[1][0] = (-m[1][0] * m[2][2] * m[3][3] - m[1][2] * m[2][3] * m[3][0] - m[1][3] * m[2][0] * m[3][2] + m[1][3] * m[2][2] * m[3][0] + m[1][2] * m[2][0] * m[3][3] + m[1][0] * m[2][3] * m[3][2]) * determinantRecp;
+    result[1][1] = (m[0][0] * m[2][2] * m[3][3] + m[0][2] * m[2][3] * m[3][0] + m[0][3] * m[2][0] * m[3][2] - m[0][3] * m[2][2] * m[3][0] - m[0][2] * m[2][0] * m[3][3] - m[0][0] * m[2][3] * m[3][2]) * determinantRecp;
+    result[1][2] = (-m[0][0] * m[1][2] * m[3][3] - m[0][2] * m[1][3] * m[3][0] - m[0][3] * m[1][0] * m[3][2] + m[0][3] * m[1][2] * m[3][0] + m[0][2] * m[1][0] * m[3][3] + m[0][0] * m[1][3] * m[3][2]) * determinantRecp;
+    result[1][3] = (m[0][0] * m[1][2] * m[2][3] + m[0][2] * m[1][3] * m[2][0] + m[0][3] * m[1][0] * m[2][2] - m[0][3] * m[1][2] * m[2][0] - m[0][2] * m[1][0] * m[2][3] - m[0][0] * m[1][3] * m[2][2]) * determinantRecp;
+
+    result[2][0] = (m[1][0] * m[2][1] * m[3][3] + m[1][1] * m[2][3] * m[3][0] + m[1][3] * m[2][0] * m[3][1] - m[1][3] * m[2][1] * m[3][0] - m[1][1] * m[2][0] * m[3][3] - m[1][0] * m[2][3] * m[3][1]) * determinantRecp;
+    result[2][1] = (-m[0][0] * m[2][1] * m[3][3] - m[0][1] * m[2][3] * m[3][0] - m[0][3] * m[2][0] * m[3][1] + m[0][3] * m[2][1] * m[3][0] + m[0][1] * m[2][0] * m[3][3] + m[0][0] * m[2][3] * m[3][1]) * determinantRecp;
+    result[2][2] = (m[0][0] * m[1][1] * m[3][3] + m[0][1] * m[1][3] * m[3][0] + m[0][3] * m[1][0] * m[3][1] - m[0][3] * m[1][1] * m[3][0] - m[0][1] * m[1][0] * m[3][3] - m[0][0] * m[1][3] * m[3][1]) * determinantRecp;
+    result[2][3] = (-m[0][0] * m[1][1] * m[2][3] - m[0][1] * m[1][3] * m[2][0] - m[0][3] * m[1][0] * m[2][1] + m[0][3] * m[1][1] * m[2][0] + m[0][1] * m[1][0] * m[2][3] + m[0][0] * m[1][3] * m[2][1]) * determinantRecp;
+
+    result[3][0] = (-m[1][0] * m[2][1] * m[3][2] - m[1][1] * m[2][2] * m[3][0] - m[1][2] * m[2][0] * m[3][1] + m[1][2] * m[2][1] * m[3][0] + m[1][1] * m[2][0] * m[3][2] + m[1][0] * m[2][2] * m[3][1]) * determinantRecp;
+    result[3][1] = (m[0][0] * m[2][1] * m[3][2] + m[0][1] * m[2][2] * m[3][0] + m[0][2] * m[2][0] * m[3][1] - m[0][2] * m[2][1] * m[3][0] - m[0][1] * m[2][0] * m[3][2] - m[0][0] * m[2][2] * m[3][1]) * determinantRecp;
+    result[3][2] = (-m[0][0] * m[1][1] * m[3][2] - m[0][1] * m[1][2] * m[3][0] - m[0][2] * m[1][0] * m[3][1] + m[0][2] * m[1][1] * m[3][0] + m[0][1] * m[1][0] * m[3][2] + m[0][0] * m[1][2] * m[3][1]) * determinantRecp;
+    result[3][3] = (m[0][0] * m[1][1] * m[2][2] + m[0][1] * m[1][2] * m[2][0] + m[0][2] * m[1][0] * m[2][1] - m[0][2] * m[1][1] * m[2][0] - m[0][1] * m[1][0] * m[2][2] - m[0][0] * m[1][2] * m[2][1]) * determinantRecp;
+
+    return result;
+}
+
+float32_t4x4 Transpose(float32_t4x4 m)
+{
+    float32_t4x4 result;
+    result[0][0] = m[0][0];
+    result[0][1] = m[1][0];
+    result[0][2] = m[2][0];
+    result[0][3] = m[3][0];
+
+    result[1][0] = m[0][1];
+    result[1][1] = m[1][1];
+    result[1][2] = m[2][1];
+    result[1][3] = m[3][1];
+
+    result[2][0] = m[0][2];
+    result[2][1] = m[1][2];
+    result[2][2] = m[2][2];
+    result[2][3] = m[3][2];
+
+    result[3][0] = m[0][3];
+    result[3][1] = m[1][3];
+    result[3][2] = m[2][3];
+    result[3][3] = m[3][3];
+
+    return result;
+}
 
 bool AreMatricesEqual(float4x4 matrixA, float4x4 matrixB)
 {
@@ -170,7 +274,6 @@ bool AreMatricesEqual(float4x4 matrixA, float4x4 matrixB)
     return true;
 }
 
-
 bool AreQuaternionEqual(float32_t4 quaternionA, float32_t4 quaternionB)
 {
     for (int i = 0; i < 4; i++)
@@ -182,7 +285,6 @@ bool AreQuaternionEqual(float32_t4 quaternionA, float32_t4 quaternionB)
     }
     return true;
 }
-
 
 float32_t4 GetRotation(float32_t4x4 m)
 {

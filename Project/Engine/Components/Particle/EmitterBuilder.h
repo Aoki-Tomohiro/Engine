@@ -22,8 +22,6 @@ public:
 
 	EmitterBuilder& SetRotate(const Vector3& min, const Vector3& max);
 
-	EmitterBuilder& SetQuaternion(const Quaternion& quaternion);
-
 	EmitterBuilder& SetScale(const Vector3& min, const Vector3& max);
 
 	EmitterBuilder& SetVelocity(const Vector3& min, const Vector3& max);
@@ -32,7 +30,23 @@ public:
 
 	EmitterBuilder& SetColor(const Vector4& min, const Vector4& max);
 
-	EmitterBuilder& SetAlignToDirection(const float alignToDirection);
+	EmitterBuilder& SetAlignToDirection(const bool alignToDirection);
+
+	EmitterBuilder& SetEnableColorOverLifeTime(const bool enableColorOverLifeTime);
+
+	EmitterBuilder& SetTargetColor(const Vector3& targetColor);
+
+	EmitterBuilder& SetEnableAlphaOverLifeTime(const bool enableAlphaOverLifeTime);
+
+	EmitterBuilder& SetTargetAlpha(const float targetAlpha);
+
+	EmitterBuilder& SetEnableSizeOverLifeTime(const bool enableSizeOverLifeTime);
+
+	EmitterBuilder& SetTargetScale(const Vector3& targetScale);
+
+	EmitterBuilder& SetEnableRotationOverLifeTime(const bool enableRotationOverLifeTime);
+
+	EmitterBuilder& SetRotSpeed(const Vector3& rotSpeed);
 
 	ParticleEmitter* Build();
 
