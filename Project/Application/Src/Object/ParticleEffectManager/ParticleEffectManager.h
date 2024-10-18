@@ -9,7 +9,7 @@
 class ParticleEffectManager
 {
 public:
-	//エミッタの構造体
+	//エミッターの構造体
 	struct ParticleEmitterSettings
 	{
 		Vector3 translate = { 0.0f,0.0f,0.0f };      //位置
@@ -85,6 +85,77 @@ public:
 	void Update();
 
 private:
+	/// <summary>
+	/// 新しいパーティクルエフェクトを追加
+	/// </summary>
+	void AddNewParticleEffect();
+
+	/// <summary>
+	/// 名前のバッファをクリアしてリサイズする
+	/// </summary>
+	void ClearAndResizeBuffer(std::string& buffer);
+
+	/// <summary>
+	/// 全てのパーティクルエフェクトの名前を取得
+	/// </summary>
+	/// <returns>パーティクルエフェクトの名前の配列</returns>
+	const std::vector<std::string> GetParticleEffectNames() const;
+
+	/// <summary>
+	/// コンボボックスからパーティクルエフェクトを選択
+	/// </summary>
+	/// <param name="particleEffectNames">パーティクルエフェクトの名前の配列</param>
+	void SelectParticleEffect(const std::vector<std::string>& particleEffectNames);
+
+	/// <summary>
+	/// 新しいパーティクルシステムの設定を追加
+	/// </summary>
+	/// <param name="effectSettings">パーティクルエフェクトの設定</param>
+	void AddNewParticleSystemSettings(ParticleEffectSettings& effectSettings);
+
+	/// <summary>
+	/// パーティクルシステムの設定を編集
+	/// </summary>
+	/// <param name="effectSettings">パーティクルエフェクトの設定</param> 
+	void EditParticleSystemSettings(ParticleEffectSettings& effectSettings);
+
+	/// <summary>
+	/// パーティクルエミッターの設定を追加
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void AddNewParticleEmitterSettings(ParticleSystemSettings& systemSettings);
+
+	/// <summary>
+	/// パーティクルエミッターの設定を編集
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void EditParticleEmitterSettings(ParticleSystemSettings& systemSettings);
+
+	/// <summary>
+	/// 新しい加速フィールドの設定を追加
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void AddNewParticleAccelerationFieldSettings(ParticleSystemSettings& systemSettings);
+
+	/// <summary>
+	/// 加速フィールドの設定を編集
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void EditParticleAccelerationFieldSettings(ParticleSystemSettings& systemSettings);
+
+	/// <summary>
+	/// 新しい重力フィールドの設定を追加
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void AddNewParticleGravityFieldSettings(ParticleSystemSettings& systemSettings);
+
+	/// <summary>
+	/// 重力フィールドの設定を編集
+	/// </summary>
+	/// <param name="systemSettings">パーティクルシステムの設定</param> 
+	void EditParticleGravityFieldSettings(ParticleSystemSettings& systemSettings);
+
+private:
 	//パーティクルマネージャー
 	ParticleManager* particleManager_ = nullptr;
 
@@ -99,6 +170,15 @@ private:
 
 	//新しく追加するパーティクルシステムの設定名
 	std::string newParticleSystemSettingsName_ = "";
+
+	//新しく追加するパーティクルエミッターの設定名
+	std::string newParticleEmitterSettingsName_ = "";
+
+	//新しく追加する加速フィールドの設定名
+	std::string newParticleAccelerationFieldSettingsName_ = "";
+
+	//新しく追加する重力フィールドの設定名
+	std::string newParticleGravityFieldSettingsName_ = "";
 
 	//現在選択されているパーティクルエフェクトの設定のインデックス
 	uint32_t currentParticleEffectSettingsIndex_ = 0;
