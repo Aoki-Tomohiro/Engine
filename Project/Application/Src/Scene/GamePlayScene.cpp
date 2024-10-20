@@ -23,11 +23,6 @@ void GamePlayScene::Initialize()
 	camera_ = CameraManager::GetInstance()->GetCamera("Camera");
 	camera_->rotationType_ = RotationType::Euler;
 
-	//パーティクルマネージャーを初期化
-	particleManager_ = ParticleManager::GetInstance();
-	particleManager_->Clear();
-	particleManager_->SetCamera(camera_);
-
 	//TrailRendererにカメラを設定
 	TrailRenderer::GetInstance()->SetCamera(camera_);
 
@@ -49,16 +44,22 @@ void GamePlayScene::Initialize()
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
+	//パーティクルエフェクトマネージャーの生成
+	particleEffectManager_ = std::make_unique<ParticleEffectManager>();
+	particleEffectManager_->Initialize(camera_);
+
 	//プレイヤーの初期化
 	player_ = gameObjectManager_->GetGameObject<Player>("Player");
-	//カメラ、ロックオン、コンバットアニメーションエディターを設定
+	//カメラ、ロックオン、コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
 	player_->SetCamera(camera_);
 	player_->SetLockon(lockon_.get());
 	player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
+	player_->SetParticleEffectManager(particleEffectManager_.get());
 
 	//プレイヤーの武器の初期化
 	Weapon* playerWeapon = gameObjectManager_->CreateGameObject<Weapon>("PlayerWeapon");
-	//ヒットストップを設定
+	//ヒットストップ、パーティクルエフェクトマネージャーを設定
+	playerWeapon->SetParticleEffectManager(particleEffectManager_.get());
 	playerWeapon->SetHitStop(hitStop_.get());
 	//プレイヤーの右手に親子付け
 	TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
@@ -66,12 +67,14 @@ void GamePlayScene::Initialize()
 
 	//敵の初期化
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
-	//コンバットアニメーションエディターを設定
+	//コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
 	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
+	enemy_->SetParticleEffectManager(particleEffectManager_.get());
 
 	//敵の武器の初期化
 	Weapon* enemyWeapon = gameObjectManager_->CreateGameObject<Weapon>("EnemyWeapon");
-	//ヒットストップを設定
+	//ヒットストップ、パーティクルエフェクトマネージャーを設定
+	enemyWeapon->SetParticleEffectManager(particleEffectManager_.get());
 	enemyWeapon->SetHitStop(hitStop_.get());
 	//敵の右手に親子付け
 	TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
@@ -126,6 +129,9 @@ void GamePlayScene::Update()
 
 	//CombatAnimationEditorの更新
 	combatAnimationEditor_->Update();
+
+	//パーティクルエフェクトマネージャーの更新
+	particleEffectManager_->Update();
 
 	//トランジションの更新
 	transition_->Update();

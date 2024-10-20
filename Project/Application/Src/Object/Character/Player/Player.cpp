@@ -238,17 +238,6 @@ void Player::InitializeUISprites()
 	BaseCharacter::InitializeUISprites();
 }
 
-void Player::InitializeParticleSystems()
-{
-	//基底クラスの呼び出し
-	BaseCharacter::InitializeParticleSystems();
-
-	//テクスチャの読み込み
-	TextureManager::Load("smoke_01.png");
-	particleSystems_["Smoke"] = ParticleManager::Create("Smoke");
-	particleSystems_["Smoke"]->SetTexture("smoke_01.png");
-}
-
 void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)
 {
 	//テクスチャの読み込み

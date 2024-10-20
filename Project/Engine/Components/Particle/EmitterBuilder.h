@@ -48,6 +48,8 @@ public:
 
 	EmitterBuilder& SetRotSpeed(const Vector3& rotSpeed);
 
+	EmitterBuilder& SetIsBillboard(const bool isBillboard);
+
 	ParticleEmitter* Build();
 
 private:

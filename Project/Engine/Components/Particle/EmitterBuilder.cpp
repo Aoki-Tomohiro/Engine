@@ -134,6 +134,12 @@ EmitterBuilder& EmitterBuilder::SetRotSpeed(const Vector3& rotSpeed)
 	return *this;
 }
 
+EmitterBuilder& EmitterBuilder::SetIsBillboard(const bool isBillboard)
+{
+	particleEmitter_->isBillboard_ = isBillboard;
+	return *this;
+}
+
 ParticleEmitter* EmitterBuilder::Build()
 {
 	return particleEmitter_;

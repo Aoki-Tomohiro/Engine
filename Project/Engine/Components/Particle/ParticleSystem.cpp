@@ -348,12 +348,14 @@ std::vector<GravityField*> ParticleSystem::GetGravityFields(const std::string& n
 
 void ParticleSystem::SetModel(const std::string& name)
 {
-	model_->Release();
+	Model* preModel = model_;
 	model_ = ModelManager::CreateFromModelFile(name, Transparent);
+	preModel->Release();
 }
 
 void ParticleSystem::SetTexture(const std::string& name)
 {
+	textureName_ = name;
 	for (uint32_t i = 0; i < model_->GetNumMaterials(); ++i)
 	{
 		model_->GetMaterial(i)->SetTexture(name);
@@ -407,6 +409,7 @@ void ParticleSystem::UpdateEmitterResource()
 		emitterSphereData[i].targetScale = particleEmitters_[i]->GetTargetScale();
 		emitterSphereData[i].enableRotationOverLifeTime = particleEmitters_[i]->GetEnableRotationOverLifeTime();
 		emitterSphereData[i].rotSpeed = particleEmitters_[i]->GetRotSpeed();
+		emitterSphereData[i].isBillboard = particleEmitters_[i]->GetIsBillboard();
 	}
 
 	//Emitterの数の更新
@@ -491,25 +494,21 @@ void ParticleSystem::UpdateGravityFieldResource()
 void ParticleSystem::UpdatePerViewResource(const Camera* camera)
 {
 	//BillBoardMatrixの計算
-	Matrix4x4 billboardMatrix = Mathf::MakeIdentity4x4();
-	if (isBillboard_)
+	Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
+	Matrix4x4 cameraMatrix = Mathf::MakeIdentity4x4();
+	switch (camera->rotationType_)
 	{
-		Matrix4x4 backToFrontMatrix = Mathf::MakeRotateYMatrix(std::numbers::pi_v<float>);
-		Matrix4x4 cameraMatrix = Mathf::MakeIdentity4x4();
-		switch (camera->rotationType_)
-		{
-		case RotationType::Euler:
-			cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->rotation_, camera->translation_);
-			break;
-		case RotationType::Quaternion:
-			cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->quaternion_, camera->translation_);
-			break;
-		}
-		billboardMatrix = backToFrontMatrix * cameraMatrix;
-		billboardMatrix.m[3][0] = 0.0f;
-		billboardMatrix.m[3][1] = 0.0f;
-		billboardMatrix.m[3][2] = 0.0f;
+	case RotationType::Euler:
+		cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->rotation_, camera->translation_);
+		break;
+	case RotationType::Quaternion:
+		cameraMatrix = Mathf::MakeAffineMatrix({ 1.0f,1.0f,1.0f }, camera->quaternion_, camera->translation_);
+		break;
 	}
+	Matrix4x4 billboardMatrix = backToFrontMatrix * cameraMatrix;
+	billboardMatrix.m[3][0] = 0.0f;
+	billboardMatrix.m[3][1] = 0.0f;
+	billboardMatrix.m[3][2] = 0.0f;
 
 	//リソースに書き込む
 	PerView* perViewData = static_cast<PerView*>(perViewResource_->Map());

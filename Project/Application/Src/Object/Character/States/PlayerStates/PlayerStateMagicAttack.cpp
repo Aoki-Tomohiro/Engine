@@ -118,6 +118,7 @@ void PlayerStateMagicAttack::CreateMagicProjectile()
     magic->SetVelocity(GetMagicProjectileVelocity());
     magic->SetKnockbackSettings(animationState_.phases[phaseIndex_].knockbackSettings);
     magic->SetDamage(animationState_.phases[phaseIndex_].attackSettings.damage);
+    magic->SetParticleEffectManager(player_->GetParticleEffectManager());
 
     //魔法の位置と向き設定
     SetMagicProjectileTransform(magic);

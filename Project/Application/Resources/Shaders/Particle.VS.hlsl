@@ -32,8 +32,7 @@ VertexShaderOutput main(VertexShaderInput input, uint32_t instanceId : SV_Instan
     }
     
     //ビルボード行列の計算
-    float32_t4x4 worldMatrix = (AreMatricesEqual(gPerView.billboardMatrix, MakeIdentity4x4()) || particle.alignToDirection) ?
-    rotateMatrix : mul(MakeRotateZMatrix(particle.rotate.z), gPerView.billboardMatrix);
+    float32_t4x4 worldMatrix = (!particle.isBillboard || particle.alignToDirection) ? rotateMatrix : mul(MakeRotateZMatrix(particle.rotate.z), gPerView.billboardMatrix);
     
     //スケールの適用
     worldMatrix[0] *= particle.scale.x;

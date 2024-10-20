@@ -55,8 +55,6 @@ public:
 
 	void SetTexture(const std::string& name);
 
-	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
-
 	Model* GetModel()const { return model_; };
 
 	void SetModel(const std::string& name);
@@ -118,6 +116,9 @@ private:
 	//モデル
 	Model* model_ = nullptr;
 
+	//テクスチャの名前
+	std::string textureName_ = "";
+
 	//エミッター
 	std::vector<std::unique_ptr<ParticleEmitter>> particleEmitters_{};
 
@@ -126,9 +127,6 @@ private:
 
 	//重力フィールド
 	std::vector<std::unique_ptr<GravityField>> gravityFields_{};
-
-	//ビルボードフラグ
-	bool isBillboard_ = true;
 
 	//深度を書くかどうか
 	bool enableDepthWrite_ = false;

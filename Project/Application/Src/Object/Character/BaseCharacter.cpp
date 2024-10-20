@@ -22,9 +22,6 @@ void BaseCharacter::Initialize()
     //コライダーの初期化
     InitializeCollider();
 
-    //パーティクルシステムの初期化
-    InitializeParticleSystems();
-
     //UIスプライトの初期化
     InitializeUISprites();
 }
@@ -235,90 +232,6 @@ const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName)
     return GetJointWorldPosition("mixamorig:Hips") - transform_->GetWorldPosition();
 }
 
-void BaseCharacter::AddParticleEmitter(const std::string& name, ParticleEmitter* particleEmitter)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(name);
-    if (it != particleSystems_.end())
-    {
-        //パーティクルシステムにエミッターを追加する
-        if (it->second != nullptr)
-        {
-            it->second->AddParticleEmitter(particleEmitter);
-        }
-    }
-}
-
-void BaseCharacter::RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(particleName);
-    if (it != particleSystems_.end())
-    {
-        //パーティクルシステムのエミッターを削除する
-        if (it->second)
-        {
-            it->second->RemoveParticleEmitter(emitterName);
-        }
-    }
-}
-
-ParticleEmitter* BaseCharacter::GetParticleEmitter(const std::string& particleName, const std::string& emitterName)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(particleName);
-    if (it != particleSystems_.end())
-    {
-        if (ParticleEmitter* emitter = it->second->GetParticleEmitter(emitterName))
-        {
-            return emitter;
-        }
-    }
-    return nullptr;
-}
-
-void BaseCharacter::AddAccelerationField(const std::string& name, AccelerationField* accelerationField)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(name);
-    if (it != particleSystems_.end())
-    {
-        //パーティクルシステムに加速フィールドを追加する
-        if (it->second != nullptr)
-        {
-            it->second->AddAccelerationField(accelerationField);
-        }
-    }
-}
-
-void BaseCharacter::RemoveAccelerationField(const std::string& particleName, const std::string& accelerationFieldName)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(particleName);
-    if (it != particleSystems_.end())
-    {
-        //パーティクルシステムの加速フィールドを削除する
-        if (it->second)
-        {
-            it->second->RemoveAccelerationField(accelerationFieldName);
-        }
-    }
-}
-
-AccelerationField* BaseCharacter::GetAccelerationField(const std::string& particleName, const std::string& fieldName)
-{
-    //パーティクルシステムを検索する
-    auto it = particleSystems_.find(particleName);
-    if (it != particleSystems_.end())
-    {
-        if (AccelerationField* accelerationField = it->second->GetAccelerationField(fieldName))
-        {
-            return accelerationField;
-        }
-    }
-    return nullptr;
-}
-
 void BaseCharacter::InitializeTransform()
 {
     //トランスフォームコンポーネントを取得
@@ -351,12 +264,6 @@ void BaseCharacter::InitializeCollider()
 {
     //コライダーコンポーネントを取得
     collider_ = GetComponent<AABBCollider>();
-}
-
-void BaseCharacter::InitializeParticleSystems()
-{
-    //パーティクルシステムの生成
-    particleSystems_["Normal"] = ParticleManager::Create("Normal");
 }
 
 void BaseCharacter::InitializeUISprites()

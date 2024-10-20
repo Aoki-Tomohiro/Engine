@@ -101,8 +101,11 @@ void PlayerStateChargeMagicAttack::UpdateAnimationPhase(float currentAnimationTi
             //魔法生成
             CreateMagicProjectile();
 
+            //エミッターの座標を計算
+            Vector3 emitterTranslation = (player_->GetJointWorldPosition("mixamorig:LeftHand") + player_->GetJointWorldPosition("mixamorig:RightHand")) / 2.0f;
+
             //パーティクルを生成
-            CreateChargeMagicParticles();
+            player_->GetParticleEffectManager()->CreateParticles("ChargeMagic", emitterTranslation, player_->GetDestinationQuaternion());
 
             //音声データを再生
             audio_->PlayAudio(chargeMagicAudioHandle_, false, 0.2f);
@@ -126,6 +129,7 @@ void PlayerStateChargeMagicAttack::CreateMagicProjectile()
     magic->SetVelocity(GetMagicProjectileVelocity());
     magic->SetKnockbackSettings(animationState_.phases[phaseIndex_].knockbackSettings);
     magic->SetDamage(animationState_.phases[phaseIndex_].attackSettings.damage);
+    magic->SetParticleEffectManager(player_->GetParticleEffectManager());
 
     //魔法の位置と向き設定
     SetMagicProjectileTransform(magic);
@@ -160,29 +164,4 @@ void PlayerStateChargeMagicAttack::SetMagicProjectileTransform(Magic* magic)
     transformComponent->worldTransform_.translation_ = player_->GetJointWorldPosition("mixamorig:LeftHand");
     transformComponent->worldTransform_.quaternion_ = player_->GetDestinationQuaternion();
     transformComponent->Update();
-}
-
-void PlayerStateChargeMagicAttack::CreateChargeMagicParticles()
-{
-    //エミッターの座標を計算
-    Vector3 emitterTranslation = (player_->GetJointWorldPosition("mixamorig:LeftHand") + player_->GetJointWorldPosition("mixamorig:RightHand")) / 2.0f;
-
-    //パーティクルを出す
-    for (uint32_t i = 0; i < 360; ++i)
-    {
-        //パーティクルの速度
-        const float kParticleVelocity = 0.3f;
-        //クォータニオンを計算
-        Quaternion rotation = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f,0.0f,1.0f }, static_cast<float>(i) * (std::numbers::pi_v<float> / 180.0f));
-        //速度を計算
-        Vector3 velocity = Mathf::RotateVector({ 0.0f,1.0f,0.0f }, player_->GetDestinationQuaternion() * rotation) * kParticleVelocity;
-
-        //エミッターの生成
-        ParticleEmitter* emitter = EmitterBuilder().SetEmitterName("ChargeMagic").SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f })
-            .SetEmitterLifeTime(0.1f).SetCount(1).SetFrequency(0.2f).SetLifeTime(0.3f, 0.3f).SetRadius(0.1f).SetScale({ 0.1f,0.1f,0.1f }, { 0.3f,0.3f,0.3f })
-            .SetTranslation(emitterTranslation).SetVelocity(velocity, velocity).Build();
-
-        //パーティクルシステムにエミッターを追加
-        player_->AddParticleEmitter("Normal", emitter);
-    }
 }

@@ -24,8 +24,6 @@ private:
 
 	Vector3 GetInputValue();
 
-	void CreateLandingParticles();
-
 private:
 	//インプット
 	Input* input_ = nullptr;

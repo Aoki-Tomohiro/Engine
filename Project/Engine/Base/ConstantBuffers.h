@@ -119,6 +119,7 @@ struct ParticleCS
 	Vector3 initialScale;
 	Vector3 targetScale;
 	Vector3 rotSpeed;
+	int32_t isBillboard;
 };
 
 struct PerView
@@ -161,6 +162,7 @@ struct EmitterSphere
 	Vector3 targetScale;                //目標のスケール
 	int32_t enableRotationOverLifeTime; //パーティクルの寿命に応じて回転させるかどうか
 	Vector3 rotSpeed;                   //各軸の回転速度
+	int32_t isBillboard;                //ビルボードフラグ
 };
 
 struct AccelerationFieldData
