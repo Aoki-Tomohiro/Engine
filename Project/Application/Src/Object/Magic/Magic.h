@@ -9,6 +9,7 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
 
 /// <summary>
 /// 魔法
@@ -57,6 +58,9 @@ public:
 	//速度を設定
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; };
 
+	//パーティクルエフェクトマネージャーを設定
+	void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
+
 private:
 	/// <summary>
 	/// トランスフォームの初期化
@@ -72,11 +76,6 @@ private:
 	/// コライダーの初期化
 	/// </summary>
 	void InitializeCollider();
-
-	/// <summary>
-	/// パーティクルの初期化
-	/// </summary>
-	void InitializeParticleSystem();
 
 	/// <summary>
 	/// 移動パーティクルの生成
@@ -97,11 +96,6 @@ private:
 	/// 魔法の破壊処理
 	/// </summary>
 	void DeleteMagic();
-
-	/// <summary>
-	/// 破壊パーティクルを出す
-	/// </summary>
-	void CreateDestoryParticles();
 
 private:
 	//トランスフォームコンポーネント
@@ -125,23 +119,13 @@ private:
 	//速度
 	Vector3 velocity_{};
 
-	//パーティクル
-	ParticleSystem* particleSystem_ = nullptr;
-
 	//エミッター
 	ParticleEmitter* emitter_ = nullptr;
 
-	//パーティクルの速度
-	float normalMagicMinSpeed_ = 0.2f;
-	float normalMagicMaxSpeed_ = 0.3f;
-	float chargeMagicMinSpeed_ = 0.6f;
-	float chargeMagicMaxSpeed_ = 0.7f;
-
-	//パーティクルの生成数
-	int32_t normalMagicEmitCount_ = 20;
-	int32_t chargeMagicEmitCount_ = 40;
-
 	//インスタンスID
 	int32_t id_ = 0;
+
+	//パーティクルエフェクトマネージャー
+	ParticleEffectManager* particleEffectManager_ = nullptr;
 };
 

@@ -9,6 +9,7 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
 #include <array>
 
 /// <summary>
@@ -100,16 +101,6 @@ public:
     /// <returns>ジョイントのローカル座標<</returns>
     const Vector3 GetJointLocalPosition(const std::string& jointName);
 
-    //パーティクルエミッターの追加・削除・取得
-    void AddParticleEmitter(const std::string& particleName, ParticleEmitter* emitter);
-    void RemoveParticleEmitter(const std::string& particleName, const std::string& emitterName);
-    ParticleEmitter* GetParticleEmitter(const std::string& particleName, const std::string& emitterName);
-
-    //加速フィールドの追加・削除・取得
-    void AddAccelerationField(const std::string& particleName, AccelerationField* field);
-    void RemoveAccelerationField(const std::string& particleName, const std::string& fieldName);
-    AccelerationField* GetAccelerationField(const std::string& particleName, const std::string& fieldName);
-
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
     void SetPosition(const Vector3& position) { transform_->worldTransform_.translation_ = position; };
@@ -125,6 +116,10 @@ public:
     //コンバットアニメーションエディタの取得・設定
     const CombatAnimationEditor* GetCombatAnimationEditor() const { return combatAnimationEditor_; };
     void SetCombatAnimationEditor(const CombatAnimationEditor* combatAnimationEditor) { combatAnimationEditor_ = combatAnimationEditor; };
+
+    //パーティクルエフェクトマネージャーの取得・設定
+    ParticleEffectManager* GetParticleEffectManager() const { return particleEffectManager_; };
+    void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
 
     //ノックバックを取得・設定
     const KnockbackSettings& GetKnockbackSettings() const { return knockbackSettings_; };
@@ -197,11 +192,6 @@ protected:
     /// コライダーの初期化
     /// </summary>
     virtual void InitializeCollider();
-
-    /// <summary>
-    /// パーティクルシステムの初期化
-    /// </summary>
-    virtual void InitializeParticleSystems();
 
     /// <summary>
     /// UIのスプライトの初期化
@@ -296,11 +286,11 @@ protected:
     //コライダー
     AABBCollider* collider_ = nullptr;
 
-    //パーティクル関連
-    std::map<std::string, ParticleSystem*> particleSystems_{};
-
     //コンバットアニメーションエディター
     const CombatAnimationEditor* combatAnimationEditor_ = nullptr;
+
+    //パーティクルエフェクトマネージャー
+    ParticleEffectManager* particleEffectManager_ = nullptr;
 
     //ノックバックの設定
     KnockbackSettings knockbackSettings_{};

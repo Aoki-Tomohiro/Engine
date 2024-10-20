@@ -1,0 +1,90 @@
+{
+    "MagicDissipation": {
+        "ParticleSystems": {
+            "Smoke": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Smoke": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            0.20588237047195435,
+                            0.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.20588237047195435,
+                            0.0,
+                            1.0
+                        ],
+                        "Count": 100,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": true,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": false,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 1.0,
+                        "LifeTimeMin": 1.0,
+                        "Radius": 1.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.019999999552965164
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            3.140000104904175
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            -3.140000104904175
+                        ],
+                        "ScaleMax": [
+                            2.0,
+                            2.0,
+                            2.0
+                        ],
+                        "ScaleMin": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetAlpha": 0.20000000298023224,
+                        "TargetColor": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "TargetScale": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.03999999910593033,
+                            0.03999999910593033,
+                            0.03999999910593033
+                        ],
+                        "VelocityMin": [
+                            -0.03999999910593033,
+                            -0.03999999910593033,
+                            -0.03999999910593033
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            }
+        }
+    }
+}

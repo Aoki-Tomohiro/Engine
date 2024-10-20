@@ -13,9 +13,6 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	void CreateLandingParticles();
-
-private:
 	//Input
 	Input* input_ = nullptr;
 

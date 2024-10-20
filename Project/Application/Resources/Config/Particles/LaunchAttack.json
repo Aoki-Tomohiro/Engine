@@ -1,0 +1,114 @@
+{
+    "LaunchAttack": {
+        "ParticleSystems": {
+            "Smoke": {
+                "AccelerationFields": {
+                    "Smoke": {
+                        "Acceleration": [
+                            0.0,
+                            2.799999952316284,
+                            -0.800000011920929
+                        ],
+                        "LifeTime": 0.5,
+                        "Max": [
+                            50.0,
+                            50.0,
+                            50.0
+                        ],
+                        "Min": [
+                            -50.0,
+                            -50.0,
+                            -50.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            2.5999999046325684
+                        ]
+                    }
+                },
+                "Emitters": {
+                    "Smoke": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            0.20000000298023224,
+                            0.20000000298023224,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.20000000298023224,
+                            0.20000000298023224,
+                            1.0
+                        ],
+                        "Count": 40,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.4000000059604645,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": true,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": false,
+                        "Frequency": 0.009999999776482582,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.699999988079071,
+                        "LifeTimeMin": 0.5,
+                        "Radius": 1.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            3.140000104904175
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            -3.140000104904175
+                        ],
+                        "ScaleMax": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "ScaleMin": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "TargetScale": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            2.5999999046325684
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.20000000298023224,
+                            0.20000000298023224
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.05999999865889549,
+                            0.20000000298023224
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            }
+        }
+    }
+}

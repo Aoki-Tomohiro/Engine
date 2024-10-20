@@ -39,10 +39,6 @@ private:
 
 	void HandleWeaponHit(Weapon* weapon);
 
-	void CreateSlamAttackParticles();
-
-	const float GetCurrentAnimationTime() const;
-
 private:
 	//インプット
 	Input* input_ = nullptr;

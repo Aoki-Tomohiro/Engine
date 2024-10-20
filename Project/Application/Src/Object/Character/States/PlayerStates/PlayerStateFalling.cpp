@@ -114,7 +114,7 @@ void PlayerStateFalling::CheckLanding()
 		player_->SetPosition(position);
 
 		//パーティクルを出す
-		CreateLandingParticles();
+		player_->GetParticleEffectManager()->CreateParticles("Landing", player_->GetPosition(), player_->GetDestinationQuaternion());
 
 		//落下アニメーションを一時停止を解除
 		player_->GetAnimator()->ResumeAnimation();
@@ -134,16 +134,4 @@ Vector3 PlayerStateFalling::GetInputValue()
 {
 	//スティックの入力を取得
 	return { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
-}
-
-void PlayerStateFalling::CreateLandingParticles()
-{
-	//着地パーティクルの生成
-	ParticleEmitter* newEmitter = EmitterBuilder().SetColor({ 0.6f,0.6f,0.6f,1.0f }, { 0.6f,0.6f,0.6f,1.0f }).SetCount(100)
-		.SetEmitterLifeTime(0.01f).SetEmitterName("Landing").SetFrequency(1.0f).SetLifeTime(0.3f, 0.5f).SetRadius(0.0f)
-		.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f }).SetScale({ 0.4f,0.4f,0.4f }, { 0.6f,0.6f,0.6f }).SetTranslation(player_->GetPosition())
-		.SetVelocity({ -0.1f,0.02f,-0.1f }, { 0.1f,0.04f,0.1f }).Build();
-
-	//パーティクルシステムにエミッターを追加
-	player_->AddParticleEmitter("Smoke", newEmitter);
 }

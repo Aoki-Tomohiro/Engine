@@ -134,7 +134,7 @@ void PlayerStateDash::DashUpdate()
 		weapon->SetIsVisible(false);
 
 		//ダッシュのパーティクルを生成
-		SpawnDashParticles();
+		player_->GetParticleEffectManager()->CreateParticles("Dash", player_->GetJointWorldPosition("mixamorig:Hips"), player_->GetDestinationQuaternion());
 
 		//ラジアルブラーを有効にする
 		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
@@ -154,9 +154,6 @@ void PlayerStateDash::DashUpdate()
 	{
 		//速度を0にする
 		velocity_ = { 0.0f,0.0f,0.0f };
-
-		//パーティクルエミッターと加速フィールドを削除
-		DeleteParticleEmitterAndAccelerationField();
 	}
 
 	//移動処理
@@ -191,27 +188,25 @@ void PlayerStateDash::RecoveryUpdate()
 	}
 }
 
-void PlayerStateDash::SpawnDashParticles()
-{
-	//速度を設定
-	Vector3 minVelocity = Mathf::RotateVector({ 0.0f, 0.0f, -0.4f }, player_->GetDestinationQuaternion());
-	Vector3 maxVelocity = Mathf::RotateVector({ 0.0f, 0.0f, -0.6f }, player_->GetDestinationQuaternion());
-
-	//エミッターの生成
-	ParticleEmitter* newEmitter = EmitterBuilder().SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f }).SetCount(20)
-		.SetEmitterLifeTime(100.0f).SetEmitterName("Dash").SetFrequency(0.01f).SetLifeTime(0.4f, 0.8f).SetRadius(1.0f)
-		.SetRotate({ 0.0f,0.0f,0.0f }, { 0.0f,0.0f,6.28f }).SetScale({ 0.8f,0.8f,0.8f }, { 1.2f,1.2f,1.2f }).SetTranslation(player_->GetJointWorldPosition("mixamorig:Hips"))
-		.SetVelocity(minVelocity, maxVelocity).Build();
-
-	//パーティクルシステムにエミッターを追加
-	player_->AddParticleEmitter("Smoke", newEmitter);
-}
-
 void PlayerStateDash::UpdateEmitterPosition()
 {
-	//エミッターの座標を更新
-	if (ParticleEmitter* emitter = player_->GetParticleEmitter("Smoke", "Dash"))
+	//煙のエミッター座標を更新
+	for (int32_t i = 0; i < 2; ++i)
+	{	
+		if (ParticleEmitter* emitter = player_->GetParticleEffectManager()->GetEmitter("Smoke", "Smoke" + std::to_string(i + 1)))
+		{
+			//オフセット値
+			Vector3 offset = Mathf::RotateVector(dashParticleOffset_, player_->GetDestinationQuaternion()) * static_cast<float>(i);
+
+			//エミッターの座標を設定
+			emitter->SetTranslate(player_->GetJointWorldPosition("mixamorig:Hips") + offset);
+		}
+	}
+
+	//煙のリングのエミッター座標を更新
+	if (ParticleEmitter* emitter = player_->GetParticleEffectManager()->GetEmitter("SmokeRing", "SmokeRing" ))
 	{
+		//エミッターの座標を設定
 		emitter->SetTranslate(player_->GetJointWorldPosition("mixamorig:Hips"));
 	}
 }
@@ -244,8 +239,6 @@ void PlayerStateDash::ResetDashFlags()
 	weapon->SetIsVisible(true);
 	//ダッシュのフラグを解除
 	player_->SetActionFlag(Player::ActionFlag::kDashing, false);
-	//エミッターと加速フィールドの削除
-	DeleteParticleEmitterAndAccelerationField();
 }
 
 void PlayerStateDash::HandleAnimationFinish()
@@ -260,18 +253,5 @@ void PlayerStateDash::HandleAnimationFinish()
 	{
 		//通常状態に戻す
 		player_->ChangeState(new PlayerStateRoot());
-	}
-}
-
-void PlayerStateDash::DeleteParticleEmitterAndAccelerationField()
-{
-	//パーティクルエミッターと加速フィールドを削除
-	if (ParticleEmitter* emitter = player_->GetParticleEmitter("Smoke", "Dash"))
-	{
-		emitter->SetIsDead(true);
-	}
-	if (AccelerationField* accelerationField = player_->GetAccelerationField("Smoke", "Dash"))
-	{
-		accelerationField->SetIsDead(true);
 	}
 }

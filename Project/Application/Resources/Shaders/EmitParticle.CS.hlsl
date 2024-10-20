@@ -20,12 +20,13 @@ struct EmitterSphere
     int32_t alignToDirection;           //進行方向に回転させるか
     int32_t enableColorOverLifeTime;    //パーティクルの寿命に応じて色を変えるかどうか
     float32_t3 targetColor;             //目標の色
-    int32_t enableAlphaOverLifeTime; //パーティクルの寿命に応じて透明度を変えるかどうか
-    float32_t targetAlpha; //目標の透明度
-    int32_t enableSizeOverLifeTime; //パーティクルの寿命に応じて大きさを変えるかどうか
-    float32_t3 targetScale; //目標のスケール
+    int32_t enableAlphaOverLifeTime;    //パーティクルの寿命に応じて透明度を変えるかどうか
+    float32_t targetAlpha;              //目標の透明度
+    int32_t enableSizeOverLifeTime;     //パーティクルの寿命に応じて大きさを変えるかどうか
+    float32_t3 targetScale;             //目標のスケール
     int32_t enableRotationOverLifeTime; //パーティクルの寿命に応じて回転させるかどうか
-    float32_t3 rotSpeed; //各軸の回転速度
+    float32_t3 rotSpeed;                //各軸の回転速度
+    int32_t isBillboard;                //ビルボードを有効にするかどうか
 };
 
 struct EmitterInformation
@@ -152,6 +153,10 @@ void main(uint32_t DTid : SV_DispatchThreadID)
                     
                     //回転速度を設定
                     gParticles[particleIndex].rotSpeed = gEmitter[emitterIndex].enableRotationOverLifeTime ? gEmitter[emitterIndex].rotSpeed : float32_t3(0.0f, 0.0f, 0.0f);
+                    
+                    //ビルボードの設定
+                    gParticles[particleIndex].isBillboard = gEmitter[emitterIndex].isBillboard;
+                    
                 }
                 else
                 {

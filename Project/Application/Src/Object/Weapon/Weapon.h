@@ -13,6 +13,7 @@
 #include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
 
 /// <summary>
@@ -68,6 +69,9 @@ public:
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
 
+	//パーティクルエフェクトマネージャーを設定
+	void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
+
 	//ヒットストップを設定
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
@@ -89,16 +93,6 @@ private:
 	/// コライダーの初期化
 	/// </summary>
 	void InitializeCollider();
-
-	/// <summary>
-	/// パーティクルの初期化
-	/// </summary>
-	void InitializeParticleSystem();
-
-	/// <summary>
-	/// 加速フィールドの初期化
-	/// </summary>
-	void CreateAccelerationField();
 
 	/// <summary>
 	/// 環境変数の初期化
@@ -146,38 +140,6 @@ private:
 	/// </summary>
 	void HandlePlayerWeaponCollision();
 
-	/// <summary>
-	/// パーティクルのエミッターを生成
-	/// </summary>
-	void CreateParticleEmitters();
-
-	/// <summary>
-	/// 衝撃波のエミッターを複数生成
-	/// </summary>
-	/// <param name="emitterTranslation">エミッターの座標</param>
-	/// <param name="camera">カメラ</param>
-	void CreateShockWaveEmitters(const Vector3& emitterTranslation, Camera* camera);
-
-	/// <summary>
-	/// 火花のエミッターを生成
-	/// </summary>
-	/// <param name="emitterTranslation">エミッターの座標</param>
-	void CreateSparkEmitter(const Vector3& emitterTranslation);
-
-	/// <summary>
-	/// 光のエミッターを生成
-	/// </summary>
-	/// <param name="position">エミッターの座標</param>
-	void CreateLightEmitter(const Vector3& position);
-
-	/// <summary>
-	/// 衝撃波のエミッターを生成
-	/// </summary>
-	/// <param name="position">エミッターの座標</param>
-	/// <param name="velocity">速度</param>
-	/// <returns>衝撃波のエミッター</returns>
-	ParticleEmitter* CreateShockWaveEmitter(const Vector3& position, const Vector3& velocity);
-
 private:
 	//オーディオ
 	Audio* audio_ = nullptr;
@@ -191,8 +153,8 @@ private:
 	//コライダー
 	OBBCollider* collider_ = nullptr;
 
-	//パーティクル
-	std::map<std::string, ParticleSystem*> particleSystems_{};
+	//パーティクルエフェクトマネージャー
+	ParticleEffectManager* particleEffectManager_ = nullptr;
 
 	//ヒットストップ
 	HitStop* hitStop_ = nullptr;

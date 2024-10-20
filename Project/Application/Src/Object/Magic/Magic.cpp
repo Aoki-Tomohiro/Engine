@@ -17,8 +17,8 @@ void Magic::Initialize()
 	//コライダーの初期化
 	InitializeCollider();
 
-	//パーティクルシステムの初期化
-	InitializeParticleSystem();
+	//エミッターを生成
+	CreateMoveEmitter();
 
 	//基底クラスの初期化
 	GameObject::Initialize();
@@ -82,40 +82,23 @@ void Magic::InitializeCollider()
 	sphereCollider->SetCollisionMask(CollisionAttributeManager::GetInstance()->GetMask("PlayerWeapon"));
 }
 
-void Magic::InitializeParticleSystem()
-{
-	//パーティクルの生成
-	particleSystem_ = ParticleManager::Create("MagicProjectile");
-
-	//移動のパーティクルを生成
-	CreateMoveEmitter();
-
-	//パーティクルシステムにエミッターを追加
-	particleSystem_->AddParticleEmitter(emitter_);
-}
-
 void Magic::CreateMoveEmitter()
 {
-	//パーティクルエミッターの速度範囲を更新
-	float minSpeed = magicType_ == MagicType::kNormal ? normalMagicMinSpeed_ : chargeMagicMinSpeed_;
-	float maxSpeed = magicType_ == MagicType::kNormal ? normalMagicMaxSpeed_ : chargeMagicMaxSpeed_;
-	int32_t emitCount = magicType_ == MagicType::kNormal ? normalMagicEmitCount_ : chargeMagicEmitCount_;
+	//パーティクルエフェクトの名前を設定
+	std::string particleEffectName = magicType_ == MagicType::kNormal ? "MagicTrail" : "ChargeMagicTrail";
 
-	//パーティクルの最小速度と最大速度を設定
-	Vector3 minVelocity = Mathf::RotateVector({ -1.0f, -1.0f, -1.0f }, transformComponent_->worldTransform_.quaternion_) * minSpeed;
-	Vector3 maxVelocity = Mathf::RotateVector({ 1.0f, 1.0f, -1.0f }, transformComponent_->worldTransform_.quaternion_) * maxSpeed;
+	//移動パーティクルを生成
+	particleEffectManager_->CreateParticles(particleEffectName, { 0.0f,0.0f,0.0f }, transformComponent_->worldTransform_.quaternion_);
 
-	//パーティクルエミッターを生成
-	emitter_ = EmitterBuilder().SetColor({ 1.0f, 0.4f, 0.4f, 1.0f }, { 1.0f, 0.4f, 0.4f, 1.0f }).SetCount(emitCount)
-		.SetEmitterLifeTime(10.0f).SetEmitterName("MoveMagicProjectile" + std::to_string(id_)).SetFrequency(0.01f)
-		.SetLifeTime(0.3f, 0.6f).SetRadius(0.4f).SetScale({ 0.4f,0.4f,0.4f }, { 0.4f,0.4f,0.4f }).SetTranslation({ 0.0f,0.0f,0.0f })
-		.SetVelocity(minVelocity, maxVelocity).Build();
+	//エミッターを取得して名前を変更
+	emitter_ = particleEffectManager_->GetEmitter("Normal", "MagicTrail");
+	emitter_->SetName("MagicTrail" + std::to_string(id_));
 }
 
 void Magic::UpdateMoveEmitter()
 {
 	//エミッターが存在しなければ生成する
-	if (!particleSystem_->GetParticleEmitter("MoveMagicProjectile" + std::to_string(id_)))
+	if (!particleEffectManager_->GetEmitter("Normal", "MagicTrail" + std::to_string(id_)))
 	{
 		CreateMoveEmitter();
 	}
@@ -145,23 +128,11 @@ void Magic::DeleteMagic()
 	SetIsDestroy(true);
 
 	//破壊パーティクルを出す
-	CreateDestoryParticles();
+	particleEffectManager_->CreateParticles("MagicDissipation", transformComponent_->worldTransform_.translation_, transformComponent_->worldTransform_.quaternion_);
 
 	//エミッターを削除
-	emitter_->SetCount(0);
+	emitter_->SetIsDead(true);
 
 	//カウンターを減らす
 	--counter;
-}
-
-void Magic::CreateDestoryParticles()
-{
-	//エミッターを生成
-	ParticleEmitter* newEmitter = EmitterBuilder().SetEmitterName("Hit" + std::to_string(id_)).SetEmitterLifeTime(0.01f)
-		.SetTranslation(transformComponent_->worldTransform_.translation_).SetCount(200).SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
-		.SetFrequency(2.0f).SetLifeTime(0.2f, 0.4f).SetRadius(0.0f).SetScale({ 0.2f,0.2f,0.2f }, { 0.3f,0.3f,0.3f })
-		.SetVelocity({ -0.4f,-0.4f,-0.4f }, { 0.4f,0.4f,0.4f }).Build();
-
-	//パーティクルシステムにエミッターを追加
-	particleSystem_->AddParticleEmitter(newEmitter);
 }

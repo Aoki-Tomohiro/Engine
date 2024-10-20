@@ -19,6 +19,7 @@
 #include "Application/Src/Object/HitStop/HitStop.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Transition/Transition.h"
+#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
 
 class GamePlayScene : public IScene
 {
@@ -87,6 +88,9 @@ private:
 
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
+
+	//パーティクルエフェクトマネージャー
+	std::unique_ptr<ParticleEffectManager> particleEffectManager_ = nullptr;
 
 	//ゲームオーバーのスプライト
 	std::unique_ptr<Sprite> gameOverSprite_ = nullptr;

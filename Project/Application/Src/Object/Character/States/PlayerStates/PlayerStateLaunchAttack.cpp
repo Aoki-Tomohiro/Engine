@@ -78,14 +78,7 @@ void PlayerStateLaunchAttack::UpdateAnimationPhase(Weapon* weapon, float current
 		//攻撃状態になったらパーティクルを生成
 		if (animationState_.phases[phaseIndex_].name == "NormalAttack")
 		{
-			//エミッターと加速フィールドのオフセット
-			Vector3 emitterAndAccelerationFieldPosition = player_->GetPosition() + Mathf::RotateVector(launchParticleOffset_, player_->GetDestinationQuaternion());
-
-			//パーティクルの生成
-			CreateLaunchParticles(emitterAndAccelerationFieldPosition);
-
-			//加速フィールドの生成
-			CreateAccelerationField(emitterAndAccelerationFieldPosition);
+			player_->GetParticleEffectManager()->CreateParticles("LaunchAttack", player_->GetPosition(), player_->GetDestinationQuaternion());
 		}
 	}
 }
@@ -171,38 +164,6 @@ void PlayerStateLaunchAttack::RecoveryUpdate(Weapon* weapon)
 		player_->ResetCooldown(Skill::kLaunchAttack);
 		player_->ChangeState(new PlayerStateAttack());
 	}
-}
-
-void PlayerStateLaunchAttack::CreateLaunchParticles(const Vector3& emitterPosition)
-{
-	//速度を計算
-	Vector3 velocity = Mathf::RotateVector(launchParticleVelocity_, player_->GetDestinationQuaternion());
-
-	//エミッターの生成
-	ParticleEmitter* emitter = EmitterBuilder().SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f }).SetCount(40)
-		.SetEmitterLifeTime(0.4f).SetEmitterName("LaunchAttack").SetFrequency(0.01f).SetLifeTime(0.5f, 0.7f).SetRadius(1.0f)
-		.SetRotate({ 0.0f, 0.0f, -std::numbers::phi_v<float> }, { 0.0f, 0.0f, std::numbers::phi_v<float> }).SetScale({ 1.0f,1.0f,1.0f }, { 1.0f,1.0f,1.0f })
-		.SetTranslation(emitterPosition).SetVelocity(velocity, velocity).Build();
-	
-	//パーティクルシステムにエミッターを追加
-	player_->AddParticleEmitter("Smoke", emitter);
-}
-
-void PlayerStateLaunchAttack::CreateAccelerationField(const Vector3& accelerationPosition)
-{
-	//加速度を計算
-	Vector3 acceleration = Mathf::RotateVector(launchParticleAcceleration_, player_->GetDestinationQuaternion());
-
-	//加速フィールドの生成
-	AccelerationField* accelerationField = new AccelerationField();
-	accelerationField->Initialize("LaunchAttack", 2.0f);
-	accelerationField->SetTranslate(accelerationPosition);
-	accelerationField->SetAcceleration(acceleration);
-	accelerationField->SetMin({ -50.0f,-50.0f,-50.0f });
-	accelerationField->SetMax({ 50.0f,100.0f,50.0f });
-
-	//パーティクルシステムに加速フィールドを追加
-	player_->AddAccelerationField("Smoke", accelerationField);
 }
 
 Vector3 PlayerStateLaunchAttack::GetInputValue()

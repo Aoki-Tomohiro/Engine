@@ -34,15 +34,11 @@ private:
 
 	void RecoveryUpdate();
 
-	void SpawnDashParticles();
-
 	void UpdateEmitterPosition();
 
 	void HandlePhaseChange();
 
 	void ResetDashFlags();
-
-	void DeleteParticleEmitterAndAccelerationField();
 
 	void HandleAnimationFinish();
 
@@ -70,5 +66,8 @@ private:
 
 	//ダッシュのオーディオハンドル
 	uint32_t dashAudioHandle_ = 0;
+
+	//煙のパーティクルのオフセット値
+	Vector3 dashParticleOffset_ = { 0.0f,0.0f,-2.0f };
 };
 

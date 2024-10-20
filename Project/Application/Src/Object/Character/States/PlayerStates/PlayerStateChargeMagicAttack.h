@@ -34,8 +34,6 @@ private:
 
 	void SetMagicProjectileTransform(Magic* magic);
 
-	void CreateChargeMagicParticles();
-
 private:
 	//インプット
 	Input* input_ = nullptr;

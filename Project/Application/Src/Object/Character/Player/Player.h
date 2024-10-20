@@ -224,11 +224,6 @@ private:
     void InitializeAnimator() override;
 
     /// <summary>
-    /// パーティクルシステムの初期化
-    /// </summary>
-    void InitializeParticleSystems() override;
-
-    /// <summary>
     /// UIのスプライトの初期化
     /// </summary>
     void InitializeUISprites() override;

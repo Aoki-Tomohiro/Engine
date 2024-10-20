@@ -19,12 +19,6 @@ void Weapon::Initialize()
 	//コライダーの初期化
 	InitializeCollider();
 
-	//パーティクルの初期化
-	InitializeParticleSystem();
-
-	//加速フィールドの作成
-	CreateAccelerationField();
-
 	//環境変数の初期化
 	InitializeGlobalVariables();
 
@@ -112,34 +106,6 @@ void Weapon::InitializeCollider()
 	uint32_t collisionMask = name_ == "PlayerWeapon" ? collisionAttrManager->GetMask("PlayerWeapon") : collisionAttrManager->GetMask("EnemyWeapon");
 	collider_->SetCollisionAttribute(collisionAttribute);
 	collider_->SetCollisionMask(collisionMask);
-}
-
-void Weapon::InitializeParticleSystem()
-{
-	//テクスチャの読み込み
-	TextureManager::Load("star_08.png");
-
-	//衝撃波パーティクルの生成
-	particleSystems_["ShockWave"] = ParticleManager::Create("ShockWave");
-
-	//火花のパーティクル生成
-	particleSystems_["Spark"] = ParticleManager::Create("Spark");
-	particleSystems_["Spark"]->SetModel("Cube");
-
-	//光のパーティクル生成
-	particleSystems_["Light"] = ParticleManager::Create("Light");
-	particleSystems_["Light"]->SetTexture("star_08.png");
-}
-
-void Weapon::CreateAccelerationField()
-{
-	//加速フィールドの作成
-	AccelerationField* accelerationField = new AccelerationField();
-	accelerationField->Initialize("Weapon", 600.0f);
-	accelerationField->SetAcceleration({ 0.0f, -0.2f, 0.0f });
-	accelerationField->SetMin({ -50.0f, -50.0f, -50.0f });
-	accelerationField->SetMax({ 50.0f, 50.0f, 50.0f });
-	particleSystems_["Spark"]->AddAccelerationField(accelerationField);
 }
 
 void Weapon::InitializeGlobalVariables()
@@ -274,110 +240,6 @@ void Weapon::HandlePlayerWeaponCollision()
 	//ヒット音を再生
 	audio_->PlayAudio(hitAudioHandle_, false, 0.2f);
 
-	//エミッターを生成
-	CreateParticleEmitters();
-}
-
-void Weapon::CreateParticleEmitters()
-{
-	//エミッターの座標を取得
-	Vector3 emitterTranslation = transform_->GetWorldPosition();
-
-	//カメラを取得
-	Camera* camera = CameraManager::GetCamera("Camera");
-
-	//衝撃波のエミッターの生成
-	CreateShockWaveEmitters(emitterTranslation, camera);
-
-	//火花のエミッターの生成
-	CreateSparkEmitter(emitterTranslation);
-
-	//光のエミッターの生成
-	CreateLightEmitter(emitterTranslation);
-}
-
-void Weapon::CreateShockWaveEmitters(const Vector3& emitterTranslation, Camera* camera)
-{
-	//パーティクルの速度
-	const float kParticleVelocity = 0.06f;
-
-	//円状になるように360度分のエミッターを生成
-	for (int32_t i = 0; i < 360; ++i)
-	{
-		//Quaternionを計算
-		Quaternion quaternion = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 0.0f, 1.0f }, static_cast<float>(i) * (std::numbers::pi_v<float> / 180.0f));
-
-		//速度を計算
-		Vector3 velocity = Mathf::RotateVector({ 0.0f, 1.0f, 0.0f }, camera->quaternion_ * quaternion) * kParticleVelocity;
-
-		//オフセット値を計算
-		Vector3 offset = Mathf::RotateVector({ 0.0f, 1.4f, 0.0f }, camera->quaternion_ * quaternion);
-
-		//エミッターを生成
-		ParticleEmitter* hitEmitter = CreateShockWaveEmitter(emitterTranslation + offset, velocity);
-
-		//パーティクルシステムに追加
-		particleSystems_["ShockWave"]->AddParticleEmitter(hitEmitter);
-	}
-}
-
-ParticleEmitter* Weapon::CreateShockWaveEmitter(const Vector3& position, const Vector3& velocity)
-{
-	return EmitterBuilder()
-		.SetEmitterName("ShockWave")
-		.SetEmitterLifeTime(0.0f)
-		.SetTranslation(position)
-		.SetCount(1)
-		.SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
-		.SetFrequency(2.0f)
-		.SetLifeTime(0.2f, 0.2f)
-		.SetRadius(0.0f)
-		.SetScale({ 0.1f, 0.1f, 0.1f }, { 0.1f, 0.1f, 0.1f })
-		.SetVelocity(velocity, velocity)
-		.Build();
-}
-
-void Weapon::CreateSparkEmitter(const Vector3& emitterTranslation)
-{
-	//パーティクルの速度
-	const float kParticleVelocity = 0.2f;
-
-	//エミッターを生成
-	ParticleEmitter* emitter = EmitterBuilder()
-		.SetEmitterName("Spark")
-		.SetEmitterLifeTime(0.0f)
-		.SetTranslation(emitterTranslation)
-		.SetCount(200)
-		.SetColor({ 1.0f, 0.2f, 0.2f, 1.0f }, { 1.0f, 0.2f, 0.2f, 1.0f })
-		.SetFrequency(2.0f)
-		.SetLifeTime(0.2f, 0.4f)
-		.SetRadius(0.0f)
-		.SetScale({ 0.01f, 0.01f, 0.1f }, { 0.02f, 0.02f, 0.2f })
-		.SetVelocity({ -kParticleVelocity, -kParticleVelocity, -kParticleVelocity }, { kParticleVelocity, kParticleVelocity, kParticleVelocity })
-		.SetAlignToDirection(true)
-		.Build();
-
-	//パーティクルシステムのエミッターを追加
-	particleSystems_["Spark"]->AddParticleEmitter(emitter);
-}
-
-void Weapon::CreateLightEmitter(const Vector3& position)
-{
-	//エミッターを生成
-	ParticleEmitter* emitter = EmitterBuilder()
-		.SetEmitterName("Light")
-		.SetEmitterLifeTime(0.1f)
-		.SetTranslation(position)
-		.SetCount(6)
-		.SetColor({ 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f })
-		.SetFrequency(2.0f)
-		.SetLifeTime(0.2f, 0.4f)
-		.SetRadius(0.0f)
-		.SetScale({ 2.0f, 2.0f, 1.4f }, { 2.0f, 2.0f, 2.0f })
-		.SetRotate({ 0.0f, 0.0f, -std::numbers::pi_v<float> }, { 0.0f, 0.0f, std::numbers::pi_v<float> })
-		.SetVelocity({ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f })
-		.Build();
-
-	//パーティクルシステムのエミッターを追加
-	particleSystems_["Light"]->AddParticleEmitter(emitter);
+	//ヒットエフェクトを生成
+	particleEffectManager_->CreateParticles("Hit", transform_->GetWorldPosition(), Mathf::IdentityQuaternion());
 }

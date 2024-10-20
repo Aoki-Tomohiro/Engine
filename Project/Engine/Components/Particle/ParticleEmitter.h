@@ -107,6 +107,10 @@ public:
 
 	void SetRotSpeed(const Vector3& rotSpeed) { rotSpeed_ = rotSpeed; };
 
+	const bool GetIsBillboard() const { return isBillboard_; };
+
+	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
+
 	const bool GetIsDead() const { return isDead_; };
 
 	void SetIsDead(const bool isDead) { isDead_ = isDead; };
@@ -192,6 +196,9 @@ private:
 
 	//回転速度
 	Vector3 rotSpeed_ = { 0.0f,0.0f,0.0f };
+
+	//ビルボードフラグ
+	bool isBillboard_ = true;
 
 	//死亡フラグ
 	bool isDead_ = false;

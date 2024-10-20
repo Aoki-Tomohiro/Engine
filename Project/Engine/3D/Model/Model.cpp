@@ -10,6 +10,9 @@ void Model::Initialize(const ModelData& modelData, const DrawPass drawPass)
 	//描画パスを設定
 	drawPass_ = drawPass;
 
+	//使用中のフラグを立てる
+	isInUse_ = true;
+
 	//メッシュの作成
 	CreateMeshes();
 

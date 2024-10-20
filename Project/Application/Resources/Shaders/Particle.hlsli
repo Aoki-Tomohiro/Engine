@@ -29,6 +29,7 @@ struct Particle
     float32_t3 initialScale;
     float32_t3 targetScale;
     float32_t3 rotSpeed;
+    int32_t isBillboard;
 };
 
 struct PerFrame
@@ -260,18 +261,6 @@ float32_t4x4 Transpose(float32_t4x4 m)
     result[3][3] = m[3][3];
 
     return result;
-}
-
-bool AreMatricesEqual(float4x4 matrixA, float4x4 matrixB)
-{
-    for (int i = 0; i < 4; i++)
-    {
-        if (any(matrixA[i] != matrixB[i]))
-        {
-            return false;
-        }
-    }
-    return true;
 }
 
 bool AreQuaternionEqual(float32_t4 quaternionA, float32_t4 quaternionB)

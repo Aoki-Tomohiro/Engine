@@ -1,0 +1,768 @@
+{
+    "Hit": {
+        "ParticleSystems": {
+            "Circle": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Circle": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            0.20588237047195435,
+                            0.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.20588237047195435,
+                            0.0,
+                            1.0
+                        ],
+                        "Count": 2,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.20000000298023224,
+                        "LifeTimeMin": 0.20000000298023224,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "ScaleMin": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            3.0,
+                            3.0,
+                            3.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            },
+            "Flare": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Flare": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            0.1764705926179886,
+                            0.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.1764705777168274,
+                            0.0,
+                            1.0
+                        ],
+                        "Count": 2,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.20000000298023224,
+                        "LifeTimeMin": 0.20000000298023224,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            3.0,
+                            3.0,
+                            3.0
+                        ],
+                        "ScaleMin": [
+                            3.0,
+                            3.0,
+                            3.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            5.0,
+                            5.0,
+                            5.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            },
+            "Light": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Light": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Count": 1,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.10000000149011612,
+                        "EnableAlphaOverLifeTime": false,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.009999999776482582,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.6000000238418579,
+                        "LifeTimeMin": 0.4000000059604645,
+                        "Radius": 3.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            0.4000000059604645,
+                            0.4000000059604645,
+                            0.4000000059604645
+                        ],
+                        "ScaleMin": [
+                            0.20000000298023224,
+                            0.20000000298023224,
+                            0.20000000298023224
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            },
+            "Normal": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Normal": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            0.7960784435272217,
+                            0.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.7941176891326904,
+                            0.0,
+                            1.0
+                        ],
+                        "Count": 80,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": false,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.6000000238418579,
+                        "LifeTimeMin": 0.4000000059604645,
+                        "Radius": 1.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            0.11999999731779099,
+                            0.11999999731779099,
+                            0.11999999731779099
+                        ],
+                        "ScaleMin": [
+                            0.05999999865889549,
+                            0.05999999865889549,
+                            0.05999999865889549
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.4000000059604645,
+                            0.4000000059604645,
+                            0.4000000059604645
+                        ],
+                        "VelocityMin": [
+                            -0.4000000059604645,
+                            -0.4000000059604645,
+                            -0.4000000059604645
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            },
+            "Spark": {
+                "AccelerationFields": {
+                    "Spark": {
+                        "Acceleration": [
+                            0.0,
+                            -0.20000000298023224,
+                            0.0
+                        ],
+                        "LifeTime": 0.4000000059604645,
+                        "Max": [
+                            10.0,
+                            10.0,
+                            10.0
+                        ],
+                        "Min": [
+                            -10.0,
+                            -10.0,
+                            -10.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "Emitters": {
+                    "Spark": {
+                        "AlignToDirection": true,
+                        "ColorMax": [
+                            1.0,
+                            0.2666666805744171,
+                            0.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            0.2647058963775635,
+                            0.0,
+                            1.0
+                        ],
+                        "Count": 80,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": false,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": false,
+                        "LifeTimeMax": 0.4000000059604645,
+                        "LifeTimeMin": 0.20000000298023224,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            0.019999999552965164,
+                            0.019999999552965164,
+                            0.6000000238418579
+                        ],
+                        "ScaleMin": [
+                            0.009999999776482582,
+                            0.009999999776482582,
+                            0.4000000059604645
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            0.009999999776482582,
+                            0.009999999776482582,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.30000001192092896,
+                            0.30000001192092896,
+                            0.30000001192092896
+                        ],
+                        "VelocityMin": [
+                            -0.30000001192092896,
+                            -0.30000001192092896,
+                            -0.30000001192092896
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            },
+            "Twirl": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Twirl1": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "Count": 1,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.30000001192092896,
+                        "LifeTimeMin": 0.30000001192092896,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "ScaleMin": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            6.0,
+                            6.0,
+                            6.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "Twirl2": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "Count": 1,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.30000001192092896,
+                        "LifeTimeMin": 0.30000001192092896,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            3.140000104904175
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            3.140000104904175
+                        ],
+                        "ScaleMax": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "ScaleMin": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            6.0,
+                            6.0,
+                            6.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "Twirl3": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "Count": 1,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.30000001192092896,
+                        "LifeTimeMin": 0.30000001192092896,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            1.5700000524520874
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            1.5700000524520874
+                        ],
+                        "ScaleMax": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "ScaleMin": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            6.0,
+                            6.0,
+                            6.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "Twirl4": {
+                        "AlignToDirection": false,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0784313753247261
+                        ],
+                        "Count": 1,
+                        "EmitIn360Degrees": false,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "Frequency": 0.5,
+                        "IsBillboard": true,
+                        "LifeTimeMax": 0.30000001192092896,
+                        "LifeTimeMin": 0.30000001192092896,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            -1.5700000524520874
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            -1.5700000524520874
+                        ],
+                        "ScaleMax": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "ScaleMin": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            6.0,
+                            6.0,
+                            6.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "VelocityMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            }
+        }
+    }
+}
