@@ -1428,7 +1428,7 @@
             "CameraShakeDuration": 0.20000000298023224,
             "CameraShakeIntensity": [
                 0.0,
-                2.0,
+                4.0,
                 0.0
             ],
             "Damage": 10.0,
