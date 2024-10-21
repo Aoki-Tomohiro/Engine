@@ -9,6 +9,7 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateChargeMagicAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Laser/Laser.h"
@@ -37,6 +38,16 @@ void PlayerStateAttack::Initialize()
 
 void PlayerStateAttack::Update()
 {
+	//ボタン入力の処理
+	if (input_->IsPressButton(XINPUT_GAMEPAD_B) || input_->IsPressButton(XINPUT_GAMEPAD_X) || input_->IsPressButton(XINPUT_GAMEPAD_Y) || input_->IsPressButton(XINPUT_GAMEPAD_A))
+	{
+		buttonPressedTime_ += GameTimer::GetDeltaTime();
+	}
+	else
+	{
+		buttonPressedTime_ = 0;
+	}
+
 	//コンボの進行状況をチェック
 	EvaluateComboProgress();
 
@@ -67,7 +78,7 @@ void PlayerStateAttack::PlayAttackAnimation(const bool isAerial)
 	//アニメーションの名前を設定
 	std::string animationName = (isAerial ? "AerialAttack" : "GroundAttack") + std::to_string(workAttack_.comboIndex + 1);
 	//アニメーションの速度を設定
-	float animationSpeed = isAerial ? 2.6f : 2.0f;
+	float animationSpeed = isAerial ? 3.0f : 2.4f;
 	//アニメーションを再生
 	player_->GetAnimator()->PlayAnimation(animationName, animationSpeed, false);
 }
@@ -122,30 +133,34 @@ void PlayerStateAttack::EvaluateComboProgress()
 		}
 		else
 		{
-			//Aボタンを押していない場合
-			if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
+			//同時押しと判定する時間を超えていた場合
+			if (buttonPressedTime_ > kSimultaneousPressThreshold_)
 			{
-				//攻撃ボタンをトリガーしたら
-				if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+				//Xボタンを押されていた場合
+				if (input_->IsPressButton(XINPUT_GAMEPAD_X))
 				{
 					EnableCombo(kNormalCombo);
 				}
-				//ダッシュボタンをトリガーしたら
-				else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+				//Bボタンを押されていた場合
+				else if (input_->IsPressButton(XINPUT_GAMEPAD_B))
 				{
 					EnableCombo(kDash);
 				}
-				//Yボタンを離した時
-				else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+				//Aボタンを押されていた場合
+				else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
 				{
-					EnableCombo(kChargeMagic);
+					EnableCombo(kStomp);
 				}
 			}
-			//Aボタンを押している場合
+			//Yボタンが離されたとき
+			else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+			{
+				EnableCombo(kChargeMagic);
+			}
 			else
 			{
 				//Xボタンも同時に押されていたら落下攻撃
-				if (input_->IsPressButton(XINPUT_GAMEPAD_X) && player_->GetPosition().y != 0.0f)
+				if (input_->IsPressButton(XINPUT_GAMEPAD_X) && input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetPosition().y != 0.0f)
 				{
 					EnableCombo(kFallingAttack);
 				}
@@ -195,6 +210,7 @@ void PlayerStateAttack::UpdateComboStateBasedOnButtonPress()
 
 void PlayerStateAttack::EnableCombo(const NextState& nextState)
 {
+	buttonPressedTime_ = 0;
 	workAttack_.comboNext = true;
 	workAttack_.comboNextState = nextState;
 }
@@ -414,6 +430,9 @@ void PlayerStateAttack::HandleComboTransition()
 		break;
 	case kChargeMagic:
 		player_->ChangeState(new PlayerStateChargeMagicAttack());
+		break;
+	case kStomp:
+		player_->ChangeState(new PlayerStateJump());
 		break;
 	}
 }

@@ -48,6 +48,26 @@ void Player::Update()
 	//タイトルシーンにいない場合
 	if (!isInTitleScene_)
 	{
+		//ストンプが可能かどうかを判定する
+		//プレイヤーの腰のジョイントのワールド座標を取得	
+		Vector3 playerPosition = GetJointWorldPosition("mixamorig:Hips");
+
+		//敵の座標を取得
+		Vector3 enemyPosition = gameObjectManager_->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+
+		//距離を計算
+		float distance = Mathf::Length(enemyPosition - playerPosition);
+
+		//ストンプ可能な距離にいた場合はストンプのフラグを立てる
+		if (distance < kStompRange)
+		{
+			SetActionFlag(ActionFlag::kCanStomp, true);
+		}
+		else
+		{
+			SetActionFlag(ActionFlag::kCanStomp, false);
+		}
+
 		//状態の更新
 		state_->Update();
 

@@ -4,6 +4,7 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateFallingAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateChargeMagicAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
 
 void PlayerStateFalling::Initialize()
@@ -26,25 +27,38 @@ void PlayerStateFalling::Update()
 	//アニメーションによる座標のずれを補正
 	player_->CorrectAnimationOffset();
 
+	//ボタン入力の処理
+	if (input_->IsPressButton(XINPUT_GAMEPAD_B) || input_->IsPressButton(XINPUT_GAMEPAD_X) || input_->IsPressButton(XINPUT_GAMEPAD_Y) || input_->IsPressButton(XINPUT_GAMEPAD_A))
+	{
+		buttonPressedTime_ += GameTimer::GetDeltaTime();
+	}
+	else
+	{
+		buttonPressedTime_ = 0;
+	}
+
 	//プレイヤーが着地している場合の処理
 	if (isLanding_)
 	{
 		HandleLanding();
 		return;
 	}
-	//AボタンとXボタンを押したとき
-	else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && input_->IsPressButton(XINPUT_GAMEPAD_X))
+	else if (buttonPressedTime_ > kSimultaneousPressThreshold_)
 	{
-		//落下攻撃状態に遷移
-		player_->ChangeState(new PlayerStateFallingAttack());
-		return;
-	}
-	//Bボタンを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
-	{
-		//ダッシュ状態に遷移
-		player_->ChangeState(new PlayerStateDash());
-		return;
+		//Bボタンを押されていた場合
+		if (input_->IsPressButton(XINPUT_GAMEPAD_B))
+		{
+			//ダッシュ状態に遷移
+			player_->ChangeState(new PlayerStateDash());
+			return;
+		}
+		//Aボタンを押されていた場合
+		else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
+		{
+			//ジャンプ状態に遷移
+			player_->ChangeState(new PlayerStateJump());
+			return;
+		}
 	}
 	//Yボタンを離した時
 	else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
@@ -53,6 +67,17 @@ void PlayerStateFalling::Update()
 		player_->ChangeState(new PlayerStateChargeMagicAttack());
 		return;
 	}
+	//AボタンとXボタンを押したとき
+	else 
+	{
+		if (input_->IsPressButton(XINPUT_GAMEPAD_X) && input_->IsPressButton(XINPUT_GAMEPAD_A))
+		{
+			//落下攻撃状態に遷移
+			player_->ChangeState(new PlayerStateFallingAttack());
+			return;
+		}
+	}
+
 
 	//アニメーションの更新
 	CheckAndPauseAnimation();

@@ -74,6 +74,7 @@ public:
         kFallingAttack,                // 落下攻撃状態かどうか
         kMagicAttackEnabled,           // 魔法攻撃が有効かどうか
         kChargeMagicAttackEnabled,     // 溜め魔法攻撃が有効かどうか
+        kCanStomp,                     // ストンプが可能かどうか
     };
 
     //ダメージエフェクトの構造体
@@ -105,8 +106,8 @@ public:
     //ジャンプ状態のパラメーター
     struct JumpParameters
     {
-        float jumpFirstSpeed = 50.0f;        // 初速度
-        float gravityAcceleration = -150.0f; // 重力加速度
+        float jumpFirstSpeed = 40.0f;        // 初速度
+        float gravityAcceleration = -180.0f; // 重力加速度
     };
 
     //ダッシュ用のパラメーター
@@ -324,6 +325,9 @@ private:
 
     //ダメージエフェクトの構造体
     DamageEffect damageEffect_{};
+
+    //ストンプ可能な距離
+    const float kStompRange = 6.0f;
 
     //オーディオハンドル
     uint32_t damageAudioHandle_ = 0;

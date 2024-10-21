@@ -46,11 +46,11 @@ public:
 	struct RootParameters
 	{
 		float moveSpeed = 5.0f;                 // 移動速度
-		float minActionInterval = 2.0f;         // 攻撃までの最小時間
-		float maxActionInterval = 4.0f;         // 攻撃までの最大時間
+		float minActionInterval = 1.0f;         // 攻撃までの最小時間
+		float maxActionInterval = 2.0f;         // 攻撃までの最大時間
 		float approachDistance = 10.0f;         // 近づいてくる距離
-		float minWaitTimeBeforeMovement = 2.0f; // 接近前の最小待機時間
-		float maxWaitTimeBeforeMovement = 4.0f; // 接近前の最大待機時間
+		float minWaitTimeBeforeMovement = 1.0f; // 接近前の最小待機時間
+		float maxWaitTimeBeforeMovement = 2.0f; // 接近前の最大待機時間
 		float stopDistance = 4.0f;              // 動きを止める距離
 		float closeRangeDistance = 20.0f;       // 遠距離の行動をする距離
 	};
