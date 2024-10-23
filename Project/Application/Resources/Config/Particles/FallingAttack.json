@@ -19,7 +19,6 @@
                             0.3921568691730499
                         ],
                         "Count": 10,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -103,7 +102,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -187,7 +185,6 @@
                             1.0
                         ],
                         "Count": 50,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -295,7 +292,6 @@
                             1.0
                         ],
                         "Count": 50,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -379,7 +375,6 @@
                             1.0
                         ],
                         "Count": 100,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,
@@ -463,7 +458,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -541,7 +535,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -619,7 +612,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -697,7 +689,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -775,7 +766,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -853,7 +843,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -931,7 +920,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
@@ -1009,7 +997,6 @@
                             1.0
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,

@@ -19,7 +19,6 @@
                             1.0
                         ],
                         "Count": 20,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.3400000035762787,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,
@@ -97,7 +96,6 @@
                             1.0
                         ],
                         "Count": 20,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.3400000035762787,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,
@@ -181,7 +179,6 @@
                             0.3921568691730499
                         ],
                         "Count": 1,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.3400000035762787,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,

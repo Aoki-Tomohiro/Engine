@@ -87,24 +87,24 @@ void Magic::CreateMoveEmitter()
 	//パーティクルエフェクトの名前を設定
 	std::string particleEffectName = magicType_ == MagicType::kNormal ? "MagicTrail" : "ChargeMagicTrail";
 
-	//移動パーティクルを生成
-	particleEffectManager_->CreateParticles(particleEffectName, { 0.0f,0.0f,0.0f }, transformComponent_->worldTransform_.quaternion_);
+	////移動パーティクルを生成
+	//particleEffectManager_->CreateParticles(particleEffectName, { 0.0f,0.0f,0.0f }, transformComponent_->worldTransform_.quaternion_);
 
-	//エミッターを取得して名前を変更
-	emitter_ = particleEffectManager_->GetEmitter("Normal", "MagicTrail");
-	emitter_->SetName("MagicTrail" + std::to_string(id_));
+	////エミッターを取得して名前を変更
+	//emitter_ = particleEffectManager_->GetEmitter("Normal", "MagicTrail");
+	//emitter_->SetName("MagicTrail" + std::to_string(id_));
 }
 
 void Magic::UpdateMoveEmitter()
 {
-	//エミッターが存在しなければ生成する
-	if (!particleEffectManager_->GetEmitter("Normal", "MagicTrail" + std::to_string(id_)))
-	{
-		CreateMoveEmitter();
-	}
+	////エミッターが存在しなければ生成する
+	//if (!particleEffectManager_->GetEmitter("Normal", "MagicTrail" + std::to_string(id_)))
+	//{
+	//	CreateMoveEmitter();
+	//}
 
-	//エミッターの座標を更新
-	emitter_->SetTranslate(transformComponent_->worldTransform_.translation_);
+	////エミッターの座標を更新
+	//emitter_->SetTranslate(transformComponent_->worldTransform_.translation_);
 }
 
 void Magic::CheckOutOfBounds()
@@ -127,8 +127,8 @@ void Magic::DeleteMagic()
 	//破壊フラグを立てる
 	SetIsDestroy(true);
 
-	//破壊パーティクルを出す
-	particleEffectManager_->CreateParticles("MagicDissipation", transformComponent_->worldTransform_.translation_, transformComponent_->worldTransform_.quaternion_);
+	////破壊パーティクルを出す
+	//particleEffectManager_->CreateParticles("MagicDissipation", transformComponent_->worldTransform_.translation_, transformComponent_->worldTransform_.quaternion_);
 
 	//エミッターを削除
 	emitter_->SetIsDead(true);

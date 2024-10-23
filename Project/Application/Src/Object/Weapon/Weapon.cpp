@@ -68,13 +68,6 @@ void Weapon::OnCollision(GameObject* gameObject)
 	}
 }
 
-void Weapon::SetHitbox(const Hitbox& hitbox)
-{
-	//ヒットボックスのサイズと中心を設定
-	hitbox_.center = hitbox.center;
-	hitbox_.size = hitbox.size;
-}
-
 void Weapon::InitializeTransform()
 {
 	//トランスフォームの初期化
@@ -158,14 +151,14 @@ void Weapon::SetColliderTransform(GameObject* gameObject)
 	Vector3 hipWorldPosition = { hipWorldTransform.matWorld_.m[3][0], hipWorldTransform.matWorld_.m[3][1], hipWorldTransform.matWorld_.m[3][2] };
 
 	//コライダーの中心と向き、サイズを設定
-	Vector3 colliderCenter = Mathf::RotateVector(hitbox_.center, parentTransform->worldTransform_.quaternion_);
-	collider_->SetWorldCenter(hipWorldPosition + colliderCenter);
+	//Vector3 colliderCenter = Mathf::RotateVector(hitbox_.center, parentTransform->worldTransform_.quaternion_);
+	collider_->SetWorldCenter(hipWorldPosition);
 	collider_->SetOrientations(
 		{ parentTransform->worldTransform_.matWorld_.m[0][0], parentTransform->worldTransform_.matWorld_.m[0][1], parentTransform->worldTransform_.matWorld_.m[0][2] },
 		{ parentTransform->worldTransform_.matWorld_.m[1][0], parentTransform->worldTransform_.matWorld_.m[1][1], parentTransform->worldTransform_.matWorld_.m[1][2] },
 		{ parentTransform->worldTransform_.matWorld_.m[2][0], parentTransform->worldTransform_.matWorld_.m[2][1], parentTransform->worldTransform_.matWorld_.m[2][2] }
 	);
-	collider_->SetSize(hitbox_.size);
+	collider_->SetSize({ 2.0f,2.0f,2.0f });
 
 	//デバッグ表示の設定
 	collider_->SetDebugDrawEnabled(isDebug_);
@@ -223,8 +216,6 @@ void Weapon::UpdateImGui()
 	ImGui::DragFloat3("Translation", &transform_->worldTransform_.translation_.x, 0.01f);
 	ImGui::DragFloat3("Rotation", &transform_->worldTransform_.rotation_.x, 0.01f);
 	ImGui::DragFloat3("Scale", &transform_->worldTransform_.scale_.x, 0.01f);
-	ImGui::DragFloat3("HitboxCenter", &hitbox_.center.x, 0.01f);
-	ImGui::DragFloat3("HitboxSize", &hitbox_.size.x, 0.01f);
 	ImGui::DragFloat3("HeadOffset", &headOffset_.x);
 	ImGui::DragFloat3("FrontOffset", &frontOffset_.x);
 	ImGui::ColorEdit4("TrailStartColor", &trailStartColor_.x);
@@ -235,11 +226,11 @@ void Weapon::UpdateImGui()
 void Weapon::HandlePlayerWeaponCollision()
 {
 	//ヒットストップを開始
-	hitStop_->Start(effectSettings_.hitStopDuration);
+	hitStop_->Start(0.02f);
 
 	//ヒット音を再生
 	audio_->PlayAudio(hitAudioHandle_, false, 0.2f);
 
 	//ヒットエフェクトを生成
-	particleEffectManager_->CreateParticles("Hit", transform_->GetWorldPosition(), Mathf::IdentityQuaternion());
+	editorManager_->GetParticleEffectEditor()->CreateParticles("Hit", transform_->GetWorldPosition(), Mathf::IdentityQuaternion());
 }

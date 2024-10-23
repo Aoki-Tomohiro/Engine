@@ -19,7 +19,6 @@
                             1.0
                         ],
                         "Count": 100,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,

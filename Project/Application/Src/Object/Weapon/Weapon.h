@@ -12,8 +12,7 @@
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
-#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
+#include "Application/Src/Object/Editors/EditorManager.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
 
 /// <summary>
@@ -53,14 +52,6 @@ public:
 	//ヒットフラグを取得
 	const bool GetIsHit() const { return isHit_; };
 
-	//エフェクトの設定の取得・設定
-	const EffectSettings& GetEffectSettings() const { return effectSettings_; };
-	void SetEffectSettings(const EffectSettings& effectSettings) { effectSettings_ = effectSettings; };
-
-	//ノックバックの設定を取得・設定
-	const KnockbackSettings& GetKnockbackSettings() const { return knockbackSettings_; };
-	void SetKnockbackSettings(const KnockbackSettings& knockbackSettings) { knockbackSettings_ = knockbackSettings; };
-
 	//ダメージを取得・設定
 	const float GetDamage() const { return damage_; };
 	void SetDamage(const float damage) { damage_ = damage; };
@@ -69,14 +60,11 @@ public:
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
 
-	//パーティクルエフェクトマネージャーを設定
-	void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
-
 	//ヒットストップを設定
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
-	//ヒットボックスを設定
-	void SetHitbox(const Hitbox& hitbox);
+	//エディターマネージャーを設定
+	void SetEditorManager(EditorManager* editorManager) { editorManager_ = editorManager; };
 
 private:
 	/// <summary>
@@ -154,7 +142,7 @@ private:
 	OBBCollider* collider_ = nullptr;
 
 	//パーティクルエフェクトマネージャー
-	ParticleEffectManager* particleEffectManager_ = nullptr;
+	EditorManager* editorManager_ = nullptr;
 
 	//ヒットストップ
 	HitStop* hitStop_ = nullptr;
@@ -164,15 +152,6 @@ private:
 
 	//Colliderのサイズ
 	Vector3 defaultColliderSize_{ 2.0f, 2.0f, 2.0f };
-
-	//エフェクトの設定
-	EffectSettings effectSettings_{};
-
-	//ノックバックの設定
-	KnockbackSettings knockbackSettings_{};
-
-	//ヒットボックス
-	Hitbox hitbox_{};
 
 	//ダメージ
 	float damage_ = 0.0f;

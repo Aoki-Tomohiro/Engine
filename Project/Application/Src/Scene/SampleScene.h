@@ -7,7 +7,6 @@
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Engine/LevelManager/LevelManager.h"
-#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
 
 class SampleScene : public IScene
 {
@@ -32,7 +31,5 @@ private:
 	Camera* camera_ = nullptr;
 
 	GameObjectManager* gameObjectManager_ = nullptr;
-
-	std::unique_ptr<ParticleEffectManager> particleEffectManager_ = nullptr;
 };
 
