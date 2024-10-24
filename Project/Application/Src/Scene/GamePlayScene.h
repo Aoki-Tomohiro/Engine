@@ -7,6 +7,8 @@
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/Collision/CollisionManager.h"
 #include "Engine/LevelManager/LevelManager.h"
+#include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Pillar/Pillar.h"
@@ -60,11 +62,11 @@ private:
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
 
-	////プレイヤー
-	//Player* player_ = nullptr;
+	//プレイヤー
+	Player* player_ = nullptr;
 
-	////敵
-	//Enemy* enemy_ = nullptr;
+	//敵
+	Enemy* enemy_ = nullptr;
 
 	////カメラコントローラー
 	//std::unique_ptr<CameraController> cameraController_ = nullptr;

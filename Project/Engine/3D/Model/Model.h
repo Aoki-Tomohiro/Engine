@@ -158,7 +158,7 @@ private:
 
 	void CreateBoneVertices(int32_t parentIndex);
 
-	void UpdateBoneVertexData(int32_t parentIndex);
+	void UpdateBoneVertexData();
 
 	void CreateBoneVertexBuffer();
 

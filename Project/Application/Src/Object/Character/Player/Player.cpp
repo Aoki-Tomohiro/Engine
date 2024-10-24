@@ -1,1 +1,30 @@
 #include "Player.h"
+
+void Player::InitializeAnimator()
+{
+	//基底クラスの呼び出し
+	BaseCharacter::InitializeAnimator();
+
+	//アニメーション名とファイルパス
+	std::vector<std::pair<std::string, std::string>> animations = {
+		{"Idle", "Player/Animations/Idle.gltf"}, {"Walk1", "Player/Animations/Walk1.gltf"}, {"Walk2", "Player/Animations/Walk2.gltf"},
+		{"Walk3", "Player/Animations/Walk3.gltf"}, {"Walk4", "Player/Animations/Walk4.gltf"}, {"Run1", "Player/Animations/Run1.gltf"},
+		{"Run2", "Player/Animations/Run2.gltf"}, {"Run3", "Player/Animations/Run3.gltf"}, {"Run4", "Player/Animations/Run4.gltf"},
+		{"Jump1", "Player/Animations/Jump1.gltf"}, {"Jump2", "Player/Animations/Jump2.gltf"}, {"DodgeForward", "Player/Animations/DodgeForward.gltf"},
+		{"DodgeBackward", "Player/Animations/DodgeBackward.gltf"}, {"DashStart", "Player/Animations/DashStart.gltf"}, {"DashEnd", "Player/Animations/DashEnd.gltf"},
+		{"Falling", "Player/Animations/Falling.gltf"}, {"GroundAttack1", "Player/Animations/GroundAttack1.gltf"},  {"GroundAttack2", "Player/Animations/GroundAttack2.gltf"},
+		{"GroundAttack3", "Player/Animations/GroundAttack3.gltf"}, {"GroundAttack4", "Player/Animations/GroundAttack4.gltf"}, {"AerialAttack1", "Player/Animations/AerialAttack1.gltf"},
+		{"AerialAttack2", "Player/Animations/AerialAttack2.gltf"}, {"AerialAttack3", "Player/Animations/AerialAttack3.gltf"}, {"LaunchAttack", "Player/Animations/LaunchAttack.gltf"},
+		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Impact", "Player/Animations/Impact.gltf"},
+		{"Death", "Player/Animations/Death.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}
+	};
+
+	//アニメーションを追加
+	for (const auto& [name, path] : animations)
+	{
+		animator_->AddAnimation(name, AnimationManager::Create(path));
+	}
+
+	//通常アニメーションを再生
+	animator_->PlayAnimation("Idle", 1.0f, true);
+}

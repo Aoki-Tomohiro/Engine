@@ -58,6 +58,9 @@ void Weapon::Draw(const Camera& camera)
 
 void Weapon::OnCollision(GameObject* gameObject)
 {
+	//基底クラスの呼び出し
+	GameObject::OnCollision(gameObject);
+
 	//ヒットフラグを立てる
 	isHit_ = true;
 

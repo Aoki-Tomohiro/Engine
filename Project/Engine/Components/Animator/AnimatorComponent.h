@@ -69,6 +69,8 @@ public:
 
 	Animation* GetAnimation(const std::string& animationName) const;
 
+	const std::map<std::string, std::unique_ptr<Animation>>& GetAnimations() const { return animations_; };
+
 private:
 	//アニメーションのマップ
 	std::map<std::string, std::unique_ptr<Animation>> animations_{};

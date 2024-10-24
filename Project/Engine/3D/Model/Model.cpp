@@ -107,7 +107,7 @@ void Model::Draw(const WorldTransform& worldTransform, const Camera& camera)
 	if (!boneVertices_.empty() && isBoneVisible_)
 	{
 		//頂点データの更新
-		UpdateBoneVertexData(skeleton_.root);
+		UpdateBoneVertexData();
 
 		//ボーンの追加
 		renderer_->AddBone(boneVertexBufferView_, worldTransform.GetConstantBuffer()->GetGpuVirtualAddress(), camera.GetConstantBuffer()->GetGpuVirtualAddress(), UINT(boneVertices_.size()));
@@ -265,7 +265,7 @@ void Model::CreateBoneVertices(int32_t parentIndex)
 	}
 }
 
-void Model::UpdateBoneVertexData(int32_t parentIndex)
+void Model::UpdateBoneVertexData()
 {
 	//頂点データをクリア
 	boneVertices_.clear();

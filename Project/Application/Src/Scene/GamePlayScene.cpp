@@ -44,8 +44,11 @@ void GamePlayScene::Initialize()
 	editorManager_ = std::make_unique<EditorManager>();
 	editorManager_->Initialize();
 
-	////プレイヤーの初期化
-	//player_ = gameObjectManager_->GetGameObject<Player>("Player");
+	//プレイヤーの初期化
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
+	//コンバットアニメーションエディターにプレイヤーを設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
+
 	////カメラ、ロックオン、コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
 	//player_->SetCamera(camera_);
 	//player_->SetLockon(lockon_.get());
@@ -61,8 +64,10 @@ void GamePlayScene::Initialize()
 	//TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
 	//playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 
-	////敵の初期化
-	//enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	//敵の初期化
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	//コンバットアニメーションエディターに敵を設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
 	////コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
 	//enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
 	//enemy_->SetParticleEffectManager(particleEffectManager_.get());

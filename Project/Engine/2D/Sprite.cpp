@@ -20,7 +20,6 @@ void Sprite::Draw()
 	UpdateMaterialResource();
 	UpdateWVPResource();
 	CommandContext* commandContext = GraphicsCore::GetInstance()->GetCommandContext();
-	TextureManager* textureManager = TextureManager::GetInstance();
 	commandContext->SetVertexBuffer(vertexBufferView_);
 	commandContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext->SetConstantBuffer(0, materialConstBuffer_->GetGpuVirtualAddress());

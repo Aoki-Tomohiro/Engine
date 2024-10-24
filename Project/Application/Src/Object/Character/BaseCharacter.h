@@ -36,10 +36,13 @@ public:
     /// <returns>ジョイントのローカル座標<</returns>
     const Vector3 GetJointLocalPosition(const std::string& jointName);
 
+    //アニメーターを取得
+    AnimatorComponent* GetAnimator() const { return animator_; };
+
     //タイトルシーンのフラグを設定
     void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
-private:
+protected:
     /// <summary>
     /// トランスフォームの初期化
     /// </summary>
@@ -60,14 +63,14 @@ private:
     /// </summary>
     virtual void InitializeCollider();
 
-private:
+protected:
     //トランスフォーム
     TransformComponent* transform_ = nullptr;
 
     //モデル
     ModelComponent* model_ = nullptr;
 
-    //アニメーション
+    //アニメーター
     AnimatorComponent* animator_ = nullptr;
 
     //コライダー

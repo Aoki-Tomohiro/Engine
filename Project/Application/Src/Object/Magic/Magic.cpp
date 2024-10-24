@@ -41,6 +41,9 @@ void Magic::Update()
 
 void Magic::OnCollision(GameObject* gameObject)
 {
+	//基底クラスの呼び出し
+	GameObject::OnCollision(gameObject);
+
 	//魔法を削除
 	DeleteMagic();
 }

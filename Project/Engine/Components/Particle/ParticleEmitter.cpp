@@ -5,6 +5,9 @@ void ParticleEmitter::Initialize(const std::string& name, const float lifeTime)
 {
 	//名前の初期化
 	name_ = name;
+
+	//寿命の初期化
+	emitterLifeTime_ = lifeTime;
 }
 
 void ParticleEmitter::Update()

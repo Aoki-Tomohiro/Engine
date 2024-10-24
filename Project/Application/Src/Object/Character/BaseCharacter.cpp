@@ -37,7 +37,7 @@ const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName)
 const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName)
 {
     //腰のジョイントのローカル座標を返す
-    return GetJointWorldPosition("mixamorig:Hips") - transform_->GetWorldPosition();
+    return GetJointWorldPosition(jointName) - transform_->GetWorldPosition();
 }
 
 void BaseCharacter::InitializeTransform()

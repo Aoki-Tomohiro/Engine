@@ -21,11 +21,11 @@ public:
 
 	virtual void DrawUI() {};
 
-	virtual void OnCollision(GameObject* gameObject) {};
+	virtual void OnCollision(GameObject*) {};
 
-	virtual void OnCollisionEnter(GameObject* gameObject) {};
+	virtual void OnCollisionEnter(GameObject*) {};
 
-	virtual void OnCollisionExit(GameObject* gameObject) {};
+	virtual void OnCollisionExit(GameObject*) {};
 
 	const std::string& GetName() const { return name_; };
 

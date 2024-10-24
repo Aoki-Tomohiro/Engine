@@ -1,7 +1,7 @@
 #pragma once
-#include "Application/Src/Object/Editors/CombatAnimationEditor.h"
-#include "Application/Src/Object/Editors/CameraAnimationEditor.h"
-#include "Application/Src/Object/Editors/ParticleEffectEditor.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
+#include "Application/Src/Object/Editors/ParticleEffectEditor/ParticleEffectEditor.h"
 
 /// <summary>
 /// エディターを管理するクラス
