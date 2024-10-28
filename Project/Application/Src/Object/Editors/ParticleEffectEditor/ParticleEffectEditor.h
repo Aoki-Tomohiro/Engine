@@ -67,15 +67,15 @@ public:
 	//パーティクルシステムの構造体
 	struct ParticleSystemSettings
 	{
-		std::unordered_map<std::string, EmitterSettings> emitters{};                     //エミッターの設定
-		std::unordered_map<std::string, AccelerationFieldSettings> accelerationFields{}; //加速フィールドの設定
-		std::unordered_map<std::string, GravityFieldSettings> gravityFields{};           //重力フィールドの設定
+		std::map<std::string, EmitterSettings> emitters{};                     //エミッターの設定
+		std::map<std::string, AccelerationFieldSettings> accelerationFields{}; //加速フィールドの設定
+		std::map<std::string, GravityFieldSettings> gravityFields{};           //重力フィールドの設定
 	};
 
 	//パーティクルエフェクトの構造体
 	struct ParticleEffectConfig
 	{
-		std::unordered_map<std::string, ParticleSystemSettings> particleSystems{}; //パーティクルシステムの設定
+		std::map<std::string, ParticleSystemSettings> particleSystems{}; //パーティクルシステムの設定
 	};
 
 	/// <summary>
@@ -95,6 +95,9 @@ public:
 	/// <param name="position">座標</param>
 	/// <param name="quaternion">姿勢</param>
 	void CreateParticles(const std::string& particleEffectName, const Vector3& position, const Quaternion& quaternion);
+
+	//全てのパーティクルエフェクトの設定を取得
+	const std::map<std::string, ParticleEffectConfig>& GetParticleEffectConfigs() const { return particleEffectConfigs_; };
 
 private:
 	//保存先ファイルパス
@@ -132,11 +135,48 @@ private:
 	/// </summary>
 	void AddNewParticleEffectSetting();
 
+	/// <summary>
+	/// 選択されたパーティクルエフェクトのコントロールを表示
+	/// </summary>
+	/// <param name="effectName">パーティクルエフェクトの名前</param>
+	void DisplayEffectControls(const std::string& effectName);
+
+	/// <summary>
+	/// ファイルに保存
+	/// </summary>
+	/// <param name="particleEffectName">パーティクルエフェクトの名前</param>
 	void SaveFile(const std::string& particleEffectName);
+
+	/// <summary>
+	/// 全てのデータの読み込み
+	/// </summary>
 	void LoadFiles();
+
+	/// <summary>
+	/// データの読み込み
+	/// </summary>
+	/// <param name="particleEffectName">パーティクルエフェクトの名前</param>
 	void LoadFile(const std::string& particleEffectName);
+
+	/// <summary>
+	/// エミッターを設定
+	/// </summary>
+	/// <param name="particleSystemSettings">パーティクルシステムの設定</param>
+	/// <param name="systemData">パーティクルシステムのデータ</param>
 	void SetEmitterSettings(ParticleSystemSettings& particleSystemSettings, nlohmann::json& systemData);
+
+	/// <summary>
+	/// 加速フィールドを設定
+	/// </summary>
+	/// <param name="particleSystemSettings">パーティクルシステムの設定</param>
+	/// <param name="systemData">パーティクルシステムのデータ</param>
 	void SetAccelerationFieldSettings(ParticleSystemSettings& particleSystemSettings, nlohmann::json& systemData);
+
+	/// <summary>
+	/// 重力フィールドを設定
+	/// </summary>
+	/// <param name="particleSystemSettings">パーティクルシステムの設定</param>
+	/// <param name="systemData">パーティクルシステムのデータ</param>
 	void SetGravityFieldSettings(ParticleSystemSettings& particleSystemSettings, nlohmann::json& systemData);
 
 	/// <summary>
@@ -195,7 +235,7 @@ private:
 	/// <param name="selectedName">選択された要素の名前</param>
 	/// <param name="items">表示する名前とその設定が格納されたコンテナ</param>
 	template<typename Type>
-	void SelectFromMap(const char* label, std::string& selectedName, const std::unordered_map<std::string, Type>& items);
+	void SelectFromMap(const char* label, std::string& selectedName, const std::map<std::string, Type>& items);
 
 	/// <summary>
 	/// 
@@ -206,7 +246,7 @@ private:
 	/// <param name="currentEditSettingName"></param>
 	/// <param name="editCallback"></param>
 	template<typename Type>
-	void EditSettingsSection(const std::string& sectionName, std::unordered_map<std::string, Type>& settingsMap, std::string& currentEditSettingName, std::function<void(Type&)> editCallback);
+	void EditSettingsSection(const std::string& sectionName, std::map<std::string, Type>& settingsMap, std::string& currentEditSettingName, std::function<void(Type&)> editCallback);
 
 	/// <summary>
 	/// 
@@ -214,22 +254,22 @@ private:
 	/// <param name="settingsMap"></param>
 	/// <param name="selectedSettingName"></param>
 	template<typename Type>
-	void RemoveSetting(std::unordered_map<std::string, Type>& settingsMap, std::string& selectedSettingName);
+	void RemoveSetting(std::map<std::string, Type>& settingsMap, std::string& selectedSettingName);
 
 private:
 	//パーティクルマネージャー
 	ParticleManager* particleManager_ = nullptr;
 
 	//パーティクルシステム
-	std::unordered_map<std::string, ParticleSystem*> particleSystems_{};
+	std::map<std::string, ParticleSystem*> particleSystems_{};
 
 	//パーティクルエフェクトの設定
-	std::unordered_map<std::string, ParticleEffectConfig> particleEffectConfigs_;
+	std::map<std::string, ParticleEffectConfig> particleEffectConfigs_;
 };
 
 
 template<typename Type>
-inline void ParticleEffectEditor::SelectFromMap(const char* label, std::string& selectedName, const std::unordered_map<std::string, Type>& items)
+inline void ParticleEffectEditor::SelectFromMap(const char* label, std::string& selectedName, const std::map<std::string, Type>& items)
 {
 	//ラベルを表示
 	ImGui::Text(label);
@@ -262,7 +302,7 @@ inline void ParticleEffectEditor::SelectFromMap(const char* label, std::string& 
 };
 
 template<typename Type>
-inline void ParticleEffectEditor::EditSettingsSection(const std::string& sectionName, std::unordered_map<std::string, Type>& settingsMap, std::string& currentEditSettingName, std::function<void(Type&)> editCallback)
+inline void ParticleEffectEditor::EditSettingsSection(const std::string& sectionName, std::map<std::string, Type>& settingsMap, std::string& currentEditSettingName, std::function<void(Type&)> editCallback)
 {
 	//設定を選択
 	SelectFromMap(sectionName.c_str(), currentEditSettingName, settingsMap);
@@ -284,7 +324,7 @@ inline void ParticleEffectEditor::EditSettingsSection(const std::string& section
 }
 
 template<typename Type>
-inline void ParticleEffectEditor::RemoveSetting(std::unordered_map<std::string, Type>& settingsMap, std::string& selectedSettingName)
+inline void ParticleEffectEditor::RemoveSetting(std::map<std::string, Type>& settingsMap, std::string& selectedSettingName)
 {
 	settingsMap.erase(selectedSettingName);
 	selectedSettingName.clear();

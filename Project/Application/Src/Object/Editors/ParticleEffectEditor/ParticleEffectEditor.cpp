@@ -36,32 +36,11 @@ void ParticleEffectEditor::Update()
 	//パーティクルエフェクトが見つからなければ処理を飛ばす
 	if (effectIt == particleEffectConfigs_.end()) return;
 
-	//区切り線とエフェクト名表示
-	ImGui::NewLine();
-	ImGui::SeparatorText(currentEditEffectName.c_str());
-
-	//保存
-	if (ImGui::Button("Save"))
-	{
-		SaveFile(currentEditEffectName);
-	}
-
-	//次のアイテムを同じ行に配置
-	ImGui::SameLine();
-
-	//読み込み
-	if (ImGui::Button("Load"))
-	{
-		LoadFile(currentEditEffectName);
-	}
-
-	//現在編集中のパーティクルを生成
-	if (ImGui::Button("CreateParticles"))
-	{
-		CreateParticles(currentEditEffectName, { 0.0f,0.0f,0.0f }, Mathf::IdentityQuaternion());
-	}
+	//選択したパーティクルエフェクトのコントロールを表示
+	DisplayEffectControls(currentEditEffectName);
 
 	//パーティクルシステムの設定を追加
+	ImGui::SeparatorText("Add Particle System Setting");
 	AddParticleSystemSetting(effectIt->second);
 
 	//パーティクルシステムが存在しなければ処理を飛ばす
@@ -246,6 +225,30 @@ void ParticleEffectEditor::AddNewParticleEffectSetting()
 		particleEffectConfigs_[particleEffectName] = ParticleEffectConfig();
 		//入力バッファのクリア
 		std::memset(newParticleEffectSettingName, '\0', sizeof(newParticleEffectSettingName));
+	}
+}
+
+void ParticleEffectEditor::DisplayEffectControls(const std::string& effectName)
+{
+	//保存
+	if (ImGui::Button("Save"))
+	{
+		SaveFile(effectName);
+	}
+
+	//次のアイテムを同じ行に配置
+	ImGui::SameLine();
+
+	//読み込み
+	if (ImGui::Button("Load"))
+	{
+		LoadFile(effectName);
+	}
+
+	//現在編集中のパーティクルを生成
+	if (ImGui::Button("CreateParticles"))
+	{
+		CreateParticles(effectName, { 0.0f,0.0f,0.0f }, Mathf::IdentityQuaternion());
 	}
 }
 
@@ -453,6 +456,7 @@ void ParticleEffectEditor::LoadFile(const std::string& particleEffectName)
 
 	//パーティクルエフェクトの設定を取得
 	ParticleEffectConfig& particleEffectSettings = particleEffectConfigs_[particleEffectName];
+	particleEffectSettings.particleSystems.clear();
 
 	//各パーティクルシステムについて
 	for (nlohmann::json::iterator systemItem = particleEffectJson["ParticleSystems"].begin(); systemItem != particleEffectJson["ParticleSystems"].end(); ++systemItem)
@@ -574,18 +578,18 @@ void ParticleEffectEditor::SetGravityFieldSettings(ParticleSystemSettings& parti
 
 void ParticleEffectEditor::AddParticleSystemSetting(ParticleEffectConfig& selectedEffect)
 {
-	//現在編集しているパーティクルシステムの設定の名前
-	static std::string currentEditSystemSettingName;
+	//選択パーティクルシステムの設定の名前
+	static std::string selectedSystemName;
 
 	//編集するパーティクルシステムの設定を選択
-	SelectFromMap<ParticleSystem*>("New Particle Systems", currentEditSystemSettingName, particleSystems_);
+	SelectFromMap<ParticleSystem*>("Particle Systems", selectedSystemName, particleSystems_);
 
 	//同じパーティクルシステムの設定が存在しなければ新しい設定を追加
 	if (ImGui::Button("Add Particle System"))
 	{
-		if (selectedEffect.particleSystems.find(currentEditSystemSettingName) == selectedEffect.particleSystems.end())
+		if (selectedEffect.particleSystems.find(selectedSystemName) == selectedEffect.particleSystems.end())
 		{
-			selectedEffect.particleSystems[currentEditSystemSettingName] = ParticleSystemSettings();
+			selectedEffect.particleSystems[selectedSystemName] = ParticleSystemSettings();
 		}
 	}
 }
@@ -595,12 +599,8 @@ void ParticleEffectEditor::EditParticleSystemSettings(ParticleEffectConfig& sele
 	//現在編集しているパーティクルシステムの設定の名前
 	static std::string currentEditSystemName;
 
-	//区切り線と編集名を表示
-	ImGui::NewLine();
-	ImGui::SeparatorText("Particle System Setting");
-
 	//パーティクルシステムの設定
-	EditSettingsSection<ParticleSystemSettings>("Particle Systems", selectedEffect.particleSystems, currentEditSystemName, 
+	EditSettingsSection<ParticleSystemSettings>("Edit Particle Systems", selectedEffect.particleSystems, currentEditSystemName, 
 		[this](ParticleSystemSettings& systemSetting)
 		{
 			//新しいエミッターの設定を追加

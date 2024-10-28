@@ -1,16 +1,20 @@
 #pragma once
+#include <string>
 
 //イベントの種類
 enum class EventType
 {
-    kMove,   // 移動
-    kAttack, // 攻撃
+    kMovement,   // 移動
+    kAttack,     // 攻撃
 };
 
 //アニメーションに関連するイベントの基底構造体
 struct AnimationEvent
 {
+    virtual ~AnimationEvent() = default;
+    std::string eventName{};
     EventType eventType;
-    float startAnimationTime;
-    float endAnimationTime;
+    float startEventTime;
+    float endEventTime;
+    bool isActive;
 };

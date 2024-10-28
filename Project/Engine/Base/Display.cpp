@@ -47,6 +47,7 @@ void Display::CreateResources()
 	{
 		ID3D12Resource* resource = nullptr;
 		HRESULT hr = swapChain_->GetBuffer(i, IID_PPV_ARGS(&resource));
+		assert(SUCCEEDED(hr));
 		swapChainResources_[i] = std::make_unique<ColorBuffer>();
 		swapChainResources_[i]->CreateFromSwapChain(resource);
 	}

@@ -21,7 +21,28 @@ void BaseCharacter::Initialize()
     //InitializeUISprites();
 }
 
-const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName)
+void BaseCharacter::Move(const Vector3& velocity)
+{
+    //移動処理
+    transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
+}
+
+void BaseCharacter::StartDebugMode(const std::string& animationName)
+{
+    isDebug_ = true;
+    animator_->SetIsBlending(false);
+    animator_->PlayAnimation(animationName, 1.0f, false);
+    animator_->PauseAnimation();
+}
+
+void BaseCharacter::EndDebugMode()
+{
+    isDebug_ = false;
+    animator_->SetIsBlending(true);
+    animator_->ResumeAnimation();
+}
+
+const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName) const
 {
     //ジョイントのワールドトランスフォームを取得
     WorldTransform jointWorldTransform = model_->GetModel()->GetJointWorldTransform(jointName);
@@ -34,7 +55,7 @@ const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName)
     };
 }
 
-const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName)
+const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName) const
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition(jointName) - transform_->GetWorldPosition();

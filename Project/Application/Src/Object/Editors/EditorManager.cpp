@@ -2,17 +2,18 @@
 
 void EditorManager::Initialize()
 {
+	//パーティクルエフェクトエディターの初期化
+	particleEffectEditor_ = std::make_unique<ParticleEffectEditor>();
+	particleEffectEditor_->Initialize();
+
 	//コンバットアニメーションエディターの初期化
 	combatAnimationEditor_ = std::make_unique<CombatAnimationEditor>();
 	combatAnimationEditor_->Initialize();
+	combatAnimationEditor_->SetParticleEffectEditor(particleEffectEditor_.get());
 
 	//カメラアニメーションエディターの初期化
 	cameraAnimationEditor_ = std::make_unique<CameraAnimationEditor>();
 	cameraAnimationEditor_->Initialize();
-
-	//パーティクルエフェクトエディターの初期化
-	particleEffectEditor_ = std::make_unique<ParticleEffectEditor>();
-	particleEffectEditor_->Initialize();
 }
 
 void EditorManager::Update()

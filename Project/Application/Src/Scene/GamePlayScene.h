@@ -9,6 +9,7 @@
 #include "Engine/LevelManager/LevelManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
+#include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Laser/Laser.h"
 #include "Application/Src/Object/Pillar/Pillar.h"
@@ -68,8 +69,8 @@ private:
 	//敵
 	Enemy* enemy_ = nullptr;
 
-	////カメラコントローラー
-	//std::unique_ptr<CameraController> cameraController_ = nullptr;
+	//カメラコントローラー
+	std::unique_ptr<CameraController> cameraController_ = nullptr;
 
 	//ヒットストップ
 	std::unique_ptr<HitStop> hitStop_ = nullptr;

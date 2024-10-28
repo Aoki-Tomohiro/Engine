@@ -5,6 +5,7 @@
 #include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/Math/MathFunction.h"
+#include "Engine/Utilities/GameTimer.h"
 
 /// <summary>
 /// キャラクターの基底クラス
@@ -23,24 +24,52 @@ public:
     virtual void Initialize();
 
     /// <summary>
+    /// 移動処理
+    /// </summary>
+    /// <param name="velocity">速度</param>
+    void Move(const Vector3& velocity);
+
+    /// <summary>
+    /// デバッグモードの開始
+    /// </summary>
+    /// <param name="animationName">アニメーションの名前</param>
+    void StartDebugMode(const std::string& animationName);
+
+    /// <summary>
+    /// デバッグモードの終了
+    /// </summary>
+    void EndDebugMode();
+
+    /// <summary>
     /// ジョイントのワールド座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのワールド座標</returns>
-    const Vector3 GetJointWorldPosition(const std::string& jointName);
+    const Vector3 GetJointWorldPosition(const std::string& jointName) const;
 
     /// <summary>
     /// ジョイントのローカル座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのローカル座標<</returns>
-    const Vector3 GetJointLocalPosition(const std::string& jointName);
+    const Vector3 GetJointLocalPosition(const std::string& jointName) const;
 
-    //アニメーターを取得
-    AnimatorComponent* GetAnimator() const { return animator_; };
+    //座標を設定・取得
+    const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
+    void SetPosition(const Vector3& position) { transform_->worldTransform_.translation_ = position; };
+
+    //クォータニオンの設定・取得
+    const Quaternion& GetQuaternion() const { return transform_->worldTransform_.quaternion_; };
+    void SetQuaternion(const Quaternion& quaternion) { transform_->worldTransform_.quaternion_ = quaternion; };
 
     //タイトルシーンのフラグを設定
     void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
+
+    //デバッグのフラグの設定・取得
+    const bool GetIsDebug() const { return isDebug_; };
+
+    //アニメーターを取得
+    AnimatorComponent* GetAnimator() const { return animator_; };
 
 protected:
     /// <summary>
@@ -84,5 +113,8 @@ protected:
 
     //タイトルシーンにいるかどうか
     bool isInTitleScene_ = false;
+
+    //デバッグのフラグ
+    bool isDebug_ = false;
 };
 

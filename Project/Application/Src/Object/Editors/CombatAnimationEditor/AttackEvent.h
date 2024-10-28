@@ -17,43 +17,44 @@ enum class HitSEType
 };
 
 //攻撃に関連する設定
-struct AttackEventSettings
+struct AttackParameters
 {
-    int32_t hitCount = 0;
-    float hitInterval = 0.0f;
-    float damage = 0.0f;
+    int32_t hitCount = 0;      // ヒット数
+    float hitInterval = 0.0f;  // ヒット間隔
+    float damage = 0.0f;       // ダメージ量
 };
 
 //当たり判定に関連する設定
-struct HitboxEventSettings
+struct HitboxParameters
 {
-    Vector3 center{ 0.0f, 0.0f, 0.0f };
-    Vector3 size{ 2.0f, 2.0f, 2.0f };
+    Vector3 center{ 0.0f, 0.0f, 0.0f }; // 当たり判定の中心
+    Vector3 size{ 2.0f, 2.0f, 2.0f };   // 当たり判定のサイズ
 };
 
 //ノックバックに関連する設定
-struct KnockbackEventSettings
+struct KnockbackParameters
 {
-    Vector3 velocity{};
-    Vector3 acceleration{};
+    Vector3 velocity{};      // 吹き飛ばしの初速度
+    Vector3 acceleration{};  // 吹き飛ばしの加速度
 };
 
 //エフェクトに関連する設定
-struct HitEffectSettings
+struct HitEffectConfig
 {
-    float hitStopDuration = 0.0f;
-    float cameraShakeDuration = 0.0f;
-    Vector3 cameraShakeIntensity{};
-    std::string hitParticleName{};
-    HitSEType hitSEType = HitSEType::kNormal;
-    ReactionType reactionType = ReactionType::kFlinch;
+    float hitStopDuration = 0.0f;                      // ヒット時の一時停止時間
+    float cameraShakeDuration = 0.0f;                  // カメラ揺れの継続時間
+    Vector3 cameraShakeIntensity{};                    // カメラ揺れの強さ
+    std::string hitParticleName{};                     // ヒットエフェクトのパーティクル名
+    HitSEType hitSEType = HitSEType::kNormal;          // ヒット時のSEタイプ
+    ReactionType reactionType = ReactionType::kFlinch; // リアクションタイプ
 };
 
 //攻撃イベント
 struct AttackEvent : public AnimationEvent
 {
-    AttackEventSettings attackSettings{};
-    HitboxEventSettings hitboxSettings{};
-    KnockbackEventSettings knockbackSettings{};
-    HitEffectSettings effectSettings{};
+    virtual ~AttackEvent() = default;
+    AttackParameters attackParameters{};       // 攻撃に関する設定
+    HitboxParameters hitboxParameters{};       // 当たり判定の設定
+    KnockbackParameters knockbackParameters{}; // ノックバック設定
+    HitEffectConfig effectConfigs{};           // ヒットエフェクトの設定
 };

@@ -60,9 +60,9 @@ void GamePlayScene::Initialize()
 	//ヒットストップ、パーティクルエフェクトマネージャーを設定
 	playerWeapon->SetEditorManager(editorManager_.get());
 	playerWeapon->SetHitStop(hitStop_.get());
-	////プレイヤーの右手に親子付け
-	//TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
-	//playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+	//プレイヤーの右手に親子付け
+	TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
+	playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//敵の初期化
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
@@ -77,17 +77,17 @@ void GamePlayScene::Initialize()
 	//ヒットストップ、パーティクルエフェクトマネージャーを設定
 	enemyWeapon->SetEditorManager(editorManager_.get());
 	enemyWeapon->SetHitStop(hitStop_.get());
-	////敵の右手に親子付け
-	//TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
-	//enemyWeaponTransform->worldTransform_.SetParent(&enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+	//敵の右手に親子付け
+	TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
+	enemyWeaponTransform->worldTransform_.SetParent(&enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 
-	////カメラコントローラーの初期化
-	//cameraController_ = std::make_unique<CameraController>();
-	//cameraController_->Initialize();
-	////カメラパスマネージャー、ロックオン、ロックオンターゲットを設定
+	//カメラコントローラーの初期化
+	cameraController_ = std::make_unique<CameraController>();
+	cameraController_->Initialize();
+	//カメラパスマネージャー、ロックオン、ロックオンターゲットを設定
 	//cameraController_->SetCameraPathManager(cameraPathManager_.get());
-	//cameraController_->SetLockon(lockon_.get());
-	//cameraController_->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
+	cameraController_->SetLockon(lockon_.get());
+	cameraController_->SetTarget(player_);
 
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");
@@ -205,11 +205,11 @@ void GamePlayScene::UpdateColliders()
 	//コライダーをクリア
 	collisionManager_->ClearColliderList();
 
-	////プレイヤーを衝突マネージャーに追加
-	//if (Collider* collider = player_->GetComponent<Collider>())
-	//{
-	//	collisionManager_->SetColliderList(collider);
-	//}
+	//プレイヤーを衝突マネージャーに追加
+	if (Collider* collider = player_->GetComponent<Collider>())
+	{
+		collisionManager_->SetColliderList(collider);
+	}
 
 	//プレイヤーの武器を衝突マネージャーに追加
 	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon")->GetComponent<Collider>())
@@ -217,11 +217,11 @@ void GamePlayScene::UpdateColliders()
 		collisionManager_->SetColliderList(collider);
 	}
 
-	////敵を衝突マネージャーに追加
-	//if (Collider* collider = enemy_->GetComponent<Collider>())
-	//{
-	//	collisionManager_->SetColliderList(collider);
-	//}
+	//敵を衝突マネージャーに追加
+	if (Collider* collider = enemy_->GetComponent<Collider>())
+	{
+		collisionManager_->SetColliderList(collider);
+	}
 
 	//敵の武器を衝突マネージャーに追加
 	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("EnemyWeapon")->GetComponent<Collider>())
@@ -278,15 +278,15 @@ void GamePlayScene::UpdateCameraAndLockOn()
 	//ロックオンの更新
 	lockon_->Update(camera_);
 
-	////カメラコントローラーの更新
-	//cameraController_->Update();
+	//カメラコントローラーの更新
+	cameraController_->Update();
 
 	//シャドウマップ用のカメラを移動させる
 	Camera* shadowCamera = CameraManager::GetCamera("ShadowCamera");
 	shadowCamera->translation_ = { camera_->translation_.x, shadowCamera->translation_.y, camera_->translation_.z };
 
-	////カメラの更新
-	//*camera_ = cameraController_->GetCamera();
+	//カメラの更新
+	*camera_ = cameraController_->GetCamera();
 	camera_->TransferMatrix();
 }
 

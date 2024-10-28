@@ -30,6 +30,7 @@ LRESULT CALLBACK Application::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPA
 void Application::CreateGameWindow(const wchar_t* title, int32_t clientWidth, int32_t clientHeight) {
 	//COM初期化
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+	assert(SUCCEEDED(hr));
 
 	//システムタイマーの分解能をあげる
 	timeBeginPeriod(1);

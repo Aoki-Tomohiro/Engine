@@ -13,10 +13,14 @@
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackGroundObject.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockon.cpp" />
     <ClCompile Include="Application\Src\Object\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Player\Player.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Player\SkillCooldownManager.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\ICharacterState.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\EditorManager.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\ParticleEffectEditor\ParticleEffectEditor.cpp" />
@@ -142,11 +146,17 @@
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\BackGroundObject\BackGroundObject.h" />
+    <ClInclude Include="Application\Src\Object\Camera\CameraController.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFollow.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockon.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h" />
     <ClInclude Include="Application\Src\Object\Character\BaseCharacter.h" />
     <ClInclude Include="Application\Src\Object\Character\Enemy\Enemy.h" />
     <ClInclude Include="Application\Src\Object\Character\Player\Player.h" />
     <ClInclude Include="Application\Src\Object\Character\Player\SkillCooldownManager.h" />
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\ICharacterState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvent.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AttackEvent.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.h" />
