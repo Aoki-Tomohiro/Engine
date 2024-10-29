@@ -27,6 +27,29 @@ void BaseCharacter::Move(const Vector3& velocity)
     transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
 }
 
+void BaseCharacter::ApplyParametersToWeapon(const AttackEvent* attackEvent)
+{
+    //ダメージを設定
+    weapon_->SetDamage(attackEvent->attackParameters.damage);
+    
+    //ヒットボックスを設定
+    weapon_->SetHitboxParameters(attackEvent->hitboxParameters);
+
+    //ノックバックのパラメーターを取得
+    KnockbackParameters knockbackParameters = attackEvent->knockbackParameters;
+
+    //ノックバックの速度を設定
+    Vector3 knockbackVelocity = Mathf::RotateVector(attackEvent->knockbackParameters.velocity, transform_->worldTransform_.quaternion_);
+    knockbackParameters.velocity = knockbackVelocity;
+
+    //ノックバックの加速度を設定
+    Vector3 knockbackAcceleration = Mathf::RotateVector(attackEvent->knockbackParameters.acceleration, transform_->worldTransform_.quaternion_);
+    knockbackParameters.acceleration = knockbackAcceleration;
+
+    //武器にノックバックの速度を設定
+    weapon_->SetKnockbackParameters(knockbackParameters);
+}
+
 void BaseCharacter::StartDebugMode(const std::string& animationName)
 {
     isDebug_ = true;

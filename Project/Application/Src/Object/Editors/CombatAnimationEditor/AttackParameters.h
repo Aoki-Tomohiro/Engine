@@ -1,5 +1,5 @@
 #pragma once
-#include "AnimationEvent.h"
+#include "ActionParameters.h"
 #include "Engine/Math/Vector3.h"
 #include <string>
 
@@ -16,22 +16,22 @@ enum class HitSEType
     kNormal,
 };
 
-//攻撃に関連する設定
-struct AttackParameters
+//攻撃ヒット時に関連するパラメーター
+struct HitParameters
 {
     int32_t hitCount = 0;      // ヒット数
     float hitInterval = 0.0f;  // ヒット間隔
     float damage = 0.0f;       // ダメージ量
 };
 
-//当たり判定に関連する設定
+//当たり判定に関連するパラメーター
 struct HitboxParameters
 {
     Vector3 center{ 0.0f, 0.0f, 0.0f }; // 当たり判定の中心
     Vector3 size{ 2.0f, 2.0f, 2.0f };   // 当たり判定のサイズ
 };
 
-//ノックバックに関連する設定
+//ノックバックに関連するパラメーター
 struct KnockbackParameters
 {
     Vector3 velocity{};      // 吹き飛ばしの初速度
@@ -49,12 +49,12 @@ struct HitEffectConfig
     ReactionType reactionType = ReactionType::kFlinch; // リアクションタイプ
 };
 
-//攻撃イベント
-struct AttackEvent : public AnimationEvent
+//攻撃パラメーター
+struct AttackEvent : public ActionParameters
 {
     virtual ~AttackEvent() = default;
-    AttackParameters attackParameters{};       // 攻撃に関する設定
-    HitboxParameters hitboxParameters{};       // 当たり判定の設定
-    KnockbackParameters knockbackParameters{}; // ノックバック設定
-    HitEffectConfig effectConfigs{};           // ヒットエフェクトの設定
+    HitParameters hitParameters{};             // 攻撃ヒット時に関するパラメーター
+    HitboxParameters hitboxParameters{};       // 当たり判定のパラメーター
+    KnockbackParameters knockbackParameters{}; // ノックバックパラメーター
+    HitEffectConfig effectConfigs{};           // ヒットエフェクトのパラメーター
 };

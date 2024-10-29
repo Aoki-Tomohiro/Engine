@@ -10,7 +10,7 @@ void ICharacterState::ProcessAnimationEvents()
 	float currentAnimationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
 
 	//全てのアニメーションイベントの処理
-	for (const std::unique_ptr<AnimationEvent>& animationEvent : animationEvents_)
+	for (const std::unique_ptr<ActionParameters>& animationEvent : animationEvents_)
 	{
 		//現在のアニメーション時間がイベント時間内入っていた場合
 		if (animationEvent->startEventTime < currentAnimationTime && animationEvent->endEventTime >= currentAnimationTime)
@@ -24,15 +24,15 @@ void ICharacterState::ProcessAnimationEvents()
 	}
 }
 
-void ICharacterState::ProcessAnimationEvent(AnimationEvent* animationEvent, const float animationTime)
+void ICharacterState::ProcessAnimationEvent(ActionParameters* animationEvent, const float animationTime)
 {
-	switch (animationEvent->eventType)
+	switch (animationEvent->parameterType)
 	{
-	case EventType::kMovement:
+	case ParameterType::kMovement:
 		ProcessMovementEvent(dynamic_cast<MovementEvent*>(animationEvent), animationTime);
 		break;
-	case EventType::kAttack:
-		ProcessAttackEvent(dynamic_cast<AttackEvent*>(animationEvent));
+	case ParameterType::kAttack:
+		ProcessAttackEvent(dynamic_cast<ActionParameters*>(animationEvent));
 		break;
 	}
 }
@@ -75,7 +75,14 @@ void ICharacterState::ProcessEasingMovementEvent(EasingMovementEvent* easingMove
 	character_->SetPosition(Mathf::Lerp(startPosition_, targetPosition_, easingParameter));
 }
 
-void ICharacterState::ProcessAttackEvent(AttackEvent* attackEvent)
+void ICharacterState::ProcessAttackEvent(ActionParameters* attackEvent)
 {
+	if (!attackEvent->isActive)
+	{
+		attackEvent->isActive = true;
+		character_->ApplyParametersToWeapon(attackEvent);
+	}
 
+	//武器を取得
+	Weapon* weapon = character_->GetWeapon();
 }

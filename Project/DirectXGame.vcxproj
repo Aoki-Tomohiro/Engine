@@ -157,10 +157,10 @@
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h" />
     <ClInclude Include="Application\Src\Object\Character\States\ICharacterState.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h" />
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvent.h" />
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AttackEvent.h" />
+    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\ActionParameters.h" />
+    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AttackParameters.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.h" />
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\MovementEvent.h" />
+    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\MovementParameters.h" />
     <ClInclude Include="Application\Src\Object\Editors\EditorManager.h" />
     <ClInclude Include="Application\Src\Object\Editors\ParticleEffectEditor\ParticleEffectEditor.h" />
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />

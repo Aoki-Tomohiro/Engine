@@ -51,6 +51,7 @@ public:
 
 	//ヒットフラグを取得
 	const bool GetIsHit() const { return isHit_; };
+	void SetIsHit(const bool isHit) { isHit_ = isHit; };
 
 	//ダメージを取得・設定
 	const float GetDamage() const { return damage_; };
@@ -59,6 +60,17 @@ public:
 	//攻撃フラグの取得・設定
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
+
+	//ノックバックのパラメーターを取得・設定
+	const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
+	void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
+
+	//エフェクトの設定を取得・設定
+	const HitEffectConfig& GetHitEffectConfig() const { return hitEffectConfig_; };
+	void SetHitEffectConfig(const HitEffectConfig& hitEffectConfig) { hitEffectConfig_ = hitEffectConfig; };
+
+	//ヒットボックスのパラメーターを設定
+	void SetHitboxParameters(const HitboxParameters& hitboxParameters) { hitboxParameters_ = hitboxParameters; };
 
 	//ヒットストップを設定
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
@@ -155,6 +167,15 @@ private:
 
 	//ダメージ
 	float damage_ = 0.0f;
+
+	//ヒットボックスのパラメーター
+	HitboxParameters hitboxParameters_{};
+
+	//ノックバックのパラメーター
+	KnockbackParameters knockbackParameters_{};
+
+	//エフェクトの設定
+	HitEffectConfig hitEffectConfig_{};
 
 	//攻撃フラグ
 	bool isAttack_ = false;

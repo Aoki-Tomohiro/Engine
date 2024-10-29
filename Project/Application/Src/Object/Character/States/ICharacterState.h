@@ -16,7 +16,7 @@ protected:
 	void ProcessAnimationEvents();
 
 private:
-	void ProcessAnimationEvent(AnimationEvent* animationEvent, const float animationTime);
+	void ProcessAnimationEvent(ActionParameters* animationEvent, const float animationTime);
 
 	void ProcessMovementEvent(MovementEvent* movementEvent, const float animationTime);
 
@@ -24,12 +24,12 @@ private:
 
 	void ProcessEasingMovementEvent(EasingMovementEvent* easingMovementEvent, const float animationTime);
 
-	void ProcessAttackEvent(AttackEvent* attackEvent);
+	void ProcessAttackEvent(ActionParameters* attackEvent);
 
 protected:
 	BaseCharacter* character_ = nullptr;
 
-	const std::vector<std::unique_ptr<AnimationEvent>>& animationEvents_{};
+	const std::vector<std::unique_ptr<ActionParameters>>& animationEvents_{};
 
 	Vector3 velocity_{};
 
