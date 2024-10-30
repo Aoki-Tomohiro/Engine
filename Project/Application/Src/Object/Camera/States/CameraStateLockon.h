@@ -33,6 +33,11 @@ private:
 	/// <returns>カメラとロックオン対象が一定距離以内にいるかどうか</returns>
 	const bool IsCameraCloseToTarget(const Vector3& cameraPosition, const Vector3& lockOnTargetPosition) const;
 
+	/// <summary>
+	/// カメラの状態遷移
+	/// </summary>
+	void ManageCameraStateTransition();
+
 private:
 	//前のフレームの方向ベクトル
 	Vector3 previousDirection_{};

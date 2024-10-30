@@ -1,4 +1,8 @@
 #include "BaseCharacter.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Magic/Magic.h"
+#include "Application/Src/Object/Laser/Laser.h"
+#include "Application/Src/Object/Pillar/Pillar.h"
 
 void BaseCharacter::Initialize()
 {
@@ -17,14 +21,173 @@ void BaseCharacter::Initialize()
     //コライダーの初期化
     InitializeCollider();
 
-    ////UIスプライトの初期化
-    //InitializeUISprites();
+    //UIスプライトの初期化
+    InitializeUISprites();
+}
+
+void BaseCharacter::Update()
+{
+    //アニメーション後の座標を代入
+    preAnimationHipPosition_ = GetJointLocalPosition("mixamorig:Hips");
+
+    //回転処理
+    UpdateRotation();
+
+    //コライダーの更新
+    UpdateCollider();
+
+    //移動制限の処理
+    RestrictMovement();
+
+    //モデルシェイクを適用
+    ApplyModelShake();
+
+    //HPの更新
+    UpdateHP();
+
+    //死亡状態かどうかを確認する
+    CheckAndTransitionToDeath();
+
+    //基底クラスの更新
+    GameObject::Update();
+}
+
+void BaseCharacter::DrawUI()
+{
+    //体力バーの描画
+    for (int32_t i = 0; i < hpSprites_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
+        {
+            hpSprites_[i][j]->Draw();
+        }
+    }
+}
+
+void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockbackParameters, const float damage, const bool transitionToStun)
+{
+    //ノックバックの速度を設定
+    knockbackParameters_ = knockbackParameters;
+
+    //HPを減らす
+    hp_ -= damage;
+
+    //モデルシェイクを有効にする
+    StartModelShake();
+
+    //スタン状態に遷移するかどうかをチェック
+    if (transitionToStun)
+    {
+        TransitionToStunState();
+    }
+}
+
+void BaseCharacter::ChangeState(ICharacterState* newState)
+{
+    assert(newState);
+
+    //新しい状態の設定
+    newState->SetCharacter(this);
+
+    //新しい状態の初期化
+    newState->Initialize();
+
+    //現在の状態を新しい状態に更新
+    state_.reset(newState);
 }
 
 void BaseCharacter::Move(const Vector3& velocity)
 {
     //移動処理
     transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
+}
+
+void BaseCharacter::Rotate(const Vector3& vector)
+{
+    //回転軸を計算
+    Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, vector));
+
+    //角度を計算
+    float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, vector);
+
+    //クォータニオンを計算
+    destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
+}
+
+void BaseCharacter::CorrectAnimationOffset()
+{
+    Vector3 hipPositionOffset = GetJointLocalPosition("mixamorig:Hips") - preAnimationHipPosition_;
+    hipPositionOffset.y = 0.0f;
+    SetPosition(GetPosition() - hipPositionOffset);
+}
+
+void BaseCharacter::ApplyKnockback()
+{
+    //加速度を加算する前の速度を保存
+    Vector3 currentVelocity = knockbackParameters_.velocity;
+
+    //重力加速度を考慮
+    Vector3 gravity = { 0.0f, gravityAcceleration_, 0.0f };
+    knockbackParameters_.velocity += (gravity + knockbackParameters_.acceleration) * GameTimer::GetDeltaTime();
+
+    //移動処理
+    Move(knockbackParameters_.velocity);
+
+    //ノックバックの速度の符号が変わっていたら停止させる
+    if ((currentVelocity.z >= 0.0f && knockbackParameters_.velocity.z < 0.0f) || (currentVelocity.z < 0.0f && knockbackParameters_.velocity.z >= 0.0f))
+    {
+        knockbackParameters_.velocity = { 0.0f, knockbackParameters_.velocity.y, 0.0f };
+        knockbackParameters_.acceleration = { 0.0f, knockbackParameters_.acceleration.y, 0.0f };
+    }
+}
+
+void BaseCharacter::ApplyParametersToWeapon(const AttackEvent* attackEvent)
+{
+    //ダメージを設定
+    weapon_->SetDamage(attackEvent->attackParameters.damage);
+
+    //ヒットボックスのパラメーターを設定
+    weapon_->SetHitboxParameters(attackEvent->hitboxParameters);
+
+    //ノックバックのパラメーターを設定
+    weapon_->SetKnockbackParameters(attackEvent->knockbackParameters);
+
+    //エフェクトコンフィグを武器に設定
+    weapon_->SetHitEffectConfig(attackEvent->effectConfigs);
+}
+
+void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
+{
+    //衝突相手が武器だった場合
+    if (Weapon* weapon = dynamic_cast<Weapon*>(gameObject))
+    {
+        //ダメージを食らった時の処理を実行
+        ApplyDamageAndKnockback(weapon->GetKnockbackParameters(), weapon->GetDamage(), transitionToStun);
+    }
+    //衝突相手が魔法だった場合
+    else if (Magic* magic = dynamic_cast<Magic*>(gameObject))
+    {
+        ApplyDamageAndKnockback(magic->GetKnockbackParameters(), magic->GetDamage(), magic->GetMagicType() == Magic::MagicType::kCharged);
+    }
+    //衝突相手がレーザーだった場合
+    else if (Laser* laser = dynamic_cast<Laser*>(gameObject))
+    {
+        //ダメージを食らった処理を実行
+        ApplyDamageAndKnockback(KnockbackParameters{}, laser->GetDamage(), transitionToStun);
+    }
+    //衝突相手が柱だった場合
+    else if (Pillar* pillar = dynamic_cast<Pillar*>(gameObject))
+    {
+        //ダメージを食らった処理を実行
+        ApplyDamageAndKnockback(KnockbackParameters{}, pillar->GetDamage(), transitionToStun);
+    }
+}
+
+void BaseCharacter::StartModelShake()
+{
+    modelShake_.isActive = true;
+    modelShake_.elapsedTime = 0.0f;
+    modelShake_.originalPosition = GetPosition();
 }
 
 void BaseCharacter::StartDebugMode(const std::string& animationName)
@@ -93,4 +256,131 @@ void BaseCharacter::InitializeCollider()
 {
     //コライダーコンポーネントを取得
     collider_ = GetComponent<AABBCollider>();
+}
+
+void BaseCharacter::InitializeUISprites()
+{
+    //テクスチャの読み込みとスプライトの生成
+    for (int32_t i = 0; i < hpSprites_.size(); ++i)
+    {
+        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
+        {
+            TextureManager::Load(hpTextureNames_[i][j]);
+            hpSprites_[i][j].reset(Sprite::Create(hpTextureNames_[i][j], hpBarSegmentPositions_[i][j]));
+        }
+    }
+    hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
+}
+
+void BaseCharacter::UpdateRotation()
+{
+    //タイトルシーンにいない場合はクォータニオンを補間
+    if (!isInTitleScene_)
+    {
+        transform_->worldTransform_.quaternion_ = Mathf::Normalize(Mathf::Slerp(transform_->worldTransform_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+    }
+}
+
+void BaseCharacter::UpdateCollider()
+{
+    //腰のジョイントの位置を取得
+    Vector3 hipPosition = GetJointLocalPosition("mixamorig:Hips");
+
+    //アニメーション補正がアクティブな場合、腰のY成分だけ補正
+    if (isAnimationCorrectionActive_)
+    {
+        //補正フラグをリセット
+        isAnimationCorrectionActive_ = false;
+
+        //腰の位置からXとZ成分をゼロにして補正
+        hipPosition = { 0.0f, hipPosition.y, 0.0f };
+    }
+
+    //コライダーの中心座標を設定
+    collider_->SetCenter(hipPosition + colliderOffset_);
+}
+
+void BaseCharacter::RestrictMovement()
+{
+    //敵の現在位置から原点までの距離を計算
+    float distance = Mathf::Length(transform_->worldTransform_.translation_);
+
+    //距離が移動制限を超えているかどうかを確認
+    if (distance > kMoveLimit)
+    {
+        //スケールを計算して移動制限範囲に収めるよう位置を調整
+        float scale = kMoveLimit / distance;
+        transform_->worldTransform_.translation_ *= scale;
+    }
+}
+
+void BaseCharacter::UpdateHP()
+{
+    //HPが0を下回らないようにする
+    hp_ = std::max<float>(hp_, 0.0f);
+
+    //体力バーの中央部分のサイズを更新
+    Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / maxHp_), hpBarSegmentTextureSize_.y };
+    hpSprites_[kFront][kMiddle]->SetTextureSize(currentHpSize);
+
+    //体力バーの右側部分の位置を調整
+    Vector2 currentRightHpBarSegmentPosition = hpSprites_[kFront][kMiddle]->GetPosition();
+    currentRightHpBarSegmentPosition.x += hpSprites_[kFront][kMiddle]->GetTextureSize().x;
+    hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
+}
+
+void BaseCharacter::CheckAndTransitionToDeath()
+{
+    //敵の体力が0を下回っていた場合
+    if (hp_ <= 0.0f)
+    {
+        //死亡状態に遷移
+        if (!isDead_)
+        {
+            TransitionToDeathState();
+        }
+
+        //死亡フラグを立てる
+        isDead_ = true;
+    }
+}
+
+void BaseCharacter::UpdateModelShake()
+{
+    //モデルシェイクの経過時間を進める
+    modelShake_.elapsedTime += GameTimer::GetDeltaTime();
+
+    //モデルシェイクの経過時間が一定値を超えていたら終了させる
+    if (modelShake_.elapsedTime > modelShake_.duration)
+    {
+        modelShake_.isActive = false;
+    }
+}
+
+void BaseCharacter::ApplyModelShake()
+{
+    //モデルシェイクが有効な場合
+    if (modelShake_.isActive)
+    {
+        //モデルシェイクの強度をランダムで決める
+        Vector3 intensity = {
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.x,modelShake_.intensity.x),
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.y,modelShake_.intensity.y),
+            RandomGenerator::GetRandomFloat(-modelShake_.intensity.z,modelShake_.intensity.z),
+        };
+
+        //座標をずらす
+        Vector3 currentPosition = GetPosition();
+        modelShake_.originalPosition = currentPosition;
+        currentPosition += intensity * GameTimer::GetDeltaTime();
+        SetPosition(currentPosition);
+    }
+}
+
+void BaseCharacter::ResetToOriginalPosition()
+{
+    if (modelShake_.isActive)
+    {
+        SetPosition(modelShake_.originalPosition);
+    }
 }

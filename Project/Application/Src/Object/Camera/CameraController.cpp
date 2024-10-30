@@ -1,11 +1,16 @@
 #include "CameraController.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
+#include "Application/Src/Object/Camera/States/CameraStateClear.h"
 
 void CameraController::Initialize()
 {
 	//カメラの初期化
 	camera_.Initialize();
 	camera_.rotationType_ = RotationType::Quaternion;
+
+	//カメラシェイクの生成
+	cameraShake_ = std::make_unique<CameraShake>();
 
 	//状態の初期化
 	ChangeState(new CameraStateFollow());
@@ -25,6 +30,13 @@ void CameraController::Update()
 	//カメラの回転を更新
 	UpdateCameraRotation();
 
+	//クリアアニメーション状態に遷移するかを確認
+	CheckAndTransitionToClearAnimationState();
+
+	//カメラシェイクの処理
+	cameraShake_->Update();
+	camera_.translation_ += cameraShake_->GetShakeOffset();
+
 	//カメラの更新
 	camera_.UpdateMatrix();
 }
@@ -37,6 +49,12 @@ void CameraController::ChangeState(ICameraState* state)
 	state->Initialize();
 	//現在のカメラ状態を新しい状態に置き換える
 	state_.reset(state);
+}
+
+void CameraController::StartCameraShake(const Vector3& intensity, const float duration)
+{
+	//カメラシェイクを開始
+	cameraShake_->Start(intensity, duration);
 }
 
 void CameraController::UpdateInterTargetPosition()
@@ -67,6 +85,20 @@ void CameraController::UpdateCameraRotation()
 	destinationQuaternion_ = Mathf::Normalize(destinationQuaternion_);
 	//現在のクォータニオン補間
 	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+}
+
+void CameraController::CheckAndTransitionToClearAnimationState()
+{
+	//クリアアニメーション状態に遷移するかを確認
+	if (!isClearAnimationActive_)
+	{
+		//敵が死亡している場合
+		if (GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetIsDead())
+		{
+			isClearAnimationActive_ = true; //クリアアニメーションをアクティブにする
+			ChangeState(new CameraStateClear()); //新しい状態に遷移
+		}
+	}
 }
 
 const Vector3 CameraController::CalculateOffset() const

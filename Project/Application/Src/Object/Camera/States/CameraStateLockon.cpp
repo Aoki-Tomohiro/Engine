@@ -1,6 +1,9 @@
 #include "CameraStateLockon.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
+#include "Application/Src/Object/Camera/States/CameraStateDash.h"
+#include "Application/Src/Object/Camera/States/CameraStateLaunchAttack.h"
+#include "Application/Src/Object/Camera/States/CameraStateFallingAttack.h"
 
 void CameraStateLockon::Initialize()
 {
@@ -45,11 +48,8 @@ void CameraStateLockon::Update()
 		cameraController_->SetDestinationQuaternion(Mathf::LookAt(cameraPosition, lockOnPosition));
 	}
 
-	//ロックオン対象がいない場合、追従カメラに切り替え
-	if (!cameraController_->GetLockon()->ExistTarget())
-	{
-		cameraController_->ChangeState(new CameraStateFollow());
-	}
+	//カメラの状態遷移を管理
+	ManageCameraStateTransition();
 }
 
 const Quaternion CameraStateLockon::CalculateNewRotation() const
@@ -82,4 +82,31 @@ const Quaternion CameraStateLockon::CalculateNewRotation() const
 const bool CameraStateLockon::IsCameraCloseToTarget(const Vector3& cameraPosition, const Vector3& lockOnTargetPosition) const
 {
 	return Mathf::Length(lockOnTargetPosition - cameraPosition) <= cameraController_->GetLockonCameraParameters().maxDistance;
+}
+
+void CameraStateLockon::ManageCameraStateTransition()
+{
+	//追従対象を取得
+	const Player* player = cameraController_->GetTarget();
+
+	//ロックオン対象がいない場合、追従カメラに切り替え
+	if (!cameraController_->GetLockon()->ExistTarget())
+	{
+		cameraController_->ChangeState(new CameraStateFollow());
+	}
+	//プレイヤーがダッシュ状態であれば、ダッシュカメラに切り替え
+	else if (player->GetActionFlag(Player::ActionFlag::kDashing))
+	{
+		cameraController_->ChangeState(new CameraStateDash());
+	}
+	//プレイヤーが打ち上げ攻撃中であれば、打ち上げ攻撃カメラに切り替え
+	else if (player->GetActionFlag(Player::ActionFlag::kLaunchAttack))
+	{
+		cameraController_->ChangeState(new CameraStateLaunchAttack());
+	}
+	//プレイヤーが落下攻撃中であれば、落下攻撃カメラに切り替え
+	else if (player->GetActionFlag(Player::ActionFlag::kFallingAttack))
+	{
+		cameraController_->ChangeState(new CameraStateFallingAttack());
+	}
 }

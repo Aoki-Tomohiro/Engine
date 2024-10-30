@@ -23,6 +23,15 @@ void CameraStateFollow::Update()
 		0.0f
 	};
 
+	//追従対象の位置を取得
+	Vector3 targetPosition = cameraController_->GetInterTarget();
+
+	//現在のカメラ位置から追従対象までの方向ベクトルを計算
+	Vector3 cameraToTargetDir = Mathf::Normalize(targetPosition - cameraController_->GetCameraPosition());
+
+	//X軸の回転を制限
+	ClampVerticalRotation(inputValue, cameraToTargetDir);
+
 	//スティック入力の大きさがしきい値を超えている場合のみカメラ回転を適用
 	if (Mathf::Length(inputValue) > threshold)
 	{
@@ -30,9 +39,25 @@ void CameraStateFollow::Update()
 	}
 
 	//ロックオンカメラに遷移
-	if (cameraController_->GetLockon()->ExistTarget())
+	if (cameraController_->GetLockon()->ExistTarget() && !IsPlayerPerformingAction())
 	{
 		cameraController_->ChangeState(new CameraStateLockon());
+	}
+}
+
+void CameraStateFollow::ClampVerticalRotation(Vector3& inputValue, const Vector3& direction)
+{
+	//カメラの垂直角度を計算
+	float verticalAngle = std::acos(Mathf::Dot({ 0.0f, 1.0f, 0.0f }, { 0.0f, direction.y, 0.0f }));
+
+	//垂直角度に応じて入力値を制限（カメラが特定の角度を超えないようにする）
+	if (verticalAngle < cameraController_->GetFollowCameraParameters().rotationRangeMin && inputValue.x >= 0.0f)
+	{
+		inputValue.x = 0.0f;
+	}
+	else if (verticalAngle > cameraController_->GetFollowCameraParameters().rotationRangeMax && inputValue.x <= 0.0f)
+	{
+		inputValue.x = 0.0f;
 	}
 }
 
@@ -56,4 +81,13 @@ void CameraStateFollow::ApplyCameraRotation(const Vector3& inputValue)
 
 	//合成された回転クォータニオンをカメラに設定
 	cameraController_->SetDestinationQuaternion(newQuaternionX);
+}
+
+const bool CameraStateFollow::IsPlayerPerformingAction() const
+{
+	//追従対象を取得
+	const Player* player = cameraController_->GetTarget();
+
+	//いずれかのフラグが立っていたらtrueを返す
+	return player->GetActionFlag(Player::ActionFlag::kDashing) || player->GetActionFlag(Player::ActionFlag::kLaunchAttack) || player->GetActionFlag(Player::ActionFlag::kFallingAttack);
 }

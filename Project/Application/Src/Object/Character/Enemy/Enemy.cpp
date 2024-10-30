@@ -1,5 +1,44 @@
 #include "Enemy.h"
 
+void Enemy::Initialize()
+{
+	//基底クラスの初期化
+	BaseCharacter::Initialize();
+
+	//HPの初期化
+	maxHp_ = 800.0f;
+	hp_ = maxHp_;
+}
+
+void Enemy::Update()
+{
+	//タイトルシーンにいる場合は基底クラスの更新だけする
+	if (isInTitleScene_)
+	{
+		GameObject::Update();
+		return;
+	}
+
+	//モデルシェイクでずれた分の座標をリセット
+	ResetToOriginalPosition();
+
+	//モデルシェイクの更新
+	UpdateModelShake();
+
+	//状態の更新
+	//state_->Update();
+
+	//基底クラスの更新
+	BaseCharacter::Update();
+}
+
+void Enemy::OnCollision(GameObject* gameObject)
+{
+	(void*)gameObject;
+	//状態の衝突判定処理
+	//state_->OnCollision(gameObject);
+}
+
 void Enemy::InitializeAnimator()
 {
 	//基底クラスの呼び出し
@@ -22,4 +61,32 @@ void Enemy::InitializeAnimator()
 
 	//通常アニメーションを再生
 	animator_->PlayAnimation("Idle", 1.0f, true);
+}
+
+void Enemy::InitializeUISprites()
+{
+	//テクスチャの名前を設定
+	hpTextureNames_ = { {
+		{"barBack_horizontalLeft.png","barBack_horizontalMid.png","barBack_horizontalRight.png"},
+		{"barBlue_horizontalLeft.png","barBlue_horizontalBlue.png","barBlue_horizontalRight.png"},
+		}
+	};
+
+	//スプライトの座標を設定
+	hpBarSegmentPositions_ = { {
+		{ {	{711.0f, 40.0f}, {720.0f, 40.0f}, {1200.0f, 40.0f},}},
+		{ { {711.0f, 40.0f}, {720.0f, 40.0f}, {1200.0f, 40.0f},}},
+		}
+	};
+
+	//基底クラスの呼び出し
+	BaseCharacter::InitializeUISprites();
+}
+
+void Enemy::TransitionToStunState()
+{
+}
+
+void Enemy::TransitionToDeathState()
+{
 }

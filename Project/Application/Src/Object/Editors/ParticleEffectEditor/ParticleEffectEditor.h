@@ -96,6 +96,30 @@ public:
 	/// <param name="quaternion">姿勢</param>
 	void CreateParticles(const std::string& particleEffectName, const Vector3& position, const Quaternion& quaternion);
 
+	/// <summary>
+	/// エミッターを取得
+	/// </summary>
+	/// <param name="particleSystemName">パーティクルシステムの名前</param>
+	/// <param name="emitterName">エミッターの名前</param>
+	/// <returns>エミッター</returns>
+	ParticleEmitter* GetEmitter(const std::string& particleSystemName, const std::string& emitterName) const;
+
+	/// <summary>
+	/// 加速フィールドを取得
+	/// </summary>
+	/// <param name="particleSystemName">パーティクルシステムの名前</param>
+	/// <param name="accelerationFieldName">加速フィールドの名前</param>
+	/// <returns>加速フィールド</returns>
+	AccelerationField* GetAccelerationField(const std::string& particleSystemName, const std::string& accelerationFieldName) const;
+
+	/// <summary>
+	/// 重力フィールドを取得
+	/// </summary>
+	/// <param name="particleSystemName">パーティクルシステムの名前</param>
+	/// <param name="gravityFieldName">重力フィールドの名前</param>
+	/// <returns>重力フィールド</returns>
+	GravityField* GetGravityField(const std::string& particleSystemName, const std::string& gravityFieldName) const;
+
 	//全てのパーティクルエフェクトの設定を取得
 	const std::map<std::string, ParticleEffectConfig>& GetParticleEffectConfigs() const { return particleEffectConfigs_; };
 
@@ -238,21 +262,22 @@ private:
 	void SelectFromMap(const char* label, std::string& selectedName, const std::map<std::string, Type>& items);
 
 	/// <summary>
-	/// 
+	/// 設定セクションを編集する関数
 	/// </summary>
-	/// <typeparam name="Type"></typeparam>
-	/// <param name="sectionName"></param>
-	/// <param name="settingsMap"></param>
-	/// <param name="currentEditSettingName"></param>
-	/// <param name="editCallback"></param>
+	/// <typeparam name="Type">設定項目のデータ型</typeparam>
+	/// <param name="sectionName">編集対象のセクション名</param>
+	/// <param name="settingsMap">設定名と設定データのマップ</param>
+	/// <param name="currentEditSettingName">現在編集中の設定名</param>
+	/// <param name="editCallback">設定項目に適用する編集コールバック関数</param>
 	template<typename Type>
 	void EditSettingsSection(const std::string& sectionName, std::map<std::string, Type>& settingsMap, std::string& currentEditSettingName, std::function<void(Type&)> editCallback);
 
 	/// <summary>
-	/// 
+	/// 指定された設定項目を削除する関数
 	/// </summary>
-	/// <param name="settingsMap"></param>
-	/// <param name="selectedSettingName"></param>
+	/// <typeparam name="Type">設定項目のデータ型</typeparam>
+	/// <param name="settingsMap">設定名と設定データのマップ</param>
+	/// <param name="selectedSettingName">削除対象の設定名</param>
 	template<typename Type>
 	void RemoveSetting(std::map<std::string, Type>& settingsMap, std::string& selectedSettingName);
 

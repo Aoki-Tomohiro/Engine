@@ -1,4 +1,5 @@
 #include "CombatAnimationEditor.h"
+#include "Application/Src/Object/Character/BaseCharacter.h"
 
 namespace {
 	const char* EVENT_TYPES[] = { "Movement", "Attack" }; //イベントタイプ
@@ -48,6 +49,37 @@ void CombatAnimationEditor::AddEditableCharacter(BaseCharacter* character)
 	{
 		characterAnimations_[characterName] = CharacterAnimationData();
 	}
+}
+
+const std::vector<std::unique_ptr<AnimationEvent>> CombatAnimationEditor::GetAnimationEvents(const std::string& characterName, const std::string& animationName) const
+{
+	//返却するアニメーションイベントの配列
+	std::vector<std::unique_ptr<AnimationEvent>> animationEvents;
+
+	//キャラクターのアニメーションデータを探す
+	auto characterAnimationData = characterAnimations_.find(characterName);
+	//見つからなかった場合は空の配列を返す
+	if (characterAnimationData == characterAnimations_.end())
+	{
+		return animationEvents;
+	}
+
+	//戦闘アニメーションを探す
+	auto combatAnimations = characterAnimationData->second.combatAnimations.find(animationName);
+	//見つからなかった場合は空の配列を返す
+	if (combatAnimations == characterAnimationData->second.combatAnimations.end())
+	{
+		return animationEvents;
+	}
+
+	//戦闘アニメーションが見つかった場合はポインタを取り出して配列に格納
+	for (const std::unique_ptr<AnimationEvent>& animationEvent : combatAnimations->second)
+	{
+		animationEvents.push_back(std::make_unique<AnimationEvent>(*animationEvent));
+	}
+
+	//アニメーションイベントを返す
+	return animationEvents;
 }
 
 void CombatAnimationEditor::EditCharacterAnimations(BaseCharacter* character)
@@ -199,7 +231,7 @@ void CombatAnimationEditor::SaveFile(const std::string& characterName, const std
 	if (ofs.fail())
 	{
 		std::string message = "Failed open data file for write.";
-		MessageBoxA(nullptr, message.c_str(), "ParticleEffectManager", 0);
+		MessageBoxA(nullptr, message.c_str(), "CombatAnimationEditor", 0);
 		assert(0);
 		return;
 	}
@@ -254,7 +286,7 @@ void CombatAnimationEditor::SaveAttackEvent(AttackEvent* attackEvent, nlohmann::
 
 	//攻撃パラメーターを保存
 	AttackParameters& attackParameters = attackEvent->attackParameters;
-	eventJson["HitCount"] = attackParameters.hitCount;
+	eventJson["MaxHitCount"] = attackParameters.maxHitCount;
 	eventJson["HitInterval"] = attackParameters.hitInterval;
 	eventJson["Damage"] = attackParameters.damage;
 
@@ -327,7 +359,7 @@ void CombatAnimationEditor::LoadFile(const std::string& characterName, const std
 	if (ifs.fail())
 	{
 		std::string message = "Failed open data file for read.";
-		MessageBoxA(nullptr, message.c_str(), "ParticleEffectManager", 0);
+		MessageBoxA(nullptr, message.c_str(), "CombatAnimationEditor", 0);
 		assert(0);
 		return;
 	}
@@ -416,7 +448,7 @@ void CombatAnimationEditor::LoadAttackEvent(const std::string& eventName, std::v
 	attackEvent->eventType = EventType::kAttack;
 	attackEvent->startEventTime = eventJson["StartEventTime"];
 	attackEvent->endEventTime = eventJson["EndEventTime"];
-	attackEvent->attackParameters.hitCount = eventJson["HitCount"];
+	attackEvent->attackParameters.maxHitCount = eventJson["MaxHitCount"];
 	attackEvent->attackParameters.hitInterval = eventJson["HitInterval"];
 	attackEvent->attackParameters.damage = eventJson["Damage"];
 	attackEvent->hitboxParameters.center = { eventJson["HitboxCenter"][0].get<float>(), eventJson["HitboxCenter"][1].get<float>(), eventJson["HitboxCenter"][2].get<float>() };
@@ -500,6 +532,12 @@ void CombatAnimationEditor::AddVelocityMovementEvent(char* eventName, std::vecto
 	//速度移動イベントを追加
 	if (ImGui::Button("Add Velocity Movement Event"))
 	{
+		//イベントの名前が入力されていなければ飛ばす
+		if (eventName[0] == '\0')
+		{
+			return;
+		}
+
 		//イベントを追加
 		animationEvents.push_back(std::make_unique<VelocityMovementEvent>(velocityMovementEvent)); 
 		//追加後にリセット
@@ -529,6 +567,12 @@ void CombatAnimationEditor::AddEasingMovementEvent(char* eventName, std::vector<
 	//イージング移動イベントを追加
 	if (ImGui::Button("Add Easing Movement Event"))
 	{
+		//イベントの名前が入力されていなければ飛ばす
+		if (eventName[0] == '\0')
+		{
+			return;
+		}
+
 		//イベントを追加
 		animationEvents.push_back(std::make_unique<EasingMovementEvent>(easingMovementEvent));
 		//追加後にリセット
@@ -557,6 +601,12 @@ void CombatAnimationEditor::AddAttackEvent(char* eventName, std::vector<std::uni
 	//攻撃イベントを追加
 	if (ImGui::Button("Add Attack Event"))
 	{
+		//イベントの名前が入力されていなければ飛ばす
+		if (eventName[0] == '\0')
+		{
+			return;
+		}
+
 		//イベントを追加
 		animationEvents.push_back(std::make_unique<AttackEvent>(attackEvent));
 		//追加後にリセット
@@ -575,7 +625,7 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 	//攻撃パラメータを編集するUI
 	if (ImGui::TreeNode("Attack Parameters"))
 	{
-		ImGui::DragInt("Hit Count", &attackEvent->attackParameters.hitCount);
+		ImGui::DragInt("Hit Count", &attackEvent->attackParameters.maxHitCount);
 		ImGui::DragFloat("Hit Interval", &attackEvent->attackParameters.hitInterval, 0.001f);
 		ImGui::DragFloat("Damage", &attackEvent->attackParameters.damage, 0.001f);
 		ImGui::TreePop();

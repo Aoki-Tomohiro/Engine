@@ -13,8 +13,8 @@ struct AnimationEvent
 {
     virtual ~AnimationEvent() = default;
     std::string eventName{};
-    EventType eventType;
-    float startEventTime;
-    float endEventTime;
-    bool isActive;
+    EventType eventType{};
+    bool isActive{};
+    float startEventTime{};
+    float endEventTime{};
 };

@@ -1,12 +1,14 @@
 #pragma once
-#include "MovementEvent.h"
-#include "AttackEvent.h"
 #include "Engine/Base/ImGuiManager.h"
-#include "Application/Src/Object/Character/BaseCharacter.h"
+#include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Application/Src/Object/Editors/ParticleEffectEditor/ParticleEffectEditor.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/MovementEvent.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/AttackEvent.h"
 #include <Engine/Externals/nlohmann/json.hpp>
 #include <fstream>
 #include <map>
+
+class BaseCharacter;
 
 /// <summary>
 /// 戦闘のアニメーションを管理するクラス
@@ -37,6 +39,14 @@ public:
 	/// </summary>
 	/// <param name="character">キャラクター</param>
 	void AddEditableCharacter(BaseCharacter* character);
+
+	/// <summary>
+	/// 全てのアニメーションイベントを取得
+	/// </summary>
+	/// <param name="characterName">キャラクターの名前
+	/// <param name="animationName">アニメーションの名前</param>
+	/// <returns>アニメーションイベント</returns>
+	const std::vector<std::unique_ptr<AnimationEvent>> GetAnimationEvents(const std::string& characterName, const std::string& animationName) const;
 
 	//パーティクルエフェクトエディターを設定
 	void SetParticleEffectEditor(const ParticleEffectEditor* particleEffectEditor) { particleEffectEditor_ = particleEffectEditor; };

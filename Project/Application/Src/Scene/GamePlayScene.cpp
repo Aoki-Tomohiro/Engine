@@ -48,12 +48,10 @@ void GamePlayScene::Initialize()
 	player_ = gameObjectManager_->GetGameObject<Player>("Player");
 	//コンバットアニメーションエディターにプレイヤーを設定
 	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-
-	////カメラ、ロックオン、コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
-	//player_->SetCamera(camera_);
-	//player_->SetLockon(lockon_.get());
-	//player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-	//player_->SetParticleEffectManager(particleEffectManager_.get());
+	//カメラ、ロックオン、エディターマネージャーを設定
+	player_->SetCamera(camera_);
+	player_->SetLockon(lockon_.get());
+	player_->SetEditorManager(editorManager_.get());
 
 	//プレイヤーの武器の初期化
 	Weapon* playerWeapon = gameObjectManager_->CreateGameObject<Weapon>("PlayerWeapon");
@@ -68,9 +66,8 @@ void GamePlayScene::Initialize()
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
 	//コンバットアニメーションエディターに敵を設定
 	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
-	////コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
-	//enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-	//enemy_->SetParticleEffectManager(particleEffectManager_.get());
+	//敵にエディターマネージャーを設定
+	enemy_->SetEditorManager(editorManager_.get());
 
 	//敵の武器の初期化
 	Weapon* enemyWeapon = gameObjectManager_->CreateGameObject<Weapon>("EnemyWeapon");
@@ -84,8 +81,8 @@ void GamePlayScene::Initialize()
 	//カメラコントローラーの初期化
 	cameraController_ = std::make_unique<CameraController>();
 	cameraController_->Initialize();
-	//カメラパスマネージャー、ロックオン、ロックオンターゲットを設定
-	//cameraController_->SetCameraPathManager(cameraPathManager_.get());
+	//カメラアニメーションエディター、ロックオン、ロックオンターゲットを設定
+	cameraController_->SetCameraAnimationEditor(editorManager_->GetCameraAnimationEditor());
 	cameraController_->SetLockon(lockon_.get());
 	cameraController_->SetTarget(player_);
 
@@ -265,12 +262,12 @@ void GamePlayScene::UpdateColliders()
 
 void GamePlayScene::HandleCameraShake()
 {
-	////プレイヤーの武器がヒットした場合、カメラシェイクを開始
-	//Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon");
-	//if (weapon->GetIsHit())
-	//{
-	//	cameraController_->StartCameraShake(weapon->GetEffectSettings().cameraShakeIntensity, weapon->GetEffectSettings().cameraShakeDuration);
-	//}
+	//プレイヤーの武器がヒットした場合、カメラシェイクを開始
+	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon");
+	if (weapon->GetIsHit())
+	{
+		cameraController_->StartCameraShake(weapon->GetHitEffectConfig().cameraShakeIntensity, weapon->GetHitEffectConfig().cameraShakeDuration);
+	}
 }
 
 void GamePlayScene::UpdateCameraAndLockOn()
@@ -295,20 +292,20 @@ void GamePlayScene::HandleTransition()
 	//FadeInしていないとき
 	if (transition_->GetFadeState() != transition_->FadeState::In)
 	{
-		////クリアアニメーションが終了していたらゲームクリアのフラグを立てる
-		//if (cameraController_->GetIsClearAnimationFinished())
-		//{
-		//	isGameClear_ = true;
-		//	player_->SetIsGameFinished(true);
-		//	enemy_->SetIsGameFinished(true);
-		//}
-		////プレイヤーが死亡状態かつアニメーションが終了していた場合ゲームオーバーのフラグを立てる
-		//else if (player_->GetIsDead())
-		//{
-		//	isGameOver_ = true;
-		//	player_->SetIsGameFinished(true);
-		//	enemy_->SetIsGameFinished(true);
-		//}
+		//クリアアニメーションが終了していたらゲームクリアのフラグを立てる
+		if (cameraController_->GetIsClearAnimationFinished())
+		{
+			isGameClear_ = true;
+			player_->SetIsGameFinished(true);
+			enemy_->SetIsGameFinished(true);
+		}
+		//プレイヤーが死亡状態かつアニメーションが終了していた場合ゲームオーバーのフラグを立てる
+		else if (player_->GetIsDead())
+		{
+			isGameOver_ = true;
+			player_->SetIsGameFinished(true);
+			enemy_->SetIsGameFinished(true);
+		}
 	}
 
 	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る

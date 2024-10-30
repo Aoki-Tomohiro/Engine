@@ -8,8 +8,7 @@
 #include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
-//#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
-//#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
+#include "Application/Src/Object/Editors/EditorManager.h"
 
 /// <summary>
 /// 魔法
@@ -47,9 +46,9 @@ public:
 	const MagicType& GetMagicType() const { return magicType_; };
 	void SetMagicType(const MagicType& magicType) { magicType_ = magicType; };
 
-	////ノックバックの設定を設定・取得
-	//const KnockbackSettings& GetKnockbackSettings() const { return knockbackSettings_; };
-	//void SetKnockbackSettings(const KnockbackSettings& knockbackSettings) { knockbackSettings_ = knockbackSettings; };
+	//ノックバックの設定を設定・取得
+	const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
+	void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
 
 	//ダメージを設定・取得
 	const float GetDamage() const { return damage_; };
@@ -58,8 +57,8 @@ public:
 	//速度を設定
 	void SetVelocity(const Vector3& velocity) { velocity_ = velocity; };
 
-	////パーティクルエフェクトマネージャーを設定
-	//void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
+	//パーティクルエフェクトエディターを設定
+	void SetParticleEffectEditor(ParticleEffectEditor* particleEffectManager) { particleEffectEditor_ = particleEffectManager; };
 
 private:
 	/// <summary>
@@ -107,8 +106,8 @@ private:
 	//魔法のタイプ
 	MagicType magicType_ = MagicType::kNormal;
 
-	////ノックバックの設定
-	//KnockbackSettings knockbackSettings_{};
+	//ノックバックのパラメーター
+	KnockbackParameters knockbackParameters_{};
 
 	//ダメージ
 	float damage_ = 1.0f;
@@ -125,7 +124,7 @@ private:
 	//インスタンスID
 	int32_t id_ = 0;
 
-	////パーティクルエフェクトマネージャー
-	//ParticleEffectManager* particleEffectManager_ = nullptr;
+	//パーティクルエフェクトエディター
+	ParticleEffectEditor* particleEffectEditor_ = nullptr;
 };
 

@@ -3,8 +3,10 @@
 #include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
-#include "Application/Src/Object/Camera/States/ICameraState.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Camera/CameraShake.h"
+#include "Application/Src/Object/Camera/States/ICameraState.h"
+#include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
 
 /// <summary>
 /// カメラ制御クラス
@@ -16,8 +18,8 @@ public:
 	struct FollowCameraParameters
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; // オフセット値
-		float rotationRangeMin = 1.6f;           // 最小回転角度
-		float rotationRangeMax = 1.8f;           // 最大回転角度
+		float rotationRangeMin = 1.0f;           // 最小回転角度
+		float rotationRangeMax = 2.4f;           // 最大回転角度
 		float rotationSpeedX = 0.04f;            // X軸の回転速度
 		float rotationSpeedY = 0.08f;            // Y軸の回転速度
 	};
@@ -26,7 +28,7 @@ public:
 	struct LockonCameraParameters
 	{
 		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
-		float maxDistance = 20.0f; //カメラとロックオン対象が近接していると判定する最大距離
+		float maxDistance = 6.0f;                //追従対象とロックオン対象が近接していると判定する最大距離
 	};
 
 	/// <summary>
@@ -45,6 +47,13 @@ public:
 	/// <param name="state">新しい状態</param>
 	void ChangeState(ICameraState* state);
 
+	/// <summary>
+	/// カメラシェイクの開始
+	/// </summary>
+	/// <param name="intensity">カメラシェイクの強さ</param>
+	/// <param name="duration">カメラシェイクの持続時間</param>
+	void StartCameraShake(const Vector3& intensity, const float duration);
+
 	//カメラ座標を取得・設定
 	const Vector3& GetCameraPosition() const { return camera_.translation_; };
 	void SetCameraPosition(const Vector3& position) { camera_.translation_ = position; };
@@ -57,12 +66,28 @@ public:
 	const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
 	void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
+	//Fovを取得・設定
+	const float GetFov() const { return camera_.fov_; };
+	void SetFov(const float fov) { camera_.fov_ = fov; };
+
 	//ロックオンを取得・設定
 	const Lockon* GetLockon() const { return lockon_; };
 	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; };
 
-	//追従対象を設定
+	//追従対象を取得・設定
+	const Player* GetTarget() const { return target_; };
 	void SetTarget(const Player* target) { target_ = target; };
+
+	//クリアアニメーション終了フラグの取得・設定
+	const bool GetIsClearAnimationFinished() const { return isClearAnimationFinished_; };
+	void SetIsClearAnimationFinished(const bool isClearAnimationFinished) { isClearAnimationFinished_ = isClearAnimationFinished; };
+
+	//カメラアニメーションエディターを取得・設定
+	CameraAnimationEditor* GetCameraAnimationEditor() const { return cameraAnimationEditor_; };
+	void SetCameraAnimationEditor(CameraAnimationEditor* cameraAnimationEditor) { cameraAnimationEditor_ = cameraAnimationEditor; };
+
+	//追従対象の残像座標を取得
+	const Vector3& GetInterTarget() const { return interTarget_; };
 
 	//カメラを取得
 	const Camera& GetCamera() const { return camera_; };
@@ -88,6 +113,11 @@ private:
 	void UpdateCameraRotation();
 
 	/// <summary>
+	/// クリアアニメーションに遷移するかを確認
+	/// </summary>
+	void CheckAndTransitionToClearAnimationState();
+
+	/// <summary>
 	/// オフセット値を計算
 	/// </summary>
 	/// <returns>オフセット値</returns>
@@ -105,6 +135,9 @@ private:
 private:
 	//カメラの状態
 	std::unique_ptr<ICameraState> state_ = nullptr;
+
+	//カメラシェイク
+	std::unique_ptr<CameraShake> cameraShake_ = nullptr;
 
 	//カメラ
 	Camera camera_{};
@@ -134,10 +167,19 @@ private:
 	Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
 
 	//クォータニオンの補間速度
-	float quaternionInterpolationSpeed_ = 0.2f;
+	float quaternionInterpolationSpeed_ = 0.4f;
 
 	//地面との交差点
 	Vector3 intersectionPoint_{};
+
+	//クリアアニメーション状態かどうか
+	bool isClearAnimationActive_ = false;
+
+	//クリアアニメーションが終了したかどうか
+	bool isClearAnimationFinished_ = false;
+
+	//カメラアニメーションエディター
+	CameraAnimationEditor* cameraAnimationEditor_ = nullptr;
 
 	//各パラメーター
 	FollowCameraParameters followCameraParameters_{};

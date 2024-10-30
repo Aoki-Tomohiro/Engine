@@ -5,8 +5,8 @@
 //移動の種類
 enum class MovementType
 {
-    kVelocity, // 速度を加算して移動
-    kEasing,   // イージングを使用した移動
+    kVelocity, // 速度移動
+    kEasing,   // イージング移動
 };
 
 //移動イベント基底
@@ -27,5 +27,6 @@ struct VelocityMovementEvent : public MovementEvent
 struct EasingMovementEvent : public MovementEvent
 {
     ~EasingMovementEvent() override = default;
+    Vector3 startPosition{};  // 開始座標
     Vector3 targetPosition{}; // 目標座標
 };

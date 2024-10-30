@@ -41,7 +41,7 @@ public:
 	/// 衝突しているときの処理
 	/// </summary>
 	/// <param name="gameObject">衝突相手</param>
-	void OnCollision(GameObject* gameObject) override;
+	void OnCollision(GameObject*) override;
 
 	/// <summary>
 	/// 軌跡エフェクトの有効化を設定
@@ -49,12 +49,25 @@ public:
 	/// <param name="isTrailActive">軌跡エフェクトの有効フラグ</param>
 	void SetIsTrailActive(const bool isTrailActive) { isTrailActive_ = isTrailActive; };
 
-	//ヒットフラグを取得
+	//ヒットフラグを取得・設定
 	const bool GetIsHit() const { return isHit_; };
+	void SetIsHit(const bool isHit) { isHit_ = isHit; };
 
 	//ダメージを取得・設定
 	const float GetDamage() const { return damage_; };
 	void SetDamage(const float damage) { damage_ = damage; };
+
+	//ヒットボックスのパラメーターを取得・設定
+	const HitboxParameters& GetHitboxParameters() const { return hitboxParameters_; };
+	void SetHitboxParameters(const HitboxParameters& hitboxParameters) { hitboxParameters_ = hitboxParameters; };
+
+	//ノックバックのパラメーターを取得・設定
+	const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
+	void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
+
+	//ヒットエフェクトコンフィグを取得・設定
+	const HitEffectConfig& GetHitEffectConfig() const { return hitEffectConfig_; };
+	void SetHitEffectConfig(const HitEffectConfig& hitEffectConfig) { hitEffectConfig_ = hitEffectConfig; };
 
 	//攻撃フラグの取得・設定
 	const bool GetIsAttack() const { return isAttack_; };
@@ -141,8 +154,8 @@ private:
 	//コライダー
 	OBBCollider* collider_ = nullptr;
 
-	//パーティクルエフェクトマネージャー
-	EditorManager* editorManager_ = nullptr;
+	//エディターマネージャー
+	const EditorManager* editorManager_ = nullptr;
 
 	//ヒットストップ
 	HitStop* hitStop_ = nullptr;
@@ -155,6 +168,15 @@ private:
 
 	//ダメージ
 	float damage_ = 0.0f;
+
+	//ヒットボックスのパラメーター
+	HitboxParameters hitboxParameters_{};
+
+	//ノックバックのパラメーター
+	KnockbackParameters knockbackParameters_{};
+
+	//エフェクトの設定
+	HitEffectConfig hitEffectConfig_{};
 
 	//攻撃フラグ
 	bool isAttack_ = false;

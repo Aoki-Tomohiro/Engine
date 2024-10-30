@@ -137,6 +137,48 @@ void ParticleEffectEditor::CreateParticles(const std::string& particleEffectName
 	}
 }
 
+ParticleEmitter* ParticleEffectEditor::GetEmitter(const std::string& particleSystemName, const std::string& emitterName) const
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(particleSystemName);
+	if (it != particleSystems_.end())
+	{
+		if (ParticleEmitter* emitter = it->second->GetParticleEmitter(emitterName))
+		{
+			return emitter;
+		}
+	}
+	return nullptr;
+}
+
+AccelerationField* ParticleEffectEditor::GetAccelerationField(const std::string& particleSystemName, const std::string& accelerationFieldName) const
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(particleSystemName);
+	if (it != particleSystems_.end())
+	{
+		if (AccelerationField* accelerationField = it->second->GetAccelerationField(accelerationFieldName))
+		{
+			return accelerationField;
+		}
+	}
+	return nullptr;
+}
+
+GravityField* ParticleEffectEditor::GetGravityField(const std::string& particleSystemName, const std::string& gravityFieldName) const
+{
+	//パーティクルシステムを検索する
+	auto it = particleSystems_.find(particleSystemName);
+	if (it != particleSystems_.end())
+	{
+		if (GravityField* gravityField = it->second->GetGravityField(gravityFieldName))
+		{
+			return gravityField;
+		}
+	}
+	return nullptr;
+}
+
 void ParticleEffectEditor::LoadTextures()
 {
 	//テクスチャの名前を設定
@@ -375,7 +417,6 @@ void ParticleEffectEditor::SaveFile(const std::string& particleEffectName)
 	std::ofstream ofs;
 	//ファイルを書き込み用に開く
 	ofs.open(filePath);
-
 	//ファイルオープン失敗
 	if (ofs.fail())
 	{
@@ -429,7 +470,6 @@ void ParticleEffectEditor::LoadFile(const std::string& particleEffectName)
 	std::ifstream ifs;
 	//ファイルを読み込みように開く
 	ifs.open(filePath);
-
 	//ファイルオープン失敗
 	if (ifs.fail())
 	{
@@ -445,11 +485,8 @@ void ParticleEffectEditor::LoadFile(const std::string& particleEffectName)
 	//ファイルを閉じる
 	ifs.close();
 
-	//パーティクルエフェクトの設定が存在しなければ飛ばす
-	if (!root.contains(particleEffectName))
-	{
-		return;
-	}
+	//jsonに何も書かれていなければ処理を飛ばす
+	if (root.empty()) { return; };
 
 	//パーティクルエフェクトのデータを取得
 	nlohmann::json particleEffectJson = root[particleEffectName];

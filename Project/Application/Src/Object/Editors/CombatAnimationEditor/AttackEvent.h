@@ -19,9 +19,11 @@ enum class HitSEType
 //攻撃に関連する設定
 struct AttackParameters
 {
-    int32_t hitCount = 0;      // ヒット数
-    float hitInterval = 0.0f;  // ヒット間隔
-    float damage = 0.0f;       // ダメージ量
+    int32_t maxHitCount{};     // ヒット数
+    float hitInterval{};       // ヒット間隔
+    float damage{};            // ダメージ量
+    int32_t currentHitCount{}; // 現在のヒット数
+    float elapsedAttackTime{}; // 攻撃判定が発生するまでの経過時間
 };
 
 //当たり判定に関連する設定
