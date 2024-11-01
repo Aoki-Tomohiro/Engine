@@ -36,11 +36,5 @@ private:
 
 	//着地フラグ
 	bool isLanding_ = false;
-
-	//ボタンが押されている時間
-	float buttonPressedTime_ = 0.0f;
-
-	//同時押しと判定する時間
-	const float kSimultaneousPressThreshold_ = 0.1f;
 };
 

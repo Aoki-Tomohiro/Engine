@@ -168,7 +168,7 @@ void PlayerStateDash::DashUpdate()
 	UpdateEmitterPosition();
 
 	//Xボタンを押していた場合ダッシュ攻撃のフラグを立てる
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	if (player_->IsTriggered(Player::ButtonType::X))
 	{
 		player_->SetActionFlag(Player::ActionFlag::kDashAttackEnabled, true);
 	}

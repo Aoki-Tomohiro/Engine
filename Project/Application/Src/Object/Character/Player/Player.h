@@ -23,6 +23,15 @@ public:
         A, B, X, Y, LB, RB, RT, kMaxButtons,
     };
 
+    //ボタンの入力状態
+    struct ButtonState
+    {
+        bool isPressed = false;   //押されているかどうか
+        bool isTriggered = false; //押された瞬間かどうか
+        bool isReleased = false;  //離された瞬間かどうか
+        int32_t pressedFrame = 0; //押されているフレーム
+    };
+
     //スプライトの基本設定を保持する構造体
     struct SpriteSettings
     {
@@ -137,13 +146,13 @@ public:
     //打ち上げ攻撃のパラメーター
     struct LaunchAttackParameters : public SkillParameters
     {
-        LaunchAttackParameters() : SkillParameters{ 6.0f } {};
+        LaunchAttackParameters() : SkillParameters{ 4.0f } {};
     };
 
     //回転攻撃用のパラメーター
     struct SpinAttackParameters : public SkillParameters
     {
-        SpinAttackParameters() : SkillParameters{ 6.0f } {};
+        SpinAttackParameters() : SkillParameters{ 2.6f } {};
         float totalRotation = std::numbers::pi_v<float> *2.0f * 3.0f;
         float totalDuration = 0.6f;
         float riseHeight = 4.0f;
@@ -188,6 +197,15 @@ public:
     /// <param name="damage">ダメージ</param>
     /// <param name="transitionToStun">スタン状態に遷移するかどうか</param>
     virtual void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
+
+    //単押しの判定
+    bool IsTriggered(const ButtonType buttonType) { return buttonStates_[buttonType].isTriggered; };
+
+    //離した瞬間の処理
+    bool IsReleased(int buttonIndex) { return buttonStates_[buttonIndex].isReleased; };
+
+    //同時押しの判定
+    bool ArePressed(const ButtonType buttonType1, const ButtonType buttonType2) { return buttonStates_[buttonType1].isPressed && buttonStates_[buttonType2].isPressed; };
 
     //魔法攻撃のクールダウンをリセット
     void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
@@ -281,6 +299,11 @@ private:
     /// </summary>
     void TransitionToDeathState() override;
 
+    /// <summary>
+    /// ボタンの入力状態の更新
+    /// </summary>
+    void UpdateButtonStates();
+
 private:
     //インプット
     Input* input_ = nullptr;
@@ -296,6 +319,15 @@ private:
 
     //スキルクールダウンマネージャー
     std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
+
+    //ボタンの状態
+    std::array<ButtonState, kMaxButtons> buttonStates_{};
+
+    //ボタン定数を保持する配列
+    std::array<WORD, kMaxButtons> buttonMappings_{
+        XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
+        XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
+    };
 
     //ボタンのUIの設定
     std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};

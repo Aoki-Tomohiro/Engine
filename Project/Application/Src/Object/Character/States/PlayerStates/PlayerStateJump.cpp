@@ -64,16 +64,6 @@ void PlayerStateJump::Update()
 	//プレイヤーの座標を取得
 	Vector3 position = player_->GetPosition();
 
-	//ボタン入力の処理
-	if (input_->IsPressButton(XINPUT_GAMEPAD_B) || input_->IsPressButton(XINPUT_GAMEPAD_X) || input_->IsPressButton(XINPUT_GAMEPAD_Y) || input_->IsPressButton(XINPUT_GAMEPAD_A))
-	{
-		buttonPressedTime_ += GameTimer::GetDeltaTime();
-	}
-	else
-	{
-		buttonPressedTime_ = 0;
-	}
-
 	//プレイヤーが地面についた場合
 	if (position.y <= 0.0f)
 	{
@@ -87,42 +77,35 @@ void PlayerStateJump::Update()
 		//通常状態に遷移
 		player_->ChangeState(new PlayerStateRoot());
 	}
-	//同時押しと判定する時間を超えていた場合
-	else if (buttonPressedTime_ > kSimultaneousPressThreshold_)
+	//Bボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::B))
 	{
-		//Bボタンを押されていた場合
-		if (input_->IsPressButton(XINPUT_GAMEPAD_B))
-		{
-			//ダッシュ状態に遷移
-			player_->ChangeState(new PlayerStateDash());
-		}
-		//Xボタンを押されていた場合
-		else if (input_->IsPressButton(XINPUT_GAMEPAD_X))
-		{
-			//攻撃状態に遷移
-			player_->ChangeState(new PlayerStateAttack());
-		}
-		//Aボタンを押されていた場合
-		else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
-		{
-			//ジャンプ状態に遷移
-			player_->ChangeState(new PlayerStateJump());
-		}
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
+	}
+	//Xボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::X))
+	{
+		//攻撃状態に遷移
+		player_->ChangeState(new PlayerStateAttack());
+	}
+	//Aボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
+	{
+		//ジャンプ状態に遷移
+		player_->ChangeState(new PlayerStateJump());
 	}
 	//Yボタンが離されたとき
-	else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+	else if (player_->IsReleased(Player::ButtonType::Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
 	{
 		//溜め魔法攻撃状態に遷移
 		player_->ChangeState(new PlayerStateChargeMagicAttack());
 	}
-	else
+	//XボタンとAボタンを同時に押していた場合
+	else if (player_->ArePressed(Player::ButtonType::X, Player::ButtonType::A))
 	{
-		//XボタンとAボタンを同時に押していた場合
-		if (input_->IsPressButton(XINPUT_GAMEPAD_X) && input_->IsPressButton(XINPUT_GAMEPAD_A))
-		{
-			//落下攻撃状態に遷移
-			player_->ChangeState(new PlayerStateFallingAttack());
-		}
+		//落下攻撃状態に遷移
+		player_->ChangeState(new PlayerStateFallingAttack());
 	}
 }
 

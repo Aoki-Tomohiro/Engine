@@ -38,16 +38,6 @@ void PlayerStateAttack::Initialize()
 
 void PlayerStateAttack::Update()
 {
-	//ボタン入力の処理
-	if (input_->IsPressButton(XINPUT_GAMEPAD_B) || input_->IsPressButton(XINPUT_GAMEPAD_X) || input_->IsPressButton(XINPUT_GAMEPAD_Y) || input_->IsPressButton(XINPUT_GAMEPAD_A))
-	{
-		buttonPressedTime_ += GameTimer::GetDeltaTime();
-	}
-	else
-	{
-		buttonPressedTime_ = 0;
-	}
-
 	//コンボの進行状況をチェック
 	EvaluateComboProgress();
 
@@ -120,12 +110,12 @@ void PlayerStateAttack::EvaluateComboProgress()
 	const auto& attackParameters = player_->GetActionFlag(Player::ActionFlag::kAerialAttack) ? player_->GetAerialAttackParameters() : player_->GetGroundAttackParameters();
 
 	//コンボ上限に達していないとき
-	if (workAttack_.comboIndex < attackParameters.comboNum - 1)
+	if (workAttack_.comboIndex < attackParameters.comboNum - 1 && !workAttack_.comboNext)
 	{
 		//RTの入力の閾値
 		const float kRightTriggerThreshold = 0.7f;
 
-		//LTを押している場合
+		//RTを押している場合
 		if (input_->GetRightTriggerValue() > kRightTriggerThreshold)
 		{
 			//XボタンかYボタンが押されているかをチェック
@@ -133,84 +123,62 @@ void PlayerStateAttack::EvaluateComboProgress()
 		}
 		else
 		{
-			//同時押しと判定する時間を超えていた場合
-			if (buttonPressedTime_ > kSimultaneousPressThreshold_)
-			{
-				//Xボタンを押されていた場合
-				if (input_->IsPressButton(XINPUT_GAMEPAD_X))
-				{
-					EnableCombo(kNormalCombo);
-				}
-				//Bボタンを押されていた場合
-				else if (input_->IsPressButton(XINPUT_GAMEPAD_B))
-				{
-					EnableCombo(kDash);
-				}
-				//Aボタンを押されていた場合
-				else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
-				{
-					EnableCombo(kStomp);
-				}
-			}
-			//Yボタンが離されたとき
-			else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
-			{
-				EnableCombo(kChargeMagic);
-			}
-			else
-			{
-				//Xボタンも同時に押されていたら落下攻撃
-				if (input_->IsPressButton(XINPUT_GAMEPAD_X) && input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetPosition().y != 0.0f)
-				{
-					EnableCombo(kFallingAttack);
-				}
-			}
+			//RTを押していない場合の処理
+			UpdateComboStateWithoutTrigger();
 		}
 	}
 }
 
 void PlayerStateAttack::UpdateComboStateWithoutTrigger()
 {
-	//通常コンボ
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	//Xボタンを押されていた場合
+	if (player_->IsTriggered(Player::ButtonType::X))
 	{
 		EnableCombo(kNormalCombo);
 	}
-	//ダッシュ
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	//Bボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::B))
 	{
 		EnableCombo(kDash);
+	}
+	//Aボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
+	{
+		EnableCombo(kStomp);
+	}
+	//Yボタンが離されたとき
+	else if (player_->IsReleased(Player::ButtonType::Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+	{
+		EnableCombo(kChargeMagic);
+	}
+	//XボタンとAボタンが同時に押されていたら落下攻撃
+	else if (player_->ArePressed(Player::ButtonType::X, Player::ButtonType::A) && player_->GetPosition().y != 0.0f)
+	{
+		EnableCombo(kFallingAttack);
 	}
 }
 
 void PlayerStateAttack::UpdateComboStateBasedOnButtonPress()
 {
-	if (!input_->IsPressButton(XINPUT_GAMEPAD_A))
+	//打ち上げ攻撃
+	if (player_->IsTriggered(Player::ButtonType::X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
 	{
-		//打ち上げ攻撃
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
-		{
-			EnableCombo(kLaunchAttack);
-		}
-		//回転攻撃
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
-		{
-			EnableCombo(kSpinAttack);
-		}
+		EnableCombo(kLaunchAttack);
+	}
+	//回転攻撃
+	else if (player_->IsTriggered(Player::ButtonType::Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+	{
+		EnableCombo(kSpinAttack);
 	}
 	//落下攻撃
-	else
+	else if (player_->ArePressed(Player::ButtonType::X, Player::ButtonType::A) && player_->GetPosition().y != 0.0f)
 	{
-		if (input_->IsPressButton(XINPUT_GAMEPAD_X) && player_->GetPosition().y != 0.0f)
-		{
-			EnableCombo(kFallingAttack);
-		}
+		EnableCombo(kFallingAttack);
 	}
 }
 
 void PlayerStateAttack::EnableCombo(const NextState& nextState)
 {
-	buttonPressedTime_ = 0;
 	workAttack_.comboNext = true;
 	workAttack_.comboNextState = nextState;
 }

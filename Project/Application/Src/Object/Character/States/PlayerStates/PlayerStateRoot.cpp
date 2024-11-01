@@ -183,21 +183,21 @@ void PlayerStateRoot::ProcessStateTransition()
 	const float kRightTriggerThreshold = 0.7f;
 
 	//Aボタンを押したとき
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
+	if (player_->IsTriggered(Player::ButtonType::A))
 	{
 		//ジャンプ状態に遷移
 		player_->ChangeState(new PlayerStateJump());
 		return;
 	}
 	//RBを押したとき
-	else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_RIGHT_SHOULDER))
+	else if (player_->IsTriggered(Player::ButtonType::RB))
 	{
 		//回避状態に遷移
 		player_->ChangeState(new PlayerStateDodge());
 		return;
 	}
 	//Bボタンを押したとき
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_B))
+	if (player_->IsTriggered(Player::ButtonType::B))
 	{
 		//ダッシュ状態に遷移
 		player_->ChangeState(new PlayerStateDash());
@@ -208,13 +208,13 @@ void PlayerStateRoot::ProcessStateTransition()
 	if (input_->GetRightTriggerValue() < kRightTriggerThreshold)
 	{
 		//Xボタンを押したとき
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+		if (player_->IsTriggered(Player::ButtonType::X))
 		{
 			//攻撃状態に遷移
 			player_->ChangeState(new PlayerStateAttack());
 		}
 		//Yボタンを離した時
-		else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y))
+		else if (player_->IsReleased(Player::ButtonType::Y))
 		{
 			//魔法攻撃状態に遷移
 			if (player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
@@ -231,13 +231,13 @@ void PlayerStateRoot::ProcessStateTransition()
 	else
 	{
 		//Xボタンを押したとき
-		if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
+		if (player_->IsTriggered(Player::ButtonType::X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
 		{
 			//打ち上げ攻撃状態に遷移
 			player_->ChangeState(new PlayerStateLaunchAttack());
 		}
 		//Yボタンを押したとき
-		else if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
+		else if (player_->IsTriggered(Player::ButtonType::Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
 		{
 			//回転攻撃状態に遷移
 			player_->ChangeState(new PlayerStateSpinAttack());

@@ -90,36 +90,21 @@ void BaseCharacter::Rotate(const Vector3& vector)
 
 void BaseCharacter::ApplyKnockback()
 {
-    if (knockbackSettings_.knockbackDuration > 0.0f)
+    //加速度を加算する前の速度を保存
+    Vector3 currentVelocity = knockbackSettings_.knockbackVelocity;
+
+    //重力加速度を考慮
+    Vector3 gravity = { 0.0f, gravityAcceleration_, 0.0f };
+    knockbackSettings_.knockbackVelocity += (gravity + knockbackSettings_.knockbackAcceleration) * GameTimer::GetDeltaTime();
+
+    //移動処理
+    Move(knockbackSettings_.knockbackVelocity);
+
+    //ノックバックの速度の符号が変わっていたら停止させる
+    if ((currentVelocity.z >= 0.0f && knockbackSettings_.knockbackVelocity.z < 0.0f) || (currentVelocity.z < 0.0f && knockbackSettings_.knockbackVelocity.z >= 0.0f))
     {
-        //加速度を加算する前の速度を保存
-        Vector3 currentVelocity = knockbackSettings_.knockbackVelocity;
-
-        //重力加速度を考慮
-        Vector3 gravity = { 0.0f, gravityAcceleration_, 0.0f };
-        knockbackSettings_.knockbackVelocity += (gravity + knockbackSettings_.knockbackAcceleration) * GameTimer::GetDeltaTime();
-
-        //ノックバックの持続時間を減少
-        knockbackSettings_.knockbackDuration -= GameTimer::GetDeltaTime();
-
-        //移動処理
-        Move(knockbackSettings_.knockbackVelocity);
-
-        //ノックバックの速度の符号が変わっていたら停止させる
-        bool velocityChangedSign = (currentVelocity.z >= 0.0f && knockbackSettings_.knockbackVelocity.z < 0.0f) || (currentVelocity.z < 0.0f && knockbackSettings_.knockbackVelocity.z >= 0.0f);
-        if (velocityChangedSign)
-        {
-            //ノックバックを停止
-            knockbackSettings_.knockbackVelocity = { 0.0f, 0.0f, 0.0f };
-            knockbackSettings_.knockbackAcceleration = { 0.0f,0.0f,0.0f };
-        }
-
-        //持続時間が終了したらノックバックを停止
-        if (knockbackSettings_.knockbackDuration <= 0.0f)
-        {
-            //ノックバックの設定をクリア
-            knockbackSettings_ = KnockbackSettings({});
-        }
+        knockbackSettings_.knockbackVelocity = { 0.0f, knockbackSettings_.knockbackVelocity.y, 0.0f };
+        knockbackSettings_.knockbackAcceleration = { 0.0f, knockbackSettings_.knockbackAcceleration.y, 0.0f };
     }
 }
 

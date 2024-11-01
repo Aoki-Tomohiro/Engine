@@ -91,7 +91,7 @@ void PlayerStateMagicAttack::UpdateRotation()
 void PlayerStateMagicAttack::ExecuteMagicAttack()
 {
     //Yボタンを離した時かつ魔法攻撃が有効な場合魔法を生成
-    if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
+    if (player_->IsReleased(Player::ButtonType::Y) && player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
     {
         ResetToFirePhase();
         CreateMagicProjectile();

@@ -27,57 +27,40 @@ void PlayerStateFalling::Update()
 	//アニメーションによる座標のずれを補正
 	player_->CorrectAnimationOffset();
 
-	//ボタン入力の処理
-	if (input_->IsPressButton(XINPUT_GAMEPAD_B) || input_->IsPressButton(XINPUT_GAMEPAD_X) || input_->IsPressButton(XINPUT_GAMEPAD_Y) || input_->IsPressButton(XINPUT_GAMEPAD_A))
-	{
-		buttonPressedTime_ += GameTimer::GetDeltaTime();
-	}
-	else
-	{
-		buttonPressedTime_ = 0;
-	}
-
 	//プレイヤーが着地している場合の処理
 	if (isLanding_)
 	{
 		HandleLanding();
 		return;
 	}
-	else if (buttonPressedTime_ > kSimultaneousPressThreshold_)
+	//Bボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::B))
 	{
-		//Bボタンを押されていた場合
-		if (input_->IsPressButton(XINPUT_GAMEPAD_B))
-		{
-			//ダッシュ状態に遷移
-			player_->ChangeState(new PlayerStateDash());
-			return;
-		}
-		//Aボタンを押されていた場合
-		else if (input_->IsPressButton(XINPUT_GAMEPAD_A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
-		{
-			//ジャンプ状態に遷移
-			player_->ChangeState(new PlayerStateJump());
-			return;
-		}
+		//ダッシュ状態に遷移
+		player_->ChangeState(new PlayerStateDash());
+		return;
+	}
+	//Aボタンを押されていた場合
+	else if (player_->IsTriggered(Player::ButtonType::A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
+	{
+		//ジャンプ状態に遷移
+		player_->ChangeState(new PlayerStateJump());
+		return;
 	}
 	//Yボタンを離した時
-	else if (input_->IsPressButtonExit(XINPUT_GAMEPAD_Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+	else if (player_->IsReleased(Player::ButtonType::Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
 	{
 		//溜め魔法攻撃状態に遷移
 		player_->ChangeState(new PlayerStateChargeMagicAttack());
 		return;
 	}
 	//AボタンとXボタンを押したとき
-	else 
+	else if (player_->ArePressed(Player::ButtonType::A, Player::ButtonType::X))
 	{
-		if (input_->IsPressButton(XINPUT_GAMEPAD_X) && input_->IsPressButton(XINPUT_GAMEPAD_A))
-		{
-			//落下攻撃状態に遷移
-			player_->ChangeState(new PlayerStateFallingAttack());
-			return;
-		}
+		//落下攻撃状態に遷移
+		player_->ChangeState(new PlayerStateFallingAttack());
+		return;
 	}
-
 
 	//アニメーションの更新
 	CheckAndPauseAnimation();

@@ -334,6 +334,12 @@
     <Filter Include="ヘッダー ファイル\Application\Object\Skydome">
       <UniqueIdentifier>{8cdc7f9a-d405-427d-a247-866bfc9f4a97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\ParticleEffectManager">
+      <UniqueIdentifier>{9413ae88-89f9-48fc-a6db-8c2c8f6b9ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\ParticleEffectManager">
+      <UniqueIdentifier>{45d6c96c-9f55-4af7-8f57-8303d7490822}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -766,7 +772,7 @@
       <Filter>ソース ファイル\Application\Object\Weapon</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\ParticleEffectManager\ParticleEffectManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\ParticleEffectManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1266,7 +1272,7 @@
       <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\ParticleEffectManager\ParticleEffectManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\ParticleEffectManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

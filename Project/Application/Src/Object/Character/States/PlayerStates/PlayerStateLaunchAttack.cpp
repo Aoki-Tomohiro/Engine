@@ -53,7 +53,7 @@ void PlayerStateLaunchAttack::OnCollision(GameObject* other)
 void PlayerStateLaunchAttack::CheckForAttackStateTransition()
 {
 	//Xボタンが押されている場合攻撃状態への遷移要求を設定
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_X))
+	if (player_->IsTriggered(Player::ButtonType::X))
 	{
 		isAttackStateTransitionRequested_ = true;
 	}
