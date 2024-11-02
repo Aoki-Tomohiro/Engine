@@ -1,5 +1,7 @@
 #include "PlayerStateRoot.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -40,12 +42,34 @@ void PlayerStateRoot::Update()
 		//現在のアニメーションがIdleではない場合再生する
 		SetIdleAnimationIfNotPlaying();
 	}
+
+	//状態遷移
+	HandleStateTransition();
 }
 
 void PlayerStateRoot::OnCollision(GameObject* other)
 {
 	//衝突処理
 	GetCharacter()->ProcessCollisionImpact(other, true);
+}
+
+void PlayerStateRoot::HandleStateTransition()
+{
+	//プレイヤーを取得
+	Player* player = GetPlayer();
+
+	//Aボタンを押したとき
+	if (player->IsTriggered(Player::ButtonType::A))
+	{
+		//ジャンプ状態に遷移
+		player->ChangeState(new PlayerStateJump());
+	}
+	//RBを押したとき
+	else if (player->IsTriggered(Player::ButtonType::RB))
+	{
+		//回避状態に遷移
+		player->ChangeState(new PlayerStateDodge());
+	}
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()

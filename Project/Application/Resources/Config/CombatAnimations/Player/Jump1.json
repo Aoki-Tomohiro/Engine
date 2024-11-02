@@ -1,0 +1,26 @@
+{
+    "Player": {
+        "Jump1": {
+            "AnimationEvents": {
+                "Jump": {
+                    "EndEventTime": 1.0,
+                    "EventType": "Movement",
+                    "MovementType": "Velocity",
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        40.0,
+                        0.0
+                    ]
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.0,
+                    "Duration": 1.0
+                }
+            }
+        }
+    }
+}

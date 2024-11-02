@@ -22,8 +22,6 @@ struct AttackParameters
     int32_t maxHitCount{};     // ヒット数
     float hitInterval{};       // ヒット間隔
     float damage{};            // ダメージ量
-    int32_t currentHitCount{}; // 現在のヒット数
-    float elapsedAttackTime{}; // 攻撃判定が発生するまでの経過時間
 };
 
 //当たり判定に関連する設定

@@ -49,6 +49,9 @@ void Player::Update()
 	//モデルシェイクの更新
 	UpdateModelShake();
 
+	//ボタンの入力状態の更新
+	UpdateButtonStates();
+
 	//状態の更新
 	state_->Update();
 
@@ -266,6 +269,65 @@ void Player::SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& co
 	//クールダウンバーの設定
 	uiSettings.cooldownBarSprite.reset(Sprite::Create("white.png", config.skillBarPosition));
 	uiSettings.cooldownBarSprite->SetScale(config.skillBarScale);
+}
+
+void Player::UpdateButtonStates()
+{
+	//全てのボタンの状態を更新
+	for (int32_t i = 0; i < kMaxButtons - 1; ++i)
+	{
+		//ボタンが押された瞬間の判定
+		if (input_->IsPressButtonEnter(buttonMappings_[i]))
+		{
+			//押されたフラグを立てる
+			buttonStates_[i].isPressed = true;
+			//押し始めた時間をリセット
+			buttonStates_[i].pressedFrame = 0;
+		}
+
+		//ボタンが押されている場合の処理
+		if (buttonStates_[i].isPressed)
+		{
+			//押されたフレーム数を増やす
+			buttonStates_[i].pressedFrame++;
+
+			//同時押しに対応するために少し余裕を持たせる
+			const int32_t kPressFrameThreshold = 3;
+			if (buttonStates_[i].pressedFrame >= kPressFrameThreshold)
+			{
+				//トリガーフラグを立てる
+				buttonStates_[i].isTriggered = true;
+				//押された状態をリセット
+				buttonStates_[i].isPressed = false;
+			}
+		}
+		else
+		{
+			//トリガーフラグをリセット
+			buttonStates_[i].isTriggered = false;
+		}
+
+		//ボタンが離された瞬間の判定
+		if (input_->IsPressButtonExit(buttonMappings_[i]))
+		{
+			//ボタンが押されているときに離されたらトリガーフラグを立てる
+			if (buttonStates_[i].isPressed)
+			{
+				buttonStates_[i].isTriggered = true;
+			}
+			//離されたフラグを立てる
+			buttonStates_[i].isReleased = true;
+			//押された状態をリセット
+			buttonStates_[i].isPressed = false;
+			//押し始めた時間をリセット
+			buttonStates_[i].pressedFrame = 0;
+		}
+		else
+		{
+			//離されたフラグをリセット
+			buttonStates_[i].isReleased = false;
+		}
+	}
 }
 
 void Player::UpdateMagicAttack()

@@ -23,6 +23,15 @@ public:
         A, B, X, Y, LB, RB, RT, kMaxButtons,
     };
 
+    //ボタンの入力状態
+    struct ButtonState
+    {
+        bool isPressed = false;   //押されているかどうか
+        bool isTriggered = false; //押された瞬間かどうか
+        bool isReleased = false;  //離された瞬間かどうか
+        int32_t pressedFrame = 0; //押されているフレーム
+    };
+
     //スプライトの基本設定を保持する構造体
     struct SpriteSettings
     {
@@ -188,6 +197,28 @@ public:
     /// </summary>
     void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
 
+    /// <summary>
+    /// 単押しの判定
+    /// </summary>
+    /// <param name="buttonType">ボタンの種類</param>
+    /// <returns>押された瞬間かどうか</returns>
+    bool IsTriggered(const ButtonType buttonType) { return buttonStates_[buttonType].isTriggered; };
+
+    /// <summary>
+    /// 離した瞬間の処理
+    /// </summary>
+    /// <param name="buttonType">ボタンの種類</param>
+    /// <returns>離された瞬間かどうか</returns>
+    bool IsReleased(const ButtonType buttonType) { return buttonStates_[buttonType].isReleased; };
+
+    /// <summary>
+    /// 同時押しの判定
+    /// </summary>
+    /// <param name="buttonType1">一つ目のボタンの種類</param>
+    /// <param name="buttonType2">二つ目のボタンの種類</param>
+    /// <returns>同時押しされたかどうか</returns>
+    bool ArePressed(const ButtonType buttonType1, const ButtonType buttonType2) { return buttonStates_[buttonType1].isPressed && buttonStates_[buttonType2].isPressed; };
+
     //アクションフラグの取得・設定
     const bool GetActionFlag(const ActionFlag& actionFlag) const { auto it = actionFlags_.find(actionFlag); return it != actionFlags_.end() && it->second; };
     void SetActionFlag(const ActionFlag& actionFlag, bool value) { actionFlags_[actionFlag] = value; };
@@ -234,6 +265,11 @@ private:
     /// スキルのUIスプライトを設定
     /// </summary>
     void SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config);
+
+    /// <summary>
+    /// ボタンの入力状態の更新
+    /// </summary>
+    void UpdateButtonStates();
 
     /// <summary>
     /// 魔法攻撃の更新
@@ -299,11 +335,20 @@ private:
     //オーディオ
     Audio* audio_ = nullptr;
 
+    //スキルクールダウンマネージャー
+    std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
+
     //アクションフラグ
     std::unordered_map<ActionFlag, bool> actionFlags_{};
 
-    //スキルクールダウンマネージャー
-    std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
+    //ボタンの状態
+    std::array<ButtonState, kMaxButtons> buttonStates_{};
+
+    //ボタン定数を保持する配列
+    std::array<WORD, kMaxButtons> buttonMappings_{
+        XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
+        XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
+    };
 
     //ボタンのUIの設定
     std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};

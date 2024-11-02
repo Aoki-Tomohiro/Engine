@@ -84,8 +84,6 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
 
 void BaseCharacter::ChangeState(ICharacterState* newState)
 {
-    assert(newState);
-
     //新しい状態の設定
     newState->SetCharacter(this);
 
@@ -149,11 +147,14 @@ void BaseCharacter::ApplyParametersToWeapon(const AttackEvent* attackEvent)
     //ヒットボックスのパラメーターを設定
     weapon_->SetHitboxParameters(attackEvent->hitboxParameters);
 
-    //ノックバックのパラメーターを設定
-    weapon_->SetKnockbackParameters(attackEvent->knockbackParameters);
-
     //エフェクトコンフィグを武器に設定
     weapon_->SetHitEffectConfig(attackEvent->effectConfigs);
+
+    //ノックバックのパラメーターを設定
+    KnockbackParameters knockbackParameters{};
+    knockbackParameters.velocity = Mathf::RotateVector(attackEvent->knockbackParameters.velocity, transform_->worldTransform_.quaternion_);
+    knockbackParameters.acceleration = Mathf::RotateVector(attackEvent->knockbackParameters.acceleration, transform_->worldTransform_.quaternion_);
+    weapon_->SetKnockbackParameters(knockbackParameters);
 }
 
 void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun)
@@ -181,6 +182,21 @@ void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool tr
         //ダメージを食らった処理を実行
         ApplyDamageAndKnockback(KnockbackParameters{}, pillar->GetDamage(), transitionToStun);
     }
+}
+
+void BaseCharacter::CorrectPositionAfterAnimation()
+{
+    //アニメーション補正を有効にする
+    isAnimationCorrectionActive_ = true;
+
+    //現在の腰のローカルポジションを取得
+    Vector3 jointPosition = GetJointLocalPosition("mixamorig:Hips");
+
+    //プレイヤーの位置を更新
+    SetPosition(GetPosition() + Vector3(jointPosition.x, 0.0f, jointPosition.z));
+
+    //アニメーションを停止
+    animator_->StopAnimation();
 }
 
 void BaseCharacter::StartModelShake()

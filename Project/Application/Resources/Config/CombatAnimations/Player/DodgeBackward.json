@@ -1,0 +1,26 @@
+{
+    "Player": {
+        "DodgeBackward": {
+            "AnimationEvents": {
+                "Dodge": {
+                    "EndEventTime": 0.9300000071525574,
+                    "EventType": "Movement",
+                    "MovementType": "Velocity",
+                    "StartEventTime": 0.2800000011920929,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        -20.0
+                    ]
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 1.0
+                }
+            }
+        }
+    }
+}

@@ -4,11 +4,24 @@
 #include "Application/Src/Object/Editors/ParticleEffectEditor/ParticleEffectEditor.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/MovementEvent.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/AttackEvent.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/CancelEvent.h"
 #include <Engine/Externals/nlohmann/json.hpp>
 #include <fstream>
 #include <map>
 
 class BaseCharacter;
+
+struct AnimationSpeedConfig
+{
+	float duration;       //持続時間
+	float animationSpeed; //アニメーションの速度
+};
+
+struct AnimationController
+{
+	std::vector<AnimationSpeedConfig> animationSpeedConfigs{};      //アニメーションの速度と持続時間
+	std::vector<std::shared_ptr<AnimationEvent>> animationEvents{}; //アニメーションイベント
+};
 
 /// <summary>
 /// 戦闘のアニメーションを管理するクラス
@@ -16,12 +29,11 @@ class BaseCharacter;
 class CombatAnimationEditor
 {
 public:
-	//キャラクターのアニメーションデータ
 	struct CharacterAnimationData
 	{
-		std::map<std::string, std::vector<std::unique_ptr<AnimationEvent>>> combatAnimations; // キャラクターのアニメーションイベント
-		std::string selectedAnimationName;                                                    // 選択しているアニメーションの名前
-		std::string currentEditAnimationName;                                                 // 現在編集中のアニメーションの名前
+		std::map<std::string, AnimationController> animationControllers{}; //アニメーション名とコントローラーのマップ
+		std::string selectedAnimation{}; //選択中のアニメーション名
+		std::string editingAnimation{};  //編集中のアニメーション名
 	};
 
 	/// <summary>
@@ -41,12 +53,12 @@ public:
 	void AddEditableCharacter(BaseCharacter* character);
 
 	/// <summary>
-	/// 全てのアニメーションイベントを取得
+	/// アニメーションコントローラーを取得
 	/// </summary>
-	/// <param name="characterName">キャラクターの名前
+	/// <param name="characterName">キャラクターの名前</param>
 	/// <param name="animationName">アニメーションの名前</param>
-	/// <returns>アニメーションイベント</returns>
-	const std::vector<std::unique_ptr<AnimationEvent>> GetAnimationEvents(const std::string& characterName, const std::string& animationName) const;
+	/// <returns>アニメーションコントローラー</returns>
+	const AnimationController& GetAnimationController(const std::string& characterName, const std::string& animationName) const;
 
 	//パーティクルエフェクトエディターを設定
 	void SetParticleEffectEditor(const ParticleEffectEditor* particleEffectEditor) { particleEffectEditor_ = particleEffectEditor; };
@@ -69,25 +81,39 @@ private:
 	void EditAnimationTime(AnimatorComponent* animator, const std::string& selectedAnimationName);
 
 	/// <summary>
-	/// 戦闘のアニメーションを追加
+	/// アニメーションコントローラーを追加
 	/// </summary>
 	/// <param name="characterAnimationData">キャラクターのアニメーションデータ</param>
 	/// <param name="selectedAnimationName">選択中のアニメーションの名前</param>
-	void AddCombatAnimation(CharacterAnimationData& characterAnimationData, const std::string& selectedAnimationName);
+	void AddAnimationController(CharacterAnimationData& characterAnimationData, const std::string& selectedAnimationName);
 
 	/// <summary>
-	/// 戦闘アニメーションのコントロールを表示
+	/// アニメーションコントローラーのコントロールを表示
 	/// </summary>
 	/// <param name="characterName">キャラクターの名前</param>
-	/// <param name="combatAnimationName">戦闘アニメーションの名前</param>
-	void DisplayCombatAnimationControls(const std::string& characterName, const std::string& combatAnimationName);
+	/// <param name="animationControllerName">アニメーションコントローラーの名前</param>
+	void DisplayAnimationControllerControls(const std::string& characterName, const std::string& animationControllerName);
 
 	/// <summary>
 	/// ファイルに保存
 	/// </summary>
 	/// <param name="characterName">キャラクターの名前</param>
-	/// <param name="combatAnimationName">戦闘アニメーションの名前</param>
-	void SaveFile(const std::string& characterName, const std::string& combatAnimationName);
+	/// <param name="animationControllerName">アニメーションコントローラーの名前</param>
+	void SaveFile(const std::string& characterName, const std::string& animationControllerName);
+
+	/// <summary>
+	/// アニメーション速度の設定をファイルに保存
+	/// </summary>
+	/// <param name="animationSpeedConfigs">アニメーションの速度設定</param>
+	/// <param name="animationSpeedConfigsJson">アニメーションの速度設定のjsonオブジェクト</param>
+	void SaveAnimationSpeedConfigs(const std::vector<AnimationSpeedConfig>& animationSpeedConfigs, nlohmann::json& animationSpeedConfigsJson);
+
+	/// <summary>
+	/// アニメーションイベントをファイルに保存
+	/// </summary>
+	/// <param name="animationEvents">アニメーションイベント</param>
+	/// <param name="animationEventsJson">アニメーションイベントのjsonオブジェクト</param>
+	void SaveAnimationEvents(const std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& animationEventsJson);
 
 	/// <summary>
 	/// 移動イベントを保存
@@ -118,16 +144,37 @@ private:
 	void SaveAttackEvent(AttackEvent* attackEvent, nlohmann::json& eventJson);
 
 	/// <summary>
-	/// 全てのファイルを保存
+	/// キャンセルイベントを保存
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveCancelEvent(CancelEvent* cancelEvent, nlohmann::json& eventJson);
+
+	/// <summary>
+	/// 全てのファイルを読み込む
 	/// </summary>
 	void LoadFiles();
 
 	/// <summary>
-	/// ファイルを保存
+	/// ファイルを読み込む
 	/// </summary>
 	/// <param name="characterName">キャラクターの名前</param>
-	/// <param name="combatAnimationName">戦闘アニメーションの名前</param>
-	void LoadFile(const std::string& characterName, const std::string& combatAnimationName);
+	/// <param name="animationControllerName">アニメーションコントローラーの名前</param>
+	void LoadFile(const std::string& characterName, const std::string& animationControllerName);
+
+	/// <summary>
+	/// アニメーション速度設定を読み込む
+	/// </summary>
+	/// <param name="animationSpeedConfigs">アニメーションの速度設定</param>
+	/// <param name="animationSpeedConfigsJson">アニメーションの速度設定のjsonオブジェクト</param>
+	void LoadAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs, nlohmann::json& animationSpeedConfigsJson);
+
+	/// <summary>
+	/// アニメーションイベントを読み込む
+	/// </summary>
+	/// <param name="animationEvents">アニメーションイベント</param>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	void LoadAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 移動イベントを読み込む
@@ -135,7 +182,7 @@ private:
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadMovementEvent(const std::string& eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	void LoadMovementEvent(const std::string& eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 速度移動イベントを読み込む
@@ -143,7 +190,7 @@ private:
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadVelocityMovementEvent(const std::string& eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	void LoadVelocityMovementEvent(const std::string& eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// イージング移動イベントを読み込む
@@ -151,7 +198,7 @@ private:
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadEasingMovementEvent(const std::string& eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	void LoadEasingMovementEvent(const std::string& eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 攻撃イベントを読み込む
@@ -159,27 +206,59 @@ private:
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadAttackEvent(const std::string& eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	void LoadAttackEvent(const std::string& eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+
+	/// <summary>
+	/// キャンセルイベントを読み込む
+	/// </summary>
+	/// <param name="eventName">イベントの名前</param>
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
+	void LoadCancelEvent(const std::string& eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+
+	/// <summary>
+	/// アニメーション速度の設定を管理
+	/// </summary>
+	/// <param name="animationSpeedConfigs">アニメーション速度の設定</param>
+	void ManageAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs);
+
+	/// <summary>
+	/// アニメーションの速度の設定を追加
+	/// </summary>
+	/// <param name="animationSpeedConfigs">アニメーションの速度の設定</param>
+	void AddAnimationSpeedConfig(std::vector<AnimationSpeedConfig>& animationSpeedConfigs);
+
+	/// <summary>
+	/// 全てのアニメーション速度の設定を編集
+	/// </summary>
+	/// <param name="animationSpeedConfigs">アニメーションの速度の設定</param>
+	void EditAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs);
+
+	/// <summary>
+	/// アニメーションイベントを管理
+	/// </summary>
+	/// <param name="animationEvents">全てのアニメーションイベント</param>
+	void ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// アニメーションイベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddAnimationEvent(std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void AddAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 移動イベントを追加
 	/// </summary>
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddMovementEvent(char* eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void AddMovementEvent(char* eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 速度移動イベントを追加
 	/// </summary>
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddVelocityMovementEvent(char* eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void AddVelocityMovementEvent(char* eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 速度による移動イベントを編集
@@ -192,7 +271,7 @@ private:
 	/// </summary>
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddEasingMovementEvent(char* eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void AddEasingMovementEvent(char* eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// イージングによる移動イベントを編集
@@ -205,7 +284,7 @@ private:
 	/// </summary>
 	/// <param name="eventName">イベントの名前</param>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddAttackEvent(char* eventName, std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void AddAttackEvent(char* eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 攻撃イベントを編集
@@ -214,10 +293,23 @@ private:
 	void EditAttackEvent(AttackEvent* attackEvent);
 
 	/// <summary>
+	/// キャンセルイベントを追加
+	/// </summary>
+	/// <param name="eventName">イベントの名前</param>
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddCancelEvent(char* eventName, std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+
+	/// <summary>
+	/// キャンセルイベントを編集
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	void EditCancelEvent(CancelEvent* cancelEvent);
+
+	/// <summary>
 	/// アニメーションイベントを編集
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void EditAnimationEvents(std::vector<std::unique_ptr<AnimationEvent>>& animationEvents);
+	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 移動イベントを編集

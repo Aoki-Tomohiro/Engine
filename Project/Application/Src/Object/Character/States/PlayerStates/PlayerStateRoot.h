@@ -19,6 +19,11 @@ public:
 	void Update() override;
 
 	/// <summary>
+	/// 状態遷移を処理
+	/// </summary>
+	void HandleStateTransition() override;
+
+	/// <summary>
 	/// 衝突処理
 	/// </summary>
 	/// <param name="other">衝突相手</param>

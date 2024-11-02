@@ -48,6 +48,7 @@ public:
     /// 状態遷移
     /// </summary>
     /// <param name="newState">新しい状態</param>
+    /// <param name="animationName">アニメーションの名前</param>
     void ChangeState(ICharacterState* newState);
 
     /// <summary>
@@ -84,6 +85,11 @@ public:
     /// <param name="gameObject">衝突相手</param>
     /// <param name="transitionToStun">スタンに遷移するかどうか</param>
     void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
+
+    /// <summary>
+    /// プレイヤーの位置をアニメーション後の位置に補正
+    /// </summary>
+    void CorrectPositionAfterAnimation();
 
     /// <summary>
     /// モデルシェイク開始
@@ -153,9 +159,6 @@ public:
 
     //タイトルシーンのフラグを設定
     void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
-
-    //アニメーション補正フラグの設定
-    void SetIsAnimationCorrectionActive(const bool isAnimationCorrectionActive) { isAnimationCorrectionActive_ = isAnimationCorrectionActive; };
 
     //アニメーターを取得
     AnimatorComponent* GetAnimator() const { return animator_; };
@@ -302,7 +305,7 @@ protected:
     ModelShake modelShake_{};
 
     //重力加速度
-    float gravityAcceleration_ = -42.0f;
+    float gravityAcceleration_ = -180.0f;
 
     //体力の最大値
     float maxHp_ = 0.0f;

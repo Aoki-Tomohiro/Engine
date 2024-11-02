@@ -28,6 +28,8 @@
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\ICharacterState.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraPath.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.cpp" />
@@ -171,10 +173,13 @@
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h" />
     <ClInclude Include="Application\Src\Object\Character\States\ICharacterState.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h" />
     <ClInclude Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraPath.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvent.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AttackEvent.h" />
+    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\CancelEvent.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\MovementEvent.h" />
     <ClInclude Include="Application\Src\Object\Editors\EditorManager.h" />

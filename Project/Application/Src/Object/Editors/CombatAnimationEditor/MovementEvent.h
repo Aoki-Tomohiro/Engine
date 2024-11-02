@@ -13,7 +13,8 @@ enum class MovementType
 struct MovementEvent : public AnimationEvent
 {
     virtual ~MovementEvent() override = default;
-    MovementType movementType; // 移動の種類
+    MovementType movementType;  // 移動の種類
+    bool useStickInput = false; // スティック入力を使用するかどうか
 };
 
 //速度を加算する移動イベント
@@ -27,6 +28,5 @@ struct VelocityMovementEvent : public MovementEvent
 struct EasingMovementEvent : public MovementEvent
 {
     ~EasingMovementEvent() override = default;
-    Vector3 startPosition{};  // 開始座標
     Vector3 targetPosition{}; // 目標座標
 };

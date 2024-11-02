@@ -1,137 +1,174 @@
 #include "ICharacterState.h"
+#include "Engine/Components/Input/Input.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 
-void ICharacterState::ProcessAnimationEvents()
+void ICharacterState::UpdateAnimationState()
 {
 	//アニメーターを取得
 	AnimatorComponent* animator = character_->GetAnimator();
 
-	//アニメーションの時間を取得
+	//現在のアニメーション時間を取得
 	float currentAnimationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
 
+	//アニメーション速度設定を更新
+	UpdateAnimationSpeed(currentAnimationTime, animator);
+
+	//アニメーションイベントを処理
+	ProcessAnimationEvents(currentAnimationTime);
+}
+
+void ICharacterState::UpdateAnimationSpeed(const float currentAnimationTime, AnimatorComponent* animator)
+{
+	//全てのアニメーション時間の設定を適用
+	if (speedConfigIndex_ < static_cast<int32_t>(animationController_->animationSpeedConfigs.size()))
+	{
+		//現在のアニメーション時間が設定した持続時間を超えた場合
+		if (speedConfigIndex_ == -1 || currentAnimationTime > animationController_->animationSpeedConfigs[speedConfigIndex_].duration)
+		{
+			//次の設定に移動
+			speedConfigIndex_++;
+			//アニメーションの速度を設定
+			animator->SetCurrentAnimationSpeed(animationController_->animationSpeedConfigs[speedConfigIndex_].animationSpeed);
+			animator->SetNextAnimationSpeed(animationController_->animationSpeedConfigs[speedConfigIndex_].animationSpeed);
+		}
+	}
+}
+
+void ICharacterState::ProcessAnimationEvents(const float currentAnimationTime)
+{
 	//全てのアニメーションイベントを処理
-	for (const std::unique_ptr<AnimationEvent>& animationEvent : animationEvents_)
+	for (const std::shared_ptr<AnimationEvent>& animationEvent : animationController_->animationEvents)
 	{
 		//現在のアニメーション時間がイベントの開始時間と終了時間の間にある場合
 		if (animationEvent->startEventTime < currentAnimationTime && animationEvent->endEventTime >= currentAnimationTime)
 		{
-			//アニメーションイベントを実行
+			//アニメーションイベントを処理
 			ProcessAnimationEvent(animationEvent.get(), currentAnimationTime);
 		}
-	}
-}
-
-const bool ICharacterState::IsAnimationEventActive(const std::string& eventName) const
-{
-	//指定されたイベント名を持つアニメーションイベントを検索
-	for (const std::unique_ptr<AnimationEvent>& animationEvent : animationEvents_)
-	{
-		//同じ名前のアニメーションイベントが存在したらアクティブかどうかを返す
-		if (animationEvent->eventName == eventName)
+		else
 		{
-			return animationEvent->isActive;
+			//イベントが終了している場合は処理データをリセット
+			ResetProcessedData(animationEvent->eventType);
 		}
 	}
-	//イベントが見つからなかった場合はfalseを返す
-	return false;
 }
 
-void ICharacterState::ProcessAnimationEvent(AnimationEvent* animationEvent, const float animationTime)
+void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime)
 {
 	//アニメーションイベントの種類に応じて処理を分岐
 	switch (animationEvent->eventType)
 	{
 	case EventType::kMovement:
-		ProcessMovementEvent(dynamic_cast<MovementEvent*>(animationEvent), animationTime);
+		//移動イベントの処理
+		ProcessMovementEvent(static_cast<const MovementEvent*>(animationEvent), animationTime);
 		break;
 	case EventType::kAttack:
-		ProcessAttackEvent(dynamic_cast<AttackEvent*>(animationEvent));
+		//攻撃イベントの処理
+		ProcessAttackEvent(static_cast<const AttackEvent*>(animationEvent));
 		break;
 	}
 }
 
-void ICharacterState::ProcessMovementEvent(MovementEvent* movementEvent, const float animationTime)
+void ICharacterState::ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime)
 {
 	//移動イベントの種類に応じて処理を分岐
 	switch (movementEvent->movementType)
 	{
 	case MovementType::kVelocity:
-		ProcessVelocityMovementEvent(dynamic_cast<VelocityMovementEvent*>(movementEvent));
+		//速度移動イベントの処理
+		ProcessVelocityMovementEvent(static_cast<const VelocityMovementEvent*>(movementEvent));
 		break;
 	case MovementType::kEasing:
-		ProcessEasingMovementEvent(dynamic_cast<EasingMovementEvent*>(movementEvent), animationTime);
+		//イージング移動イベントの処理
+		ProcessEasingMovementEvent(static_cast<const EasingMovementEvent*>(movementEvent), animationTime);
 		break;
 	}
 }
 
-void ICharacterState::ProcessVelocityMovementEvent(VelocityMovementEvent* velocityMovementEvent)
+void ICharacterState::ProcessVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent)
 {
 	//速度移動イベントがまだアクティブでない場合の初期化処理
-	if (!velocityMovementEvent->isActive)
+	if (!processedVelocityData_.isActive)
 	{
-		velocityMovementEvent->isActive = true;
-		//キャラクターの向きに合わせて速度ベクトルを回転させる
-		velocityMovementEvent->velocity = Mathf::RotateVector(velocityMovementEvent->velocity, character_->GetQuaternion());
+		//速度移動イベントの初期化
+		InitializeVelocityMovement(velocityMovementEvent);
 	}
 
 	//キャラクターを移動させる
-	character_->Move(velocityMovementEvent->velocity);
+	character_->Move(processedVelocityData_.velocity);
 }
 
-void ICharacterState::ProcessEasingMovementEvent(EasingMovementEvent* easingMovementEvent, const float animationTime)
+void ICharacterState::ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime)
 {
 	//イージング移動イベントがまだアクティブでない場合の初期化処理
-	if (!easingMovementEvent->isActive)
+	if (!processedEasingData_.isActive)
 	{
-		easingMovementEvent->isActive = true;
-		//キャラクターの現在の位置を開始位置として設定
-		easingMovementEvent->startPosition = character_->GetPosition();
-		//目標位置を計算
-		easingMovementEvent->targetPosition = easingMovementEvent->startPosition + Mathf::RotateVector(easingMovementEvent->targetPosition, character_->GetQuaternion());
+		//イージング移動イベントの初期化
+		InitializeEasingMovementEvent(easingMovementEvent);
 	}
 
 	//イージングパラメータを計算
-	float easingParameter = (animationTime - easingMovementEvent->startEventTime) / (easingMovementEvent->endEventTime - easingMovementEvent->startEventTime);
-	easingParameter = std::clamp(easingParameter, 0.0f, 1.0f);
+	float easingParameter = std::min<float>(1.0f, (animationTime - easingMovementEvent->startEventTime) / (easingMovementEvent->endEventTime - easingMovementEvent->startEventTime));
 
 	//キャラクターの位置を更新
-	character_->SetPosition(Mathf::Lerp(easingMovementEvent->startPosition, easingMovementEvent->targetPosition, easingParameter));
+	character_->SetPosition(Mathf::Lerp(processedEasingData_.startPosition, processedEasingData_.targetPosition, easingParameter));
 }
 
-void ICharacterState::ProcessAttackEvent(AttackEvent* attackEvent)
+void ICharacterState::InitializeAttackEvent(const AttackEvent* attackEvent)
+{
+	//アクティブ状態にする
+	processedAttackData_.isActive = true;
+	//攻撃パラメータを武器に適用
+	character_->ApplyParametersToWeapon(attackEvent);
+}
+
+void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent)
 {
 	//攻撃イベントがまだアクティブでない場合の初期化処理
-	if (!attackEvent->isActive)
+	if (!processedAttackData_.isActive)
 	{
-		attackEvent->isActive = true;
-		//ノックバックパラメータを回転させる
-		attackEvent->knockbackParameters.velocity = Mathf::RotateVector(attackEvent->knockbackParameters.velocity, character_->GetQuaternion());
-		attackEvent->knockbackParameters.acceleration = Mathf::RotateVector(attackEvent->knockbackParameters.acceleration, character_->GetQuaternion());
-		//攻撃パラメータを武器に適用
-		character_->ApplyParametersToWeapon(attackEvent);
+		//攻撃イベントの初期化
+		InitializeAttackEvent(attackEvent);
 	}
 
-	//武器を取得
-	Weapon* weapon = character_->GetWeapon();
-
 	//現在のヒットカウントが最大ヒットカウントに達していない場合
-	if (attackEvent->attackParameters.currentHitCount < attackEvent->attackParameters.maxHitCount)
+	if (processedAttackData_.currentHitCount < attackEvent->attackParameters.maxHitCount)
 	{
+		//武器を取得
+		Weapon* weapon = character_->GetWeapon();
+
 		//攻撃タイマーを進める
-		attackEvent->attackParameters.elapsedAttackTime += GameTimer::GetDeltaTime();
+		processedAttackData_.elapsedAttackTime += GameTimer::GetDeltaTime();
 
 		//ヒット間隔に基づいて攻撃判定を設定
-		if (attackEvent->attackParameters.elapsedAttackTime > attackEvent->attackParameters.hitInterval)
+		if (processedAttackData_.elapsedAttackTime > attackEvent->attackParameters.hitInterval)
 		{
 			weapon->SetIsAttack(true); //攻撃状態を有効にする
-			attackEvent->attackParameters.elapsedAttackTime = 0.0f; //攻撃タイマーをリセット
+			processedAttackData_.elapsedAttackTime = 0.0f; //攻撃タイマーをリセット
 		}
 
 		//攻撃が敵に当たったかどうかをチェック
 		if (weapon->GetIsHit())
 		{
-			attackEvent->attackParameters.currentHitCount++; //ヒットカウントを増やす
+			processedAttackData_.currentHitCount++; //ヒットカウントを増やす
 			weapon->SetIsAttack(false); //攻撃状態を無効にする
 		}
+	}
+}
+
+void ICharacterState::ResetProcessedData(const EventType eventType)
+{
+	//イベントタイプに応じたリセット処理
+	switch (eventType)
+	{
+	case EventType::kMovement:
+		//移動イベントのデータをリセット
+		processedVelocityData_.isActive = false;
+		processedEasingData_.isActive = false;
+		break;
+	case EventType::kAttack:
+		//攻撃イベントのデータをリセット
+		processedAttackData_.isActive = false;
+		break;
 	}
 }
