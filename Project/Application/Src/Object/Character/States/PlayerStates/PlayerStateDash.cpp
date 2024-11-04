@@ -52,22 +52,6 @@ void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* ve
 {
 	//基底クラスの呼び出し
 	IPlayerState::InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
-
-	//敵の座標を取得
-	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
-
-	//プレイヤーの座標を取得
-	Vector3 playerPosition = character_->GetJointWorldPosition("mixamorig:Hips");
-
-	//差分ベクトルを計算
-	Vector3 sub = enemyPosition - playerPosition;
-
-	//Y軸の差分が閾値を超えていない場合は直線に移動させる
-	if (std::abs(sub.y) < GetPlayer()->GetDashParameters().verticalAlignmentTolerance)
-	{
-		processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
-	}
-
 	//プレイヤーを一時的に非表示にする
 	character_->SetIsVisible(false);
 	//武器を一時的に非表示にする

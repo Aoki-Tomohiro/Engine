@@ -267,16 +267,6 @@ protected:
     /// </summary>
     void ResetToOriginalPosition();
 
-    /// <summary>
-    /// スタン状態への遷移処理
-    /// </summary>
-    virtual void TransitionToStunState() = 0;
-
-    /// <summary>
-    /// 死亡状態への遷移処理
-    /// </summary>
-    virtual void TransitionToDeathState() = 0;
-
 protected:
     //移動制限
     const float kMoveLimit = 100.0f;

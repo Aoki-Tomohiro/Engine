@@ -4,6 +4,7 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateFalling.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
 
 CharacterStateFactory* CharacterStateFactory::GetInstance()
 {
@@ -56,6 +57,10 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 	{
 		return new PlayerStateDash();
 	}
+	else if (stateName == "Attack")
+	{
+		return new PlayerStateAttack();
+	}
 
 	//一致する名前の状態がなければnullptrを返す
 	return nullptr;
@@ -66,7 +71,7 @@ ICharacterState* CharacterStateFactory::CreateEnemyState(const std::string& stat
 	//通常状態
 	if (stateName == "Idle")
 	{
-		return new PlayerStateRoot();
+		return nullptr;
 	}
 
 	//一致する名前の状態がなければnullptrを返す

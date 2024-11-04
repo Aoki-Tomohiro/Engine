@@ -31,11 +31,18 @@ public:
 		float elapsedAttackTime{}; //攻撃判定が発生するまでの経過時間
 	};
 
+	//キャンセルに関数イベントの構造体
+	struct ProcessedCancelData : public ProcessedEventData
+	{
+		bool isCanceled{}; //キャンセルしたかどうか
+	};
+
 	//先行入力に関数イベントの構造体
 	struct ProcessedBufferedActionData : public ProcessedEventData
 	{
-		std::string bufferedActionName{};    //先行入力のアクションの名前
-		bool isAnimationCorrectionActive{};; //アニメーションの座標補正をするかどうか
+		std::string bufferedActionName{};   //先行入力のアクションの名前
+		bool isAnimationCorrectionActive{}; //アニメーションの座標補正をするかどうか
+		bool isBufferedInputActive{};       //先行入力で状態を遷移したかどうか
 	};
 
 	/// <summary>
@@ -79,7 +86,7 @@ protected:
 	/// 先行入力があるか確認し、状態を遷移させる
 	/// </summary>
 	/// <returns>状態遷移したかどうか</returns>
-	const bool CheckAndTransitionBufferedAction() const;
+	const bool CheckAndTransitionBufferedAction();
 
 	/// <summary>
 	/// 状態遷移
@@ -169,13 +176,13 @@ private:
 	/// キャンセルイベントの処理
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
-	void ProcessCancelEvent(const CancelEvent* cancelEvent);
+	void ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// キャンセルアクションを実行
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
-	virtual void HandleCancelAction(const CancelEvent* cancelEvent) = 0;
+	virtual void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex) = 0;
 
 	/// <summary>
 	/// 先行入力イベントの処理
@@ -226,6 +233,9 @@ protected:
 
 	//攻撃イベント用の構造体
 	std::vector<ProcessedAttackData> processedAttackDatas_{};
+
+	//キャンセルイベント用の構造体
+	std::vector<ProcessedCancelData> processedCancelDatas_{};
 
 	//先行入力用の構造体
 	std::vector<ProcessedBufferedActionData> processedBufferedActionDatas_{};

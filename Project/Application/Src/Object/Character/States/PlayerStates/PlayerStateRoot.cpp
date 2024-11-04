@@ -70,6 +70,12 @@ void PlayerStateRoot::HandleStateTransition(const bool)
 		//ダッシュ状態に遷移
 		player->ChangeState("Dash");
 	}
+	//Xボタンを押した時
+	else if (player->IsButtonTriggered("Attack"))
+	{
+		//攻撃状態に遷移
+		player->ChangeState("Attack");
+	}
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()

@@ -55,7 +55,7 @@ private:
 	/// キャンセルアクションを実行
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
-	void HandleCancelAction(const CancelEvent* cancelEvent) override;
+	void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex) override;
 
 	/// <summary>
 	/// 先行入力イベントを実行

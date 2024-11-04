@@ -8,6 +8,9 @@ void Enemy::Initialize()
 	//HPの初期化
 	maxHp_ = 800.0f;
 	hp_ = maxHp_;
+
+	//状態の初期化
+	//ChangeState("Idle");
 }
 
 void Enemy::Update()
@@ -25,8 +28,11 @@ void Enemy::Update()
 	//モデルシェイクの更新
 	UpdateModelShake();
 
+	//新しい状態に遷移
+	//TransitionToNextState();
+
 	//状態の更新
-	//state_->Update();
+	//currentState_->Update();
 
 	//基底クラスの更新
 	BaseCharacter::Update();
@@ -34,9 +40,9 @@ void Enemy::Update()
 
 void Enemy::OnCollision(GameObject* gameObject)
 {
-	(void*)gameObject;
 	//状態の衝突判定処理
-	//state_->OnCollision(gameObject);
+	(void*)gameObject;
+	//currentState_->OnCollision(gameObject);
 }
 
 void Enemy::InitializeAnimator()
@@ -81,12 +87,4 @@ void Enemy::InitializeUISprites()
 
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
-}
-
-void Enemy::TransitionToStunState()
-{
-}
-
-void Enemy::TransitionToDeathState()
-{
 }

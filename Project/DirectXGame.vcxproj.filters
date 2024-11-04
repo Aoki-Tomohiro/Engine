@@ -717,9 +717,6 @@
     <ClCompile Include="Application\Src\Object\Character\States\ICharacterState.cpp">
       <Filter>ソース ファイル\Application\Object\Character\States</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.cpp">
-      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.cpp">
       <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
@@ -748,6 +745,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\CharacterStateFactory.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1178,9 +1178,6 @@
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h">
       <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h">
-      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h">
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
@@ -1209,6 +1206,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\CharacterStateFactory.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

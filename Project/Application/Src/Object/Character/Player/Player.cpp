@@ -474,11 +474,3 @@ void Player::DrawSkillUI(const SkillUISettings& uiSettings)
 	uiSettings.buttonSettings.fontSprite.sprite->Draw();
 	uiSettings.cooldownBarSprite->Draw();
 }
-
-void Player::TransitionToStunState()
-{
-}
-
-void Player::TransitionToDeathState()
-{
-}

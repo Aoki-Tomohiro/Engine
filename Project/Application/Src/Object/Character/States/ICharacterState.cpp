@@ -35,10 +35,10 @@ void ICharacterState::UpdateAnimationState()
 	ProcessAnimationEvents(currentAnimationTime);
 }
 
-const bool ICharacterState::CheckAndTransitionBufferedAction() const
+const bool ICharacterState::CheckAndTransitionBufferedAction()
 {
 	//先行入力があるかを確認
-	for (const ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
+	for (ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
 	{
 		//先行入力があった場合
 		if (!bufferedActionData.bufferedActionName.empty())
@@ -66,6 +66,7 @@ void ICharacterState::InitializeProcessedData()
 	processedVelocityDatas_.resize(animationController_->GetAnimationEventCount(EventType::kMovement));
 	processedEasingDatas_.resize(animationController_->GetAnimationEventCount(EventType::kMovement));
 	processedAttackDatas_.resize(animationController_->GetAnimationEventCount(EventType::kAttack));
+	processedCancelDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCancel));
 	processedBufferedActionDatas_.resize(animationController_->GetAnimationEventCount(EventType::kBufferedAction));
 }
 
@@ -124,7 +125,7 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 		break;
 	case EventType::kCancel:
 		//キャンセルイベントの処理
-		ProcessCancelEvent(static_cast<const CancelEvent*>(animationEvent));
+		ProcessCancelEvent(static_cast<const CancelEvent*>(animationEvent), animationEventIndex);
 		break;
 	case EventType::kBufferedAction:
 		//先行入力イベントの処理
@@ -233,13 +234,19 @@ void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const i
 	}
 }
 
-void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent)
+void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
 {
+	//速度移動イベントがまだアクティブでない場合の初期化処理
+	if (!processedCancelDatas_[animationEventIndex].isActive)
+	{
+		processedCancelDatas_[animationEventIndex].isActive = true;
+	}
+
 	//先行入力があった場合その状態に遷移
 	CheckAndTransitionBufferedAction();
 
 	//キャンセルアクションを処理
-	HandleCancelAction(cancelEvent);
+	HandleCancelAction(cancelEvent, animationEventIndex);
 }
 
 void ICharacterState::ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
@@ -281,6 +288,7 @@ void ICharacterState::ResetProcessedData(const EventType eventType, const int32_
 		break;
 	case EventType::kAttack:
 		processedAttackDatas_[animationEventIndex].isActive = false;
+		character_->GetWeapon()->SetIsAttack(false);
 		break;
 	case EventType::kBufferedAction:
 		processedBufferedActionDatas_[animationEventIndex].isActive = false;

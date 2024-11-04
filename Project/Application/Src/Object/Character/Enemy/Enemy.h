@@ -144,16 +144,6 @@ private:
 	/// </summary>
 	void InitializeUISprites() override;
 
-	/// <summary>
-	/// スタン状態への遷移処理
-	/// </summary>
-	void TransitionToStunState() override;
-
-	/// <summary>
-	/// 死亡状態への遷移処理
-	/// </summary>
-	void TransitionToDeathState() override;
-
 private:
 	//前の近接攻撃
 	CloseRangeAttack previousCloseRangeAttack_ = CloseRangeAttack::kMaxCloseRangeAttacks;

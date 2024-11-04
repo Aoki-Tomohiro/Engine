@@ -84,7 +84,7 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
     //スタン状態に遷移するかどうかをチェック
     if (transitionToStun)
     {
-        TransitionToStunState();
+        ChangeState("Stun");
     }
 }
 
@@ -374,7 +374,7 @@ void BaseCharacter::CheckAndTransitionToDeath()
         //死亡状態に遷移
         if (!isDead_)
         {
-            TransitionToDeathState();
+            ChangeState("Death");
         }
 
         //死亡フラグを立てる

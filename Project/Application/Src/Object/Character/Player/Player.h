@@ -118,12 +118,6 @@ public:
         float jumpFirstSpeed = 40.0f; // 初速度
     };
 
-    //ダッシュ用のパラメーター
-    struct DashParameters
-    {
-        float verticalAlignmentTolerance = 1.0f;  // プレイヤーと敵のY軸方向の許容誤差
-    };
-
     //攻撃用のパラメーター
     struct AttackParameters
     {
@@ -191,16 +185,16 @@ public:
     void LookAtEnemy();
 
     /// <summary>
+    /// 魔法攻撃のクールダウンをリセット
+    /// </summary>
+    void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
+
+    /// <summary>
     /// ボタンが押されたかどうか
     /// </summary>
     /// <param name="actionName">アクションの名前</param>
     /// <returns>ボタンが押されたかどうか</returns>
     const bool IsButtonTriggered(const std::string& actionName) const;
-
-    /// <summary>
-    /// 魔法攻撃のクールダウンをリセット
-    /// </summary>
-    void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
 
     //アクションフラグの取得・設定
     const bool GetActionFlag(const ActionFlag& actionFlag) const { auto it = actionFlags_.find(actionFlag); return it != actionFlags_.end() && it->second; };
@@ -218,10 +212,12 @@ public:
     void SetLockon(const Lockon* lockon) { lockon_ = lockon; };
     const Lockon* GetLockon() const { return lockon_; };
 
+    //Y軸の許容誤差を取得
+    const float GetVerticalAlignmentTolerance() const { return verticalAlignmentTolerance_; };
+
     //各パラメーターの取得
     const RootParameters& GetRootParameters() const { return rootParameters_; };
     const JumpParameters& GetJumpParameters() const { return jumpParameters_; };
-    const DashParameters& GetDashParameters() const { return dashParameters_; };
     const AttackParameters& GetGroundAttackParameters() const { return groundAttackParameters_; };
     const AttackParameters& GetAerialAttackParameters() const { return aerialAttackAttackParameters_; };
     const LaunchAttackParameters& GetLaunchAttackParameters() const { return launchAttackParameters_; };
@@ -301,16 +297,6 @@ private:
     /// <param name="uiSettings">スキルのUIの設定</param>
     void DrawSkillUI(const SkillUISettings& uiSettings);
 
-    /// <summary>
-    /// スタン状態への遷移処理
-    /// </summary>
-    void TransitionToStunState() override;
-
-    /// <summary>
-    /// 死亡状態への遷移処理
-    /// </summary>
-    void TransitionToDeathState() override;
-
 private:
     //インプット
     Input* input_ = nullptr;
@@ -363,7 +349,10 @@ private:
     DamageEffect damageEffect_{};
 
     //ストンプ可能な距離
-    const float kStompRange = 6.0f;
+    const float kStompRange_ = 6.0f;
+
+    //プレイヤーと敵のY軸方向の許容誤差
+    const float verticalAlignmentTolerance_ = 1.0f;
 
     //オーディオハンドル
     uint32_t damageAudioHandle_ = 0;
@@ -377,7 +366,6 @@ private:
     //各種パラメーター
     RootParameters rootParameters_{};
     JumpParameters jumpParameters_{};
-    DashParameters dashParameters_{};
     AttackParameters groundAttackParameters_{ .comboNum = 4, .attackDistance = 3.0f };
     AttackParameters aerialAttackAttackParameters_{ .comboNum = 3, .attackDistance = 3.0f };
     LaunchAttackParameters launchAttackParameters_{};
