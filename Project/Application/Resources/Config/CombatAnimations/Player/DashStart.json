@@ -1,0 +1,31 @@
+{
+    "Player": {
+        "DashStart": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 0.06700000166893005,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveSpeed": 100.0,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "StartEventTime": 0.03999999910593033,
+                    "UseStickInput": false
+                },
+                "AnimationEvent1": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 0.06700000166893005,
+                    "EventType": "BufferedAction",
+                    "IsAnimationCorrectionActive": false,
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 0.07999999821186066,
+                    "Duration": 0.06700000166893005
+                }
+            }
+        }
+    }
+}

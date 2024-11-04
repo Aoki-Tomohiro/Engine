@@ -19,11 +19,6 @@ public:
 	void Update() override;
 
 	/// <summary>
-	/// 状態遷移を処理
-	/// </summary>
-	void HandleStateTransition() override;
-
-	/// <summary>
 	/// 衝突処理
 	/// </summary>
 	/// <param name="">衝突相手</param>
@@ -35,6 +30,11 @@ private:
 	/// </summary>
 	/// <param name="inputLength">入力の強さ</param>
 	void ConfigureDodgeAnimationAndEvents(const float inputLength);
+
+	/// <summary>
+	/// 前方回避の場合はキャラクターを回転
+	/// </summary>
+	void ApplyRotationForForwardDodge();
 
 private:
 	//アニメーションの名前

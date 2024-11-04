@@ -23,6 +23,12 @@ void BaseCharacter::Initialize()
 
     //UIスプライトの初期化
     InitializeUISprites();
+
+    //武器の初期化
+    InitializeWeapon();
+
+    //CharacterStateFactoryのインスタンスを取得
+    characterStateFactory_ = CharacterStateFactory::GetInstance();
 }
 
 void BaseCharacter::Update()
@@ -82,16 +88,18 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
     }
 }
 
-void BaseCharacter::ChangeState(ICharacterState* newState)
+void BaseCharacter::ChangeState(const std::string& newStateName)
 {
-    //新しい状態の設定
-    newState->SetCharacter(this);
-
-    //新しい状態の初期化
-    newState->Initialize();
-
-    //現在の状態を新しい状態に更新
-    state_.reset(newState);
+    //次の状態が設定されていなかった場合
+    if (!nextState_)
+    {
+        //新しい状態を生成
+        nextState_ = characterStateFactory_->CreateCharacterState(name_, newStateName);
+        //キャラクターを設定
+        nextState_->SetCharacter(this);
+        //新しい状態の初期化
+        nextState_->Initialize();
+    }
 }
 
 void BaseCharacter::Move(const Vector3& velocity)
@@ -117,6 +125,21 @@ void BaseCharacter::CorrectAnimationOffset()
     Vector3 hipPositionOffset = GetJointLocalPosition("mixamorig:Hips") - preAnimationHipPosition_;
     hipPositionOffset.y = 0.0f;
     SetPosition(GetPosition() - hipPositionOffset);
+}
+
+void BaseCharacter::CorrectPositionAfterAnimation()
+{
+    //アニメーション補正を有効にする
+    isAnimationCorrectionActive_ = true;
+
+    //現在の腰のローカルポジションを取得
+    Vector3 jointPosition = GetJointLocalPosition("mixamorig:Hips");
+
+    //プレイヤーの位置を更新
+    SetPosition(GetPosition() + Vector3(jointPosition.x, 0.0f, jointPosition.z));
+
+    //アニメーションを停止
+    animator_->StopAnimation();
 }
 
 void BaseCharacter::ApplyKnockback()
@@ -182,21 +205,6 @@ void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool tr
         //ダメージを食らった処理を実行
         ApplyDamageAndKnockback(KnockbackParameters{}, pillar->GetDamage(), transitionToStun);
     }
-}
-
-void BaseCharacter::CorrectPositionAfterAnimation()
-{
-    //アニメーション補正を有効にする
-    isAnimationCorrectionActive_ = true;
-
-    //現在の腰のローカルポジションを取得
-    Vector3 jointPosition = GetJointLocalPosition("mixamorig:Hips");
-
-    //プレイヤーの位置を更新
-    SetPosition(GetPosition() + Vector3(jointPosition.x, 0.0f, jointPosition.z));
-
-    //アニメーションを停止
-    animator_->StopAnimation();
 }
 
 void BaseCharacter::StartModelShake()
@@ -288,6 +296,19 @@ void BaseCharacter::InitializeUISprites()
     hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
 }
 
+void BaseCharacter::InitializeWeapon()
+{
+    //武器を生成
+    weapon_ = gameObjectManager_->CreateGameObject<Weapon>(name_ + "Weapon");
+    //エディターマネージャーを設定
+    weapon_->SetEditorManager(editorManager_);
+    //ヒットストップを設定
+    weapon_->SetHitStop(hitStop_);
+    //キャラクターの右手に親子付け
+    TransformComponent* weaponTransform = weapon_->GetComponent<TransformComponent>();
+    weaponTransform->worldTransform_.SetParent(&model_->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+}
+
 void BaseCharacter::UpdateRotation()
 {
     //タイトルシーンにいない場合はクォータニオンを補間
@@ -358,6 +379,16 @@ void BaseCharacter::CheckAndTransitionToDeath()
 
         //死亡フラグを立てる
         isDead_ = true;
+    }
+}
+
+void BaseCharacter::TransitionToNextState()
+{
+    if (nextState_)
+    {
+        //現在の状態を次の状態に切り替え
+        currentState_.reset(nextState_);
+        nextState_ = nullptr;
     }
 }
 

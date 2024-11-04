@@ -77,7 +77,7 @@ public:
 	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
 	//エディターマネージャーを設定
-	void SetEditorManager(EditorManager* editorManager) { editorManager_ = editorManager; };
+	void SetEditorManager(const EditorManager* editorManager) { editorManager_ = editorManager; };
 
 private:
 	/// <summary>

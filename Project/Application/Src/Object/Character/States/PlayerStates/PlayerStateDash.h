@@ -1,11 +1,12 @@
 #pragma once
 #include "IPlayerState.h"
+#include "Engine/Components/Audio/Audio.h"
 #include "Engine/Math/MathFunction.h"
 
 /// <summary>
-/// ジャンプ状態
+/// ダッシュ状態
 /// </summary>
-class PlayerStateJump : public IPlayerState
+class PlayerStateDash : public IPlayerState
 {
 public:
 	/// <summary>
@@ -33,19 +34,36 @@ private:
 	void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
 
 	/// <summary>
-	/// ジャンプ時のアニメーションとアニメーションイベントの設定
+	/// ダッシュアニメーション終了の確認と遷移
 	/// </summary>
-	/// <param name="inputLength">入力の強さ</param>
-	void ConfigureJumpAnimationAndEvents(const float inputLength);
+	void CheckTransitionToDashEndAnimation();
 
 	/// <summary>
-	/// 重力を適用
+	/// ダッシュ終了処理
 	/// </summary>
-	void ApplyGravity();
+	void FinalizeDash();
 
 	/// <summary>
-	/// 地面に着地しているかを確認
+	/// 速度移動イベントの処理
 	/// </summary>
-	void CheckLandingAndTransitionState();
+	void HandleVelocityMovement();
+
+	/// <summary>
+	/// 煙エミッターの位置を更新
+	/// </summary>
+	void UpdateSmokeEmitters();
+
+private:
+	//オーディオ
+	Audio* audio_ = nullptr;
+
+	//現在のアニメーションの名前
+	std::string currentAnimation_ = "DashStart";
+
+	//ダッシュのオーディオハンドル
+	uint32_t dashAudioHandle_ = 0;
+
+	//煙のパーティクルのオフセット値
+	Vector3 dashParticleOffset_ = { 0.0f,0.0f,-2.0f };
 };
 

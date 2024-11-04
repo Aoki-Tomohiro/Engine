@@ -738,6 +738,18 @@
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\CharacterStateFactory.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2D\Sprite.h">
@@ -1115,10 +1127,7 @@
     <ClInclude Include="Application\Src\Object\Weapon\Weapon.h">
       <Filter>ヘッダー ファイル\Application\Object\Weapon</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvent.h">
-      <Filter>ヘッダー ファイル\Application\Object\Editors\CombatAnimationEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AttackEvent.h">
+    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvents.h">
       <Filter>ヘッダー ファイル\Application\Object\Editors\CombatAnimationEditor</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\BaseCharacter.h">
@@ -1175,9 +1184,6 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h">
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\MovementEvent.h">
-      <Filter>ヘッダー ファイル\Application\Object\Editors\CombatAnimationEditor</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Editors\ParticleEffectEditor\ParticleEffectEditor.h">
       <Filter>ヘッダー ファイル\Application\Object\Editors\ParticleEffectEditor</Filter>
     </ClInclude>
@@ -1193,7 +1199,16 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\CancelEvent.h">
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\CharacterStateFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

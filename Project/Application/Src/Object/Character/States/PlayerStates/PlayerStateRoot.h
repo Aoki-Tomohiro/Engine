@@ -19,17 +19,18 @@ public:
 	void Update() override;
 
 	/// <summary>
-	/// 状態遷移を処理
-	/// </summary>
-	void HandleStateTransition() override;
-
-	/// <summary>
 	/// 衝突処理
 	/// </summary>
 	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject* other) override;
 
 private:
+	/// <summary>
+	/// 状態遷移
+	/// </summary>
+	/// <param name="isAnimationCorrectionActive">アニメーションの補正をするかどうか</param>
+	void HandleStateTransition(const bool isAnimationCorrectionActive) override;
+
 	/// <summary>
 	/// 現在のアニメーションがIdleではない場合再生する処理
 	/// </summary>

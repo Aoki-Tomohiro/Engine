@@ -31,7 +31,7 @@ void Player::Initialize()
 	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
 
 	//状態の初期化
-	ChangeState(new PlayerStateRoot());
+	ChangeState("Move");
 }
 
 void Player::Update()
@@ -52,8 +52,11 @@ void Player::Update()
 	//ボタンの入力状態の更新
 	UpdateButtonStates();
 
+	//新しい状態に遷移
+	TransitionToNextState();
+
 	//状態の更新
-	state_->Update();
+	currentState_->Update();
 
 	//魔法攻撃の更新
 	UpdateMagicAttack();
@@ -146,7 +149,7 @@ void Player::OnCollision(GameObject* gameObject)
 	else
 	{
 		//状態の衝突判定処理
-		state_->OnCollision(gameObject);
+		currentState_->OnCollision(gameObject);
 	}
 }
 
@@ -179,6 +182,22 @@ void Player::LookAtEnemy()
 
 	//回転処理
 	Rotate(Mathf::Normalize(rotateVector));
+}
+
+const bool Player::IsButtonTriggered(const std::string& actionName) const
+{
+	//各アクションに対応するボタン状態を返すためのマップ
+	static const std::unordered_map<std::string, std::function<bool()>> actionMap = {
+		{"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
+		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered; }},
+		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
+		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
+		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
+	};
+
+	//マップに存在する場合は判定を返し存在しない場合はfalseを返す
+	auto it = actionMap.find(actionName);
+	return it != actionMap.end() ? it->second() : false; 
 }
 
 void Player::InitializeAnimator()

@@ -9,6 +9,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Character/States/ICharacterState.h"
+#include "Application/Src/Object/Character/States/CharacterStateFactory.h"
 
 /// <summary>
 /// キャラクターの基底クラス
@@ -47,9 +48,8 @@ public:
     /// <summary>
     /// 状態遷移
     /// </summary>
-    /// <param name="newState">新しい状態</param>
-    /// <param name="animationName">アニメーションの名前</param>
-    void ChangeState(ICharacterState* newState);
+    /// <param name="newStateName">新しい状態の名前</param>
+    void ChangeState(const std::string& newStateName);
 
     /// <summary>
     /// 移動処理
@@ -69,6 +69,11 @@ public:
     void CorrectAnimationOffset();
 
     /// <summary>
+    /// プレイヤーの位置をアニメーション後の位置に補正
+    /// </summary>
+    void CorrectPositionAfterAnimation();
+
+    /// <summary>
     /// ノックバックを適用
     /// </summary>
     void ApplyKnockback();
@@ -85,11 +90,6 @@ public:
     /// <param name="gameObject">衝突相手</param>
     /// <param name="transitionToStun">スタンに遷移するかどうか</param>
     void ProcessCollisionImpact(GameObject* gameObject, const bool transitionToStun);
-
-    /// <summary>
-    /// プレイヤーの位置をアニメーション後の位置に補正
-    /// </summary>
-    void CorrectPositionAfterAnimation();
 
     /// <summary>
     /// モデルシェイク開始
@@ -160,6 +160,9 @@ public:
     //タイトルシーンのフラグを設定
     void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
 
+    //ヒットストップを設定
+    void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
+
     //アニメーターを取得
     AnimatorComponent* GetAnimator() const { return animator_; };
 
@@ -215,6 +218,11 @@ protected:
     virtual void InitializeUISprites();
 
     /// <summary>
+    /// 武器の初期化
+    /// </summary>
+    virtual void InitializeWeapon();
+
+    /// <summary>
     /// 回転の更新処理
     /// </summary>
     virtual void UpdateRotation();
@@ -238,6 +246,11 @@ protected:
     /// 死亡状態に遷移するかを確認
     /// </summary>
     virtual void CheckAndTransitionToDeath();
+
+    /// <summary>
+    /// 次の状態に遷移
+    /// </summary>
+    void TransitionToNextState();
 
     /// <summary>
     /// モデルシェイクの更新
@@ -268,8 +281,14 @@ protected:
     //移動制限
     const float kMoveLimit = 100.0f;
 
-    //状態
-    std::unique_ptr<ICharacterState> state_ = nullptr;
+    //現在の状態
+    std::unique_ptr<ICharacterState> currentState_ = nullptr;
+
+    //新しい状態
+    ICharacterState* nextState_ = nullptr;
+
+    //キャラクターの新しい状態を生成するファクトリー
+    CharacterStateFactory* characterStateFactory_ = nullptr;
 
     //トランスフォーム
     TransformComponent* transform_ = nullptr;
@@ -285,6 +304,9 @@ protected:
 
     //武器
     Weapon* weapon_ = nullptr;
+
+    //ヒットストップ
+    HitStop* hitStop_ = nullptr;
 
     //クォータニオン
     Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();

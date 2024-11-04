@@ -1,4 +1,5 @@
 #include "IPlayerState.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 
 Player* IPlayerState::GetPlayer() const
@@ -6,64 +7,140 @@ Player* IPlayerState::GetPlayer() const
 	return dynamic_cast<Player*>(GetCharacter());
 }
 
-void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent)
+void IPlayerState::HandleStateTransition(const bool isAnimationCorrectionActive)
+{
+	//先行入力があった場合はその状態に遷移して処理を飛ばす
+	if (CheckAndTransitionBufferedAction())
+	{
+		return;
+	}
+
+	//アニメーションを補正するフラグが立っていた場合は補正する
+	if (isAnimationCorrectionActive)
+	{
+		character_->CorrectPositionAfterAnimation();
+	}
+
+	//座標を取得
+	Vector3 position = character_->GetPosition();
+
+	//プレイヤーが地面にいなかった場合は落下状態にする
+	if (position.y > 0.0f)
+	{
+		character_->ChangeState("Falling");
+	}
+	//地面にいる場合は地面に埋まらないように座標を補正して通常状態に戻す
+	else
+	{
+		character_->SetPosition({ position.x, 0.0f, position.z });
+		character_->ChangeState("Move");
+	}
+}
+
+void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
-	processedVelocityData_.isActive = true;
+	processedVelocityDatas_[animationEventIndex].isActive = true;
 
-	//スティック入力を使用するかどうかで速度の計算方法を変える
+	//スティック入力を使用する場合
 	if (velocityMovementEvent->useStickInput)
 	{
 		//スティックの入力値を取得
 		Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
 
-		//スティックの入力に基づいて速度を設定
-		processedVelocityData_.velocity = Mathf::Normalize(inputValue) * velocityMovementEvent->velocity;
+		//スティック入力が閾値を超えていた場合
+		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
+		{
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(inputValue) * velocityMovementEvent->moveSpeed;
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCamera()->quaternion_);
+			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+		}
+	}
+	else if(velocityMovementEvent->moveTowardsEnemy && GetPlayer()->GetLockon()->ExistTarget())
+	{
+		//プレイヤーの座標を取得
+		Vector3 playerPosition = character_->GetJointWorldPosition("mixamorig:Hips");
+
+		//敵の座標を取得
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+
+		//速度を計算
+		processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(enemyPosition - playerPosition) * velocityMovementEvent->moveSpeed;
+
+		//進行方向に回転させる
+		character_->Rotate(Mathf::Normalize(Vector3{ processedVelocityDatas_[animationEventIndex].velocity.x, 0.0f, processedVelocityDatas_[animationEventIndex].velocity.z }));
 	}
 	else
 	{
 		//固定速度を使用して移動ベクトルを設定
-		processedVelocityData_.velocity = velocityMovementEvent->velocity;
-	}
-
-	//キャラクターの向きに基づいて速度ベクトルを回転
-	processedVelocityData_.velocity = Mathf::RotateVector(processedVelocityData_.velocity, velocityMovementEvent->useStickInput ? 
-		GetPlayer()->GetCamera()->quaternion_ : character_->GetQuaternion());
-
-	//スティックの入力をしている場合は速度のY成分を0にする
-	if (velocityMovementEvent->useStickInput)
-	{
-		processedVelocityData_.velocity.y = 0.0f;
+		processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector({ 0.0f, 0.0f, velocityMovementEvent->moveSpeed }, character_->GetQuaternion());
 	}
 }
 
-void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent)
+void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
-	processedEasingData_.isActive = true;
+	processedEasingDatas_[animationEventIndex].isActive = true;
 
 	//現在の位置を開始位置として保存
-	processedEasingData_.startPosition = character_->GetPosition();
+	processedEasingDatas_[animationEventIndex].startPosition = character_->GetPosition();
 
-	//スティック入力を使用するかどうかで目標座標の計算方法を変える
+	//スティック入力を使用する場合
 	if (easingMovementEvent->useStickInput)
 	{
 		//スティックの入力値を取得
 		Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
 
-		//スティックの入力に基づいて目標座標を計算
-		processedEasingData_.targetPosition = inputValue * easingMovementEvent->targetPosition;
+		//スティック入力が閾値を超えていた場合
+		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
+		{
+			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(inputValue) * easingMovementEvent->targetPosition;
+			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCamera()->quaternion_);
+			processedEasingDatas_[animationEventIndex].targetPosition.y = 0.0f;
+		}
+	}
+	else if (easingMovementEvent->moveTowardsEnemy)
+	{
+		//プレイヤーの座標を取得
+		Vector3 playerPosition = character_->GetJointWorldPosition("mixamorig:Hips");
+
+		//敵の座標を取得
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+
+		//目標座標を計算
+		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(enemyPosition - playerPosition) * easingMovementEvent->targetPosition;
 	}
 	else
 	{
 		//固定座標を使用して目標座標を設定
-		processedEasingData_.targetPosition = easingMovementEvent->targetPosition;
+		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(easingMovementEvent->targetPosition, character_->GetQuaternion());
 	}
 
-	//y成分の設定
-	processedEasingData_.targetPosition.y = easingMovementEvent->targetPosition.y;
+	//開始座標を足す
+	processedEasingDatas_[animationEventIndex].targetPosition += processedEasingDatas_[animationEventIndex].startPosition;
+}
 
-	//キャラクターの向きに基づいて速度ベクトルを回転
-	processedEasingData_.targetPosition = processedEasingData_.startPosition + Mathf::RotateVector(processedEasingData_.targetPosition, easingMovementEvent->useStickInput ? 
-		GetPlayer()->GetCamera()->quaternion_ : character_->GetQuaternion());
+void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent)
+{
+	//キャンセルアクションのボタンが押されていたら遷移
+	if (GetPlayer()->IsButtonTriggered(cancelEvent->cancelType))
+	{
+		//座標をアニメーション後の位置に補正
+		if (cancelEvent->isAnimationCorrectionActive)
+		{
+			character_->CorrectPositionAfterAnimation();
+		}
+
+		//新しい状態に遷移
+		character_->ChangeState(cancelEvent->cancelType);
+	}
+}
+
+void IPlayerState::HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
+{
+	//キャンセルアクションのボタンが押されていたら遷移
+	if (GetPlayer()->IsButtonTriggered(bufferedActionEvent->bufferedActionType))
+	{
+		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
+	}
 }

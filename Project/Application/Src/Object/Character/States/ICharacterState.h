@@ -27,8 +27,15 @@ public:
 	//攻撃に関するイベントの構造体
 	struct ProcessedAttackData : public ProcessedEventData
 	{
-		int32_t currentHitCount{};       //現在のヒット数
-		float elapsedAttackTime{};       //攻撃判定が発生するまでの経過時間
+		int32_t currentHitCount{}; //現在のヒット数
+		float elapsedAttackTime{}; //攻撃判定が発生するまでの経過時間
+	};
+
+	//先行入力に関数イベントの構造体
+	struct ProcessedBufferedActionData : public ProcessedEventData
+	{
+		std::string bufferedActionName{};    //先行入力のアクションの名前
+		bool isAnimationCorrectionActive{};; //アニメーションの座標補正をするかどうか
 	};
 
 	/// <summary>
@@ -47,11 +54,6 @@ public:
 	virtual void Update() = 0;
 
 	/// <summary>
-	/// 状態遷移を処理
-	/// </summary>
-	virtual void HandleStateTransition() = 0;
-
-	/// <summary>
 	/// 衝突処理
 	/// </summary>
 	/// <param name="other">衝突相手</param>
@@ -63,19 +65,34 @@ public:
 
 protected:
 	/// <summary>
+	/// アニメーションコントローラーを取得し、アニメーションを再生
+	/// </summary>
+	/// <param name="animationName">アニメーションの名前</param>
+	void SetAnimationControllerAndPlayAnimation(const std::string& animationName);
+
+	/// <summary>
 	/// アニメーション状態の更新
 	/// </summary>
 	void UpdateAnimationState();
 
 	/// <summary>
-	/// アニメーションイベントを取得
+	/// 先行入力があるか確認し、状態を遷移させる
 	/// </summary>
-	/// <typeparam name="Type">アニメーションイベントの種類</typeparam>
-	/// <returns>アニメーションイベントを取得</returns>
-	template<typename Type>
-	const Type* GetAnimationEvent() const;
+	/// <returns>状態遷移したかどうか</returns>
+	const bool CheckAndTransitionBufferedAction() const;
+
+	/// <summary>
+	/// 状態遷移
+	/// </summary>
+	/// <param name="isAnimationCorrectionActive">アニメーションの補正をするかどうか</param>
+	virtual void HandleStateTransition(const bool isAnimationCorrectionActive) = 0;
 
 private:
+	/// <summary>
+	/// 各パラメーターを初期化
+	/// </summary>
+	void InitializeProcessedData();
+
 	/// <summary>
 	/// アニメーションの時間を更新
 	/// </summary>
@@ -94,59 +111,104 @@ private:
 	/// </summary>
 	/// <param name="animationEvent">アニメーションイベント</param>
 	/// <param name="animationTime">アニメーションの時間</param>
-	void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 移動イベントを実行
 	/// </summary>
 	/// <param name="movementEvent">移動イベント</param>
 	/// <param name="animationTime">アニメーションの時間</param>
-	void ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 速度移動イベントの初期化
 	/// </summary>
 	/// <param name="velocityMovementEvent">速度移動イベント</param>
-	virtual void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent) = 0;
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	virtual void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) = 0;
 
 	/// <summary>
 	/// 速度移動イベントを実行
 	/// </summary>
 	/// <param name="velocityMovementEvent">速度移動イベント</param>
-	void ProcessVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// イージング移動イベントの初期化
 	/// </summary>
 	/// <param name="easingMovementEvent">イージング移動イベント</param>
-	virtual void InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent) = 0;
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	virtual void InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex) = 0;
 
 	/// <summary>
 	/// イージング移動イベントを実行
 	/// </summary>
 	/// <param name="easingMovementEvent">イージング移動イベント</param>
 	/// <param name="animationTime">アニメーションの時間</param>
-	void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 攻撃イベントの初期化
 	/// </summary>
 	/// <param name="attackEvent">攻撃イベント</param>
-	void InitializeAttackEvent(const AttackEvent* attackEvent);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
 
 	/// <summary>
-	/// 攻撃イベントを実行
+	/// 攻撃イベントの処理
 	/// </summary>
 	/// <param name="attackEvent">攻撃イベント</param>
-	void ProcessAttackEvent(const AttackEvent* attackEvent);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// キャンセルイベントの処理
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	void ProcessCancelEvent(const CancelEvent* cancelEvent);
+
+	/// <summary>
+	/// キャンセルアクションを実行
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	virtual void HandleCancelAction(const CancelEvent* cancelEvent) = 0;
+
+	/// <summary>
+	/// 先行入力イベントの処理
+	/// </summary>
+	/// <param name="bufferedActionEvent">先行入力イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 先行入力イベントを実行
+	/// </summary>
+	/// <param name="bufferedActionEvent">先行入力イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	virtual void HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex) = 0;
+
+	/// <summary>
+	/// 相手が一定以内にいるか確認
+	/// </summary>
+	/// <param name="proximityDistance">距離</param>
+	/// <returns>相手が一定以内にいるかどうか</returns>
+	const bool IsOpponentInProximity(const float proximityDistance) const;
 
 	/// <summary>
 	/// 処理済みデータをリセット
 	/// </summary>
 	/// <param name="eventType">イベントの種類</param>
-	void ResetProcessedData(const EventType eventType);
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetProcessedData(const EventType eventType, const int32_t animationEventIndex);
 
 protected:
+	//移動制限
+	const float kProximityDistance = 6.0f;
+
 	//キャラクターへのポインタ
 	BaseCharacter* character_ = nullptr;
 
@@ -157,29 +219,14 @@ protected:
 	int32_t speedConfigIndex_ = -1;
 
 	//速度移動イベント用の構造体
-	ProcessedVelocityData processedVelocityData_{};
+	std::vector<ProcessedVelocityData> processedVelocityDatas_{};
 
 	//イージング移動イベント用の構造体
-	ProcessedEasingData processedEasingData_{};
+	std::vector<ProcessedEasingData> processedEasingDatas_{};
 
 	//攻撃イベント用の構造体
-	ProcessedAttackData processedAttackData_{};
+	std::vector<ProcessedAttackData> processedAttackDatas_{};
+
+	//先行入力用の構造体
+	std::vector<ProcessedBufferedActionData> processedBufferedActionDatas_{};
 };
-
-template<typename Type>
-inline const Type* ICharacterState::GetAnimationEvent() const
-{
-	//指定された型のイベントを探す
-	for (const std::shared_ptr<AnimationEvent>& event : animationController_->animationEvents)
-	{
-		//アニメーションイベントを指定された型にキャスト
-		if (const Type* castedEvent = dynamic_cast<const Type*>(event.get()))
-		{
-			//キャストに成功した場合そのイベントを返す
-			return castedEvent;
-		}
-	}
-
-	//アニメーションイベントが見つからなかった場合はnullptrを返す
-	return nullptr;
-}

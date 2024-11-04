@@ -2,22 +2,27 @@
     "Player": {
         "Jump2": {
             "AnimationEvents": {
-                "Jump": {
+                "AnimationEvent0": {
                     "EndEventTime": 0.8669999837875366,
                     "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
                     "StartEventTime": 0.0,
                     "UseStickInput": true,
-                    "Velocity": [
-                        18.0,
-                        40.0,
-                        18.0
-                    ]
+                    "MoveSpeed": 18.0
+                },
+                "AnimationEvent1": {
+                    "CancelType": "Dash",
+                    "EndEventTime": 0.8669999837875366,
+                    "EventType": "Cancel",
+                    "IsAnimationCorrectionActive": false,
+                    "StartEventTime": 0.0
                 }
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 1.0,
+                    "AnimationSpeed": 2.0,
                     "Duration": 0.8669999837875366
                 }
             }

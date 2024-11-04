@@ -2,17 +2,22 @@
     "Player": {
         "DodgeForward": {
             "AnimationEvents": {
-                "Dodge": {
+                "AnimationEvent0": {
                     "EndEventTime": 1.1200000047683716,
                     "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
                     "StartEventTime": 0.0,
                     "UseStickInput": true,
-                    "Velocity": [
-                        25.0,
-                        25.0,
-                        25.0
-                    ]
+                    "MoveSpeed": 25.0
+                },
+                "AnimationEvent1": {
+                    "CancelType": "Move",
+                    "EndEventTime": 1.6670000553131104,
+                    "EventType": "Cancel",
+                    "IsAnimationCorrectionActive": true,
+                    "StartEventTime": 1.1200000047683716
                 }
             },
             "AnimationSpeedConfigs": {

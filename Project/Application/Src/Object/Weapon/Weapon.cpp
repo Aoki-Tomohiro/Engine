@@ -130,9 +130,7 @@ void Weapon::InitializeHitAudio()
 void Weapon::UpdateCollider()
 {
 	//親オブジェクトを取得してコライダーを更新
-	GameObject* parentGameObject = (name_ == "PlayerWeapon") ?
-		gameObjectManager_->GetGameObject<GameObject>("Player") :
-		gameObjectManager_->GetGameObject<GameObject>("Enemy");
+	GameObject* parentGameObject = (name_ == "PlayerWeapon") ? gameObjectManager_->GetGameObject<GameObject>("Player") : gameObjectManager_->GetGameObject<GameObject>("Enemy");
 
 	//コライダーの有効状態を設定
 	collider_->SetCollisionEnabled(isAttack_);

@@ -1,0 +1,21 @@
+{
+    "Player": {
+        "DashEnd": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 0.9330000281333923,
+                    "EventType": "Cancel",
+                    "IsAnimationCorrectionActive": false,
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 0.9330000281333923
+                }
+            }
+        }
+    }
+}

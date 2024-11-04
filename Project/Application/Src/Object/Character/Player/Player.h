@@ -115,15 +115,13 @@ public:
     //ジャンプ状態のパラメーター
     struct JumpParameters
     {
-        float jumpFirstSpeed = 40.0f;        // 初速度
-        float gravityAcceleration = -180.0f; // 重力加速度
+        float jumpFirstSpeed = 40.0f; // 初速度
     };
 
     //ダッシュ用のパラメーター
     struct DashParameters
     {
-        float proximityDistance = 6.0f;           // 移動を止める距離
-        float verticalAlignmentTolerance = 0.1f;  // プレイヤーと敵のY軸方向の許容誤差
+        float verticalAlignmentTolerance = 1.0f;  // プレイヤーと敵のY軸方向の許容誤差
     };
 
     //攻撃用のパラメーター
@@ -193,31 +191,16 @@ public:
     void LookAtEnemy();
 
     /// <summary>
+    /// ボタンが押されたかどうか
+    /// </summary>
+    /// <param name="actionName">アクションの名前</param>
+    /// <returns>ボタンが押されたかどうか</returns>
+    const bool IsButtonTriggered(const std::string& actionName) const;
+
+    /// <summary>
     /// 魔法攻撃のクールダウンをリセット
     /// </summary>
     void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
-
-    /// <summary>
-    /// 単押しの判定
-    /// </summary>
-    /// <param name="buttonType">ボタンの種類</param>
-    /// <returns>押された瞬間かどうか</returns>
-    bool IsTriggered(const ButtonType buttonType) { return buttonStates_[buttonType].isTriggered; };
-
-    /// <summary>
-    /// 離した瞬間の処理
-    /// </summary>
-    /// <param name="buttonType">ボタンの種類</param>
-    /// <returns>離された瞬間かどうか</returns>
-    bool IsReleased(const ButtonType buttonType) { return buttonStates_[buttonType].isReleased; };
-
-    /// <summary>
-    /// 同時押しの判定
-    /// </summary>
-    /// <param name="buttonType1">一つ目のボタンの種類</param>
-    /// <param name="buttonType2">二つ目のボタンの種類</param>
-    /// <returns>同時押しされたかどうか</returns>
-    bool ArePressed(const ButtonType buttonType1, const ButtonType buttonType2) { return buttonStates_[buttonType1].isPressed && buttonStates_[buttonType2].isPressed; };
 
     //アクションフラグの取得・設定
     const bool GetActionFlag(const ActionFlag& actionFlag) const { auto it = actionFlags_.find(actionFlag); return it != actionFlags_.end() && it->second; };

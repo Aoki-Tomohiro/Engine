@@ -48,35 +48,19 @@ void GamePlayScene::Initialize()
 	player_ = gameObjectManager_->GetGameObject<Player>("Player");
 	//コンバットアニメーションエディターにプレイヤーを設定
 	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-	//カメラ、ロックオン、エディターマネージャーを設定
+	//カメラ、ロックオン、ヒットストップ、エディターマネージャーを設定
 	player_->SetCamera(camera_);
 	player_->SetLockon(lockon_.get());
+	player_->SetHitStop(hitStop_.get());
 	player_->SetEditorManager(editorManager_.get());
-
-	//プレイヤーの武器の初期化
-	Weapon* playerWeapon = gameObjectManager_->CreateGameObject<Weapon>("PlayerWeapon");
-	//ヒットストップ、パーティクルエフェクトマネージャーを設定
-	playerWeapon->SetEditorManager(editorManager_.get());
-	playerWeapon->SetHitStop(hitStop_.get());
-	//プレイヤーの右手に親子付け
-	TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
-	playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 
 	//敵の初期化
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
 	//コンバットアニメーションエディターに敵を設定
 	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
-	//敵にエディターマネージャーを設定
+	//エディターマネージャー、ヒットストップを設定
 	enemy_->SetEditorManager(editorManager_.get());
-
-	//敵の武器の初期化
-	Weapon* enemyWeapon = gameObjectManager_->CreateGameObject<Weapon>("EnemyWeapon");
-	//ヒットストップ、パーティクルエフェクトマネージャーを設定
-	enemyWeapon->SetEditorManager(editorManager_.get());
-	enemyWeapon->SetHitStop(hitStop_.get());
-	//敵の右手に親子付け
-	TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
-	enemyWeaponTransform->worldTransform_.SetParent(&enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+	enemy_->SetHitStop(hitStop_.get());
 
 	//カメラコントローラーの初期化
 	cameraController_ = std::make_unique<CameraController>();

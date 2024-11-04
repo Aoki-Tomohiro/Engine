@@ -1,7 +1,5 @@
 #include "PlayerStateRoot.h"
 #include "Application/Src/Object/Character/Player/Player.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
 
 void PlayerStateRoot::Initialize()
 {
@@ -9,24 +7,20 @@ void PlayerStateRoot::Initialize()
 	input_ = Input::GetInstance();
 
 	//アニメーションブレンドを有効化する
-	GetCharacter()->GetAnimator()->SetIsBlending(true);
+	character_->GetAnimator()->SetIsBlending(true);
 }
 
 void PlayerStateRoot::Update()
 {
 	//ゲームが終了していた場合は処理を飛ばす
-	if (GetCharacter()->GetIsGameFinished())
+	if (character_->GetIsGameFinished())
 	{
 		SetIdleAnimationIfNotPlaying();
 		return;
 	}
 
 	//スティックの入力を取得
-	Vector3 inputValue = {
-		input_->GetLeftStickX(),
-		0.0f,
-		input_->GetLeftStickY(),
-	};
+	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
 
 	//入力ベクトルの長さを計算
 	float inputLength = Mathf::Length(inputValue);
@@ -44,7 +38,7 @@ void PlayerStateRoot::Update()
 	}
 
 	//状態遷移
-	HandleStateTransition();
+	HandleStateTransition(false);
 }
 
 void PlayerStateRoot::OnCollision(GameObject* other)
@@ -53,22 +47,28 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 	GetCharacter()->ProcessCollisionImpact(other, true);
 }
 
-void PlayerStateRoot::HandleStateTransition()
+void PlayerStateRoot::HandleStateTransition(const bool)
 {
 	//プレイヤーを取得
 	Player* player = GetPlayer();
 
 	//Aボタンを押したとき
-	if (player->IsTriggered(Player::ButtonType::A))
+	if (player->IsButtonTriggered("Jump"))
 	{
 		//ジャンプ状態に遷移
-		player->ChangeState(new PlayerStateJump());
+		player->ChangeState("Jump");
 	}
 	//RBを押したとき
-	else if (player->IsTriggered(Player::ButtonType::RB))
+	else if (player->IsButtonTriggered("Dodge"))
 	{
 		//回避状態に遷移
-		player->ChangeState(new PlayerStateDodge());
+		player->ChangeState("Dodge");
+	}
+	//Bボタンを押した時
+	else if (player->IsButtonTriggered("Dash"))
+	{
+		//ダッシュ状態に遷移
+		player->ChangeState("Dash");
 	}
 }
 

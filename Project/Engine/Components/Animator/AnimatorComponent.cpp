@@ -201,8 +201,16 @@ const bool AnimatorComponent::GetIsAnimationFinished()
         return true;
     }
 
+    //アニメーションの名前を取得
+    std::string animationName = currentAnimation_;
+    //次のアニメーションが設定されていたらそのアニメーションを設定
+    if (!nextAnimation_.empty())
+    {
+        animationName = nextAnimation_;
+    }
+
     //アニメーションが終了したかどうかを返す
-    return GetIsAnimationFinished(currentAnimation_);
+    return GetIsAnimationFinished(animationName);
 }
 
 const float AnimatorComponent::GetAnimationDuration(const std::string& animationName) const

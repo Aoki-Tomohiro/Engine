@@ -1,6 +1,5 @@
 #include "PlayerStateJump.h"
 #include "Application/Src/Object/Character/Player/Player.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 
 void PlayerStateJump::Initialize()
 {
@@ -16,43 +15,29 @@ void PlayerStateJump::Initialize()
 
 void PlayerStateJump::Update()
 {
-	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f, character_->GetGravityAcceleration(), 0.0f };
-
-	//速度に重力加速度を加算
-	processedVelocityData_.velocity += accelerationVector * GameTimer::GetDeltaTime();
-
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
-	//状態遷移
-	HandleStateTransition();
-}
+	//重力を適用
+	ApplyGravity();
 
-void PlayerStateJump::HandleStateTransition()
-{
-	//プレイヤーを取得
-	Player* player = GetPlayer();
-
-	//座標を取得
-	Vector3 playerPosition = character_->GetPosition();
-
-	//プレイヤーが地面についた場合
-	if (playerPosition.y <= 0.0f)
-	{
-		//プレイヤーが地面に埋まらないように座標を補正
-		playerPosition.y = 0.0f;
-		character_->SetPosition(playerPosition);
-
-		//通常状態に遷移
-		player->ChangeState(new PlayerStateRoot());
-	}
+	//キャラクターが着地しているかを確認
+	CheckLandingAndTransitionState();
 }
 
 void PlayerStateJump::OnCollision(GameObject* other)
 {
 	//衝突処理
-	GetCharacter()->ProcessCollisionImpact(other, true);
+	character_->ProcessCollisionImpact(other, true);
+}
+
+void PlayerStateJump::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
+{
+	//基底クラスの呼び出し
+	IPlayerState::InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
+
+	//ジャンプの初速度を設定
+	processedVelocityDatas_[animationEventIndex].velocity.y = GetPlayer()->GetJumpParameters().jumpFirstSpeed;
 }
 
 void PlayerStateJump::ConfigureJumpAnimationAndEvents(const float inputLength)
@@ -63,18 +48,34 @@ void PlayerStateJump::ConfigureJumpAnimationAndEvents(const float inputLength)
 	//スティック入力の状態に応じてアニメーションとイベントを選択
 	std::string animationName = (inputLength > player->GetRootParameters().walkThreshold) ? "Jump2" : "Jump1";
 
-	//アニメーションイベントを設定
-	animationController_ = &character_->GetEditorManager()->GetCombatAnimationEditor()->GetAnimationController("Player", animationName);
-
-	//アニメーションを再生
-	character_->GetAnimator()->PlayAnimation(animationName, 1.0f, false);
+	//ジャンプアニメーションの再生とアニメーションコントローラーを取得
+	SetAnimationControllerAndPlayAnimation(animationName);
 }
 
-void PlayerStateJump::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent)
+void PlayerStateJump::ApplyGravity()
 {
-	//基底クラスの呼び出し
-	IPlayerState::InitializeVelocityMovement(velocityMovementEvent);
+	//重力加速度ベクトルの設定
+	Vector3 accelerationVector = { 0.0f, character_->GetGravityAcceleration(), 0.0f };
 
-	//ジャンプの初速度を設定
-	processedVelocityData_.velocity.y = velocityMovementEvent->velocity.y;
+	//速度に重力加速度を加算
+	if (!processedVelocityDatas_.empty())
+	{
+		processedVelocityDatas_[0].velocity += accelerationVector * GameTimer::GetDeltaTime();
+	}
+}
+
+void PlayerStateJump::CheckLandingAndTransitionState()
+{
+	//座標を取得
+	Vector3 position = character_->GetPosition();
+
+	//地面に着地していたら
+	if (position.y < 0.0f)
+	{
+		//パーティクルを出す
+		character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", position, character_->GetQuaternion());
+
+		//デフォルトの状態に戻す
+		HandleStateTransition(false);
+	}
 }

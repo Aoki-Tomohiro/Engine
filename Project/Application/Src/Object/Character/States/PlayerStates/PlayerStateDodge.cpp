@@ -1,6 +1,5 @@
 #include "PlayerStateDodge.h"
 #include "Application/Src/Object/Character/Player/Player.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 
 void PlayerStateDodge::Initialize()
 {
@@ -22,26 +21,13 @@ void PlayerStateDodge::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
-	//ローリング回避の場合はプレイヤーを回転させる
-	if (animationName_ == "DodgeForward")
-	{
-		character_->Rotate(Mathf::Normalize(processedVelocityData_.velocity));
-	}
+	//前方回避アニメーションの場合はキャラクターを回転
+	ApplyRotationForForwardDodge();
 
-	//状態遷移
-	HandleStateTransition();
-}
-
-void PlayerStateDodge::HandleStateTransition()
-{
-	//アニメーションが終了した場合
+	//デフォルトの状態に遷移
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
-		//プレイヤーの位置をアニメーション後の位置に補正
-		character_->CorrectPositionAfterAnimation();
-
-		//通常状態に戻す
-		GetPlayer()->ChangeState(new PlayerStateRoot());
+		HandleStateTransition(true);
 	}
 }
 
@@ -53,9 +39,15 @@ void PlayerStateDodge::ConfigureDodgeAnimationAndEvents(const float inputLength)
 	//スティック入力の状態に応じてアニメーションとイベントを選択
 	animationName_ = (inputLength > player->GetRootParameters().walkThreshold) ? "DodgeForward" : "DodgeBackward";
 
-	//アニメーションイベントを設定
-	animationController_ = &character_->GetEditorManager()->GetCombatAnimationEditor()->GetAnimationController("Player", animationName_);
+	//回避アニメーションの再生とアニメーションコントローラーを取得
+	SetAnimationControllerAndPlayAnimation(animationName_);
+}
 
-	//アニメーションを再生
-	character_->GetAnimator()->PlayAnimation(animationName_, 1.0f, false);
+void PlayerStateDodge::ApplyRotationForForwardDodge()
+{
+	//前方回避の場合はプレイヤーを回転させる
+	if (animationName_ == "DodgeForward")
+	{
+		character_->Rotate(Mathf::Normalize(processedVelocityDatas_[0].velocity));
+	}
 }
