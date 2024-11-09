@@ -6,17 +6,23 @@
                     "EndEventTime": 1.0,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
+                    "MoveSpeed": 0.0,
                     "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
                     "StartEventTime": 0.0,
-                    "UseStickInput": false,
-                    "MoveSpeed": 0.0
+                    "UseStickInput": false
                 },
                 "AnimationEvent1": {
                     "CancelType": "Dash",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
-                    "IsAnimationCorrectionActive": false,
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent2": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
                     "StartEventTime": 0.0
                 }
             },
@@ -25,7 +31,12 @@
                     "AnimationSpeed": 2.0,
                     "Duration": 1.0
                 }
-            }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
         }
     }
 }

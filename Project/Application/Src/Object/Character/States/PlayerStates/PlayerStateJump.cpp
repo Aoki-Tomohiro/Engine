@@ -76,6 +76,6 @@ void PlayerStateJump::CheckLandingAndTransitionState()
 		character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", position, character_->GetQuaternion());
 
 		//デフォルトの状態に戻す
-		HandleStateTransition(false);
+		HandleStateTransition();
 	}
 }

@@ -40,7 +40,7 @@ void AnimatorComponent::Update()
         TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
 
         //ブレンドしたアニメーションを適用
-        currentAnimation->ApplyBlendAnimation(modelComponent->GetModel(), transformComponent->worldTransform_, nextAnimation, blendFactor_);
+        currentAnimation->ApplyBlendAnimation(modelComponent->GetModel(), transformComponent->worldTransform_, nextAnimation, blendFactor_, inPlaceAxis_);
 
         //ブレンドファクターを更新
         blendFactor_ += GameTimer::GetDeltaTime() / blendDuration_;
@@ -70,7 +70,7 @@ void AnimatorComponent::Update()
         TransformComponent* transformComponent = owner_->GetComponent<TransformComponent>();
 
         //アニメーションの適用
-        currentAnimation->ApplyAnimation(modelComponent->GetModel(), transformComponent->worldTransform_);
+        currentAnimation->ApplyAnimation(modelComponent->GetModel(), transformComponent->worldTransform_, inPlaceAxis_);
 
         //アニメーションブレンドの終了フラグを立てる
         isBlendingCompleted_ = true;
@@ -86,12 +86,15 @@ void AnimatorComponent::AddAnimation(const std::string& animationName, Animation
     animations_[animationName] = std::unique_ptr<Animation>(animation);
 }
 
-void AnimatorComponent::PlayAnimation(const std::string& animationName, const float speed, const bool loop)
+void AnimatorComponent::PlayAnimation(const std::string& animationName, const float speed, const bool loop, const Vector3& inPlaceAxis)
 {
     //アニメーションが存在するかチェック
     auto it = animations_.find(animationName);
     if (it != animations_.end())
     {
+        //固定する軸を設定
+        inPlaceAxis_ = inPlaceAxis;
+
         //アニメーションの再生
         it->second->PlayAnimation(speed, loop);
 

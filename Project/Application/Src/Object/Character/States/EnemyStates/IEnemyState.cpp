@@ -6,7 +6,7 @@ Enemy* IEnemyState::GetEnemy() const
 	return dynamic_cast<Enemy*>(GetCharacter());
 }
 
-void IEnemyState::HandleStateTransition(const bool)
+void IEnemyState::HandleStateTransition()
 {
 }
 

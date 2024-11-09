@@ -10,7 +10,7 @@ void Enemy::Initialize()
 	hp_ = maxHp_;
 
 	//状態の初期化
-	//ChangeState("Idle");
+	ChangeState("Idle");
 }
 
 void Enemy::Update()
@@ -21,18 +21,6 @@ void Enemy::Update()
 		GameObject::Update();
 		return;
 	}
-
-	//モデルシェイクでずれた分の座標をリセット
-	ResetToOriginalPosition();
-
-	//モデルシェイクの更新
-	UpdateModelShake();
-
-	//新しい状態に遷移
-	//TransitionToNextState();
-
-	//状態の更新
-	//currentState_->Update();
 
 	//基底クラスの更新
 	BaseCharacter::Update();

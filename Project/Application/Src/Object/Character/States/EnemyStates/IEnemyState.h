@@ -15,8 +15,7 @@ protected:
 	/// <summary>
 	/// 状態遷移
 	/// </summary>
-	/// <param name="isAnimationCorrectionActive">アニメーションの補正をするかどうか</param>
-	virtual void HandleStateTransition(const bool isAnimationCorrectionActive) override;
+	virtual void HandleStateTransition() override;
 
 	/// <summary>
 	/// イージング移動イベントの初期化

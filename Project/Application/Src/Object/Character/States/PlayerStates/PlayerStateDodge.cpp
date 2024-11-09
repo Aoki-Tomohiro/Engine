@@ -15,19 +15,13 @@ void PlayerStateDodge::Initialize()
 
 void PlayerStateDodge::Update()
 {
-	//アニメーションによる座標のずれを修正
-	character_->CorrectAnimationOffset();
-
 	//アニメーションイベントを実行
 	UpdateAnimationState();
-
-	//前方回避アニメーションの場合はキャラクターを回転
-	ApplyRotationForForwardDodge();
 
 	//デフォルトの状態に遷移
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
-		HandleStateTransition(true);
+		HandleStateTransition();
 	}
 }
 
@@ -41,13 +35,4 @@ void PlayerStateDodge::ConfigureDodgeAnimationAndEvents(const float inputLength)
 
 	//回避アニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(animationName_);
-}
-
-void PlayerStateDodge::ApplyRotationForForwardDodge()
-{
-	//前方回避の場合はプレイヤーを回転させる
-	if (animationName_ == "DodgeForward")
-	{
-		character_->Rotate(Mathf::Normalize(processedVelocityDatas_[0].velocity));
-	}
 }

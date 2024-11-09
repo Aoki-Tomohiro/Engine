@@ -7,6 +7,7 @@
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
+#include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Character/States/ICharacterState.h"
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
@@ -64,16 +65,6 @@ public:
     void Rotate(const Vector3& vector);
 
     /// <summary>
-    /// アニメーションによる座標のずれを補正
-    /// </summary>
-    void CorrectAnimationOffset();
-
-    /// <summary>
-    /// プレイヤーの位置をアニメーション後の位置に補正
-    /// </summary>
-    void CorrectPositionAfterAnimation();
-
-    /// <summary>
     /// ノックバックを適用
     /// </summary>
     void ApplyKnockback();
@@ -128,6 +119,10 @@ public:
     //クォータニオンの設定・取得
     const Quaternion& GetQuaternion() const { return transform_->worldTransform_.quaternion_; };
     void SetQuaternion(const Quaternion& quaternion) { transform_->worldTransform_.quaternion_ = quaternion; };
+
+    //目標クォータニオンの設定・取得
+    const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
+    void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
     //ノックバックのパラメーターを取得・設定
     const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
@@ -223,29 +218,34 @@ protected:
     virtual void InitializeWeapon();
 
     /// <summary>
+    /// 環境変数の初期化
+    /// </summary>
+    virtual void InitializeGlobalVariables();
+
+    /// <summary>
     /// 回転の更新処理
     /// </summary>
-    virtual void UpdateRotation();
+    void UpdateRotation();
 
     /// <summary>
     /// コライダーの更新
     /// </summary>
-    virtual void UpdateCollider();
+    void UpdateCollider();
 
     /// <summary>
     /// 移動制限
     /// </summary>
-    virtual void RestrictMovement();
+    void RestrictMovement();
 
     /// <summary>
     /// HPの更新
     /// </summary>
-    virtual void UpdateHP();
+    void UpdateHP();
 
     /// <summary>
     /// 死亡状態に遷移するかを確認
     /// </summary>
-    virtual void CheckAndTransitionToDeath();
+    void CheckAndTransitionToDeath();
 
     /// <summary>
     /// 次の状態に遷移
@@ -267,6 +267,11 @@ protected:
     /// </summary>
     void ResetToOriginalPosition();
 
+    /// <summary>
+    /// 環境変数の適用
+    /// </summary>
+    virtual void ApplyGlobalVariables();
+
 protected:
     //移動制限
     const float kMoveLimit = 100.0f;
@@ -275,7 +280,7 @@ protected:
     std::unique_ptr<ICharacterState> currentState_ = nullptr;
 
     //新しい状態
-    ICharacterState* nextState_ = nullptr;
+    std::unique_ptr<ICharacterState> nextState_ = nullptr;
 
     //キャラクターの新しい状態を生成するファクトリー
     CharacterStateFactory* characterStateFactory_ = nullptr;
@@ -303,9 +308,6 @@ protected:
 
     //クォータニオンの補間速度
     float quaternionInterpolationSpeed_ = 0.4f;
-
-    //前のフレームの腰の座標
-    Vector3 preAnimationHipPosition_{};
 
     //コライダーのオフセット値
     Vector3 colliderOffset_{};
@@ -339,9 +341,6 @@ protected:
 
     //タイトルシーンにいるかどうか
     bool isInTitleScene_ = false;
-
-    //アニメーションの座標補正を有効にするかどうか
-    bool isAnimationCorrectionActive_ = false;
 
     //死亡フラグ
     bool isDead_ = false;

@@ -38,7 +38,7 @@ void PlayerStateDash::Update()
 		//ダッシュ終了処理
 		FinalizeDash();
 		//デフォルトの状態に遷移
-		HandleStateTransition(false);
+		HandleStateTransition();
 	}
 }
 

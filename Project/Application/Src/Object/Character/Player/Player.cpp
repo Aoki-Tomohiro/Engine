@@ -43,20 +43,8 @@ void Player::Update()
 		return;
 	}
 
-	//モデルシェイクでずれた分の座標をリセット
-	ResetToOriginalPosition();
-
-	//モデルシェイクの更新
-	UpdateModelShake();
-
 	//ボタンの入力状態の更新
 	UpdateButtonStates();
-
-	//新しい状態に遷移
-	TransitionToNextState();
-
-	//状態の更新
-	currentState_->Update();
 
 	//魔法攻撃の更新
 	UpdateMagicAttack();

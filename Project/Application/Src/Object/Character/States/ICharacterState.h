@@ -24,6 +24,12 @@ public:
 		Vector3 targetPosition{}; //目標位置
 	};
 
+	//回転に関するイベントの構造体
+	struct ProcessedRotationData : public ProcessedEventData
+	{
+		float preEasedRotation{}; //累積回転量
+	};
+
 	//攻撃に関するイベントの構造体
 	struct ProcessedAttackData : public ProcessedEventData
 	{
@@ -34,14 +40,14 @@ public:
 	//キャンセルに関数イベントの構造体
 	struct ProcessedCancelData : public ProcessedEventData
 	{
-		bool isCanceled{}; //キャンセルしたかどうか
+		std::string cancelActionName{}; //キャンセルするアクションの名前
+		bool isCanceled{};              //キャンセルしたかどうか
 	};
 
 	//先行入力に関数イベントの構造体
 	struct ProcessedBufferedActionData : public ProcessedEventData
 	{
 		std::string bufferedActionName{};   //先行入力のアクションの名前
-		bool isAnimationCorrectionActive{}; //アニメーションの座標補正をするかどうか
 		bool isBufferedInputActive{};       //先行入力で状態を遷移したかどうか
 	};
 
@@ -91,8 +97,7 @@ protected:
 	/// <summary>
 	/// 状態遷移
 	/// </summary>
-	/// <param name="isAnimationCorrectionActive">アニメーションの補正をするかどうか</param>
-	virtual void HandleStateTransition(const bool isAnimationCorrectionActive) = 0;
+	virtual void HandleStateTransition() = 0;
 
 private:
 	/// <summary>
@@ -120,6 +125,14 @@ private:
 	/// <param name="animationTime">アニメーションの時間</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
 	void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 回転イベントを実行
+	/// </summary>
+	/// <param name="rotationEvent">回転イベント</param>
+	/// <param name="animationTime">アニメーションの時間</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 移動イベントを実行
@@ -214,7 +227,7 @@ private:
 
 protected:
 	//移動制限
-	const float kProximityDistance = 6.0f;
+	const float kProximityDistance = 4.0f;
 
 	//キャラクターへのポインタ
 	BaseCharacter* character_ = nullptr;
@@ -230,6 +243,9 @@ protected:
 
 	//イージング移動イベント用の構造体
 	std::vector<ProcessedEasingData> processedEasingDatas_{};
+
+	//回転移動イベント用の構造体
+	std::vector<ProcessedRotationData> processedRotationDatas_{};
 
 	//攻撃イベント用の構造体
 	std::vector<ProcessedAttackData> processedAttackDatas_{};

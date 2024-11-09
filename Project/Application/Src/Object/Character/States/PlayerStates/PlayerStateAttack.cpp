@@ -17,12 +17,6 @@ void PlayerStateAttack::Initialize()
 
 void PlayerStateAttack::Update()
 {
-	//アニメーションによる座標のずれを修正
-	if (animationName_ == "GroundAttack3" || animationName_ == "GroundAttack4")
-	{
-		character_->CorrectAnimationOffset();
-	}
-
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
@@ -33,7 +27,7 @@ void PlayerStateAttack::Update()
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
 		comboIndex = 0;
-		HandleStateTransition((animationName_ == "GroundAttack3" || animationName_ == "GroundAttack4"));
+		HandleStateTransition();
 	}
 }
 
@@ -56,6 +50,23 @@ const std::string PlayerStateAttack::SetAerialAnimationName()const
 
 void PlayerStateAttack::UpdateComboIndex()
 {
+	//全てのアニメーションキャンセルを確認
+	for (const ProcessedCancelData& cancelData : processedCancelDatas_)
+	{
+		//アニメーションキャンセルが行われていた場合コンボインデックスを初期化
+		if (cancelData.isCanceled)
+		{
+			if (cancelData.cancelActionName != "Attack")
+			{
+				comboIndex = 0;
+			}
+			else
+			{
+				++comboIndex;
+			}
+		}
+	}
+
 	//全ての先行入力を確認
 	for (const ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
 	{

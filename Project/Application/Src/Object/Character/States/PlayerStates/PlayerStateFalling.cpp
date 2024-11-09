@@ -24,7 +24,7 @@ void PlayerStateFalling::Update()
 	//デフォルトの状態に遷移
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
-		HandleStateTransition(false);
+		HandleStateTransition();
 	}
 }
 

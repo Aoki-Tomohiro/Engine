@@ -27,14 +27,29 @@ void BaseCharacter::Initialize()
     //武器の初期化
     InitializeWeapon();
 
+    //環境変数の初期化
+    InitializeGlobalVariables();
+
     //CharacterStateFactoryのインスタンスを取得
     characterStateFactory_ = CharacterStateFactory::GetInstance();
 }
 
 void BaseCharacter::Update()
 {
-    //アニメーション後の座標を代入
-    preAnimationHipPosition_ = GetJointLocalPosition("mixamorig:Hips");
+    //モデルシェイクでずれた分の座標をリセット
+    ResetToOriginalPosition();
+
+    //モデルシェイクの更新
+    UpdateModelShake();
+
+    //状態の更新
+    if (currentState_)
+    {
+        currentState_->Update();
+    }
+
+    //新しい状態に遷移
+    TransitionToNextState();
 
     //回転処理
     UpdateRotation();
@@ -53,6 +68,9 @@ void BaseCharacter::Update()
 
     //死亡状態かどうかを確認する
     CheckAndTransitionToDeath();
+
+    //環境変数の適用
+    ApplyGlobalVariables();
 
     //基底クラスの更新
     GameObject::Update();
@@ -90,16 +108,8 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
 
 void BaseCharacter::ChangeState(const std::string& newStateName)
 {
-    //次の状態が設定されていなかった場合
-    if (!nextState_)
-    {
-        //新しい状態を生成
-        nextState_ = characterStateFactory_->CreateCharacterState(name_, newStateName);
-        //キャラクターを設定
-        nextState_->SetCharacter(this);
-        //新しい状態の初期化
-        nextState_->Initialize();
-    }
+    //新しい状態を生成して次の状態に設定
+    nextState_ = std::unique_ptr<ICharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
 }
 
 void BaseCharacter::Move(const Vector3& velocity)
@@ -118,28 +128,6 @@ void BaseCharacter::Rotate(const Vector3& vector)
 
     //クォータニオンを計算
     destinationQuaternion_ = Mathf::MakeRotateAxisAngleQuaternion(cross, std::acos(dot));
-}
-
-void BaseCharacter::CorrectAnimationOffset()
-{
-    Vector3 hipPositionOffset = GetJointLocalPosition("mixamorig:Hips") - preAnimationHipPosition_;
-    hipPositionOffset.y = 0.0f;
-    SetPosition(GetPosition() - hipPositionOffset);
-}
-
-void BaseCharacter::CorrectPositionAfterAnimation()
-{
-    //アニメーション補正を有効にする
-    isAnimationCorrectionActive_ = true;
-
-    //現在の腰のローカルポジションを取得
-    Vector3 jointPosition = GetJointLocalPosition("mixamorig:Hips");
-
-    //プレイヤーの位置を更新
-    SetPosition(GetPosition() + Vector3(jointPosition.x, 0.0f, jointPosition.z));
-
-    //アニメーションを停止
-    animator_->StopAnimation();
 }
 
 void BaseCharacter::ApplyKnockback()
@@ -309,6 +297,14 @@ void BaseCharacter::InitializeWeapon()
     weaponTransform->worldTransform_.SetParent(&model_->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 }
 
+void BaseCharacter::InitializeGlobalVariables()
+{
+    //環境変数のインスタンスを取得
+    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+    globalVariables->CreateGroup(name_);
+    globalVariables->AddItem(name_, "ColliderOffset", colliderOffset_);
+}
+
 void BaseCharacter::UpdateRotation()
 {
     //タイトルシーンにいない場合はクォータニオンを補間
@@ -323,15 +319,8 @@ void BaseCharacter::UpdateCollider()
     //腰のジョイントの位置を取得
     Vector3 hipPosition = GetJointLocalPosition("mixamorig:Hips");
 
-    //アニメーション補正がアクティブな場合、腰のY成分だけ補正
-    if (isAnimationCorrectionActive_)
-    {
-        //補正フラグをリセット
-        isAnimationCorrectionActive_ = false;
-
-        //腰の位置からXとZ成分をゼロにして補正
-        hipPosition = { 0.0f, hipPosition.y, 0.0f };
-    }
+    //腰の位置からXとZ成分をゼロにして補正
+    hipPosition = { 0.0f, hipPosition.y, 0.0f };
 
     //コライダーの中心座標を設定
     collider_->SetCenter(hipPosition + colliderOffset_);
@@ -386,9 +375,14 @@ void BaseCharacter::TransitionToNextState()
 {
     if (nextState_)
     {
+        //キャラクターを設定
+        nextState_->SetCharacter(this);
+        //新しい状態の初期化
+        nextState_->Initialize();
         //現在の状態を次の状態に切り替え
-        currentState_.reset(nextState_);
-        nextState_ = nullptr;
+        currentState_ = std::move(nextState_);
+        //次の状態をリセット
+        nextState_.reset();
     }
 }
 
@@ -430,4 +424,10 @@ void BaseCharacter::ResetToOriginalPosition()
     {
         SetPosition(modelShake_.originalPosition);
     }
+}
+
+void BaseCharacter::ApplyGlobalVariables()
+{
+    GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+    colliderOffset_ = globalVariables->GetVector3Value(name_, "ColliderOffset");
 }

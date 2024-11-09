@@ -6,11 +6,12 @@
                     "EndEventTime": 0.9300000071525574,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
+                    "MoveSpeed": -30.0,
                     "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
                     "StartEventTime": 0.2800000011920929,
-                    "UseStickInput": false,
-                    "MoveSpeed": -30.0
+                    "UseStickInput": false
                 }
             },
             "AnimationSpeedConfigs": {
@@ -18,7 +19,12 @@
                     "AnimationSpeed": 2.0,
                     "Duration": 1.0
                 }
-            }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
         }
     }
 }

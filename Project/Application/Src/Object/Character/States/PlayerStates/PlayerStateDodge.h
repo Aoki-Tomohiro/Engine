@@ -31,11 +31,6 @@ private:
 	/// <param name="inputLength">入力の強さ</param>
 	void ConfigureDodgeAnimationAndEvents(const float inputLength);
 
-	/// <summary>
-	/// 前方回避の場合はキャラクターを回転
-	/// </summary>
-	void ApplyRotationForForwardDodge();
-
 private:
 	//アニメーションの名前
 	std::string animationName_{};

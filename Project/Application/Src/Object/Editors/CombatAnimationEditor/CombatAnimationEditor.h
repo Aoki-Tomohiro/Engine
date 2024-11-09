@@ -19,6 +19,7 @@ struct AnimationController
 {
 	std::vector<AnimationSpeedConfig> animationSpeedConfigs{};      //アニメーションの速度と持続時間
 	std::vector<std::shared_ptr<AnimationEvent>> animationEvents{}; //アニメーションイベント
+	Vector3 inPlaceAxis = { 1.0f,1.0f,1.0f };                       //動かす軸
 
 	//アニメーションイベントの数を取得
 	const int32_t GetAnimationEventCount(const EventType eventType) const
@@ -85,6 +86,14 @@ private:
 	void EditCharacterAnimations(BaseCharacter* character);
 
 	/// <summary>
+	/// デバッグモードを切り替え
+	/// </summary>
+	/// <param name="character">キャラクター</param>
+	/// <param name="characterAnimationData">キャラクターのアニメーションデータ</param>
+	/// <param name="isDebug">デバッグのフラグ</param>
+	void ToggleDebugMode(BaseCharacter* character, CharacterAnimationData& characterAnimationData, bool isDebug);
+
+	/// <summary>
 	/// 選択中のアニメーションの時間を編集
 	/// </summary>
 	/// <param name="animator">アニメーター</param>
@@ -119,6 +128,13 @@ private:
 	/// <param name="animationEvents">アニメーションイベント</param>
 	/// <param name="animationEventsJson">アニメーションイベントのjsonオブジェクト</param>
 	void SaveAnimationEvents(const std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& animationEventsJson);
+
+	/// <summary>
+	/// 回転イベントを保存
+	/// </summary>
+	/// <param name="rotationEvent">回転イベント</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 移動イベントを保存
@@ -163,6 +179,27 @@ private:
 	void SaveBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, nlohmann::json& eventJson);
 
 	/// <summary>
+	/// イージングの種類を文字列に変換
+	/// </summary>
+	/// <param name="easingType">イージングの種類</param>
+	/// <returns>イージングの名前</returns>
+	const std::string EasingTypeToString(const EasingType easingType) const;
+
+	/// <summary>
+	/// ヒットSEの種類を文字列に変換
+	/// </summary>
+	/// <param name="hitSEType">ヒットSEの種類</param>
+	/// <returns>ヒットSEの名前</returns>
+	const std::string HitSETypeToString(const HitSEType hitSEType) const;
+
+	/// <summary>
+	/// リアクションの種類を文字列に変換
+	/// </summary>
+	/// <param name="reactionType">リアクションの種類</param>
+	/// <returns>リアクションの名前</returns>
+	const std::string ReactionTypeToString(const ReactionType reactionType) const;
+
+	/// <summary>
 	/// 全てのファイルを読み込む
 	/// </summary>
 	void LoadFiles();
@@ -189,46 +226,60 @@ private:
 	void LoadAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
 
 	/// <summary>
-	/// 移動イベントを読み込む
+	/// 回転イベントを生成して返す
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>回転イベント</returns>
+	std::shared_ptr<RotationEvent> LoadRotationEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
-	/// 速度移動イベントを読み込む
+	/// 移動イベントを生成して返す
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadVelocityMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>移動イベント</returns>
+	std::shared_ptr<MovementEvent> LoadMovementEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
-	/// イージング移動イベントを読み込む
+	/// 移動イベントを初期化
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadEasingMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="movementEvent">移動イベント</param>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	void InitializeCommonMovementEvent(const std::shared_ptr<MovementEvent>& movementEvent, const nlohmann::json& eventJson) const;
 
 	/// <summary>
-	/// 攻撃イベントを読み込む
+	/// 速度移動イベントを生成して返す
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>速度移動イベント</returns>
+	std::shared_ptr<VelocityMovementEvent> LoadVelocityMovementEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
-	/// キャンセルイベントを読み込む
+	/// イージング移動イベントを生成して返す
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>イージング移動イベント</returns>
+	std::shared_ptr<EasingMovementEvent> LoadEasingMovementEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
-	/// 先行入力イベントを読み込む
+	/// 攻撃イベントを生成して返す
 	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="eventJson">アニメーションイベントのjsonobject</param>
-	void LoadBufferedActionEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>攻撃イベント</returns>
+	std::shared_ptr<AttackEvent> LoadAttackEvent(const nlohmann::json& eventJson) const;
+
+	/// <summary>
+	/// キャンセルイベントを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>キャンセルイベント</returns>
+	std::shared_ptr<CancelEvent> LoadCancelEvent(const nlohmann::json& eventJson) const;
+
+	/// <summary>
+	/// 先行入力イベントを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>先行入力イベント</returns>
+	std::shared_ptr<BufferedActionEvent> LoadBufferedActionEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
 	/// アニメーション速度の設定を管理
@@ -261,22 +312,28 @@ private:
 	void AddAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
+	/// 回転イベントの追加
+	/// </summary>
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+
+	/// <summary>
+	/// 回転イベントの編集
+	/// </summary>
+	/// <param name="rotationEvent">回転イベント</param>
+	void EditRotationEvent(RotationEvent* rotationEvent);
+
+	/// <summary>
 	/// 移動イベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	void AddMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 速度移動イベントを編集
+	/// 移動イベントを編集
 	/// </summary>
-	/// <param name="velocityMovementEvent">速度移動イベント</param>
-	void EditVelocityMovementEvent(VelocityMovementEvent* velocityMovementEvent);
-
-	/// <summary>
-	/// イージングによる移動イベントを編集
-	/// </summary>
-	/// <param name="easingMovementEvent">イージング移動イベント</param>
-	void EditEasingMovementEvent(EasingMovementEvent* easingMovementEvent);
+	/// <param name="velocityMovementEvent">移動イベント</param>
+	void EditMovementEvent(MovementEvent* movementEvent);
 
 	/// <summary>
 	/// 攻撃イベントを追加
@@ -321,12 +378,6 @@ private:
 	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 移動イベントを編集
-	/// </summary>
-	/// <param name="velocityMovementEvent">移動イベント</param>
-	void EditMovementEvent(MovementEvent* movementEvent);
-
-	/// <summary>
 	/// コンテナの中から要素を選択するためのComboBoxを作成する関数
 	/// </summary>
 	/// <typeparam name="Type">コンテナに格納されている値の型</typeparam>
@@ -347,6 +398,14 @@ private:
 	/// <param name="itemCount">選択肢の数</param>
 	template<typename Type>
 	void EditCombo(const char* label, std::string& selectedName, const Type* items, int itemCount);
+
+	/// <summary>
+	/// アニメーションイベントの時間を編集
+	/// </summary>
+	/// <typeparam name="Type">アニメーションイベントの型</typeparam>
+	/// <param name="animationEvent">アニメーションイベント</param>	
+	template<typename Type>
+	void EditEventTime(Type* animationEvent);
 
 private:
 	//アニメーションイベント
@@ -420,4 +479,11 @@ inline void CombatAnimationEditor::EditCombo(const char* label, std::string& sel
 		}
 		ImGui::EndCombo();
 	}
+}
+
+template<typename Type>
+inline void CombatAnimationEditor::EditEventTime(Type* animationEvent)
+{
+	ImGui::DragFloat("Start Event Time", &animationEvent->startEventTime, 0.001f);
+	ImGui::DragFloat("End Event Time", &animationEvent->endEventTime, 0.001f);
 }

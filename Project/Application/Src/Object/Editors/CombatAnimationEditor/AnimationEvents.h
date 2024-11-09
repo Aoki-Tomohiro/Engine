@@ -7,6 +7,7 @@
 //イベントの種類
 enum class EventType
 {
+    kRotation,       //回転
     kMovement,       //移動
     kAttack,         //攻撃
     kCancel,         //キャンセル
@@ -22,6 +23,28 @@ struct AnimationEvent
     EventType eventType{};
     float startEventTime{};
     float endEventTime{};
+};
+
+#pragma endregion
+
+#pragma region 回転イベント
+
+//イージングの種類
+enum class EasingType
+{
+    kLinear,
+    kEaseIn,
+    kEaseOut,
+    kEaseInOut,
+};
+
+struct RotationEvent : public AnimationEvent
+{
+    virtual ~RotationEvent() override = default;
+    RotationEvent() : AnimationEvent(EventType::kRotation) {};
+    EasingType easingType{};   //イージングの種類
+    Vector3 rotationAxis{};    //回転軸
+    float rotationAngle{};     //総回転量
 };
 
 #pragma endregion
@@ -44,6 +67,7 @@ struct MovementEvent : public AnimationEvent
     bool useStickInput = false;                          //スティック入力を使用するかどうか
     bool moveTowardsEnemy = false;                       //敵の方向に移動するかどうか
     bool isProximityStopEnabled = false;                 //相手と接近した際に移動を止めるかどうか
+    bool rotateTowardsMovement = false;                  //移動方向に回転するかどうか
 };
 
 //速度を加算する移動イベント
@@ -59,6 +83,7 @@ struct EasingMovementEvent : public MovementEvent
 {
     ~EasingMovementEvent() override = default;
     EasingMovementEvent() : MovementEvent(MovementType::kEasing) {};
+    EasingType easingType{};  //イージングの種類
     Vector3 targetPosition{}; //目標座標
 };
 
@@ -90,7 +115,7 @@ struct AttackParameters
 //当たり判定に関連する設定
 struct HitboxParameters
 {
-    Vector3 center{ 0.0f, 0.0f, 0.0f }; //当たり判定の中心
+    Vector3 center{ 0.0f, 0.0f, 3.0f }; //当たり判定の中心
     Vector3 size{ 2.0f, 2.0f, 2.0f };   //当たり判定のサイズ
 };
 
@@ -133,7 +158,6 @@ struct CancelEvent : public AnimationEvent
     virtual ~CancelEvent() = default;
     CancelEvent() : AnimationEvent(EventType::kCancel) {};
     std::string cancelType{};           //キャンセルタイプ
-    bool isAnimationCorrectionActive{}; //アニメーションの座標補正をするかどうか
 };
 
 #pragma endregion
@@ -146,7 +170,6 @@ struct BufferedActionEvent : public AnimationEvent
     virtual ~BufferedActionEvent() = default;
     BufferedActionEvent() : AnimationEvent(EventType::kBufferedAction) {};
     std::string bufferedActionType{};   //先行入力のタイプ
-    bool isAnimationCorrectionActive{}; //アニメーションの座標補正をするかどうか
 };
 
 #pragma endregion

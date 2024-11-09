@@ -38,7 +38,7 @@ void PlayerStateRoot::Update()
 	}
 
 	//状態遷移
-	HandleStateTransition(false);
+	HandleStateTransition();
 }
 
 void PlayerStateRoot::OnCollision(GameObject* other)
@@ -47,7 +47,7 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 	GetCharacter()->ProcessCollisionImpact(other, true);
 }
 
-void PlayerStateRoot::HandleStateTransition(const bool)
+void PlayerStateRoot::HandleStateTransition()
 {
 	//プレイヤーを取得
 	Player* player = GetPlayer();
@@ -86,7 +86,7 @@ void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
 		//現在のアニメーションを通常状態に変更
 		currentAnimationName_ = "Idle";
 		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true);
+		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
 	}
 }
 
@@ -149,7 +149,7 @@ void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 	{
 		//現在のアニメーションを更新
 		currentAnimationName_ = animationName;
-		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true);
+		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
 	}
 }
 

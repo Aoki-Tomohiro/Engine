@@ -2,12 +2,13 @@
 #include "Application/Src/Object/Character/BaseCharacter.h"
 
 namespace {
-	const char* EVENT_TYPES[] = { "Movement", "Attack", "Cancel", "BufferedAction"};      //イベントタイプ
-	const char* MOVEMENT_TYPES[] = { "AddVelocity", "Easing" };                           //移動イベントタイプ
-	const char* HIT_SE_TYPES[] = { "Normal" };                                            //ヒット音SEタイプ
-	const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                             //反応タイプ
-	const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" };          //キャンセルタイプ
-	const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" }; //先行入力タイプ
+	const char* EVENT_TYPES[] = { "Rotation", "Movement", "Attack", "Cancel", "Buffered Action"}; //イベントタイプ
+	const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                      //移動イベントタイプ
+	const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                  //イージングのタイプ
+	const char* HIT_SE_TYPES[] = { "Normal" };                                                    //ヒット音SEタイプ
+	const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                     //反応タイプ
+	const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" };                  //キャンセルタイプ
+	const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" };         //先行入力タイプ
 }
 
 void CombatAnimationEditor::Initialize()
@@ -24,9 +25,13 @@ void CombatAnimationEditor::Update()
 		//各キャラクターのアニメーション編集
 		for (const auto& editableCharacter : editableCharacters_)
 		{
+			//アイテムバーを表示
 			if (ImGui::BeginTabItem(editableCharacter.first.c_str()))
 			{
+				//キャラクターのアニメーションを編集
 				EditCharacterAnimations(editableCharacter.second);
+
+				//アイテムバーを終了
 				ImGui::EndTabItem();
 			}
 		}
@@ -89,10 +94,7 @@ void CombatAnimationEditor::EditCharacterAnimations(BaseCharacter* character)
 
 	//デバッグモードの設定
 	bool isDebug = character->GetIsDebug();
-	if (ImGui::Checkbox("IsDebug", &isDebug))
-	{
-		isDebug ? character->StartDebugMode(characterAnimationData.selectedAnimation) : character->EndDebugMode();
-	}
+	ToggleDebugMode(character, characterAnimationData, isDebug);
 
 	//アニメーションの時間を編集
 	EditAnimationTime(animator, characterAnimationData.selectedAnimation, isDebug);
@@ -100,20 +102,26 @@ void CombatAnimationEditor::EditCharacterAnimations(BaseCharacter* character)
 	//アニメーションコントローラーを取得
 	AnimationController& animationController = characterAnimationData.animationControllers[characterAnimationData.selectedAnimation];
 
+	//固定軸を設定
+	ImGui::DragFloat3("In Place Axis", &animationController.inPlaceAxis.x, 1.0f, 0.0f, 1.0f);
+
 	//選択した戦闘アニメーションのコントロールを表示
 	DisplayAnimationControllerControls(character->GetName(), characterAnimationData.selectedAnimation);
 
-	//アニメーション速度の設定を取得
-	std::vector<AnimationSpeedConfig>& animationSpeedConfigs = animationController.animationSpeedConfigs;
-
 	//アニメーション速度の設定を管理
-	ManageAnimationSpeedConfigs(animationSpeedConfigs);
-
-	//全てのアニメーションイベントを取得
-	std::vector<std::shared_ptr<AnimationEvent>>& animationEvents = animationController.animationEvents;
+	ManageAnimationSpeedConfigs(animationController.animationSpeedConfigs);
 
 	//アニメーションイベントを管理
-	ManageAnimationEvents(animationEvents);
+	ManageAnimationEvents(animationController.animationEvents);
+}
+
+void CombatAnimationEditor::ToggleDebugMode(BaseCharacter* character, CharacterAnimationData& characterAnimationData, bool isDebug)
+{
+	//デバッグフラグの切り替え
+	if (ImGui::Checkbox("IsDebug", &isDebug))
+	{
+		isDebug ? character->StartDebugMode(characterAnimationData.selectedAnimation) : character->EndDebugMode();
+	}
 }
 
 void CombatAnimationEditor::EditAnimationTime(AnimatorComponent* animator, const std::string& selectedAnimationName, const bool isDebug)
@@ -152,57 +160,29 @@ void CombatAnimationEditor::SaveFile(const std::string& characterName, const std
 	//アニメーションコントローラーを取得
 	const AnimationController& animationController = characterAnimations_[characterName].animationControllers[animationControllerName];
 
-	//rootのjsonオブジェクトを作成
+	//jsonの構造体作成
 	nlohmann::json root = nlohmann::json::object();
-
-	//アニメーションコントローラーのjsonオブジェクトを作成
 	nlohmann::json animationControllerJson = nlohmann::json::object();
 
-	//アニメーション速度設定のjsonオブジェクトを作成
-	nlohmann::json animationSpeedConfigsJson = nlohmann::json::object();
-
 	//アニメーション速度の設定を保存
-	SaveAnimationSpeedConfigs(animationController.animationSpeedConfigs, animationSpeedConfigsJson);
-
-	//アニメーションコントローラーのjsonオブジェクトにアニメーション速度設定のjsonオブジェクトを保存
-	animationControllerJson["AnimationSpeedConfigs"] = animationSpeedConfigsJson;
-
-	//アニメーションイベントのjsonオブジェクトを作成
-	nlohmann::json animationEventsJson = nlohmann::json::object();
+	SaveAnimationSpeedConfigs(animationController.animationSpeedConfigs, animationControllerJson["AnimationSpeedConfigs"]);
 
 	//アニメーションイベントを保存
-	SaveAnimationEvents(animationController.animationEvents, animationEventsJson);
+	SaveAnimationEvents(animationController.animationEvents, animationControllerJson["AnimationEvents"]);
 
-	//アニメーションコントローラーのjsonオブジェクトにアニメーションイベントのjsonオブジェクトを保存
-	animationControllerJson["AnimationEvents"] = animationEventsJson;
+	//動かす軸を保存
+	animationControllerJson["InPlaceAxis"] = { animationController.inPlaceAxis.x, animationController.inPlaceAxis.y, animationController.inPlaceAxis.z };
 
-	//rootオブジェクトにアニメーションコントローラーのjsonオブジェクトを追加
+	//rootに追加
 	root[characterName][animationControllerName] = animationControllerJson;
 
-	//ディレクトリがなければ作成する
+	//ディレクトリ作成
 	std::string directoryPath = kDirectoryPath + characterName + "/";
 	std::filesystem::path dir(directoryPath);
-	if (!std::filesystem::exists(directoryPath))
-	{
-		std::filesystem::create_directory(directoryPath);
-	}
-
-	//書き込むjsonファイルのフルパスを合成する
-	std::string filePath = directoryPath + animationControllerName + ".json";
-	//書き込み用のファイルストリーム
-	std::ofstream ofs;
-	//ファイルを書き込み用に開く
-	ofs.open(filePath);
-	//ファイルオープン失敗
-	if (ofs.fail())
-	{
-		std::string message = "Failed open data file for write.";
-		MessageBoxA(nullptr, message.c_str(), "CombatAnimationEditor", 0);
-		assert(0);
-		return;
-	}
+	if (!std::filesystem::exists(directoryPath)) std::filesystem::create_directory(directoryPath);
 
 	//ファイルにjson文字列を書き込む
+	std::ofstream ofs(directoryPath + animationControllerName + ".json");
 	ofs << std::setw(4) << root << std::endl;
 	//ファイルを閉じる
 	ofs.close();
@@ -214,16 +194,10 @@ void CombatAnimationEditor::SaveAnimationSpeedConfigs(const std::vector<Animatio
 	for (int32_t i = 0; i < animationSpeedConfigs.size(); ++i)
 	{
 		//アニメーションイベントのjsonオブジェクトを作成
-		nlohmann::json animationSpeedJson = nlohmann::json::object();
-
-		//持続時間を保存
-		animationSpeedJson["Duration"] = animationSpeedConfigs[i].duration;
-
-		//アニメーション速度を保存
-		animationSpeedJson["AnimationSpeed"] = animationSpeedConfigs[i].animationSpeed;
+		nlohmann::json speedConfigJson = { {"Duration", animationSpeedConfigs[i].duration}, {"AnimationSpeed", animationSpeedConfigs[i].animationSpeed} };
 
 		//アニメーション速度設定をjsonオブジェクトに書き込む
-		animationSpeedConfigsJson["AnimationSpeedConfig" + std::to_string(i)] = animationSpeedJson;
+		animationSpeedConfigsJson["AnimationSpeedConfig" + std::to_string(i)] = speedConfigJson;
 	}
 }
 
@@ -238,6 +212,9 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 		//アニメーションイベントごとに保存する項目を設定
 		switch (animationEvents[i]->eventType)
 		{
+		case EventType::kRotation:
+			SaveRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()), eventJson);
+			break;
 		case EventType::kMovement:
 			SaveMovementEvent(dynamic_cast<MovementEvent*>(animationEvents[i].get()), eventJson);
 			break;
@@ -257,108 +234,96 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 	}
 }
 
+void CombatAnimationEditor::SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson)
+{
+	//パラメーターを保存
+	eventJson.update({ {"EventType", "Rotation"},{"StartEventTime", rotationEvent->startEventTime},{"EndEventTime", rotationEvent->endEventTime},
+		{"RotationAxis", {rotationEvent->rotationAxis.x, rotationEvent->rotationAxis.y, rotationEvent->rotationAxis.z}},{"RotationAngle", rotationEvent->rotationAngle},
+		{"EasingType", EasingTypeToString(rotationEvent->easingType)} });
+}
+
 void CombatAnimationEditor::SaveMovementEvent(const MovementEvent* movementEvent, nlohmann::json& eventJson)
 {
 	//イベントのタイプを設定
-	eventJson["EventType"] = "Movement";
+	eventJson.update({ {"EventType", "Movement"},{"MovementType",movementEvent->movementType == MovementType::kVelocity ? "Velocity" : "Easing"},
+		{"UseStickInput", movementEvent->useStickInput}, {"IsProximityStopEnabled", movementEvent->isProximityStopEnabled},{"MoveTowardsEnemy", movementEvent->moveTowardsEnemy},
+		{"RotateTowardsMovement", movementEvent->rotateTowardsMovement}, {"StartEventTime", movementEvent->startEventTime},{"EndEventTime", movementEvent->endEventTime} });
 
-	//移動の種類ごとに保存する項目を設定
-	switch (static_cast<MovementType>(movementEvent->movementType))
-	{
-	case MovementType::kVelocity:
-		SaveVelocityMovementEvent(dynamic_cast<const VelocityMovementEvent*>(movementEvent), eventJson);
-		break;
-	case MovementType::kEasing:
-		SaveEasingMovementEvent(dynamic_cast<const EasingMovementEvent*>(movementEvent), eventJson);
-		break;
-	}
+	//移動イベントを保存
+	movementEvent->movementType == MovementType::kVelocity ? SaveVelocityMovementEvent(static_cast<const VelocityMovementEvent*>(movementEvent), eventJson) :
+		SaveEasingMovementEvent(static_cast<const EasingMovementEvent*>(movementEvent), eventJson);
 }
 
 void CombatAnimationEditor::SaveVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
-	eventJson["MovementType"] = "Velocity";
-	eventJson["UseStickInput"] = velocityMovementEvent->useStickInput;
-	eventJson["IsProximityStopEnabled"] = velocityMovementEvent->isProximityStopEnabled;
-	eventJson["MoveTowardsEnemy"] = velocityMovementEvent->moveTowardsEnemy;
-	eventJson["StartEventTime"] = velocityMovementEvent->startEventTime;
-	eventJson["EndEventTime"] = velocityMovementEvent->endEventTime;
 	eventJson["MoveSpeed"] = velocityMovementEvent->moveSpeed;
 }
 
 void CombatAnimationEditor::SaveEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
-	eventJson["MovementType"] = "Easing";
-	eventJson["UseStickInput"] = easingMovementEvent->useStickInput;
-	eventJson["IsProximityStopEnabled"] = easingMovementEvent->isProximityStopEnabled;
-	eventJson["MoveTowardsEnemy"] = easingMovementEvent->moveTowardsEnemy;
-	eventJson["StartEventTime"] = easingMovementEvent->startEventTime;
-	eventJson["EndEventTime"] = easingMovementEvent->endEventTime;
-	eventJson["TargetPosition"] = nlohmann::json::array({ easingMovementEvent->targetPosition.x,easingMovementEvent->targetPosition.y,easingMovementEvent->targetPosition.z });
+	eventJson["TargetPosition"] = { easingMovementEvent->targetPosition.x, easingMovementEvent->targetPosition.y, easingMovementEvent->targetPosition.z };
+	eventJson["EasingType"] = EasingTypeToString(easingMovementEvent->easingType);
 }
 
 void CombatAnimationEditor::SaveAttackEvent(const AttackEvent* attackEvent, nlohmann::json& eventJson)
 {
-	//アニメーションイベントの基本情報を保存
-	eventJson["EventType"] = "Attack";
-	eventJson["StartEventTime"] = attackEvent->startEventTime;
-	eventJson["EndEventTime"] = attackEvent->endEventTime;
-
-	//攻撃パラメーターを保存
-	const AttackParameters& attackParameters = attackEvent->attackParameters;
-	eventJson["MaxHitCount"] = attackParameters.maxHitCount;
-	eventJson["HitInterval"] = attackParameters.hitInterval;
-	eventJson["Damage"] = attackParameters.damage;
-
-	//ヒットボックスパラメーターを保存
-	const HitboxParameters& hitboxParameters = attackEvent->hitboxParameters;
-	eventJson["HitboxCenter"] = nlohmann::json::array({ hitboxParameters.center.x, hitboxParameters.center.y, hitboxParameters.center.z });
-	eventJson["HitboxSize"] = nlohmann::json::array({ hitboxParameters.size.x, hitboxParameters.size.y, hitboxParameters.size.z });
-
-	//ノックバックパラメーターを保存
-	const KnockbackParameters& knockbackParameters = attackEvent->knockbackParameters;
-	eventJson["KnockbackVelocity"] = nlohmann::json::array({ knockbackParameters.velocity.x, knockbackParameters.velocity.y, knockbackParameters.velocity.z });
-	eventJson["KnockbackAcceleration"] = nlohmann::json::array({ knockbackParameters.acceleration.x, knockbackParameters.acceleration.y, knockbackParameters.acceleration.z });
-
-	//エフェクトの設定を保存
+	//各パラメーターを取得
+	const AttackParameters& attackParams = attackEvent->attackParameters;
+	const HitboxParameters& hitboxParams = attackEvent->hitboxParameters;
+	const KnockbackParameters& knockbackParams = attackEvent->knockbackParameters;
 	const HitEffectConfig& hitEffectConfig = attackEvent->effectConfigs;
-	eventJson["HitStopDuration"] = hitEffectConfig.hitStopDuration;
-	eventJson["CameraShakeDuration"] = hitEffectConfig.cameraShakeDuration;
-	eventJson["CameraShakeIntensity"] = nlohmann::json::array({ hitEffectConfig.cameraShakeIntensity.x, hitEffectConfig.cameraShakeIntensity.y, hitEffectConfig.cameraShakeIntensity.z });
-	eventJson["HitParticleName"] = hitEffectConfig.hitParticleName;
-	switch (hitEffectConfig.hitSEType)
-	{
-	case HitSEType::kNormal: eventJson["HitSEType"] = "Normal"; 
-		break;
-	}
-	switch (hitEffectConfig.reactionType)
-	{
-	case ReactionType::kFlinch: eventJson["ReactionType"] = "Flinch";
-		break;
-	case ReactionType::kKnockback: eventJson["ReactionType"] = "Knockback";
-		break;
-	}
+
+	//パラメーターを保存
+	eventJson.update({ {"EventType", "Attack"},{"StartEventTime", attackEvent->startEventTime},{"EndEventTime", attackEvent->endEventTime},
+		{"MaxHitCount", attackParams.maxHitCount},{"HitInterval", attackParams.hitInterval},{"Damage", attackParams.damage},
+		{"HitboxCenter", {hitboxParams.center.x, hitboxParams.center.y, hitboxParams.center.z}},{"HitboxSize", {hitboxParams.size.x, hitboxParams.size.y, hitboxParams.size.z}},
+		{"KnockbackVelocity", {knockbackParams.velocity.x, knockbackParams.velocity.y, knockbackParams.velocity.z}},{"KnockbackAcceleration", {knockbackParams.acceleration.x, knockbackParams.acceleration.y, knockbackParams.acceleration.z}},
+		{"HitStopDuration", hitEffectConfig.hitStopDuration},{"CameraShakeDuration", hitEffectConfig.cameraShakeDuration},{"CameraShakeIntensity", {hitEffectConfig.cameraShakeIntensity.x, hitEffectConfig.cameraShakeIntensity.y, hitEffectConfig.cameraShakeIntensity.z}},
+		{"HitParticleName", hitEffectConfig.hitParticleName},{"HitSEType", HitSETypeToString(hitEffectConfig.hitSEType)},{"ReactionType", ReactionTypeToString(hitEffectConfig.reactionType)} });
 }
 
 void CombatAnimationEditor::SaveCancelEvent(const CancelEvent* cancelEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
-	eventJson["EventType"] = "Cancel";
-	eventJson["StartEventTime"] = cancelEvent->startEventTime;
-	eventJson["EndEventTime"] = cancelEvent->endEventTime;
-	eventJson["CancelType"] = cancelEvent->cancelType;
-	eventJson["IsAnimationCorrectionActive"] = cancelEvent->isAnimationCorrectionActive;
+	eventJson.update({ {"EventType", "Cancel"},{"StartEventTime", cancelEvent->startEventTime},{"EndEventTime", cancelEvent->endEventTime},{"CancelType", cancelEvent->cancelType} });
 }
 
 void CombatAnimationEditor::SaveBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
-	eventJson["EventType"] = "BufferedAction";
-	eventJson["StartEventTime"] = bufferedActionEvent->startEventTime;
-	eventJson["EndEventTime"] = bufferedActionEvent->endEventTime;
-	eventJson["BufferedActionType"] = bufferedActionEvent->bufferedActionType;
-	eventJson["IsAnimationCorrectionActive"] = bufferedActionEvent->isAnimationCorrectionActive;
+	eventJson.update({ {"EventType", "BufferedAction"},{"StartEventTime", bufferedActionEvent->startEventTime},{"EndEventTime", bufferedActionEvent->endEventTime},{"BufferedActionType", bufferedActionEvent->bufferedActionType} });
+}
+
+const std::string CombatAnimationEditor::EasingTypeToString(const EasingType easingType) const
+{
+	//イージングの種類を文字列に変換
+	switch (easingType)
+	{
+	case EasingType::kLinear: return "Linear";
+	case EasingType::kEaseIn: return "EaseIn";
+	case EasingType::kEaseOut: return "EaseOut";
+	case EasingType::kEaseInOut: return "EaseInOut";
+	default: return "Unknown";
+	}
+}
+
+const std::string CombatAnimationEditor::HitSETypeToString(const HitSEType hitSEType) const
+{
+	//ヒットSEの種類を文字列に変換
+	return hitSEType == HitSEType::kNormal ? "Normal" : "Unknown";
+}
+
+const std::string CombatAnimationEditor::ReactionTypeToString(const ReactionType reactionType) const
+{
+	//リアクションの種類を文字列に変換
+	switch (reactionType)
+	{
+	case ReactionType::kFlinch: return "Flinch";
+	case ReactionType::kKnockback: return "Knockback";
+	default: return "Unknown";
+	}
 }
 
 void CombatAnimationEditor::LoadFiles()
@@ -366,10 +331,7 @@ void CombatAnimationEditor::LoadFiles()
 	//保存先ディレクトリパス
 	std::filesystem::path dir(kDirectoryPath);
 	//ディレクトリが無ければスキップする
-	if (!std::filesystem::exists(kDirectoryPath))
-	{
-		return;
-	}
+	if (!std::filesystem::exists(kDirectoryPath)) return;
 
 	//ディレクトリを検索
 	std::filesystem::recursive_directory_iterator dir_it(kDirectoryPath);
@@ -377,15 +339,8 @@ void CombatAnimationEditor::LoadFiles()
 	{
 		//ファイルパスを取得
 		const std::filesystem::path& filePath = entry.path();
-
-		//ファイル拡張子を取得
-		std::string extension = filePath.extension().string();
 		//.jsonファイル以外はスキップ
-		if (extension.compare(".json") != 0)
-		{
-			continue;
-		}
-
+		if (filePath.extension() != ".json") continue;
 		//ファイルを読み込む
 		LoadFile(filePath.parent_path().filename().string(), filePath.stem().string());
 	}
@@ -396,14 +351,11 @@ void CombatAnimationEditor::LoadFile(const std::string& characterName, const std
 	//読み込むjsonファイルのフルパスを合成する
 	std::string filePath = kDirectoryPath + characterName + "/" + animationControllerName + ".json";
 	//読み込み用のファイルストリーム
-	std::ifstream ifs;
-	//ファイルを読み込みように開く
-	ifs.open(filePath);
+	std::ifstream ifs(filePath);
 	//ファイルオープン失敗
 	if (ifs.fail())
 	{
-		std::string message = "Failed open data file for read.";
-		MessageBoxA(nullptr, message.c_str(), "CombatAnimationEditor", 0);
+		MessageBoxA(nullptr, "Failed to open data file for read.", "CombatAnimationEditor", 0);
 		assert(0);
 		return;
 	}
@@ -423,37 +375,31 @@ void CombatAnimationEditor::LoadFile(const std::string& characterName, const std
 	//アニメーションコントローラーのデータを取得
 	AnimationController& animationController = characterAnimations_[characterName].animationControllers[animationControllerName];
 
-	//アニメーション速度設定を取得
-	std::vector<AnimationSpeedConfig>& animationSpeedConfigs = animationController.animationSpeedConfigs;
-	animationSpeedConfigs.clear();
-
 	//アニメーション速度設定を読み込む
+	animationController.animationSpeedConfigs.clear();
 	LoadAnimationSpeedConfigs(animationController.animationSpeedConfigs, animationControllerJson["AnimationSpeedConfigs"]);
 
-	//アニメーションイベントを取得
-	std::vector<std::shared_ptr<AnimationEvent>>& animationEvents = animationController.animationEvents;
-	animationEvents.clear();
-
 	//アニメーションイベントを読み込む
-	LoadAnimationEvents(animationEvents, animationControllerJson["AnimationEvents"]);
+	animationController.animationEvents.clear();
+	LoadAnimationEvents(animationController.animationEvents, animationControllerJson["AnimationEvents"]);
+
+	//動かす軸を読み込む
+	animationController.inPlaceAxis = { animationControllerJson["InPlaceAxis"][0].get<float>(), animationControllerJson["InPlaceAxis"][1].get<float>(), animationControllerJson["InPlaceAxis"][2].get<float>() };
 }
 
 void CombatAnimationEditor::LoadAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs, nlohmann::json& animationSpeedConfigsJson)
 {
 	//全てのアニメーション速度設定を読み込む
-	for (nlohmann::json::iterator animationSpeedConfigItem = animationSpeedConfigsJson.begin(); animationSpeedConfigItem != animationSpeedConfigsJson.end(); ++animationSpeedConfigItem)
+	for (const nlohmann::json& speedConfig : animationSpeedConfigsJson)
 	{
 		//追加するアニメーション速度設定
 		AnimationSpeedConfig animationSpeedConfig{};
 
-		//アニメーション速度設定を取得
-		nlohmann::json animationSpeedJson = animationSpeedConfigItem.value();
-
 		//持続時間を取得
-		animationSpeedConfig.duration = animationSpeedJson["Duration"];
+		animationSpeedConfig.duration = speedConfig["Duration"];
 
 		//アニメーションの速度を取得
-		animationSpeedConfig.animationSpeed = animationSpeedJson["AnimationSpeed"];
+		animationSpeedConfig.animationSpeed = speedConfig["AnimationSpeed"];
 
 		//アニメーション速度設定を追加
 		animationSpeedConfigs.push_back(animationSpeedConfig);
@@ -463,84 +409,121 @@ void CombatAnimationEditor::LoadAnimationSpeedConfigs(std::vector<AnimationSpeed
 void CombatAnimationEditor::LoadAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
 {
 	//全てのアニメーションイベントを読み込む
-	for (nlohmann::json::iterator eventItem = eventJson.begin(); eventItem != eventJson.end(); ++eventItem)
+	for (const nlohmann::json& eventItem : eventJson)
 	{
-		//アニメーションイベントのデータを取得
-		nlohmann::json eventData = eventItem.value();
-
 		//イベントタイプを取得
-		std::string eventType = eventData["EventType"];
+		std::string eventType = eventItem["EventType"];
 
-		//移動イベントを読み込む
-		if (eventType == "Movement")
+		//新しく追加するアニメーションイベント
+		std::shared_ptr<AnimationEvent> animationEvent;
+
+		//回転イベントを読み込む
+		if (eventType == "Rotation")
 		{
-			LoadMovementEvent(animationEvents, eventData);
+			animationEvent = LoadRotationEvent(eventItem);
+		}
+		//移動イベントを読み込む
+		else if (eventType == "Movement")
+		{
+			animationEvent = LoadMovementEvent(eventItem);
 		}
 		//攻撃イベントを読み込む
 		else if (eventType == "Attack")
 		{
-			LoadAttackEvent(animationEvents, eventData);
+			animationEvent = LoadAttackEvent(eventItem);
 		}
 		//キャンセルイベントを読み込む
 		else if (eventType == "Cancel")
 		{
-			LoadCancelEvent(animationEvents, eventData);
+			animationEvent = LoadCancelEvent(eventItem);
 		}
 		//先行入力イベントを読み込む
 		else if (eventType == "BufferedAction")
 		{
-			LoadBufferedActionEvent(animationEvents, eventData);
+			animationEvent = LoadBufferedActionEvent(eventItem);
+		}
+
+		//イベントが生成されていたらアニメーションイベントを追加
+		if (animationEvent)
+		{
+			animationEvents.push_back(animationEvent);
 		}
 	}
 }
 
-void CombatAnimationEditor::LoadMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+std::shared_ptr<RotationEvent> CombatAnimationEditor::LoadRotationEvent(const nlohmann::json& eventJson) const
 {
-	//移動タイプを取得
+	std::shared_ptr<RotationEvent> rotationEvent = std::make_shared<RotationEvent>();
+	rotationEvent->eventType = EventType::kRotation;
+	rotationEvent->startEventTime = eventJson["StartEventTime"];
+	rotationEvent->endEventTime = eventJson["EndEventTime"];
+	rotationEvent->rotationAngle = eventJson["RotationAngle"];
+	for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
+	{
+		if (eventJson["EasingType"] == EASING_TYPES[i])
+		{
+			rotationEvent->easingType = static_cast<EasingType>(i);
+		}
+	}
+	return rotationEvent;
+}
+
+std::shared_ptr<MovementEvent> CombatAnimationEditor::LoadMovementEvent(const nlohmann::json& eventJson) const
+{
+	// 移動タイプを取得
 	std::string movementType = eventJson["MovementType"];
 
-	//移動タイプに応じて読み込むパラメーターを変更
+	// 移動タイプに応じて読み込むパラメーターを変更
 	if (movementType == "Velocity")
 	{
-		LoadVelocityMovementEvent(animationEvents, eventJson);
+		return LoadVelocityMovementEvent(eventJson);
 	}
 	else if (movementType == "Easing")
 	{
-		LoadEasingMovementEvent(animationEvents, eventJson);
+		return LoadEasingMovementEvent(eventJson);
 	}
+	return nullptr;
 }
 
-void CombatAnimationEditor::LoadVelocityMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+void CombatAnimationEditor::InitializeCommonMovementEvent(const std::shared_ptr<MovementEvent>& movementEvent, const nlohmann::json& eventJson) const
 {
-	VelocityMovementEvent* velocityMovementEvent = new VelocityMovementEvent();
-	velocityMovementEvent->eventType = EventType::kMovement;
+	movementEvent->eventType = EventType::kMovement;
+	movementEvent->useStickInput = eventJson["UseStickInput"];
+	movementEvent->isProximityStopEnabled = eventJson["IsProximityStopEnabled"];
+	movementEvent->moveTowardsEnemy = eventJson["MoveTowardsEnemy"];
+	movementEvent->rotateTowardsMovement = eventJson["RotateTowardsMovement"];
+	movementEvent->startEventTime = eventJson["StartEventTime"];
+	movementEvent->endEventTime = eventJson["EndEventTime"];
+}
+
+std::shared_ptr<VelocityMovementEvent> CombatAnimationEditor::LoadVelocityMovementEvent(const nlohmann::json& eventJson) const
+{
+	std::shared_ptr<VelocityMovementEvent> velocityMovementEvent = std::make_shared<VelocityMovementEvent>();
+	InitializeCommonMovementEvent(velocityMovementEvent, eventJson);
 	velocityMovementEvent->movementType = MovementType::kVelocity;
-	velocityMovementEvent->useStickInput = eventJson["UseStickInput"];
-	velocityMovementEvent->isProximityStopEnabled = eventJson["IsProximityStopEnabled"];
-	velocityMovementEvent->moveTowardsEnemy = eventJson["MoveTowardsEnemy"];
-	velocityMovementEvent->startEventTime = eventJson["StartEventTime"];
-	velocityMovementEvent->endEventTime = eventJson["EndEventTime"];
 	velocityMovementEvent->moveSpeed = eventJson["MoveSpeed"];
-	animationEvents.push_back(std::shared_ptr<VelocityMovementEvent>(velocityMovementEvent));
+	return velocityMovementEvent;
 }
 
-void CombatAnimationEditor::LoadEasingMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+std::shared_ptr<EasingMovementEvent> CombatAnimationEditor::LoadEasingMovementEvent(const nlohmann::json& eventJson) const
 {
-	EasingMovementEvent* easingMovementEvent = new EasingMovementEvent();
-	easingMovementEvent->eventType = EventType::kMovement;
+	std::shared_ptr<EasingMovementEvent> easingMovementEvent = std::make_shared<EasingMovementEvent>();
+	InitializeCommonMovementEvent(easingMovementEvent, eventJson);
 	easingMovementEvent->movementType = MovementType::kEasing;
-	easingMovementEvent->useStickInput = eventJson["UseStickInput"];
-	easingMovementEvent->isProximityStopEnabled = eventJson["IsProximityStopEnabled"];
-	easingMovementEvent->moveTowardsEnemy = eventJson["MoveTowardsEnemy"];
-	easingMovementEvent->startEventTime = eventJson["StartEventTime"];
-	easingMovementEvent->endEventTime = eventJson["EndEventTime"];
 	easingMovementEvent->targetPosition = { eventJson["TargetPosition"][0].get<float>(), eventJson["TargetPosition"][1].get<float>(), eventJson["TargetPosition"][2].get<float>() };
-	animationEvents.push_back(std::shared_ptr<EasingMovementEvent>(easingMovementEvent));
+	for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
+	{
+		if (eventJson["EasingType"] == EASING_TYPES[i])
+		{
+			easingMovementEvent->easingType = static_cast<EasingType>(i);
+		}
+	}
+	return easingMovementEvent;
 }
 
-void CombatAnimationEditor::LoadAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+std::shared_ptr<AttackEvent> CombatAnimationEditor::LoadAttackEvent(const nlohmann::json& eventJson) const
 {
-	AttackEvent* attackEvent = new AttackEvent();
+	std::shared_ptr<AttackEvent> attackEvent = std::make_shared<AttackEvent>();
 	attackEvent->eventType = EventType::kAttack;
 	attackEvent->startEventTime = eventJson["StartEventTime"];
 	attackEvent->endEventTime = eventJson["EndEventTime"];
@@ -569,29 +552,27 @@ void CombatAnimationEditor::LoadAttackEvent(std::vector<std::shared_ptr<Animatio
 			attackEvent->effectConfigs.reactionType = static_cast<ReactionType>(i);
 		}
 	}
-	animationEvents.push_back(std::shared_ptr<AttackEvent>(attackEvent));
+	return attackEvent;
 }
 
-void CombatAnimationEditor::LoadCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+std::shared_ptr<CancelEvent> CombatAnimationEditor::LoadCancelEvent(const nlohmann::json& eventJson) const
 {
-	CancelEvent* cancelEvent = new CancelEvent();
+	std::shared_ptr<CancelEvent> cancelEvent = std::make_shared<CancelEvent>();
 	cancelEvent->eventType = EventType::kCancel;
 	cancelEvent->startEventTime = eventJson["StartEventTime"];
 	cancelEvent->endEventTime = eventJson["EndEventTime"];
 	cancelEvent->cancelType = eventJson["CancelType"];
-	cancelEvent->isAnimationCorrectionActive = eventJson["IsAnimationCorrectionActive"];
-	animationEvents.push_back(std::shared_ptr<CancelEvent>(cancelEvent));
+	return cancelEvent;
 }
 
-void CombatAnimationEditor::LoadBufferedActionEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson)
+std::shared_ptr<BufferedActionEvent> CombatAnimationEditor::LoadBufferedActionEvent(const nlohmann::json& eventJson) const
 {
-	BufferedActionEvent* bufferedActionEvent = new BufferedActionEvent();
+	std::shared_ptr<BufferedActionEvent> bufferedActionEvent = std::make_shared<BufferedActionEvent>();
 	bufferedActionEvent->eventType = EventType::kBufferedAction;
 	bufferedActionEvent->startEventTime = eventJson["StartEventTime"];
 	bufferedActionEvent->endEventTime = eventJson["EndEventTime"];
 	bufferedActionEvent->bufferedActionType = eventJson["BufferedActionType"];
-	bufferedActionEvent->isAnimationCorrectionActive = eventJson["IsAnimationCorrectionActive"];
-	animationEvents.push_back(std::shared_ptr<BufferedActionEvent>(bufferedActionEvent));
+	return bufferedActionEvent;
 }
 
 void CombatAnimationEditor::ManageAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs)
@@ -623,7 +604,7 @@ void CombatAnimationEditor::EditAnimationSpeedConfigs(std::vector<AnimationSpeed
 	for (int32_t i = 0; i < animationSpeedConfigs.size(); ++i)
 	{
 		//ツリーノードの名前を設定
-		std::string nodeName = "Animation Speed Config" + std::to_string(i);
+		std::string nodeName = "Animation Speed Config " + std::to_string(i);
 
 		//ツリーノードを展開
 		if (ImGui::TreeNode(nodeName.c_str()))
@@ -632,7 +613,7 @@ void CombatAnimationEditor::EditAnimationSpeedConfigs(std::vector<AnimationSpeed
 			ImGui::DragFloat("Duration", &animationSpeedConfigs[i].duration, 0.001f);
 
 			//アニメーションの速度を設定
-			ImGui::DragFloat("AnimationSpeed", &animationSpeedConfigs[i].animationSpeed, 0.001f);
+			ImGui::DragFloat("Animation Speed", &animationSpeedConfigs[i].animationSpeed, 0.001f);
 
 			//削除ボタン
 			if (ImGui::Button("Delete"))
@@ -673,6 +654,10 @@ void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<Animat
 	//アニメーションイベントを追加
 	switch (static_cast<EventType>(selectedEventType))
 	{
+	case EventType::kRotation:
+		//回転イベントの追加
+		AddRotationEvent(animationEvents);
+		break;
 	case EventType::kMovement:
 		//移動イベントの追加
 		AddMovementEvent(animationEvents);
@@ -689,6 +674,29 @@ void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<Animat
 		//先行入力イベントの追加
 		AddBufferedActionEvent(animationEvents);
 		break;
+	}
+}
+
+void CombatAnimationEditor::AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//回転イベントを追加
+	if (ImGui::Button("Add Rotation Event"))
+	{
+		animationEvents.push_back(std::make_shared<RotationEvent>());
+	}
+}
+
+void CombatAnimationEditor::EditRotationEvent(RotationEvent* rotationEvent)
+{
+	//回転イベントのパラメーターを編集
+	EditEventTime(rotationEvent);
+	ImGui::DragFloat3("RotationAxis", &rotationEvent->rotationAxis.x, 0.001f);
+	rotationEvent->rotationAxis = Mathf::Normalize(rotationEvent->rotationAxis);
+	ImGui::DragFloat("Rotation Angle", &rotationEvent->rotationAngle, 0.001f);
+	int easingTypeIndex = static_cast<int>(rotationEvent->easingType);
+	if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
+	{
+		rotationEvent->easingType = static_cast<EasingType>(easingTypeIndex);
 	}
 }
 
@@ -715,26 +723,33 @@ void CombatAnimationEditor::AddMovementEvent(std::vector<std::shared_ptr<Animati
 	}
 }
 
-void CombatAnimationEditor::EditVelocityMovementEvent(VelocityMovementEvent* velocityMovementEvent)
+void CombatAnimationEditor::EditMovementEvent(MovementEvent* movementEvent)
 {
-	//速度移動イベントのパラメーターを調整
-	ImGui::DragFloat("Start Event Time", &velocityMovementEvent->startEventTime, 0.001f);
-	ImGui::DragFloat("End Event Time", &velocityMovementEvent->endEventTime, 0.001f);
-	ImGui::Checkbox("UseStickInput", &velocityMovementEvent->useStickInput);
-	ImGui::Checkbox("IsProximityStopEnabled", &velocityMovementEvent->isProximityStopEnabled);
-	ImGui::Checkbox("MoveTowardsEnemy", &velocityMovementEvent->moveTowardsEnemy);
-	ImGui::DragFloat("MoveSpeed", &velocityMovementEvent->moveSpeed, 0.001f);
-}
+	//移動イベントのパラメーターを編集
+	EditEventTime(movementEvent);
+	ImGui::Checkbox("Use Stick Input", &movementEvent->useStickInput);
+	ImGui::Checkbox("Is Proximity Stop Enabled", &movementEvent->isProximityStopEnabled);
+	ImGui::Checkbox("Move Towards Enemy", &movementEvent->moveTowardsEnemy);
+	ImGui::Checkbox("Rotate Towards Movement", &movementEvent->rotateTowardsMovement);
 
-void CombatAnimationEditor::EditEasingMovementEvent(EasingMovementEvent* easingMovementEvent)
-{
-	//イージング移動イベントのパラメーターを調整
-	ImGui::DragFloat("Start Event Time", &easingMovementEvent->startEventTime, 0.001f);
-	ImGui::DragFloat("End Event Time", &easingMovementEvent->endEventTime, 0.001f);
-	ImGui::Checkbox("UseStickInput", &easingMovementEvent->useStickInput);
-	ImGui::Checkbox("IsProximityStopEnabled", &easingMovementEvent->isProximityStopEnabled);
-	ImGui::Checkbox("MoveTowardsEnemy", &easingMovementEvent->moveTowardsEnemy);
-	ImGui::DragFloat3("Target Position", &easingMovementEvent->targetPosition.x, 0.001f);
+	//移動の種類に応じて編集内容を変える
+	if (movementEvent->movementType == MovementType::kVelocity)
+	{
+		//速度移動イベントを編集
+		VelocityMovementEvent* velocityMovementEvent = dynamic_cast<VelocityMovementEvent*>(movementEvent);
+		ImGui::DragFloat("Move Speed", &velocityMovementEvent->moveSpeed, 0.001f);
+	}
+	else
+	{
+		//イージング移動イベントを編集
+		EasingMovementEvent* easingMovementEvent = dynamic_cast<EasingMovementEvent*>(movementEvent);
+		int easingTypeIndex = static_cast<int>(easingMovementEvent->easingType);
+		if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
+		{
+			easingMovementEvent->easingType = static_cast<EasingType>(easingTypeIndex);
+		}
+		ImGui::DragFloat3("Target Position", &easingMovementEvent->targetPosition.x, 0.001f);
+	}
 }
 
 void CombatAnimationEditor::AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
@@ -749,10 +764,9 @@ void CombatAnimationEditor::AddAttackEvent(std::vector<std::shared_ptr<Animation
 void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 {
 	//イベント時間を編集
-	ImGui::DragFloat("Start Event Time", &attackEvent->startEventTime, 0.001f);
-	ImGui::DragFloat("End Event Time", &attackEvent->endEventTime, 0.001f);
+	EditEventTime(attackEvent);
 
-	//攻撃パラメータを編集するUI
+	//攻撃パラメータの編集
 	if (ImGui::TreeNode("Attack Parameters"))
 	{
 		ImGui::DragInt("Hit Count", &attackEvent->attackParameters.maxHitCount);
@@ -761,7 +775,7 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 		ImGui::TreePop();
 	}
 
-	//ヒットボックスパラメータを編集するUI
+	//ヒットボックスパラメーターの編集
 	if (ImGui::TreeNode("Hitbox Parameters"))
 	{
 		ImGui::DragFloat3("Center", &attackEvent->hitboxParameters.center.x, 0.001f);
@@ -769,7 +783,7 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 		ImGui::TreePop();
 	}
 
-	//ノックバックのパラメータを編集するUI
+	//ノックバックパラメーターの編集
 	if (ImGui::TreeNode("Knockback Parameters"))
 	{
 		ImGui::DragFloat3("Velocity", &attackEvent->knockbackParameters.velocity.x, 0.001f);
@@ -777,7 +791,7 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 		ImGui::TreePop();
 	}
 
-	//効果設定のパラメータを編集するUI
+	//エフェクトのパラメーターの編集
 	if (ImGui::TreeNode("Effect Configs"))
 	{
 		ImGui::DragFloat("Hit Stop Duration", &attackEvent->effectConfigs.hitStopDuration, 0.001f);
@@ -818,7 +832,6 @@ void CombatAnimationEditor::EditCancelEvent(CancelEvent* cancelEvent)
 	//パラメーターを編集
 	ImGui::DragFloat("Start Event Time", &cancelEvent->startEventTime, 0.001f);
 	ImGui::DragFloat("End Event Time", &cancelEvent->endEventTime, 0.001f);
-	ImGui::Checkbox("Is Animation Correction Active", &cancelEvent->isAnimationCorrectionActive);
 	EditCombo("Cancel Type", cancelEvent->cancelType, CANCEL_TYPES, IM_ARRAYSIZE(CANCEL_TYPES));
 }
 
@@ -836,17 +849,29 @@ void CombatAnimationEditor::EditBufferedActionEvent(BufferedActionEvent* buffere
 	//パラメーターを編集
 	ImGui::DragFloat("Start Event Time", &bufferedActionEvent->startEventTime, 0.001f);
 	ImGui::DragFloat("End Event Time", &bufferedActionEvent->endEventTime, 0.001f);
-	ImGui::Checkbox("Is Animation Correction Active", &bufferedActionEvent->isAnimationCorrectionActive);
 	EditCombo("Buffered Action Type", bufferedActionEvent->bufferedActionType, BUFFERED_ACTION_TYPES, IM_ARRAYSIZE(BUFFERED_ACTION_TYPES));
 }
 
 void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
 {
+	//アニメーションイベントの名前
+	static const std::unordered_map<EventType, std::string> eventNames = {
+		{ EventType::kRotation, "Rotation Event"},
+		{ EventType::kMovement, "Movement Event " },
+		{ EventType::kAttack, "Attack Event " },
+		{ EventType::kCancel, "Cancel Event " },
+		{ EventType::kBufferedAction, "Buffered Action Event " },
+	};
+
+	//アニメーションイベントのインデックス
+	int32_t animationEventIndex[static_cast<int>(EventType::kMaxEvent)]{};
+
 	//全てのアニメーションイベントを編集
 	for (int32_t i = 0; i < animationEvents.size(); ++i)
 	{
 		//ツリーノードの名前を設定
-		std::string nodeName = "Animation Event " + std::to_string(i);
+		auto it = eventNames.find(animationEvents[i]->eventType);
+		std::string nodeName = it->second + std::to_string(animationEventIndex[static_cast<int>(animationEvents[i]->eventType)]++);
 
 		//ツリーノードを展開
 		if (ImGui::TreeNode(nodeName.c_str()))
@@ -854,6 +879,9 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 			//アニメーションのイベントの種類に応じて表示する項目を変える
 			switch (static_cast<EventType>(animationEvents[i]->eventType))
 			{
+			case EventType::kRotation:
+				EditRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()));
+				break;
 			case EventType::kMovement:
 				EditMovementEvent(dynamic_cast<MovementEvent*>(animationEvents[i].get()));
 				break;
@@ -881,19 +909,5 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 			//ツリーノードを閉じる
 			ImGui::TreePop();
 		}
-	}
-}
-
-void CombatAnimationEditor::EditMovementEvent(MovementEvent* movementEvent)
-{
-	//移動の種類に応じて編集内容を変える
-	switch (static_cast<MovementType>(movementEvent->movementType))
-	{
-	case MovementType::kVelocity:
-		EditVelocityMovementEvent(dynamic_cast<VelocityMovementEvent*>(movementEvent));
-		break;
-	case MovementType::kEasing:
-		EditEasingMovementEvent(dynamic_cast<EasingMovementEvent*>(movementEvent));
-		break;
 	}
 }

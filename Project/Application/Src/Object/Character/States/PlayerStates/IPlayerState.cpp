@@ -7,18 +7,12 @@ Player* IPlayerState::GetPlayer() const
 	return dynamic_cast<Player*>(GetCharacter());
 }
 
-void IPlayerState::HandleStateTransition(const bool isAnimationCorrectionActive)
+void IPlayerState::HandleStateTransition()
 {
 	//先行入力があった場合はその状態に遷移して処理を飛ばす
 	if (CheckAndTransitionBufferedAction())
 	{
 		return;
-	}
-
-	//アニメーションを補正するフラグが立っていた場合は補正する
-	if (isAnimationCorrectionActive)
-	{
-		character_->CorrectPositionAfterAnimation();
 	}
 
 	//座標を取得
@@ -78,12 +72,24 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCamera()->quaternion_);
 			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
 		}
+		else
+		{
+			//固定速度を使用して移動ベクトルを設定
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector({ 0.0f, 0.0f, velocityMovementEvent->moveSpeed }, character_->GetQuaternion());
+			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+		}
 	}
 	else
 	{
 		//固定速度を使用して移動ベクトルを設定
 		processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector({ 0.0f, 0.0f, velocityMovementEvent->moveSpeed }, character_->GetQuaternion());
 		processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+	}
+
+	//進行方向に回転するフラグが立っていた場合はキャラクターを回転させる
+	if (velocityMovementEvent->rotateTowardsMovement)
+	{
+		character_->Rotate(Mathf::Normalize(Vector3{ processedVelocityDatas_[animationEventIndex].velocity.x, 0.0f, processedVelocityDatas_[animationEventIndex].velocity.z }));
 	}
 }
 
@@ -119,6 +125,11 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCamera()->quaternion_);
 			processedEasingDatas_[animationEventIndex].targetPosition.y = 0.0f;
 		}
+		else
+		{
+			//固定座標を使用して目標座標を設定
+			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(easingMovementEvent->targetPosition, character_->GetQuaternion());
+		}
 	}
 	else
 	{
@@ -128,6 +139,13 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 
 	//開始座標を足す
 	processedEasingDatas_[animationEventIndex].targetPosition += processedEasingDatas_[animationEventIndex].startPosition;
+
+	//進行方向に回転するフラグが立っていた場合はキャラクターを回転させる
+	if (easingMovementEvent->rotateTowardsMovement)
+	{
+		Vector3 difference = processedEasingDatas_[animationEventIndex].targetPosition - processedEasingDatas_[animationEventIndex].startPosition;
+		character_->Rotate(Mathf::Normalize(Vector3{ difference.x, 0.0f, difference.z }));
+	}
 }
 
 void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
@@ -135,12 +153,6 @@ void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent, const int3
 	//キャンセルアクションのボタンが押されていたら遷移
 	if (GetPlayer()->IsButtonTriggered(cancelEvent->cancelType))
 	{
-		//座標をアニメーション後の位置に補正
-		if (cancelEvent->isAnimationCorrectionActive)
-		{
-			character_->CorrectPositionAfterAnimation();
-		}
-
 		//キャンセルされたフラグを立てる
 		processedCancelDatas_[animationEventIndex].isCanceled = true;
 

@@ -9,27 +9,28 @@
                     "MoveSpeed": 20.0,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
+                    "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": false
+                    "UseStickInput": true
                 },
                 "AnimationEvent1": {
-                    "CameraShakeDuration": 0.0,
+                    "CameraShakeDuration": 0.07999999821186066,
                     "CameraShakeIntensity": [
                         0.0,
-                        0.0,
+                        0.5,
                         0.0
                     ],
                     "Damage": 10.0,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
-                    "HitParticleName": "",
+                    "HitParticleName": "Hit",
                     "HitSEType": "Normal",
-                    "HitStopDuration": 0.0,
+                    "HitStopDuration": 0.07999999821186066,
                     "HitboxCenter": [
                         0.0,
                         0.0,
-                        0.0
+                        3.0
                     ],
                     "HitboxSize": [
                         2.0,
@@ -47,21 +48,19 @@
                         0.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Flinch",
+                    "ReactionType": "Knockback",
                     "StartEventTime": 0.5799999833106995
                 },
                 "AnimationEvent2": {
                     "CancelType": "Dodge",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "Cancel",
-                    "IsAnimationCorrectionActive": false,
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent3": {
                     "BufferedActionType": "Attack",
-                    "EndEventTime": 0.800000011920929,
+                    "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
-                    "IsAnimationCorrectionActive": false,
                     "StartEventTime": 0.0
                 }
             },
@@ -70,7 +69,12 @@
                     "AnimationSpeed": 2.0,
                     "Duration": 1.3329999446868896
                 }
-            }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
         }
     }
 }
