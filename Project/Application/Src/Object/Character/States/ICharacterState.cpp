@@ -143,13 +143,25 @@ void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, c
 	}
 
 	//イージング係数を計算
-	float easingParameter = std::min<float>(1.0f, (animationTime - rotationEvent->startEventTime) / (rotationEvent->endEventTime - rotationEvent->startEventTime));
+	float easingParameter = (animationTime - rotationEvent->startEventTime) / (rotationEvent->endEventTime - rotationEvent->startEventTime);
+	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
 
-	//イージング関数を使用して回転のイージング値を計算
-	float easingValue = Mathf::EaseInCubic(easingParameter);
+	//イージングの種類に応じて処理を変える
+	switch (rotationEvent->easingType)
+	{
+	case EasingType::kEaseIn:
+		easingParameter = Mathf::EaseInSine(easingParameter);
+		break;
+	case EasingType::kEaseOut:
+		easingParameter = Mathf::EaseOutSine(easingParameter);
+		break;
+	case EasingType::kEaseInOut:
+		easingParameter = Mathf::EaseInOutSine(easingParameter);
+		break;
+	}
 
 	//累計のイージングされた回転量を計算
-	float totalEasedRotation = rotationEvent->rotationAngle * easingValue;
+	float totalEasedRotation = rotationEvent->rotationAngle * easingParameter;
 
 	//フレームごとの回転量を計算
 	float frameRotation = totalEasedRotation - processedRotationDatas_[animationEventIndex].preEasedRotation;
@@ -216,7 +228,22 @@ void ICharacterState::ProcessEasingMovementEvent(const EasingMovementEvent* easi
 	}
 
 	//イージング係数を計算
-	float easingParameter = std::min<float>(1.0f, (animationTime - easingMovementEvent->startEventTime) / (easingMovementEvent->endEventTime - easingMovementEvent->startEventTime));
+	float easingParameter = (animationTime - easingMovementEvent->startEventTime) / (easingMovementEvent->endEventTime - easingMovementEvent->startEventTime);
+	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
+
+	//イージングの種類に応じて処理を変える
+	switch (easingMovementEvent->easingType)
+	{
+	case EasingType::kEaseIn:
+		easingParameter = Mathf::EaseInSine(easingParameter);
+		break;
+	case EasingType::kEaseOut:
+		easingParameter = Mathf::EaseOutSine(easingParameter);
+		break;
+	case EasingType::kEaseInOut:
+		easingParameter = Mathf::EaseInOutSine(easingParameter);
+		break;
+	}
 
 	//キャラクターの位置を更新
 	character_->SetPosition(Mathf::Lerp(processedEasingDatas_[animationEventIndex].startPosition, processedEasingDatas_[animationEventIndex].targetPosition, easingParameter));

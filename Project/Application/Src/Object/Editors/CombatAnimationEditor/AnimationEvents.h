@@ -75,7 +75,7 @@ struct VelocityMovementEvent : public MovementEvent
 {
     ~VelocityMovementEvent() override = default;
     VelocityMovementEvent() : MovementEvent(MovementType::kVelocity) {};
-    float moveSpeed{}; //移動速度
+    Vector3 velocity{}; //速度
 };
 
 //イージングを使用した移動イベント

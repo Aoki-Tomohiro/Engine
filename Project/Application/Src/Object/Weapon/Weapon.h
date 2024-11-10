@@ -203,8 +203,8 @@ private:
 	float trailVertexInterval_ = 0.01f;
 
 	//軌跡の色
-	Vector4 trailStartColor_ = { 1.0f, 0.147f, 0.0f, 0.0f };
-	Vector4 trailEndColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
+	Vector4 trailStartColor_ = { 1.0f, 1.0f, 1.0f, 0.0f };
+	Vector4 trailEndColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	//軌跡のオフセット値
 	Vector3 headOffset_ = { 0.0f, 0.0f, -130.0f };

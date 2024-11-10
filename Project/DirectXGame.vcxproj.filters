@@ -175,9 +175,6 @@
     <Filter Include="ヘッダー ファイル\Engine\3D\Transform">
       <UniqueIdentifier>{e1fac954-aebd-4e44-9755-8293a1ec41fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Player">
-      <UniqueIdentifier>{a99df4b4-295f-4778-93de-7aa42630c89c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ヘッダー ファイル\Engine\3D\Primitive">
       <UniqueIdentifier>{3a34086a-bd5c-48fc-9169-48ce91d646cc}</UniqueIdentifier>
     </Filter>
@@ -189,9 +186,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Transition">
       <UniqueIdentifier>{e25f71e2-aba6-4776-99b0-3489fedfc816}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Player\States">
-      <UniqueIdentifier>{e128d918-53a2-4605-9f67-b5825ef79415}</UniqueIdentifier>
     </Filter>
     <Filter Include="ソース ファイル\Application\Object\Ground">
       <UniqueIdentifier>{2a442466-4e44-4568-bfb1-80def157939c}</UniqueIdentifier>
@@ -729,26 +723,26 @@
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp">
       <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\CharacterStateFactory.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1190,26 +1184,26 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h">
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\CharacterStateFactory.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,15 +3,19 @@
         "GroundAttack1": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "EndEventTime": 0.699999988079071,
+                    "EndEventTime": 0.47999998927116394,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
-                    "MoveSpeed": 20.0,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        30.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CameraShakeDuration": 0.07999999821186066,
@@ -21,7 +25,7 @@
                         0.0
                     ],
                     "Damage": 6.0,
-                    "EndEventTime": 0.699999988079071,
+                    "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
                     "HitInterval": 0.019999999552965164,
                     "HitParticleName": "Hit",
@@ -49,13 +53,13 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinch",
-                    "StartEventTime": 0.6000000238418579
+                    "StartEventTime": 0.47999998927116394
                 },
                 "AnimationEvent2": {
                     "CancelType": "Dodge",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "Cancel",
-                    "StartEventTime": 0.699999988079071
+                    "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent3": {
                     "BufferedActionType": "Attack",
@@ -66,7 +70,11 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 3.0,
+                    "Duration": 0.699999988079071
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 1.600000023841858,
                     "Duration": 1.5329999923706055
                 }
             },

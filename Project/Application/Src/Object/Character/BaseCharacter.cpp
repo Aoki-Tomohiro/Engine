@@ -338,6 +338,12 @@ void BaseCharacter::RestrictMovement()
         float scale = kMoveLimit / distance;
         transform_->worldTransform_.translation_ *= scale;
     }
+
+    //地面にキャラクターが埋まっていた場合は地面の高さに合わせる
+    if (transform_->worldTransform_.translation_.y < 0.0f)
+    {
+        transform_->worldTransform_.translation_.y = 0.0f;
+    }
 }
 
 void BaseCharacter::UpdateHP()

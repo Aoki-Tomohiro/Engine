@@ -46,11 +46,14 @@ void Player::Update()
 	//ボタンの入力状態の更新
 	UpdateButtonStates();
 
-	//魔法攻撃の更新
-	UpdateMagicAttack();
-
 	//スキルのクールダウンの更新
 	UpdateSkillCooldowns();
+
+	//ストンプのフラグの更新
+	UpdateStompFlag();
+
+	//魔法攻撃の更新
+	UpdateMagicAttack();
 
 	//ダメージエフェクトの更新
 	UpdateDamageEffect();
@@ -62,7 +65,6 @@ void Player::Update()
 void Player::DrawUI()
 {
 	//右トリガーの値が閾値を超えているかをチェック
-	const float kRightTriggerThreshold = 0.7f;
 	bool shouldDrawSkillUI = input_->GetRightTriggerValue() > kRightTriggerThreshold;
 
 	//ボタン数だけループ
@@ -181,6 +183,12 @@ const bool Player::IsButtonTriggered(const std::string& actionName) const
 		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
 		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
 		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
+		{"Stomp", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && GetActionFlag(Player::ActionFlag::kCanStomp); }},
+		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled); }},
+		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled); }},
+		{"FallingAttack",[this]() {return buttonStates_[Player::ButtonType::X].isPressed && buttonStates_[Player::ButtonType::A].isPressed; }},
+		{"Ability1",[this]() {return buttonStates_[Player::ButtonType::X].isPressed && input_->GetRightTriggerValue() > kRightTriggerThreshold; }},
+		{"Ability2",[this]() {return buttonStates_[Player::ButtonType::Y].isPressed && input_->GetRightTriggerValue() > kRightTriggerThreshold; }},
 	};
 
 	//マップに存在する場合は判定を返し存在しない場合はfalseを返す
@@ -234,15 +242,13 @@ void Player::InitializeUISprites()
 	//テクスチャの名前を設定
 	hpTextureNames_ = { {
 		{"barBack_horizontalLeft.png", "barBack_horizontalMid.png", "barBack_horizontalRight.png"},
-		{"barRed_horizontalLeft.png", "barRed_horizontalMid.png", "barRed_horizontalRight.png"},
-		}
+		{"barRed_horizontalLeft.png", "barRed_horizontalMid.png", "barRed_horizontalRight.png"},}
 	};
 
 	//スプライトの座標を設定
 	hpBarSegmentPositions_ = { {
 		{ {	{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
-		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
-		}
+		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},}
 	};
 
 	//基底クラスの呼び出し
@@ -337,6 +343,28 @@ void Player::UpdateButtonStates()
 	}
 }
 
+void Player::UpdateCooldownTimer()
+{
+	//クールダウンのタイマーを進める
+	if (magicAttackWork_.cooldownTimer > 0.0f)
+	{
+		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime();
+	}
+}
+
+void Player::UpdateStompFlag()
+{
+	//プレイヤーの指定したジョイントのワールド座標を取得
+	Vector3 playerPosition = GetJointWorldPosition("mixamorig:Hips");
+
+	//敵の指定したジョイントのワールド座標を取得
+	Vector3 enemyPosition = gameObjectManager_->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+
+	//距離を計算しストンプ可能な距離内かを判定
+	bool canStomp = Mathf::Length(enemyPosition - playerPosition) < kStompRange_;
+	SetActionFlag(ActionFlag::kCanStomp, canStomp);
+}
+
 void Player::UpdateMagicAttack()
 {
 	//クールダウンのタイマーを進める
@@ -355,15 +383,6 @@ void Player::UpdateMagicAttack()
 			magicAttackWork_.isCharging = false;
 			magicAttackWork_.chargeTimer = 0.0f;
 		}
-	}
-}
-
-void Player::UpdateCooldownTimer()
-{
-	//クールダウンのタイマーを進める
-	if (magicAttackWork_.cooldownTimer > 0.0f)
-	{
-		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime();
 	}
 }
 

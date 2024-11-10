@@ -38,7 +38,7 @@ void Display::CreateSwapChain(IDXGIFactory7* dxgiFactory, ID3D12CommandQueue* co
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;//モニタに映したら、中身を破棄
 	//コマンドキュー、ウィンドウハンドル、設定を渡して生成する
 	HRESULT hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, application_->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 }
 
 void Display::CreateResources()
@@ -47,7 +47,7 @@ void Display::CreateResources()
 	{
 		ID3D12Resource* resource = nullptr;
 		HRESULT hr = swapChain_->GetBuffer(i, IID_PPV_ARGS(&resource));
-		assert(SUCCEEDED(hr));
+		if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 		swapChainResources_[i] = std::make_unique<ColorBuffer>();
 		swapChainResources_[i]->CreateFromSwapChain(resource);
 	}

@@ -30,7 +30,7 @@ void UploadBuffer::Create(size_t sizeInBytes)
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
 	//GpuVirtualAddressの初期化
 	gpuVirtualAddress_ = resource_->GetGPUVirtualAddress();

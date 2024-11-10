@@ -31,15 +31,6 @@ void PlayerStateJump::OnCollision(GameObject* other)
 	character_->ProcessCollisionImpact(other, true);
 }
 
-void PlayerStateJump::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
-{
-	//基底クラスの呼び出し
-	IPlayerState::InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
-
-	//ジャンプの初速度を設定
-	processedVelocityDatas_[animationEventIndex].velocity.y = GetPlayer()->GetJumpParameters().jumpFirstSpeed;
-}
-
 void PlayerStateJump::ConfigureJumpAnimationAndEvents(const float inputLength)
 {
 	//プレイヤーを取得

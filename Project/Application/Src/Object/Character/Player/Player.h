@@ -35,50 +35,48 @@ public:
     //スプライトの基本設定を保持する構造体
     struct SpriteSettings
     {
-        std::unique_ptr<Sprite> sprite = nullptr;  // スプライト
-        Vector2 position{ 0.0f, 0.0f };            // スプライトの位置
-        Vector2 scale{ 1.0f, 1.0f };               // スプライトのスケール
+        std::unique_ptr<Sprite> sprite = nullptr;  //スプライト
+        Vector2 position{ 0.0f, 0.0f };            //スプライトの位置
+        Vector2 scale{ 1.0f, 1.0f };               //スプライトのスケール
     };
 
     //ボタンのUI設定を保持する構造体
     struct ButtonUISettings
     {
-        SpriteSettings buttonSprite{}; // ボタンのスプライト設定
-        SpriteSettings fontSprite{};   // フォントのスプライト設定
+        SpriteSettings buttonSprite{}; //ボタンのスプライト設定
+        SpriteSettings fontSprite{};   //フォントのスプライト設定
     };
 
     //スキルのUI設定を保持する構造体
     struct SkillUISettings
     {
-        ButtonUISettings buttonSettings{};           // スキルボタンの設定
-        std::unique_ptr<Sprite> cooldownBarSprite{}; // スキルクールダウンバーのスプライト
+        ButtonUISettings buttonSettings{};           //スキルボタンの設定
+        std::unique_ptr<Sprite> cooldownBarSprite{}; //スキルクールダウンバーのスプライト
     };
 
     //ボタンのUI設定情報
     struct ButtonConfig
     {
-        std::string buttonTexture;            // ボタンのテクスチャファイル名
-        std::string fontTexture;              // フォントのテクスチャファイル名
-        Vector2 buttonPosition{ 0.0f, 0.0f }; // ボタンの位置
-        Vector2 fontPosition{ 0.0f, 0.0f };   // フォントの位置
-        Vector2 buttonScale{ 1.0f, 1.0f };    // ボタンのスケール
-        Vector2 fontScale{ 1.0f, 1.0f };      // フォントのスケール
+        std::string buttonTexture;            //ボタンのテクスチャファイル名
+        std::string fontTexture;              //フォントのテクスチャファイル名
+        Vector2 buttonPosition{ 0.0f, 0.0f }; //ボタンの位置
+        Vector2 fontPosition{ 0.0f, 0.0f };   //フォントの位置
+        Vector2 buttonScale{ 1.0f, 1.0f };    //ボタンのスケール
+        Vector2 fontScale{ 1.0f, 1.0f };      //フォントのスケール
     };
 
     //スキルのUI設定情報
     struct SkillConfig
     {
-        ButtonConfig buttonConfig{};            // スキルボタンの設定
-        Vector2 skillBarPosition{ 0.0f, 0.0f }; // スキルバーの位置
-        Vector2 skillBarScale{ 1.0f, 1.0f };    // スキルバーのスケール
+        ButtonConfig buttonConfig{};            //スキルボタンの設定
+        Vector2 skillBarPosition{ 0.0f, 0.0f }; //スキルバーの位置
+        Vector2 skillBarScale{ 1.0f, 1.0f };    //スキルバーのスケール
     };
 
     //アクションフラグ
     enum class ActionFlag
     {
         kDashing,                      // ダッシュ状態かどうか
-        kDashAttackEnabled,            // ダッシュ攻撃状態かどうか
-        kAerialAttack,                 // 空中攻撃状態かどうか
         kLaunchAttack,                 // 打ち上げ攻撃状態かどうか
         kFallingAttack,                // 落下攻撃状態かどうか
         kMagicAttackEnabled,           // 魔法攻撃が有効かどうか
@@ -110,12 +108,6 @@ public:
         float walkSpeed = 9.0f;     // 歩きの移動速度
         float runThreshold = 0.6f;  // 走りの閾値
         float runSpeed = 18.0f;     // 走りの移動速度
-    };
-
-    //ジャンプ状態のパラメーター
-    struct JumpParameters
-    {
-        float jumpFirstSpeed = 40.0f; // 初速度
     };
 
     //攻撃用のパラメーター
@@ -212,12 +204,8 @@ public:
     void SetLockon(const Lockon* lockon) { lockon_ = lockon; };
     const Lockon* GetLockon() const { return lockon_; };
 
-    //Y軸の許容誤差を取得
-    const float GetVerticalAlignmentTolerance() const { return verticalAlignmentTolerance_; };
-
     //各パラメーターの取得
     const RootParameters& GetRootParameters() const { return rootParameters_; };
-    const JumpParameters& GetJumpParameters() const { return jumpParameters_; };
     const AttackParameters& GetGroundAttackParameters() const { return groundAttackParameters_; };
     const AttackParameters& GetAerialAttackParameters() const { return aerialAttackAttackParameters_; };
     const LaunchAttackParameters& GetLaunchAttackParameters() const { return launchAttackParameters_; };
@@ -251,14 +239,19 @@ private:
     void UpdateButtonStates();
 
     /// <summary>
-    /// 魔法攻撃の更新
-    /// </summary>
-    void UpdateMagicAttack();
-
-    /// <summary>
     /// クールダウンタイマーの更新
     /// </summary>
     void UpdateCooldownTimer();
+
+    /// <summary>
+    /// ストンプのフラグの更新
+    /// </summary>
+    void UpdateStompFlag();
+
+    /// <summary>
+    /// 魔法攻撃の更新
+    /// </summary>
+    void UpdateMagicAttack();
 
     /// <summary>
     /// 魔法を溜める処理
@@ -351,8 +344,8 @@ private:
     //ストンプ可能な距離
     const float kStompRange_ = 6.0f;
 
-    //プレイヤーと敵のY軸方向の許容誤差
-    const float verticalAlignmentTolerance_ = 1.0f;
+    //右トリガーの入力閾値
+    const float kRightTriggerThreshold = 0.7f;
 
     //オーディオハンドル
     uint32_t damageAudioHandle_ = 0;
@@ -365,7 +358,6 @@ private:
 
     //各種パラメーター
     RootParameters rootParameters_{};
-    JumpParameters jumpParameters_{};
     AttackParameters groundAttackParameters_{ .comboNum = 4, .attackDistance = 3.0f };
     AttackParameters aerialAttackAttackParameters_{ .comboNum = 3, .attackDistance = 3.0f };
     LaunchAttackParameters launchAttackParameters_{};

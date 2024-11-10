@@ -3,15 +3,19 @@
         "GroundAttack3": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "EndEventTime": 0.800000011920929,
+                    "EndEventTime": 0.47999998927116394,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
-                    "MoveSpeed": 20.0,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        60.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CameraShakeDuration": 0.07999999821186066,
@@ -23,7 +27,7 @@
                     "Damage": 10.0,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
-                    "HitInterval": 0.0,
+                    "HitInterval": 0.03999999910593033,
                     "HitParticleName": "Hit",
                     "HitSEType": "Normal",
                     "HitStopDuration": 0.07999999821186066,
@@ -49,7 +53,7 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 0.5799999833106995
+                    "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent2": {
                     "CancelType": "Dodge",
@@ -66,7 +70,11 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 2.4000000953674316,
+                    "Duration": 0.800000011920929
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 1.0,
                     "Duration": 1.3329999446868896
                 }
             },

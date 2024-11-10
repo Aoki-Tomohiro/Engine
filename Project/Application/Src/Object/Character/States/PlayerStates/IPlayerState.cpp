@@ -40,25 +40,19 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 	if(velocityMovementEvent->moveTowardsEnemy && GetPlayer()->GetLockon()->ExistTarget())
 	{
 		//プレイヤーの座標を取得
-		Vector3 playerPosition = character_->GetJointWorldPosition("mixamorig:Hips");
+		Vector3 playerPosition = character_->GetPosition();
 
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
 
 		//差分ベクトルを計算
 		Vector3 difference = enemyPosition - playerPosition;
 
 		//速度を計算
-		processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(difference) * velocityMovementEvent->moveSpeed;
+		processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(difference) * Mathf::Length(velocityMovementEvent->velocity);
 
 		//進行方向に回転させる
 		character_->Rotate(Mathf::Normalize(Vector3{ processedVelocityDatas_[animationEventIndex].velocity.x, 0.0f, processedVelocityDatas_[animationEventIndex].velocity.z }));
-	
-		//Y軸の差分が許容誤差以内だった場合Y軸の速度を0にする
-		if (std::abs(difference.y) < GetPlayer()->GetVerticalAlignmentTolerance())
-		{
-			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
-		}
 	}
 	else if (velocityMovementEvent->useStickInput)
 	{
@@ -68,22 +62,20 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 		//スティック入力が閾値を超えていた場合
 		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
 		{
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(inputValue) * velocityMovementEvent->moveSpeed;
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(inputValue) * Mathf::Length({ velocityMovementEvent->velocity.x, 0.0f, velocityMovementEvent->velocity.z });
 			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCamera()->quaternion_);
-			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+			processedVelocityDatas_[animationEventIndex].velocity.y = velocityMovementEvent->velocity.y;
 		}
 		else
 		{
 			//固定速度を使用して移動ベクトルを設定
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector({ 0.0f, 0.0f, velocityMovementEvent->moveSpeed }, character_->GetQuaternion());
-			processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(velocityMovementEvent->velocity, character_->GetQuaternion());
 		}
 	}
 	else
 	{
 		//固定速度を使用して移動ベクトルを設定
-		processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector({ 0.0f, 0.0f, velocityMovementEvent->moveSpeed }, character_->GetQuaternion());
-		processedVelocityDatas_[animationEventIndex].velocity.y = 0.0f;
+		processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(velocityMovementEvent->velocity, character_->GetQuaternion());
 	}
 
 	//進行方向に回転するフラグが立っていた場合はキャラクターを回転させる
@@ -105,13 +97,13 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 	if (easingMovementEvent->moveTowardsEnemy && GetPlayer()->GetLockon()->ExistTarget())
 	{
 		//プレイヤーの座標を取得
-		Vector3 playerPosition = character_->GetJointWorldPosition("mixamorig:Hips");
+		Vector3 playerPosition = character_->GetPosition();
 
 		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
 
 		//目標座標を計算
-		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(enemyPosition - playerPosition) * easingMovementEvent->targetPosition;
+		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(enemyPosition - playerPosition) * Mathf::Length(easingMovementEvent->targetPosition);
 	}
 	else if (easingMovementEvent->useStickInput)
 	{
@@ -121,9 +113,9 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 		//スティック入力が閾値を超えていた場合
 		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
 		{
-			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(inputValue) * easingMovementEvent->targetPosition;
+			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(inputValue) * Mathf::Length({ easingMovementEvent->targetPosition.x, 0.0f, easingMovementEvent->targetPosition.z });
 			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCamera()->quaternion_);
-			processedEasingDatas_[animationEventIndex].targetPosition.y = 0.0f;
+			processedEasingDatas_[animationEventIndex].targetPosition.y = easingMovementEvent->targetPosition.y;
 		}
 		else
 		{
@@ -138,7 +130,7 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 	}
 
 	//開始座標を足す
-	processedEasingDatas_[animationEventIndex].targetPosition += processedEasingDatas_[animationEventIndex].startPosition;
+	processedEasingDatas_[animationEventIndex].targetPosition = processedEasingDatas_[animationEventIndex].startPosition + processedEasingDatas_[animationEventIndex].targetPosition;
 
 	//進行方向に回転するフラグが立っていた場合はキャラクターを回転させる
 	if (easingMovementEvent->rotateTowardsMovement)

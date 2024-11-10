@@ -26,7 +26,7 @@ void Texture::Create(const DirectX::ScratchImage& mipImages)
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc_, currentState_, nullptr,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
 	//SRVの作成
 	CreateDerivedViews(device, metadata);
@@ -90,7 +90,10 @@ void Texture::UploadTextureData(const Microsoft::WRL::ComPtr<ID3D12Resource>& te
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(&intermediateResource));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr))
+	{
+		assert(SUCCEEDED(hr));
+	}
 
 	UpdateSubresources(commandContext.GetCommandList(), texture.Get(), intermediateResource.Get(), 0, 0, UINT(subresources.size()), subresources.data());
 

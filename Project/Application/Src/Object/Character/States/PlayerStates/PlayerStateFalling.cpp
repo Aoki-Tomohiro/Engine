@@ -6,6 +6,9 @@ void PlayerStateFalling::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//アニメーションブレンドを有効にする
+	character_->GetAnimator()->SetIsBlending(true);
+
 	//落下アニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation("Falling");
 }

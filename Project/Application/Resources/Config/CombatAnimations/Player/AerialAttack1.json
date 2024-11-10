@@ -3,15 +3,19 @@
         "AerialAttack1": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "EndEventTime": 1.0800000429153442,
+                    "EndEventTime": 0.7799999713897705,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
-                    "MoveSpeed": 20.0,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        50.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CameraShakeDuration": 0.07999999821186066,
@@ -49,7 +53,7 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinch",
-                    "StartEventTime": 0.8799999952316284
+                    "StartEventTime": 0.7799999713897705
                 },
                 "AnimationEvent2": {
                     "CancelType": "Attack",

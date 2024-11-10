@@ -26,13 +26,6 @@ public:
 
 private:
 	/// <summary>
-	/// 速度移動イベントを実行
-	/// </summary>
-	/// <param name="velocityMovementEvent">速度移動イベント</param>
-	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
-	void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
-
-	/// <summary>
 	/// ジャンプ時のアニメーションとアニメーションイベントの設定
 	/// </summary>
 	/// <param name="inputLength">入力の強さ</param>

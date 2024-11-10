@@ -1,14 +1,15 @@
 #include "CombatAnimationEditor.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 
-namespace {
-	const char* EVENT_TYPES[] = { "Rotation", "Movement", "Attack", "Cancel", "Buffered Action"}; //イベントタイプ
-	const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                      //移動イベントタイプ
-	const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                  //イージングのタイプ
-	const char* HIT_SE_TYPES[] = { "Normal" };                                                    //ヒット音SEタイプ
-	const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                     //反応タイプ
-	const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" };                  //キャンセルタイプ
-	const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Skill" };         //先行入力タイプ
+namespace 
+{
+	const char* EVENT_TYPES[] = { "Rotation", "Movement", "Attack", "Cancel", "Buffered Action"};                                                          //イベントタイプ
+	const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                                               //移動イベントタイプ
+	const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                                                           //イージングのタイプ
+	const char* HIT_SE_TYPES[] = { "Normal" };                                                                                                             //ヒット音SEタイプ
+	const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                                                                              //反応タイプ
+	const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2"};           //キャンセルタイプ
+	const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //先行入力タイプ
 }
 
 void CombatAnimationEditor::Initialize()
@@ -257,7 +258,7 @@ void CombatAnimationEditor::SaveMovementEvent(const MovementEvent* movementEvent
 void CombatAnimationEditor::SaveVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
-	eventJson["MoveSpeed"] = velocityMovementEvent->moveSpeed;
+	eventJson["Velocity"] = { velocityMovementEvent->velocity.x, velocityMovementEvent->velocity.y, velocityMovementEvent->velocity.z };
 }
 
 void CombatAnimationEditor::SaveEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, nlohmann::json& eventJson)
@@ -501,7 +502,7 @@ std::shared_ptr<VelocityMovementEvent> CombatAnimationEditor::LoadVelocityMoveme
 	std::shared_ptr<VelocityMovementEvent> velocityMovementEvent = std::make_shared<VelocityMovementEvent>();
 	InitializeCommonMovementEvent(velocityMovementEvent, eventJson);
 	velocityMovementEvent->movementType = MovementType::kVelocity;
-	velocityMovementEvent->moveSpeed = eventJson["MoveSpeed"];
+	velocityMovementEvent->velocity = { eventJson["Velocity"][0].get<float>(), eventJson["Velocity"][1].get<float>(), eventJson["Velocity"][2].get<float>() };
 	return velocityMovementEvent;
 }
 
@@ -600,34 +601,54 @@ void CombatAnimationEditor::AddAnimationSpeedConfig(std::vector<AnimationSpeedCo
 
 void CombatAnimationEditor::EditAnimationSpeedConfigs(std::vector<AnimationSpeedConfig>& animationSpeedConfigs)
 {
-	//全てのアニメーション速度の設定を編集
+	//編集中かどうかのフラグ
+	bool isAdjusting = false;
+
+	//アニメーション速度設定のすべてを編集
 	for (int32_t i = 0; i < animationSpeedConfigs.size(); ++i)
 	{
 		//ツリーノードの名前を設定
 		std::string nodeName = "Animation Speed Config " + std::to_string(i);
 
-		//ツリーノードを展開
-		if (ImGui::TreeNode(nodeName.c_str()))
+		//ツリーノードが展開されなければ次のアイテムに進む
+		if (!ImGui::TreeNode(nodeName.c_str()))
 		{
-			//持続時間を設定
-			ImGui::DragFloat("Duration", &animationSpeedConfigs[i].duration, 0.001f);
+			continue;
+		}
 
-			//アニメーションの速度を設定
-			ImGui::DragFloat("Animation Speed", &animationSpeedConfigs[i].animationSpeed, 0.001f);
+		//持続時間を設定
+		ImGui::DragFloat("Duration", &animationSpeedConfigs[i].duration, 0.001f);
 
-			//削除ボタン
-			if (ImGui::Button("Delete"))
-			{
-				//アニメーション速度設定を削除
-				animationSpeedConfigs.erase(animationSpeedConfigs.begin() + i);
-				//ツリーノードを閉じる
-				ImGui::TreePop();
-				break;
-			}
+		//調整中の場合はフラグを立てる
+		if (ImGui::IsItemActive())
+		{
+			isAdjusting = true;
+		}
 
+		//アニメーションの速度を設定
+		ImGui::DragFloat("Animation Speed", &animationSpeedConfigs[i].animationSpeed, 0.001f);
+
+		//削除ボタンが押された場合
+		if (ImGui::Button("Delete"))
+		{
+			//アニメーション速度設定を削除
+			animationSpeedConfigs.erase(animationSpeedConfigs.begin() + i);
 			//ツリーノードを閉じる
 			ImGui::TreePop();
+			break;
 		}
+
+		//ツリーノードを閉じる
+		ImGui::TreePop();
+	}
+
+	//調整終了していたらソートする
+	if (!isAdjusting)
+	{
+		//アニメーション速度の設定をソート
+		std::sort(animationSpeedConfigs.begin(), animationSpeedConfigs.end(), [](const AnimationSpeedConfig& config1, const AnimationSpeedConfig& config2) {
+			return config1.duration < config2.duration; }
+		);
 	}
 }
 
@@ -737,7 +758,7 @@ void CombatAnimationEditor::EditMovementEvent(MovementEvent* movementEvent)
 	{
 		//速度移動イベントを編集
 		VelocityMovementEvent* velocityMovementEvent = dynamic_cast<VelocityMovementEvent*>(movementEvent);
-		ImGui::DragFloat("Move Speed", &velocityMovementEvent->moveSpeed, 0.001f);
+		ImGui::DragFloat3("Velocity", &velocityMovementEvent->velocity.x, 0.001f);
 	}
 	else
 	{
@@ -865,6 +886,11 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 
 	//アニメーションイベントのインデックス
 	int32_t animationEventIndex[static_cast<int>(EventType::kMaxEvent)]{};
+
+	//アニメーションイベントをソート
+	std::sort(animationEvents.begin(), animationEvents.end(), [](const std::shared_ptr<AnimationEvent>& event1, const std::shared_ptr<AnimationEvent>& event2) {
+		return static_cast<int>(event1->eventType) < static_cast<int>(event2->eventType); }
+	);
 
 	//全てのアニメーションイベントを編集
 	for (int32_t i = 0; i < animationEvents.size(); ++i)

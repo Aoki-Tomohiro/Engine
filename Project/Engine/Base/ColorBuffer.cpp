@@ -50,7 +50,7 @@ void ColorBuffer::Create(uint32_t width, uint32_t height, DXGI_FORMAT format)
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, currentState_, &clearValue,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
 	CreateDerivedViews(device, format);
 }
@@ -89,7 +89,10 @@ void ColorBuffer::Create(uint32_t width, uint32_t height, DXGI_FORMAT format, fl
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, currentState_, &clearValue,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr))
+	{
+		assert(SUCCEEDED(hr));
+	}
 
 	CreateDerivedViews(device, format);
 }

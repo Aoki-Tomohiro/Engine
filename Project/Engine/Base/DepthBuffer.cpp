@@ -27,7 +27,7 @@ void DepthBuffer::Create(uint32_t width, uint32_t height, DXGI_FORMAT format)
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
 	currentState_ = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
@@ -59,7 +59,10 @@ void DepthBuffer::Create(uint32_t width, uint32_t height, DXGI_FORMAT format, bo
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr))
+	{
+		assert(SUCCEEDED(hr));
+	}
 
 	useAsTexture_ = useAsTexture;
 	currentState_ = D3D12_RESOURCE_STATE_DEPTH_WRITE;

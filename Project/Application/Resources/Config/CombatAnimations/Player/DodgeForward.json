@@ -6,12 +6,16 @@
                     "EndEventTime": 1.1200000047683716,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
-                    "MoveSpeed": 25.0,
                     "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        30.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CancelType": "Move",
@@ -22,7 +26,7 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 2.4000000953674316,
                     "Duration": 1.6670000553131104
                 }
             },

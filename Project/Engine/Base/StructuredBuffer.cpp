@@ -32,7 +32,7 @@ void StructuredBuffer::Create(uint32_t numElements, uint32_t elementSize)
 	HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resourceDesc, currentState_, nullptr,
 		IID_PPV_ARGS(&resource_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
 	//GpuVirtualAddressの初期化
 	gpuVirtualAddress_ = resource_->GetGPUVirtualAddress();

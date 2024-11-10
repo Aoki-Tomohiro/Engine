@@ -3,15 +3,19 @@
         "GroundAttack2": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "EndEventTime": 1.0,
+                    "EndEventTime": 0.6000000238418579,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
-                    "MoveSpeed": 20.0,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": true,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        30.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CameraShakeDuration": 0.07999999821186066,
@@ -23,7 +27,7 @@
                     "Damage": 10.0,
                     "EndEventTime": 1.0,
                     "EventType": "Attack",
-                    "HitInterval": 0.0,
+                    "HitInterval": 0.05999999865889549,
                     "HitParticleName": "Hit",
                     "HitSEType": "Normal",
                     "HitStopDuration": 0.07999999821186066,
@@ -49,7 +53,7 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinch",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 0.6000000238418579
                 },
                 "AnimationEvent2": {
                     "CancelType": "Dodge",
@@ -66,7 +70,11 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 2.5999999046325684,
+                    "Duration": 1.0
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 1.600000023841858,
                     "Duration": 1.7000000476837158
                 }
             },

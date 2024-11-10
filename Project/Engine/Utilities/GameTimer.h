@@ -17,8 +17,6 @@ private:
 
 	static float deltaTime_;
 
-	static float lastFrameTime_;
-
 	static float timeScale_;
 };
 

@@ -46,7 +46,7 @@ void ImGuiManager::End() {
 }
 
 void ImGuiManager::Draw() {
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(USE_IMGUI)
 
 	//コマンドリストを取得
 	CommandContext* commandContext = graphicsCore_->GetCommandContext();

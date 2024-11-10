@@ -6,12 +6,16 @@
                     "EndEventTime": 0.8669999837875366,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
-                    "MoveSpeed": 18.0,
                     "MoveTowardsEnemy": false,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": false,
                     "StartEventTime": 0.0,
-                    "UseStickInput": true
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        40.0,
+                        18.0
+                    ]
                 },
                 "AnimationEvent1": {
                     "CancelType": "Dash",

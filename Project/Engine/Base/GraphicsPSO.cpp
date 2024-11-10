@@ -60,5 +60,5 @@ void GraphicsPSO::Finalize()
 	pipelineStateDesc_.pRootSignature = rootSignature_->GetRootSignature();
 	ID3D12Device* device = GraphicsCore::GetInstance()->GetDevice();
 	HRESULT hr = device->CreateGraphicsPipelineState(&pipelineStateDesc_, IID_PPV_ARGS(&pipelineState_));
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 }

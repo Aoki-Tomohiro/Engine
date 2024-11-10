@@ -11,6 +11,9 @@ void PlayerStateAttack::Initialize()
 	//アニメーション名を設定
 	animationName_ = character_->GetPosition().y > 0.0f ? SetAerialAnimationName() : SetGroundAnimationName();
 
+	//アニメーションブレンドを無効にする
+	character_->GetAnimator()->SetIsBlending(false);
+
 	//ダッシュ開始時のアニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(animationName_);
 }
@@ -44,7 +47,6 @@ const std::string PlayerStateAttack::SetGroundAnimationName() const
 
 const std::string PlayerStateAttack::SetAerialAnimationName()const 
 {
-	GetPlayer()->SetActionFlag(Player::ActionFlag::kAerialAttack, true);
 	return "AerialAttack" + std::to_string(comboIndex + 1);
 }
 

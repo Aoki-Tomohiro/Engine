@@ -87,7 +87,7 @@ private:
 	float dissipationDuration_ = 0.2f;
 
 	//分割数
-	int32_t numSegments_ = 3;
+	int32_t numSegments_ = 6;
 
 	//テクスチャ
 	const Texture* texture_ = nullptr;
