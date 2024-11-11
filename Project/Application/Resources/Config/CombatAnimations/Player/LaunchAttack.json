@@ -1,0 +1,23 @@
+{
+    "Player": {
+        "LaunchAttack": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "AnimationName": "AAA",
+                    "AnimationSpeed": 2.0,
+                    "CameraAnimationTrigger": "ActionStart",
+                    "EndEventTime": 0.0,
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.0,
+                    "SyncWithCharacterAnimation": true
+                }
+            },
+            "AnimationSpeedConfigs": null,
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

@@ -1,15 +1,17 @@
 #include "CombatAnimationEditor.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 
-namespace 
+const int32_t AnimationController::GetAnimationEventCount(const EventType eventType) const
 {
-	const char* EVENT_TYPES[] = { "Rotation", "Movement", "Attack", "Cancel", "Buffered Action"};                                                          //イベントタイプ
-	const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                                               //移動イベントタイプ
-	const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                                                           //イージングのタイプ
-	const char* HIT_SE_TYPES[] = { "Normal" };                                                                                                             //ヒット音SEタイプ
-	const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                                                                              //反応タイプ
-	const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2"};           //キャンセルタイプ
-	const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //先行入力タイプ
+	int32_t animationEventCount = 0;
+	for (const std::shared_ptr<AnimationEvent>& animationEvent : animationEvents)
+	{
+		if (animationEvent->eventType == eventType)
+		{
+			animationEventCount++;
+		}
+	}
+	return animationEventCount;
 }
 
 void CombatAnimationEditor::Initialize()
@@ -213,14 +215,17 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 		//アニメーションイベントごとに保存する項目を設定
 		switch (animationEvents[i]->eventType)
 		{
-		case EventType::kRotation:
-			SaveRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()), eventJson);
-			break;
 		case EventType::kMovement:
 			SaveMovementEvent(dynamic_cast<MovementEvent*>(animationEvents[i].get()), eventJson);
 			break;
+		case EventType::kRotation:
+			SaveRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()), eventJson);
+			break;
 		case EventType::kAttack:
 			SaveAttackEvent(dynamic_cast<AttackEvent*>(animationEvents[i].get()), eventJson);
+			break;
+		case EventType::kCameraAnimation:
+			SaveCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()), eventJson);
 			break;
 		case EventType::kCancel:
 			SaveCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()), eventJson);
@@ -233,14 +238,6 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 		//コンバットアニメーションのjsonオブジェクトにアニメーションイベントを追加
 		animationEventsJson["AnimationEvent" + std::to_string(i)] = eventJson;
 	}
-}
-
-void CombatAnimationEditor::SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson)
-{
-	//パラメーターを保存
-	eventJson.update({ {"EventType", "Rotation"},{"StartEventTime", rotationEvent->startEventTime},{"EndEventTime", rotationEvent->endEventTime},
-		{"RotationAxis", {rotationEvent->rotationAxis.x, rotationEvent->rotationAxis.y, rotationEvent->rotationAxis.z}},{"RotationAngle", rotationEvent->rotationAngle},
-		{"EasingType", EasingTypeToString(rotationEvent->easingType)} });
 }
 
 void CombatAnimationEditor::SaveMovementEvent(const MovementEvent* movementEvent, nlohmann::json& eventJson)
@@ -265,7 +262,15 @@ void CombatAnimationEditor::SaveEasingMovementEvent(const EasingMovementEvent* e
 {
 	//パラメーターを保存
 	eventJson["TargetPosition"] = { easingMovementEvent->targetPosition.x, easingMovementEvent->targetPosition.y, easingMovementEvent->targetPosition.z };
-	eventJson["EasingType"] = EasingTypeToString(easingMovementEvent->easingType);
+	eventJson["EasingType"] = EASING_TYPES[static_cast<int>(easingMovementEvent->easingType)];
+}
+
+void CombatAnimationEditor::SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson)
+{
+	//パラメーターを保存
+	eventJson.update({ {"EventType", "Rotation"},{"StartEventTime", rotationEvent->startEventTime},{"EndEventTime", rotationEvent->endEventTime},
+		{"RotationAxis", {rotationEvent->rotationAxis.x, rotationEvent->rotationAxis.y, rotationEvent->rotationAxis.z}},{"RotationAngle", rotationEvent->rotationAngle},
+		{"EasingType", EASING_TYPES[static_cast<int>(rotationEvent->easingType)]} });
 }
 
 void CombatAnimationEditor::SaveAttackEvent(const AttackEvent* attackEvent, nlohmann::json& eventJson)
@@ -282,7 +287,14 @@ void CombatAnimationEditor::SaveAttackEvent(const AttackEvent* attackEvent, nloh
 		{"HitboxCenter", {hitboxParams.center.x, hitboxParams.center.y, hitboxParams.center.z}},{"HitboxSize", {hitboxParams.size.x, hitboxParams.size.y, hitboxParams.size.z}},
 		{"KnockbackVelocity", {knockbackParams.velocity.x, knockbackParams.velocity.y, knockbackParams.velocity.z}},{"KnockbackAcceleration", {knockbackParams.acceleration.x, knockbackParams.acceleration.y, knockbackParams.acceleration.z}},
 		{"HitStopDuration", hitEffectConfig.hitStopDuration},{"CameraShakeDuration", hitEffectConfig.cameraShakeDuration},{"CameraShakeIntensity", {hitEffectConfig.cameraShakeIntensity.x, hitEffectConfig.cameraShakeIntensity.y, hitEffectConfig.cameraShakeIntensity.z}},
-		{"HitParticleName", hitEffectConfig.hitParticleName},{"HitSEType", HitSETypeToString(hitEffectConfig.hitSEType)},{"ReactionType", ReactionTypeToString(hitEffectConfig.reactionType)} });
+		{"HitParticleName", hitEffectConfig.hitParticleName},{"HitSEType", HIT_SE_TYPES[static_cast<int>(hitEffectConfig.hitSEType)]},{"ReactionType", REACTION_TYPES[static_cast<int>(hitEffectConfig.reactionType)]} });
+}
+
+void CombatAnimationEditor::SaveCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, nlohmann::json& eventJson)
+{
+	eventJson.update({ {"EventType", "CameraAnimation"},{"StartEventTime", cameraAnimationEvent->startEventTime},{"EndEventTime", cameraAnimationEvent->endEventTime},
+		{"AnimationName", cameraAnimationEvent->animationName},{"AnimationSpeed", cameraAnimationEvent->animationSpeed},{"SyncWithCharacterAnimation", cameraAnimationEvent->syncWithCharacterAnimation},
+		{"CameraAnimationTrigger", CAMERA_ANIMATION_TRIGGERS[static_cast<int>(cameraAnimationEvent->trigger)]} });
 }
 
 void CombatAnimationEditor::SaveCancelEvent(const CancelEvent* cancelEvent, nlohmann::json& eventJson)
@@ -297,35 +309,6 @@ void CombatAnimationEditor::SaveBufferedActionEvent(const BufferedActionEvent* b
 	eventJson.update({ {"EventType", "BufferedAction"},{"StartEventTime", bufferedActionEvent->startEventTime},{"EndEventTime", bufferedActionEvent->endEventTime},{"BufferedActionType", bufferedActionEvent->bufferedActionType} });
 }
 
-const std::string CombatAnimationEditor::EasingTypeToString(const EasingType easingType) const
-{
-	//イージングの種類を文字列に変換
-	switch (easingType)
-	{
-	case EasingType::kLinear: return "Linear";
-	case EasingType::kEaseIn: return "EaseIn";
-	case EasingType::kEaseOut: return "EaseOut";
-	case EasingType::kEaseInOut: return "EaseInOut";
-	default: return "Unknown";
-	}
-}
-
-const std::string CombatAnimationEditor::HitSETypeToString(const HitSEType hitSEType) const
-{
-	//ヒットSEの種類を文字列に変換
-	return hitSEType == HitSEType::kNormal ? "Normal" : "Unknown";
-}
-
-const std::string CombatAnimationEditor::ReactionTypeToString(const ReactionType reactionType) const
-{
-	//リアクションの種類を文字列に変換
-	switch (reactionType)
-	{
-	case ReactionType::kFlinch: return "Flinch";
-	case ReactionType::kKnockback: return "Knockback";
-	default: return "Unknown";
-	}
-}
 
 void CombatAnimationEditor::LoadFiles()
 {
@@ -418,20 +401,25 @@ void CombatAnimationEditor::LoadAnimationEvents(std::vector<std::shared_ptr<Anim
 		//新しく追加するアニメーションイベント
 		std::shared_ptr<AnimationEvent> animationEvent;
 
-		//回転イベントを読み込む
-		if (eventType == "Rotation")
-		{
-			animationEvent = LoadRotationEvent(eventItem);
-		}
 		//移動イベントを読み込む
-		else if (eventType == "Movement")
+		if (eventType == "Movement")
 		{
 			animationEvent = LoadMovementEvent(eventItem);
+		}
+		//回転イベントを読み込む
+		else if (eventType == "Rotation")
+		{
+			animationEvent = LoadRotationEvent(eventItem);
 		}
 		//攻撃イベントを読み込む
 		else if (eventType == "Attack")
 		{
 			animationEvent = LoadAttackEvent(eventItem);
+		}
+		//カメラアニメーションイベントを読み込む
+		else if (eventType == "CameraAnimation")
+		{
+			animationEvent = LoadCameraAnimationEvent(eventItem);
 		}
 		//キャンセルイベントを読み込む
 		else if (eventType == "Cancel")
@@ -450,23 +438,6 @@ void CombatAnimationEditor::LoadAnimationEvents(std::vector<std::shared_ptr<Anim
 			animationEvents.push_back(animationEvent);
 		}
 	}
-}
-
-std::shared_ptr<RotationEvent> CombatAnimationEditor::LoadRotationEvent(const nlohmann::json& eventJson) const
-{
-	std::shared_ptr<RotationEvent> rotationEvent = std::make_shared<RotationEvent>();
-	rotationEvent->eventType = EventType::kRotation;
-	rotationEvent->startEventTime = eventJson["StartEventTime"];
-	rotationEvent->endEventTime = eventJson["EndEventTime"];
-	rotationEvent->rotationAngle = eventJson["RotationAngle"];
-	for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
-	{
-		if (eventJson["EasingType"] == EASING_TYPES[i])
-		{
-			rotationEvent->easingType = static_cast<EasingType>(i);
-		}
-	}
-	return rotationEvent;
 }
 
 std::shared_ptr<MovementEvent> CombatAnimationEditor::LoadMovementEvent(const nlohmann::json& eventJson) const
@@ -522,6 +493,23 @@ std::shared_ptr<EasingMovementEvent> CombatAnimationEditor::LoadEasingMovementEv
 	return easingMovementEvent;
 }
 
+std::shared_ptr<RotationEvent> CombatAnimationEditor::LoadRotationEvent(const nlohmann::json& eventJson) const
+{
+	std::shared_ptr<RotationEvent> rotationEvent = std::make_shared<RotationEvent>();
+	rotationEvent->eventType = EventType::kRotation;
+	rotationEvent->startEventTime = eventJson["StartEventTime"];
+	rotationEvent->endEventTime = eventJson["EndEventTime"];
+	rotationEvent->rotationAngle = eventJson["RotationAngle"];
+	for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
+	{
+		if (eventJson["EasingType"] == EASING_TYPES[i])
+		{
+			rotationEvent->easingType = static_cast<EasingType>(i);
+		}
+	}
+	return rotationEvent;
+}
+
 std::shared_ptr<AttackEvent> CombatAnimationEditor::LoadAttackEvent(const nlohmann::json& eventJson) const
 {
 	std::shared_ptr<AttackEvent> attackEvent = std::make_shared<AttackEvent>();
@@ -554,6 +542,25 @@ std::shared_ptr<AttackEvent> CombatAnimationEditor::LoadAttackEvent(const nlohma
 		}
 	}
 	return attackEvent;
+}
+
+std::shared_ptr<CameraAnimationEvent> CombatAnimationEditor::LoadCameraAnimationEvent(const nlohmann::json& eventJson) const
+{
+	std::shared_ptr<CameraAnimationEvent> cameraAnimationEvent = std::make_shared<CameraAnimationEvent>();
+	cameraAnimationEvent->eventType = EventType::kCameraAnimation;
+	cameraAnimationEvent->startEventTime = eventJson["StartEventTime"];
+	cameraAnimationEvent->endEventTime = eventJson["EndEventTime"];
+	cameraAnimationEvent->animationName = eventJson["AnimationName"];
+	cameraAnimationEvent->animationSpeed = eventJson["AnimationSpeed"];
+	cameraAnimationEvent->syncWithCharacterAnimation = eventJson["SyncWithCharacterAnimation"];
+	for (int32_t i = 0; i < IM_ARRAYSIZE(CAMERA_ANIMATION_TRIGGERS); ++i)
+	{
+		if (eventJson["CameraAnimationTrigger"] == CAMERA_ANIMATION_TRIGGERS[i])
+		{
+			cameraAnimationEvent->trigger = static_cast<CameraAnimationTrigger>(i);
+		}
+	}
+	return cameraAnimationEvent;
 }
 
 std::shared_ptr<CancelEvent> CombatAnimationEditor::LoadCancelEvent(const nlohmann::json& eventJson) const
@@ -675,17 +682,21 @@ void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<Animat
 	//アニメーションイベントを追加
 	switch (static_cast<EventType>(selectedEventType))
 	{
-	case EventType::kRotation:
-		//回転イベントの追加
-		AddRotationEvent(animationEvents);
-		break;
 	case EventType::kMovement:
 		//移動イベントの追加
 		AddMovementEvent(animationEvents);
 		break;
+	case EventType::kRotation:
+		//回転イベントの追加
+		AddRotationEvent(animationEvents);
+		break;
 	case EventType::kAttack:
 		//攻撃イベントの追加
 		AddAttackEvent(animationEvents);
+		break;
+	case EventType::kCameraAnimation:
+		//カメラアニメーションイベントの追加
+		AddCameraAnimationEvent(animationEvents);
 		break;
 	case EventType::kCancel:
 		//キャンセルイベントの追加
@@ -695,29 +706,6 @@ void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<Animat
 		//先行入力イベントの追加
 		AddBufferedActionEvent(animationEvents);
 		break;
-	}
-}
-
-void CombatAnimationEditor::AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
-{
-	//回転イベントを追加
-	if (ImGui::Button("Add Rotation Event"))
-	{
-		animationEvents.push_back(std::make_shared<RotationEvent>());
-	}
-}
-
-void CombatAnimationEditor::EditRotationEvent(RotationEvent* rotationEvent)
-{
-	//回転イベントのパラメーターを編集
-	EditEventTime(rotationEvent);
-	ImGui::DragFloat3("RotationAxis", &rotationEvent->rotationAxis.x, 0.001f);
-	rotationEvent->rotationAxis = Mathf::Normalize(rotationEvent->rotationAxis);
-	ImGui::DragFloat("Rotation Angle", &rotationEvent->rotationAngle, 0.001f);
-	int easingTypeIndex = static_cast<int>(rotationEvent->easingType);
-	if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
-	{
-		rotationEvent->easingType = static_cast<EasingType>(easingTypeIndex);
 	}
 }
 
@@ -740,6 +728,120 @@ void CombatAnimationEditor::AddMovementEvent(std::vector<std::shared_ptr<Animati
 			//イージング移動イベントを追加
 			animationEvents.push_back(std::make_shared<EasingMovementEvent>());
 			break;
+		}
+	}
+}
+
+void CombatAnimationEditor::AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//回転イベントを追加
+	if (ImGui::Button("Add Rotation Event"))
+	{
+		animationEvents.push_back(std::make_shared<RotationEvent>());
+	}
+}
+
+void CombatAnimationEditor::AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//攻撃イベントを追加
+	if (ImGui::Button("Add Attack Event"))
+	{
+		animationEvents.push_back(std::make_shared<AttackEvent>());
+	}
+}
+
+void CombatAnimationEditor::AddCameraAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//カメラアニメーションイベントを追加
+	if (ImGui::Button("Add Camera Animation Event"))
+	{
+		animationEvents.push_back(std::make_shared<CameraAnimationEvent>());
+	}
+}
+
+void CombatAnimationEditor::AddCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//キャンセルイベントを追加
+	if (ImGui::Button("Add Cancel Event"))
+	{
+		animationEvents.push_back(std::make_shared<CancelEvent>());
+	}
+}
+
+void CombatAnimationEditor::AddBufferedActionEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//先行入力イベントを追加
+	if (ImGui::Button("Add Buffered Action Event"))
+	{
+		animationEvents.push_back(std::make_shared<BufferedActionEvent>());
+	}
+}
+
+void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//アニメーションイベントの名前
+	static const std::unordered_map<EventType, std::string> eventNames = {
+		{ EventType::kMovement, "Movement Event" },
+		{ EventType::kRotation, "Rotation Event"},
+		{ EventType::kAttack, "Attack Event " },
+		{ EventType::kCameraAnimation, "Camera Animation Event "},
+		{ EventType::kCancel, "Cancel Event " },
+		{ EventType::kBufferedAction, "Buffered Action Event " },
+	};
+
+	//アニメーションイベントのインデックス
+	int32_t animationEventIndex[static_cast<int>(EventType::kMaxEvent)]{};
+
+	//アニメーションイベントをソート
+	std::sort(animationEvents.begin(), animationEvents.end(), [](const std::shared_ptr<AnimationEvent>& event1, const std::shared_ptr<AnimationEvent>& event2) {
+		return static_cast<int>(event1->eventType) < static_cast<int>(event2->eventType); }
+	);
+
+	//全てのアニメーションイベントを編集
+	for (int32_t i = 0; i < animationEvents.size(); ++i)
+	{
+		//ツリーノードの名前を設定
+		auto it = eventNames.find(animationEvents[i]->eventType);
+		std::string nodeName = it->second + std::to_string(animationEventIndex[static_cast<int>(animationEvents[i]->eventType)]++);
+
+		//ツリーノードを展開
+		if (ImGui::TreeNode(nodeName.c_str()))
+		{
+			//アニメーションのイベントの種類に応じて表示する項目を変える
+			switch (static_cast<EventType>(animationEvents[i]->eventType))
+			{
+			case EventType::kMovement:
+				EditMovementEvent(dynamic_cast<MovementEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kRotation:
+				EditRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kAttack:
+				EditAttackEvent(dynamic_cast<AttackEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kCameraAnimation:
+				EditCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kCancel:
+				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kBufferedAction:
+				EditBufferedActionEvent(dynamic_cast<BufferedActionEvent*>(animationEvents[i].get()));
+				break;
+			}
+
+			//削除ボタンを追加
+			if (ImGui::Button("Delete"))
+			{
+				//イベントを削除
+				animationEvents.erase(animationEvents.begin() + i);
+				//ツリーノードを閉じる
+				ImGui::TreePop();
+				break;
+			}
+
+			//ツリーノードを閉じる
+			ImGui::TreePop();
 		}
 	}
 }
@@ -773,12 +875,30 @@ void CombatAnimationEditor::EditMovementEvent(MovementEvent* movementEvent)
 	}
 }
 
-void CombatAnimationEditor::AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+void CombatAnimationEditor::EditRotationEvent(RotationEvent* rotationEvent)
 {
-	//攻撃イベントを追加
-	if (ImGui::Button("Add Attack Event"))
+	//回転イベントのパラメーターを編集
+	EditEventTime(rotationEvent);
+	ImGui::DragFloat3("RotationAxis", &rotationEvent->rotationAxis.x, 0.001f);
+	ImGui::DragFloat("Rotation Angle", &rotationEvent->rotationAngle, 0.001f);
+	int easingTypeIndex = static_cast<int>(rotationEvent->easingType);
+	if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
 	{
-		animationEvents.push_back(std::make_shared<AttackEvent>());
+		rotationEvent->easingType = static_cast<EasingType>(easingTypeIndex);
+	}
+}
+
+void CombatAnimationEditor::EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent)
+{
+	//カメラアニメーションイベントのパラメーターを編集
+	EditEventTime(cameraAnimationEvent);
+	SelectFromMap("Camera Animation Name", cameraAnimationEvent->animationName, cameraAnimationEditor_->GetCameraPaths(), false);
+	ImGui::DragFloat("Animation Speed", &cameraAnimationEvent->animationSpeed, 0.001f);
+	ImGui::Checkbox("Sync With Character Animation", &cameraAnimationEvent->syncWithCharacterAnimation);
+	int triggerIndex = static_cast<int>(cameraAnimationEvent->trigger);
+	if (ImGui::Combo("Camera Animation Trigger", &triggerIndex, CAMERA_ANIMATION_TRIGGERS, IM_ARRAYSIZE(CAMERA_ANIMATION_TRIGGERS)))
+	{
+		cameraAnimationEvent->trigger = static_cast<CameraAnimationTrigger>(triggerIndex);
 	}
 }
 
@@ -839,15 +959,6 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 	}
 }
 
-void CombatAnimationEditor::AddCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
-{
-	//キャンセルイベントを追加
-	if (ImGui::Button("Add Cancel Event"))
-	{
-		animationEvents.push_back(std::make_shared<CancelEvent>());
-	}
-}
-
 void CombatAnimationEditor::EditCancelEvent(CancelEvent* cancelEvent)
 {
 	//パラメーターを編集
@@ -856,84 +967,10 @@ void CombatAnimationEditor::EditCancelEvent(CancelEvent* cancelEvent)
 	EditCombo("Cancel Type", cancelEvent->cancelType, CANCEL_TYPES, IM_ARRAYSIZE(CANCEL_TYPES));
 }
 
-void CombatAnimationEditor::AddBufferedActionEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
-{
-	//先行入力イベントを追加
-	if (ImGui::Button("Add Buffered Action Event"))
-	{
-		animationEvents.push_back(std::make_shared<BufferedActionEvent>());
-	}
-}
-
 void CombatAnimationEditor::EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent)
 {
 	//パラメーターを編集
 	ImGui::DragFloat("Start Event Time", &bufferedActionEvent->startEventTime, 0.001f);
 	ImGui::DragFloat("End Event Time", &bufferedActionEvent->endEventTime, 0.001f);
 	EditCombo("Buffered Action Type", bufferedActionEvent->bufferedActionType, BUFFERED_ACTION_TYPES, IM_ARRAYSIZE(BUFFERED_ACTION_TYPES));
-}
-
-void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
-{
-	//アニメーションイベントの名前
-	static const std::unordered_map<EventType, std::string> eventNames = {
-		{ EventType::kRotation, "Rotation Event"},
-		{ EventType::kMovement, "Movement Event " },
-		{ EventType::kAttack, "Attack Event " },
-		{ EventType::kCancel, "Cancel Event " },
-		{ EventType::kBufferedAction, "Buffered Action Event " },
-	};
-
-	//アニメーションイベントのインデックス
-	int32_t animationEventIndex[static_cast<int>(EventType::kMaxEvent)]{};
-
-	//アニメーションイベントをソート
-	std::sort(animationEvents.begin(), animationEvents.end(), [](const std::shared_ptr<AnimationEvent>& event1, const std::shared_ptr<AnimationEvent>& event2) {
-		return static_cast<int>(event1->eventType) < static_cast<int>(event2->eventType); }
-	);
-
-	//全てのアニメーションイベントを編集
-	for (int32_t i = 0; i < animationEvents.size(); ++i)
-	{
-		//ツリーノードの名前を設定
-		auto it = eventNames.find(animationEvents[i]->eventType);
-		std::string nodeName = it->second + std::to_string(animationEventIndex[static_cast<int>(animationEvents[i]->eventType)]++);
-
-		//ツリーノードを展開
-		if (ImGui::TreeNode(nodeName.c_str()))
-		{
-			//アニメーションのイベントの種類に応じて表示する項目を変える
-			switch (static_cast<EventType>(animationEvents[i]->eventType))
-			{
-			case EventType::kRotation:
-				EditRotationEvent(dynamic_cast<RotationEvent*>(animationEvents[i].get()));
-				break;
-			case EventType::kMovement:
-				EditMovementEvent(dynamic_cast<MovementEvent*>(animationEvents[i].get()));
-				break;
-			case EventType::kAttack:
-				EditAttackEvent(dynamic_cast<AttackEvent*>(animationEvents[i].get()));
-				break;
-			case EventType::kCancel:
-				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()));
-				break;
-			case EventType::kBufferedAction:
-				EditBufferedActionEvent(dynamic_cast<BufferedActionEvent*>(animationEvents[i].get()));
-				break;
-			}
-
-			//削除ボタンを追加
-			if (ImGui::Button("Delete"))
-			{
-				//イベントを削除
-				animationEvents.erase(animationEvents.begin() + i);
-				//ツリーノードを閉じる
-				ImGui::TreePop();
-				break;
-			}
-
-			//ツリーノードを閉じる
-			ImGui::TreePop();
-		}
-	}
 }

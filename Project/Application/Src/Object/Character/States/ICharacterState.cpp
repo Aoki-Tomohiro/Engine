@@ -58,9 +58,10 @@ void ICharacterState::InitializeProcessedData()
 {
 	//各イベントタイプに対する処理データを初期化
 	processedVelocityDatas_.resize(animationController_->GetAnimationEventCount(EventType::kMovement));
-	processedRotationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kRotation));
 	processedEasingDatas_.resize(animationController_->GetAnimationEventCount(EventType::kMovement));
+	processedRotationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kRotation));
 	processedAttackDatas_.resize(animationController_->GetAnimationEventCount(EventType::kAttack));
+	processedCameraAnimationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCameraAnimation));
 	processedCancelDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCancel));
 	processedBufferedActionDatas_.resize(animationController_->GetAnimationEventCount(EventType::kBufferedAction));
 }
@@ -122,6 +123,10 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 		//攻撃イベントの処理
 		ProcessAttackEvent(static_cast<const AttackEvent*>(animationEvent), animationEventIndex);
 		break;
+	case EventType::kCameraAnimation:
+		//カメラアニメーションイベントの処理
+		ProcessCameraAnimationEvent(static_cast<const CameraAnimationEvent*>(animationEvent), animationEventIndex);
+		break;
 	case EventType::kCancel:
 		//キャンセルイベントの処理
 		ProcessCancelEvent(static_cast<const CancelEvent*>(animationEvent), animationEventIndex);
@@ -131,49 +136,6 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 		ProcessBufferedActionEvent(static_cast<const BufferedActionEvent*>(animationEvent), animationEventIndex);
 		break;
 	}
-}
-
-void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex)
-{
-	//回転イベントがまだアクティブでない場合の初期化処理
-	if (!processedRotationDatas_[animationEventIndex].isActive)
-	{
-		//回転イベントの初期化
-		processedRotationDatas_[animationEventIndex].isActive = true;
-	}
-
-	//イージング係数を計算
-	float easingParameter = (animationTime - rotationEvent->startEventTime) / (rotationEvent->endEventTime - rotationEvent->startEventTime);
-	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
-
-	//イージングの種類に応じて処理を変える
-	switch (rotationEvent->easingType)
-	{
-	case EasingType::kEaseIn:
-		easingParameter = Mathf::EaseInSine(easingParameter);
-		break;
-	case EasingType::kEaseOut:
-		easingParameter = Mathf::EaseOutSine(easingParameter);
-		break;
-	case EasingType::kEaseInOut:
-		easingParameter = Mathf::EaseInOutSine(easingParameter);
-		break;
-	}
-
-	//累計のイージングされた回転量を計算
-	float totalEasedRotation = rotationEvent->rotationAngle * easingParameter;
-
-	//フレームごとの回転量を計算
-	float frameRotation = totalEasedRotation - processedRotationDatas_[animationEventIndex].preEasedRotation;
-
-	//累積回転量を保存
-	processedRotationDatas_[animationEventIndex].preEasedRotation = totalEasedRotation;
-
-	//新しいクォータニオンを作成
-	Quaternion newQuaternion = Mathf::MakeRotateAxisAngleQuaternion(rotationEvent->rotationAxis, frameRotation);
-
-	//現在のクォータニオンに新しい回転を適用
-	character_->SetDestinationQuaternion(Mathf::Normalize(character_->GetDestinationQuaternion() * newQuaternion));
 }
 
 void ICharacterState::ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime, const int32_t animationEventIndex)
@@ -249,14 +211,47 @@ void ICharacterState::ProcessEasingMovementEvent(const EasingMovementEvent* easi
 	character_->SetPosition(Mathf::Lerp(processedEasingDatas_[animationEventIndex].startPosition, processedEasingDatas_[animationEventIndex].targetPosition, easingParameter));
 }
 
-void ICharacterState::InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
+void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex)
 {
-	//アクティブ状態にする
-	processedAttackDatas_[animationEventIndex].isActive = true;
-	//武器の軌跡を有効にする
-	character_->GetWeapon()->SetIsTrailActive(true);
-	//攻撃パラメータを武器に適用
-	character_->ApplyParametersToWeapon(attackEvent);
+	//回転イベントがまだアクティブでない場合の初期化処理
+	if (!processedRotationDatas_[animationEventIndex].isActive)
+	{
+		//回転イベントの初期化
+		processedRotationDatas_[animationEventIndex].isActive = true;
+	}
+
+	//イージング係数を計算
+	float easingParameter = (animationTime - rotationEvent->startEventTime) / (rotationEvent->endEventTime - rotationEvent->startEventTime);
+	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
+
+	//イージングの種類に応じて処理を変える
+	switch (rotationEvent->easingType)
+	{
+	case EasingType::kEaseIn:
+		easingParameter = Mathf::EaseInSine(easingParameter);
+		break;
+	case EasingType::kEaseOut:
+		easingParameter = Mathf::EaseOutSine(easingParameter);
+		break;
+	case EasingType::kEaseInOut:
+		easingParameter = Mathf::EaseInOutSine(easingParameter);
+		break;
+	}
+
+	//累計のイージングされた回転量を計算
+	float totalEasedRotation = rotationEvent->rotationAngle * easingParameter;
+
+	//フレームごとの回転量を計算
+	float frameRotation = totalEasedRotation - processedRotationDatas_[animationEventIndex].preEasedRotation;
+
+	//累積回転量を保存
+	processedRotationDatas_[animationEventIndex].preEasedRotation = totalEasedRotation;
+
+	//新しいクォータニオンを作成
+	Quaternion newQuaternion = Mathf::MakeRotateAxisAngleQuaternion(Mathf::Normalize(rotationEvent->rotationAxis), frameRotation);
+
+	//現在のクォータニオンに新しい回転を適用
+	character_->SetDestinationQuaternion(Mathf::Normalize(character_->GetDestinationQuaternion() * newQuaternion));
 }
 
 void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
@@ -264,8 +259,12 @@ void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const i
 	//攻撃イベントがまだアクティブでない場合の初期化処理
 	if (!processedAttackDatas_[animationEventIndex].isActive)
 	{
-		//攻撃イベントの初期化
-		InitializeAttackEvent(attackEvent, animationEventIndex);
+		//アクティブ状態にする
+		processedAttackDatas_[animationEventIndex].isActive = true;
+		//武器の軌跡を有効にする
+		character_->GetWeapon()->SetIsTrailActive(true);
+		//攻撃パラメータを武器に適用
+		character_->ApplyParametersToWeapon(attackEvent);
 	}
 
 	//現在のヒットカウントが最大ヒットカウントに達していない場合
@@ -289,6 +288,30 @@ void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const i
 		{
 			processedAttackDatas_[animationEventIndex].currentHitCount++; //ヒットカウントを増やす
 			weapon->SetIsAttack(false); //攻撃状態を無効にする
+		}
+	}
+}
+
+void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex)
+{
+	//カメラアニメーションイベントがまだアクティブでない場合の初期化処理
+	if (!processedCameraAnimationDatas_[animationEventIndex].isActive)
+	{
+		processedCameraAnimationDatas_[animationEventIndex].isActive = true;
+		if (cameraAnimationEvent->trigger == CameraAnimationTrigger::kActionStart)
+		{
+			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
+			//character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithPlayerAnimation);
+		}
+	}
+
+	//攻撃が敵に当たった場合アニメーションを再生する
+	if (!processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted && cameraAnimationEvent->trigger == CameraAnimationTrigger::kImpact)
+	{
+		if (character_->GetWeapon()->GetIsHit())
+		{
+			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
+			//character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithPlayerAnimation);
 		}
 	}
 }

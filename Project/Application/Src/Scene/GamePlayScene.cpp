@@ -46,21 +46,20 @@ void GamePlayScene::Initialize()
 
 	//プレイヤーの初期化
 	player_ = gameObjectManager_->GetGameObject<Player>("Player");
-	//コンバットアニメーションエディターにプレイヤーを設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-	//カメラ、ロックオン、ヒットストップ、エディターマネージャーを設定
-	player_->SetCamera(camera_);
+	//カメラコントローラー、ロックオン、ヒットストップ、エディターマネージャーを設定
 	player_->SetLockon(lockon_.get());
 	player_->SetHitStop(hitStop_.get());
 	player_->SetEditorManager(editorManager_.get());
+	//コンバットアニメーションエディターにプレイヤーを設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
 
 	//敵の初期化
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
-	//コンバットアニメーションエディターに敵を設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
-	//エディターマネージャー、ヒットストップを設定
+	//カメラコントローラー、エディターマネージャー、ヒットストップを設定
 	enemy_->SetEditorManager(editorManager_.get());
 	enemy_->SetHitStop(hitStop_.get());
+	//コンバットアニメーションエディターに敵を設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
 
 	//カメラコントローラーの初期化
 	cameraController_ = std::make_unique<CameraController>();
@@ -276,14 +275,14 @@ void GamePlayScene::HandleTransition()
 	//FadeInしていないとき
 	if (transition_->GetFadeState() != transition_->FadeState::In)
 	{
-		//クリアアニメーションが終了していたらゲームクリアのフラグを立てる
-		if (cameraController_->GetIsClearAnimationFinished())
+		//敵が死亡状態の場合ゲームクリアのフラグを立てる
+		if (enemy_->GetIsDead())
 		{
 			isGameClear_ = true;
 			player_->SetIsGameFinished(true);
 			enemy_->SetIsGameFinished(true);
 		}
-		//プレイヤーが死亡状態かつアニメーションが終了していた場合ゲームオーバーのフラグを立てる
+		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
 		else if (player_->GetIsDead())
 		{
 			isGameOver_ = true;

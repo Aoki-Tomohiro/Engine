@@ -8,7 +8,7 @@ void CameraStateFollow::Initialize()
 	input_ = Input::GetInstance();
 
 	//オフセット値の初期化
-	cameraController_->SetDestinationOffset(cameraController_->GetFollowCameraParameters().offset);
+	cameraController_->SetOffset(cameraController_->GetFollowCameraParameters().offset);
 }
 
 void CameraStateFollow::Update()
@@ -39,7 +39,7 @@ void CameraStateFollow::Update()
 	}
 
 	//ロックオンカメラに遷移
-	if (cameraController_->GetLockon()->ExistTarget() && !IsPlayerPerformingAction())
+	if (cameraController_->GetLockon()->ExistTarget())
 	{
 		cameraController_->ChangeState(new CameraStateLockon());
 	}
@@ -81,13 +81,4 @@ void CameraStateFollow::ApplyCameraRotation(const Vector3& inputValue)
 
 	//合成された回転クォータニオンをカメラに設定
 	cameraController_->SetDestinationQuaternion(newQuaternionX);
-}
-
-const bool CameraStateFollow::IsPlayerPerformingAction() const
-{
-	//追従対象を取得
-	const Player* player = cameraController_->GetTarget();
-
-	//いずれかのフラグが立っていたらtrueを返す
-	return player->GetActionFlag(Player::ActionFlag::kDashing) || player->GetActionFlag(Player::ActionFlag::kLaunchAttack) || player->GetActionFlag(Player::ActionFlag::kFallingAttack);
 }

@@ -24,6 +24,9 @@ public:
 	//カメラパスを取得
 	CameraPath& GetCameraPath(const std::string& name) { return cameraPaths_[name]; };
 
+	//全てのカメラパスを取得
+	const std::map<std::string, CameraPath>& GetCameraPaths() const { return cameraPaths_; };
+
 private:
 	//保存先ファイルパス
 	const std::string kDirectoryPath = "Application/Resources/Config/CameraAnimations/";

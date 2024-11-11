@@ -19,11 +19,8 @@
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackGroundObject.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraShake.cpp" />
-    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateClear.cpp" />
-    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateDash.cpp" />
-    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateAnimation.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp" />
-    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockon.cpp" />
     <ClCompile Include="Application\Src\Object\Character\BaseCharacter.cpp" />
     <ClCompile Include="Application\Src\Object\Character\Enemy\Enemy.cpp" />
@@ -174,11 +171,8 @@
     <ClInclude Include="Application\Src\Object\BackGroundObject\BackGroundObject.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraController.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraShake.h" />
-    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateClear.h" />
-    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateDash.h" />
-    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFallingAttack.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateAnimation.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFollow.h" />
-    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLaunchAttack.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockon.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h" />
     <ClInclude Include="Application\Src\Object\Character\BaseCharacter.h" />

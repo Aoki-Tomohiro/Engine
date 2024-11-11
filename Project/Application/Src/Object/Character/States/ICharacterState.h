@@ -37,6 +37,12 @@ public:
 		float elapsedAttackTime{}; //攻撃判定が発生するまでの経過時間
 	};
 
+	//カメラアニメーションに関するイベントの構造体
+	struct ProcessedCameraAnimationData : public ProcessedEventData
+	{
+		bool isAnimationStarted{}; //アニメーションが開始されたかどうか
+	};
+
 	//キャンセルに関数イベントの構造体
 	struct ProcessedCancelData : public ProcessedEventData
 	{
@@ -127,14 +133,6 @@ private:
 	void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
-	/// 回転イベントを実行
-	/// </summary>
-	/// <param name="rotationEvent">回転イベント</param>
-	/// <param name="animationTime">アニメーションの時間</param>
-	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
-	void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
-
-	/// <summary>
 	/// 移動イベントを実行
 	/// </summary>
 	/// <param name="movementEvent">移動イベント</param>
@@ -172,11 +170,12 @@ private:
 	void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
-	/// 攻撃イベントの初期化
+	/// 回転イベントを実行
 	/// </summary>
-	/// <param name="attackEvent">攻撃イベント</param>
-	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
-	void InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
+	/// <param name="rotationEvent">回転イベント</param>
+	/// <param name="animationTime">アニメーションの時間</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 攻撃イベントの処理
@@ -184,6 +183,13 @@ private:
 	/// <param name="attackEvent">攻撃イベント</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
 	void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// カメラアニメーションイベントの処理
+	/// </summary>
+	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// キャンセルイベントの処理
@@ -249,6 +255,9 @@ protected:
 
 	//攻撃イベント用の構造体
 	std::vector<ProcessedAttackData> processedAttackDatas_{};
+
+	//カメラアニメーションイベントの構造体
+	std::vector<ProcessedCameraAnimationData> processedCameraAnimationDatas_{};
 
 	//キャンセルイベント用の構造体
 	std::vector<ProcessedCancelData> processedCancelDatas_{};

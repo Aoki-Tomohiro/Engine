@@ -2,38 +2,29 @@
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Application/Src/Object/Editors/ParticleEffectEditor/ParticleEffectEditor.h"
+#include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/AnimationEvents.h"
 #include <Engine/Externals/nlohmann/json.hpp>
 #include <fstream>
 #include <map>
 
+//前方宣言
 class BaseCharacter;
 
+//アニメーション速度の設定
 struct AnimationSpeedConfig
 {
 	float duration;       //持続時間
 	float animationSpeed; //アニメーションの速度
 };
 
+//アニメーションコントローラー
 struct AnimationController
 {
 	std::vector<AnimationSpeedConfig> animationSpeedConfigs{};      //アニメーションの速度と持続時間
 	std::vector<std::shared_ptr<AnimationEvent>> animationEvents{}; //アニメーションイベント
-	Vector3 inPlaceAxis = { 1.0f,1.0f,1.0f };                       //動かす軸
-
-	//アニメーションイベントの数を取得
-	const int32_t GetAnimationEventCount(const EventType eventType) const
-	{
-		int32_t animationEventCount = 0;
-		for (const std::shared_ptr<AnimationEvent>& animationEvent : animationEvents)
-		{
-			if (animationEvent->eventType == eventType)
-			{
-				animationEventCount++;
-			}
-		}
-		return animationEventCount;
-	}
+	Vector3 inPlaceAxis = { 1.0f,1.0f,1.0f };                       //アニメーションの動かす軸
+	const int32_t GetAnimationEventCount(const EventType eventType) const; //アニメーションイベントの数を取得
 };
 
 /// <summary>
@@ -42,6 +33,7 @@ struct AnimationController
 class CombatAnimationEditor
 {
 public:
+	//キャラクターのアニメーションデータ
 	struct CharacterAnimationData
 	{
 		std::map<std::string, AnimationController> animationControllers{}; //アニメーション名とコントローラーのマップ
@@ -74,6 +66,9 @@ public:
 
 	//パーティクルエフェクトエディターを設定
 	void SetParticleEffectEditor(const ParticleEffectEditor* particleEffectEditor) { particleEffectEditor_ = particleEffectEditor; };
+
+	//カメラアニメーションエディターを設定
+	void SetCameraAnimationEditor(const CameraAnimationEditor* cameraAnimationEditor) { cameraAnimationEditor_ = cameraAnimationEditor; };
 
 private:
 	//保存先ファイルパス
@@ -130,13 +125,6 @@ private:
 	void SaveAnimationEvents(const std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& animationEventsJson);
 
 	/// <summary>
-	/// 回転イベントを保存
-	/// </summary>
-	/// <param name="rotationEvent">回転イベント</param>
-	/// <param name="eventJson">イベントのjsonobject</param>
-	void SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson);
-
-	/// <summary>
 	/// 移動イベントを保存
 	/// </summary>
 	/// <param name="movementEvent">移動イベント</param>
@@ -158,11 +146,25 @@ private:
 	void SaveEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, nlohmann::json& eventJson);
 
 	/// <summary>
+	/// 回転イベントを保存
+	/// </summary>
+	/// <param name="rotationEvent">回転イベント</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveRotationEvent(const RotationEvent* rotationEvent, nlohmann::json& eventJson);
+
+	/// <summary>
 	/// 攻撃ベントを保存
 	/// </summary>
 	/// <param name="attackEvent">攻撃イベント</param>
 	/// <param name="eventJson">イベントのjsonobject</param>
 	void SaveAttackEvent(const AttackEvent* attackEvent, nlohmann::json& eventJson);
+
+	/// <summary>
+	/// カメラアニメーションイベントを保存
+	/// </summary>
+	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, nlohmann::json& eventJson);
 
 	/// <summary>
 	/// キャンセルイベントを保存
@@ -177,27 +179,6 @@ private:
 	/// <param name="bufferedActionEvent">先行入力イベント</param>
 	/// <param name="eventJson">イベントのjsonobject</param>
 	void SaveBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, nlohmann::json& eventJson);
-
-	/// <summary>
-	/// イージングの種類を文字列に変換
-	/// </summary>
-	/// <param name="easingType">イージングの種類</param>
-	/// <returns>イージングの名前</returns>
-	const std::string EasingTypeToString(const EasingType easingType) const;
-
-	/// <summary>
-	/// ヒットSEの種類を文字列に変換
-	/// </summary>
-	/// <param name="hitSEType">ヒットSEの種類</param>
-	/// <returns>ヒットSEの名前</returns>
-	const std::string HitSETypeToString(const HitSEType hitSEType) const;
-
-	/// <summary>
-	/// リアクションの種類を文字列に変換
-	/// </summary>
-	/// <param name="reactionType">リアクションの種類</param>
-	/// <returns>リアクションの名前</returns>
-	const std::string ReactionTypeToString(const ReactionType reactionType) const;
 
 	/// <summary>
 	/// 全てのファイルを読み込む
@@ -224,13 +205,6 @@ private:
 	/// <param name="animationEvents">アニメーションイベント</param>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	void LoadAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, nlohmann::json& eventJson);
-
-	/// <summary>
-	/// 回転イベントを生成して返す
-	/// </summary>
-	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
-	/// <returns>回転イベント</returns>
-	std::shared_ptr<RotationEvent> LoadRotationEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
 	/// 移動イベントを生成して返す
@@ -261,11 +235,25 @@ private:
 	std::shared_ptr<EasingMovementEvent> LoadEasingMovementEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
+	/// 回転イベントを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>回転イベント</returns>
+	std::shared_ptr<RotationEvent> LoadRotationEvent(const nlohmann::json& eventJson) const;
+
+	/// <summary>
 	/// 攻撃イベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>攻撃イベント</returns>
 	std::shared_ptr<AttackEvent> LoadAttackEvent(const nlohmann::json& eventJson) const;
+
+	/// <summary>
+	/// カメラアニメーションイベントを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>カメラアニメーションイベント</returns>
+	std::shared_ptr<CameraAnimationEvent> LoadCameraAnimationEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
 	/// キャンセルイベントを生成して返す
@@ -312,28 +300,16 @@ private:
 	void AddAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 回転イベントの追加
-	/// </summary>
-	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
-
-	/// <summary>
-	/// 回転イベントの編集
-	/// </summary>
-	/// <param name="rotationEvent">回転イベント</param>
-	void EditRotationEvent(RotationEvent* rotationEvent);
-
-	/// <summary>
 	/// 移動イベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	void AddMovementEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 移動イベントを編集
+	/// 回転イベントの追加
 	/// </summary>
-	/// <param name="velocityMovementEvent">移動イベント</param>
-	void EditMovementEvent(MovementEvent* movementEvent);
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddRotationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// 攻撃イベントを追加
@@ -342,10 +318,10 @@ private:
 	void AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 攻撃イベントを編集
+	/// カメラアニメーションイベントを追加
 	/// </summary>
-	/// <param name="attackEvent">攻撃イベント</param>
-	void EditAttackEvent(AttackEvent* attackEvent);
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddCameraAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
 	/// キャンセルイベントを追加
@@ -354,28 +330,52 @@ private:
 	void AddCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// キャンセルイベントを編集
-	/// </summary>
-	/// <param name="cancelEvent">キャンセルイベント</param>
-	void EditCancelEvent(CancelEvent* cancelEvent);
-
-	/// <summary>
 	/// 先行入力イベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	void AddBufferedActionEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
-	/// 先行入力イベントを編集
-	/// </summary>
-	/// <param name="bufferedActionEvent">先行入力イベント</param>
-	void EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent);
-
-	/// <summary>
 	/// アニメーションイベントを編集
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
 	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+
+	/// <summary>
+	/// 移動イベントを編集
+	/// </summary>
+	/// <param name="velocityMovementEvent">移動イベント</param>
+	void EditMovementEvent(MovementEvent* movementEvent);
+
+	/// <summary>
+	/// 回転イベントの編集
+	/// </summary>
+	/// <param name="rotationEvent">回転イベント</param>
+	void EditRotationEvent(RotationEvent* rotationEvent);
+
+	/// <summary>
+	/// カメラアニメーションイベントの編集
+	/// </summary>
+	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
+	void EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent);
+
+	/// <summary>
+	/// 攻撃イベントを編集
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	void EditAttackEvent(AttackEvent* attackEvent);
+
+	/// <summary>
+	/// キャンセルイベントを編集
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	void EditCancelEvent(CancelEvent* cancelEvent);
+
+	/// <summary>
+	/// 先行入力イベントを編集
+	/// </summary>
+	/// <param name="bufferedActionEvent">先行入力イベント</param>
+	void EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent);
 
 	/// <summary>
 	/// コンテナの中から要素を選択するためのComboBoxを作成する関数
@@ -416,6 +416,9 @@ private:
 
 	//パーティクルエフェクトエディター
 	const ParticleEffectEditor* particleEffectEditor_ = nullptr;
+
+	//カメラアニメーションエディター
+	const CameraAnimationEditor* cameraAnimationEditor_ = nullptr;
 };
 
 

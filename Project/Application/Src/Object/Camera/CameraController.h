@@ -3,7 +3,6 @@
 #include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
-#include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Camera/CameraShake.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
 #include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
@@ -48,6 +47,14 @@ public:
 	void ChangeState(ICameraState* state);
 
 	/// <summary>
+	/// アニメーションを再生
+	/// </summary>
+	/// <param name="animationName">アニメーションの名前</param>
+	/// <param name="animationSpeed">アニメーションの速度</param>
+	/// <param name="syncWithCharacterAnimation">キャラクターのアニメーションと同期するかどうか</param>
+	void PlayAnimation(const std::string& animationName, const float animationSpeed, const bool syncWithCharacterAnimation);
+
+	/// <summary>
 	/// カメラシェイクの開始
 	/// </summary>
 	/// <param name="intensity">カメラシェイクの強さ</param>
@@ -58,13 +65,13 @@ public:
 	const Vector3& GetCameraPosition() const { return camera_.translation_; };
 	void SetCameraPosition(const Vector3& position) { camera_.translation_ = position; };
 
-	//追従対象からのオフセットを取得・設定
-	const Vector3& GetDestinationOffset() const { return destinationOffset_; };
-	void SetDestinationOffset(const Vector3& destinationOffset) { destinationOffset_ = destinationOffset; };
-
 	//補間クォータニオンを取得・設定
 	const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
 	void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
+
+	//追従対象からのオフセットを取得・設定
+	const Vector3& GetOffset() const { return offset_; };
+	void SetOffset(const Vector3& offset) { offset_ = offset; };
 
 	//Fovを取得・設定
 	const float GetFov() const { return camera_.fov_; };
@@ -75,12 +82,8 @@ public:
 	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; };
 
 	//追従対象を取得・設定
-	const Player* GetTarget() const { return target_; };
-	void SetTarget(const Player* target) { target_ = target; };
-
-	//クリアアニメーション終了フラグの取得・設定
-	const bool GetIsClearAnimationFinished() const { return isClearAnimationFinished_; };
-	void SetIsClearAnimationFinished(const bool isClearAnimationFinished) { isClearAnimationFinished_ = isClearAnimationFinished; };
+	const BaseCharacter* GetTarget() const { return target_; };
+	void SetTarget(const BaseCharacter* target) { target_ = target; };
 
 	//カメラアニメーションエディターを取得・設定
 	CameraAnimationEditor* GetCameraAnimationEditor() const { return cameraAnimationEditor_; };
@@ -113,11 +116,6 @@ private:
 	void UpdateCameraRotation();
 
 	/// <summary>
-	/// クリアアニメーションに遷移するかを確認
-	/// </summary>
-	void CheckAndTransitionToClearAnimationState();
-
-	/// <summary>
 	/// オフセット値を計算
 	/// </summary>
 	/// <returns>オフセット値</returns>
@@ -143,25 +141,19 @@ private:
 	Camera camera_{};
 
 	//追従対象
-	const Player* target_ = nullptr;
+	const BaseCharacter* target_ = nullptr;
 
 	//ロックオン
 	const Lockon* lockon_ = nullptr;
+
+	//追従対象からのオフセット
+	Vector3 offset_{};
 
 	//追従対象の残像座標
 	Vector3 interTarget_{};
 
 	//追従対象の補間速度
 	float targetInterpolationSpeed_ = 0.2f;
-
-	//追従対象からのオフセット
-	Vector3 offset_{};
-
-	//補間用のオフセット
-	Vector3 destinationOffset_{};
-
-	//追従対象からのオフセットの補間速度
-	float destinationOffsetInterpolationSpeed_ = 0.2f;
 
 	//クォータニオン
 	Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
@@ -171,12 +163,6 @@ private:
 
 	//地面との交差点
 	Vector3 intersectionPoint_{};
-
-	//クリアアニメーション状態かどうか
-	bool isClearAnimationActive_ = false;
-
-	//クリアアニメーションが終了したかどうか
-	bool isClearAnimationFinished_ = false;
 
 	//カメラアニメーションエディター
 	CameraAnimationEditor* cameraAnimationEditor_ = nullptr;

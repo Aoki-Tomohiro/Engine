@@ -1,7 +1,7 @@
 #include "CameraController.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
-#include "Application/Src/Object/Camera/States/CameraStateClear.h"
+#include "Application/Src/Object/Camera/States/CameraStateAnimation.h"
 
 void CameraController::Initialize()
 {
@@ -30,9 +30,6 @@ void CameraController::Update()
 	//カメラの回転を更新
 	UpdateCameraRotation();
 
-	//クリアアニメーション状態に遷移するかを確認
-	CheckAndTransitionToClearAnimationState();
-
 	//カメラシェイクの処理
 	cameraShake_->Update();
 	camera_.translation_ += cameraShake_->GetShakeOffset();
@@ -49,6 +46,12 @@ void CameraController::ChangeState(ICameraState* state)
 	state->Initialize();
 	//現在のカメラ状態を新しい状態に置き換える
 	state_.reset(state);
+}
+
+void CameraController::PlayAnimation(const std::string& animationName, const float animationSpeed, const bool syncWithCharacterAnimation)
+{
+	//アニメーションの状態に遷移
+	ChangeState(new CameraStateAnimation(animationName, animationSpeed, syncWithCharacterAnimation));
 }
 
 void CameraController::StartCameraShake(const Vector3& intensity, const float duration)
@@ -69,8 +72,6 @@ void CameraController::UpdateInterTargetPosition()
 
 void CameraController::UpdateCameraPosition()
 {
-	//オフセット値を補完
-	offset_ = Mathf::Lerp(offset_, destinationOffset_, destinationOffsetInterpolationSpeed_);
 	//追従対象からオフセットを計算
 	Vector3 offset = CalculateOffset();
 	//カメラの目標座標（通常位置）
@@ -85,20 +86,6 @@ void CameraController::UpdateCameraRotation()
 	destinationQuaternion_ = Mathf::Normalize(destinationQuaternion_);
 	//現在のクォータニオン補間
 	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
-}
-
-void CameraController::CheckAndTransitionToClearAnimationState()
-{
-	//クリアアニメーション状態に遷移するかを確認
-	if (!isClearAnimationActive_)
-	{
-		//敵が死亡している場合
-		if (GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetIsDead())
-		{
-			isClearAnimationActive_ = true; //クリアアニメーションをアクティブにする
-			ChangeState(new CameraStateClear()); //新しい状態に遷移
-		}
-	}
 }
 
 const Vector3 CameraController::CalculateOffset() const

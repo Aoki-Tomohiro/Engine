@@ -2,49 +2,31 @@
 #include "Engine/Math/Vector3.h"
 #include <string>
 
-#pragma region アニメーションイベント
+#pragma region イベント基底構造体
 
-//イベントの種類
+// イベントの種類を表す列挙体
 enum class EventType
 {
-    kRotation,       //回転
-    kMovement,       //移動
-    kAttack,         //攻撃
-    kCancel,         //キャンセル
-    kBufferedAction, //先行入力
-    kMaxEvent,       //イベントの最大数
+    kMovement,        //移動イベント
+    kRotation,        //回転イベント
+    kAttack,          //攻撃イベント
+    kCameraAnimation, //カメラアニメーションイベント
+    kCancel,          //キャンセルイベント
+    kBufferedAction,  //先行入力イベント
+    kMaxEvent,        //イベントの最大数
 };
 
-//アニメーションに関連するイベントの基底構造体
+//アニメーションイベントの基底構造体
 struct AnimationEvent
 {
     virtual ~AnimationEvent() = default;
-    AnimationEvent(const EventType type) : eventType(type) {};
-    EventType eventType{};
-    float startEventTime{};
-    float endEventTime{};
-};
 
-#pragma endregion
+    //コンストラクタ
+    AnimationEvent(const EventType type) : eventType(type) {}
 
-#pragma region 回転イベント
-
-//イージングの種類
-enum class EasingType
-{
-    kLinear,
-    kEaseIn,
-    kEaseOut,
-    kEaseInOut,
-};
-
-struct RotationEvent : public AnimationEvent
-{
-    virtual ~RotationEvent() override = default;
-    RotationEvent() : AnimationEvent(EventType::kRotation) {};
-    EasingType easingType{};   //イージングの種類
-    Vector3 rotationAxis{};    //回転軸
-    float rotationAngle{};     //総回転量
+    EventType eventType{};  //イベントの種類
+    float startEventTime{}; //イベント開始時間
+    float endEventTime{};   //イベント終了時間
 };
 
 #pragma endregion
@@ -54,98 +36,145 @@ struct RotationEvent : public AnimationEvent
 //移動の種類
 enum class MovementType
 {
-    kVelocity, // 速度移動
-    kEasing,   // イージング移動
+    kVelocity, //速度移動
+    kEasing,   //イージング移動
 };
 
-//移動イベント基底
+//イージングの種類
+enum class EasingType
+{
+    kLinear,    //リニア
+    kEaseIn,    //イーズイン
+    kEaseOut,   //イーズアウト
+    kEaseInOut, //イーズインアウト
+};
+
+//移動イベントの基底構造体
 struct MovementEvent : public AnimationEvent
 {
     virtual ~MovementEvent() override = default;
-    MovementEvent(const MovementType type) : AnimationEvent(EventType::kMovement), movementType(type) {};
+
+    MovementEvent(const MovementType type) : AnimationEvent(EventType::kMovement), movementType(type) {}
+
     MovementType movementType = MovementType::kVelocity; //移動の種類
-    bool useStickInput = false;                          //スティック入力を使用するかどうか
-    bool moveTowardsEnemy = false;                       //敵の方向に移動するかどうか
-    bool isProximityStopEnabled = false;                 //相手と接近した際に移動を止めるかどうか
-    bool rotateTowardsMovement = false;                  //移動方向に回転するかどうか
+    bool useStickInput = false;                          //スティック入力を使用するか
+    bool moveTowardsEnemy = false;                       //敵の方向に移動するか
+    bool isProximityStopEnabled = false;                 //近接停止を有効にするか
+    bool rotateTowardsMovement = false;                  //移動方向に回転するか
 };
 
-//速度を加算する移動イベント
+//速度移動イベント
 struct VelocityMovementEvent : public MovementEvent
 {
-    ~VelocityMovementEvent() override = default;
-    VelocityMovementEvent() : MovementEvent(MovementType::kVelocity) {};
-    Vector3 velocity{}; //速度
+    VelocityMovementEvent() : MovementEvent(MovementType::kVelocity) {}
+
+    Vector3 velocity{}; //移動速度
 };
 
-//イージングを使用した移動イベント
+//イージング移動イベント
 struct EasingMovementEvent : public MovementEvent
 {
-    ~EasingMovementEvent() override = default;
-    EasingMovementEvent() : MovementEvent(MovementType::kEasing) {};
+    EasingMovementEvent() : MovementEvent(MovementType::kEasing) {}
+
     EasingType easingType{};  //イージングの種類
-    Vector3 targetPosition{}; //目標座標
+    Vector3 targetPosition{}; //目標位置
+};
+
+#pragma endregion
+
+#pragma region 回転イベント
+
+//回転イベントの構造体
+struct RotationEvent : public AnimationEvent
+{
+    RotationEvent() : AnimationEvent(EventType::kRotation) {}
+
+    EasingType easingType{};   //イージングの種類
+    Vector3 rotationAxis{};    //回転軸
+    float rotationAngle{};     //総回転角度
 };
 
 #pragma endregion
 
 #pragma region 攻撃イベント
 
-//リアクションの種類
+//攻撃のリアクションタイプ
 enum class ReactionType
 {
     kFlinch,    //のけぞり
     kKnockback, //吹き飛ばし
 };
 
-//ヒットSEの種類
+//ヒット音の種類
 enum class HitSEType
 {
-    kNormal, //通常
+    kNormal, //通常ヒット音
 };
 
-//攻撃に関連する設定
+//攻撃に関する設定
 struct AttackParameters
 {
-    int32_t maxHitCount{}; //ヒット数
+    int32_t maxHitCount{}; //最大ヒット数
     float hitInterval{};   //ヒット間隔
     float damage{};        //ダメージ量
 };
 
-//当たり判定に関連する設定
+//当たり判定に関する設定
 struct HitboxParameters
 {
-    Vector3 center{ 0.0f, 0.0f, 3.0f }; //当たり判定の中心
-    Vector3 size{ 2.0f, 2.0f, 2.0f };   //当たり判定のサイズ
+    Vector3 center{ 0.0f, 0.0f, 3.0f }; //中心位置
+    Vector3 size{ 2.0f, 2.0f, 2.0f };   //サイズ
 };
 
-//ノックバックに関連する設定
+//ノックバックの設定
 struct KnockbackParameters
 {
-    Vector3 velocity{};      //吹き飛ばしの初速度
-    Vector3 acceleration{};  //吹き飛ばしの加速度
+    Vector3 velocity{};      //初速
+    Vector3 acceleration{};  //加速度
 };
 
-//エフェクトに関連する設定
+//ヒットエフェクトの設定
 struct HitEffectConfig
 {
     float hitStopDuration = 0.0f;     //ヒット時の一時停止時間
-    float cameraShakeDuration = 0.0f; //カメラ揺れの継続時間
-    Vector3 cameraShakeIntensity{};   //カメラ揺れの強さ
-    std::string hitParticleName{};    //ヒットエフェクトのパーティクル名
-    HitSEType hitSEType{};            //ヒット時のSEタイプ
+    float cameraShakeDuration = 0.0f; //カメラ揺れ時間
+    Vector3 cameraShakeIntensity{};   //カメラ揺れ強度
+    std::string hitParticleName{};    //ヒット時のエフェクト
+    HitSEType hitSEType{};            //ヒット時の音
     ReactionType reactionType{};      //リアクションタイプ
 };
 
 //攻撃イベント
 struct AttackEvent : public AnimationEvent
 {
-    virtual ~AttackEvent() = default;
-    AttackEvent() : AnimationEvent(EventType::kAttack) {};
-    AttackParameters attackParameters{};       //攻撃に関する設定
-    HitboxParameters hitboxParameters{};       //当たり判定の設定
+    AttackEvent() : AnimationEvent(EventType::kAttack) {}
+
+    AttackParameters attackParameters{};       //攻撃の設定
+    HitboxParameters hitboxParameters{};       //当たり判定
     KnockbackParameters knockbackParameters{}; //ノックバック設定
-    HitEffectConfig effectConfigs{};           //ヒットエフェクトの設定
+    HitEffectConfig effectConfigs{};           //ヒットエフェクト設定
+};
+
+#pragma endregion
+
+#pragma region カメラアニメーションイベント
+
+//カメラアニメーションのトリガー条件
+enum class CameraAnimationTrigger
+{
+    kActionStart, //アクション開始時
+    kImpact,      //攻撃ヒット時
+};
+
+//カメラアニメーションイベント
+struct CameraAnimationEvent : public AnimationEvent
+{
+    CameraAnimationEvent() : AnimationEvent(EventType::kCameraAnimation) {}
+
+    std::string animationName{};       //アニメーション名
+    float animationSpeed = 1.0f;       //アニメーションの速度
+    bool syncWithCharacterAnimation{}; //キャラクターのアニメーションに同期させるかどうか
+    CameraAnimationTrigger trigger{};  //アニメーションが再生される条件
 };
 
 #pragma endregion
@@ -155,9 +184,9 @@ struct AttackEvent : public AnimationEvent
 //キャンセルイベント
 struct CancelEvent : public AnimationEvent
 {
-    virtual ~CancelEvent() = default;
-    CancelEvent() : AnimationEvent(EventType::kCancel) {};
-    std::string cancelType{};           //キャンセルタイプ
+    CancelEvent() : AnimationEvent(EventType::kCancel) {}
+
+    std::string cancelType{}; //キャンセルタイプ
 };
 
 #pragma endregion
@@ -167,9 +196,26 @@ struct CancelEvent : public AnimationEvent
 //先行入力イベント
 struct BufferedActionEvent : public AnimationEvent
 {
-    virtual ~BufferedActionEvent() = default;
-    BufferedActionEvent() : AnimationEvent(EventType::kBufferedAction) {};
-    std::string bufferedActionType{};   //先行入力のタイプ
+    BufferedActionEvent() : AnimationEvent(EventType::kBufferedAction) {}
+
+    std::string bufferedActionType{}; //先行入力タイプ
 };
+
+#pragma endregion
+
+#pragma region 定数文字列配列
+
+//イベントタイプに対応する文字列配列
+namespace
+{
+    const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "CameraAnimation", "Cancel", "Buffered Action"}; //イベントタイプ
+    const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" }; //移動イベントタイプ
+    const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" }; //イージングタイプ
+    const char* HIT_SE_TYPES[] = { "Normal" }; //ヒット音SEタイプ
+    const char* REACTION_TYPES[] = { "Flinch", "Knockback" }; //リアクションタイプ
+    const char* CAMERA_ANIMATION_TRIGGERS[] = { "ActionStart", "Impact" }; //カメラアニメーションのトリガー条件
+    const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //キャンセルタイプ
+    const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //先行入力タイプ
+}
 
 #pragma endregion

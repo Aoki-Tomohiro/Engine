@@ -33,12 +33,6 @@ private:
 	/// <param name="inputValue">入力値</param>
 	void ApplyCameraRotation(const Vector3& inputValue);
 
-	/// <summary>
-	/// プレイヤーが特定のアクションをしていないかを確認
-	/// </summary>
-	/// <returns>プレイヤーが特定のアクションをしているかどうか</returns>
-	const bool IsPlayerPerformingAction() const;
-
 private:
 	//インプット
 	Input* input_ = nullptr;
