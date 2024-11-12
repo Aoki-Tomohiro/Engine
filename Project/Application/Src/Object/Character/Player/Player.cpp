@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 
 void Player::Initialize()

@@ -12,7 +12,7 @@ void TransformComponent::Update()
 	worldTransform_.UpdateMatrix();
 }
 
-const Vector3 TransformComponent::GetWorldPosition()
+const Vector3 TransformComponent::GetWorldPosition() const
 {
 	Vector3 worldPosition{};
 	worldPosition.x = worldTransform_.matWorld_.m[3][0];

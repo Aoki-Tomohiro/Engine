@@ -65,7 +65,7 @@ void CameraController::UpdateInterTargetPosition()
 	//追従対象が存在する場合は追従座標を補間する
 	if (target_)
 	{
-		Vector3 targetPosition = target_->GetJointWorldPosition("mixamorig:Hips");
+		Vector3 targetPosition = target_->GetWorldPosition() + targetOffset_;
 		interTarget_ = Mathf::Lerp(interTarget_, targetPosition, targetInterpolationSpeed_);
 	}
 }

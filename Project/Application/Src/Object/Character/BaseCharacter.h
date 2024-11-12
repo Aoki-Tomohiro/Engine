@@ -9,6 +9,7 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Character/States/ICharacterState.h"
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
 
@@ -132,9 +133,13 @@ public:
     const bool GetIsGameFinished() const { return isGameFinished_; };
     void SetIsGameFinished(const bool isGameFinished) { isGameFinished_ = isGameFinished; };
 
-    //武器を設定・取得
+    //武器を取得・設定
     Weapon* GetWeapon() const { return weapon_; };
     void SetWeapon(Weapon* weapon) { weapon_ = weapon; };
+
+    //カメラコントローラーの取得・設定
+    CameraController* GetCameraController() const { return cameraController_; };
+    void SetCameraController(CameraController* cameraController) { cameraController_ = cameraController; };
 
     //エディターマネージャーの取得・設定
     const EditorManager* GetEditorManager() const { return editorManager_; };
@@ -350,6 +355,9 @@ protected:
 
     //デバッグのフラグ
     bool isDebug_ = false;
+
+    //カメラコントローラー
+    CameraController* cameraController_ = nullptr;
 
     //エディターマネージャー
     const EditorManager* editorManager_ = nullptr;

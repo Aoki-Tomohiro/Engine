@@ -44,30 +44,33 @@ void GamePlayScene::Initialize()
 	editorManager_ = std::make_unique<EditorManager>();
 	editorManager_->Initialize();
 
-	//プレイヤーの初期化
-	player_ = gameObjectManager_->GetGameObject<Player>("Player");
-	//カメラコントローラー、ロックオン、ヒットストップ、エディターマネージャーを設定
-	player_->SetLockon(lockon_.get());
-	player_->SetHitStop(hitStop_.get());
-	player_->SetEditorManager(editorManager_.get());
-	//コンバットアニメーションエディターにプレイヤーを設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-
-	//敵の初期化
-	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
-	//カメラコントローラー、エディターマネージャー、ヒットストップを設定
-	enemy_->SetEditorManager(editorManager_.get());
-	enemy_->SetHitStop(hitStop_.get());
-	//コンバットアニメーションエディターに敵を設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
-
 	//カメラコントローラーの初期化
 	cameraController_ = std::make_unique<CameraController>();
 	cameraController_->Initialize();
 	//カメラアニメーションエディター、ロックオン、ロックオンターゲットを設定
 	cameraController_->SetCameraAnimationEditor(editorManager_->GetCameraAnimationEditor());
 	cameraController_->SetLockon(lockon_.get());
-	cameraController_->SetTarget(player_);
+
+	//プレイヤーの初期化
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
+	//カメラコントローラー、ロックオン、ヒットストップ、エディターマネージャーを設定
+	player_->SetCameraController(cameraController_.get());
+	player_->SetLockon(lockon_.get());
+	player_->SetHitStop(hitStop_.get());
+	player_->SetEditorManager(editorManager_.get());
+	//コンバットアニメーションエディターにプレイヤーを設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
+	//カメラコントローラーについじゅ対象を設定
+	cameraController_->SetTarget(player_->GetComponent<TransformComponent>());
+
+	//敵の初期化
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	//カメラコントローラー、エディターマネージャー、ヒットストップを設定
+	enemy_->SetCameraController(cameraController_.get());
+	enemy_->SetEditorManager(editorManager_.get());
+	enemy_->SetHitStop(hitStop_.get());
+	//コンバットアニメーションエディターに敵を設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
 
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");

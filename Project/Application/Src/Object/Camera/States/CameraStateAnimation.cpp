@@ -1,4 +1,6 @@
 #include "CameraStateAnimation.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"
@@ -35,7 +37,7 @@ void CameraStateAnimation::UpdateAnimationTime()
 	if (syncWithCharacterAnimation_)
 	{
 		//プレイヤーのアニメーションコンポーネントを取得
-		AnimatorComponent* animator = cameraController_->GetTarget()->GetAnimator();
+		AnimatorComponent* animator = GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetAnimator();
 
 		//アニメーションのブレンド状態に基づき、現在または次のアニメーション時間を使用
 		animationTime_ = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
@@ -58,7 +60,7 @@ void CameraStateAnimation::UpdateCameraTransform(const CameraKeyFrame& keyFrame)
 	cameraController_->SetOffset(keyFrame.position);
 
 	//キーフレームの回転情報を基にカメラの回転を設定
-	cameraController_->SetDestinationQuaternion(keyFrame.rotation * cameraController_->GetTarget()->GetQuaternion());
+	cameraController_->SetDestinationQuaternion(keyFrame.rotation * cameraController_->GetTarget()->worldTransform_.quaternion_);
 
 	//キーフレームの視野角情報を基にカメラのFOVを設定
 	cameraController_->SetFov(keyFrame.fov * (std::numbers::pi_v<float> / 180.0f));

@@ -107,7 +107,7 @@ void PlayerStateRoot::Move(const Vector3& inputValue, const float inputLength)
 	Vector3 velocity = Mathf::Normalize(inputValue) * moveSpeed;
 
 	//移動ベクトルにカメラの回転を適用
-	velocity = Mathf::RotateVector(velocity, player->GetCamera()->quaternion_);
+	velocity = Mathf::RotateVector(velocity, player->GetCameraController()->GetCamera().quaternion_);
 	//水平方向に移動させるのでY成分を0にする
 	velocity.y = 0.0f;
 

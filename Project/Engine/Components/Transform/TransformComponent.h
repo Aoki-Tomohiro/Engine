@@ -9,7 +9,7 @@ public:
 
 	void Update() override;
 
-	const Vector3 GetWorldPosition();
+	const Vector3 GetWorldPosition() const;
 
 	WorldTransform worldTransform_{};
 };

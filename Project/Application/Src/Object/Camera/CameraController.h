@@ -16,7 +16,7 @@ public:
 	//通常カメラ時のパラメーター
 	struct FollowCameraParameters
 	{
-		Vector3 offset = { 0.0f, 2.0f, -12.0f }; // オフセット値
+		Vector3 offset = { 0.0f, 1.0f, -10.0f }; // オフセット値
 		float rotationRangeMin = 1.0f;           // 最小回転角度
 		float rotationRangeMax = 2.4f;           // 最大回転角度
 		float rotationSpeedX = 0.04f;            // X軸の回転速度
@@ -26,7 +26,7 @@ public:
 	//ロックオンカメラ時のパラメーター
 	struct LockonCameraParameters
 	{
-		Vector3 offset = { 0.0f, 2.0f, -12.0f }; //オフセット値
+		Vector3 offset = { 0.0f, 1.0f, -10.0f }; //オフセット値
 		float maxDistance = 6.0f;                //追従対象とロックオン対象が近接していると判定する最大距離
 	};
 
@@ -82,8 +82,8 @@ public:
 	void SetLockon(const Lockon* lockOn) { lockon_ = lockOn; };
 
 	//追従対象を取得・設定
-	const BaseCharacter* GetTarget() const { return target_; };
-	void SetTarget(const BaseCharacter* target) { target_ = target; };
+	const TransformComponent* GetTarget() const { return target_; };
+	void SetTarget(const TransformComponent* target) { target_ = target; };
 
 	//カメラアニメーションエディターを取得・設定
 	CameraAnimationEditor* GetCameraAnimationEditor() const { return cameraAnimationEditor_; };
@@ -141,7 +141,7 @@ private:
 	Camera camera_{};
 
 	//追従対象
-	const BaseCharacter* target_ = nullptr;
+	const TransformComponent* target_ = nullptr;
 
 	//ロックオン
 	const Lockon* lockon_ = nullptr;
@@ -151,6 +151,9 @@ private:
 
 	//追従対象の残像座標
 	Vector3 interTarget_{};
+
+	//追従対象のオフセット
+	Vector3 targetOffset_ = { 0.0f,2.0f,0.0f };
 
 	//追従対象の補間速度
 	float targetInterpolationSpeed_ = 0.2f;

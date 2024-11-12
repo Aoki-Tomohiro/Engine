@@ -301,7 +301,7 @@ void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* ca
 		if (cameraAnimationEvent->trigger == CameraAnimationTrigger::kActionStart)
 		{
 			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
-			//character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithPlayerAnimation);
+			character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
 		}
 	}
 
@@ -311,7 +311,7 @@ void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* ca
 		if (character_->GetWeapon()->GetIsHit())
 		{
 			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
-			//character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithPlayerAnimation);
+			character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
 		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAbility.h"
 
 CharacterStateFactory* CharacterStateFactory::GetInstance()
 {
@@ -57,9 +58,15 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 	{
 		return new PlayerStateDash();
 	}
+	//攻撃状態に遷移
 	else if (stateName == "Attack")
 	{
 		return new PlayerStateAttack();
+	}
+	//アビリティ状態に遷移
+	else if (stateName.find("Ability") != std::string::npos)
+	{
+		return new PlayerStateAbility(std::stoi(stateName.substr(7)));
 	}
 
 	//一致する名前の状態がなければnullptrを返す

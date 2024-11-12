@@ -1,6 +1,7 @@
 #include "IPlayerState.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 
 Player* IPlayerState::GetPlayer() const
 {
@@ -63,7 +64,7 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
 		{
 			processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(inputValue) * Mathf::Length({ velocityMovementEvent->velocity.x, 0.0f, velocityMovementEvent->velocity.z });
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCamera()->quaternion_);
+			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCameraController()->GetCamera().quaternion_);
 			processedVelocityDatas_[animationEventIndex].velocity.y = velocityMovementEvent->velocity.y;
 		}
 		else
@@ -114,7 +115,7 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
 		{
 			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(inputValue) * Mathf::Length({ easingMovementEvent->targetPosition.x, 0.0f, easingMovementEvent->targetPosition.z });
-			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCamera()->quaternion_);
+			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCameraController()->GetCamera().quaternion_);
 			processedEasingDatas_[animationEventIndex].targetPosition.y = easingMovementEvent->targetPosition.y;
 		}
 		else
