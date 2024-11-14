@@ -231,16 +231,33 @@ void Player::InitializeAnimator()
 
 void Player::InitializeUISprites()
 {
+	//ボタンの構成を設定
+	buttonConfigs_ = { {
+		{ "xbox_button_a_outline.png", "Jump.png", {1000.0f, 630.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_button_b_outline.png", "Dash.png", {1048.0f, 582.0f}, {1108.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_button_x_outline.png", "Attack.png", {952.0f, 582.0f}, {880.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_button_y_outline.png", "Fire.png", {1000.0f, 534.0f}, {904.0f, 544.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_lb_outline.png", "Lockon.png", {1070.0f, 429.0f}, {1139.0f, 439.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_rb_outline.png", "Dodge.png", {1070.0f, 484.0f}, {1139.0f, 496.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+		{ "xbox_rt_outline.png", "Change.png", {1070.0f, 370.0f}, {1139.0f, 382.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
+	};
+
 	//ボタンのUIの設定
 	for (int32_t i = 0; i < kMaxButtons; ++i)
 	{
-		SetButtonUISprite(buttonUISettings_[i], buttonConfigs[i]);
+		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
 	}
+
+	//スキルの構成を設定
+	skillConfigs_ = { {
+		{ "xbox_button_x_outline.png", "LaunchAttack.png", { 952.0f, 582.0f }, { 790.0f,596.0f }, {1.0f, 1.0f}, {0.3f, 0.3f}, { 955.0f, 580.0f }, { 28.0f,4.0f }},
+		{ "xbox_button_y_outline.png", "SpinAttack.png", { 1000.0f,534.0f }, { 880.0f,544.0f }, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1004.0f,530.0f }, { 28.0f,4.0f }},}
+	};
 
 	//スキルのUIの設定
 	for (int32_t i = 0; i < kMaxSkillCount; ++i)
 	{
-		SetSkillUISprite(skillUISettings_[i], skillConfigs[i]);
+		SetSkillUISprite(skillUISettings_[i], skillConfigs_[i]);
 	}
 
 	//テクスチャの名前を設定
@@ -442,8 +459,8 @@ void Player::UpdateSkillCooldowns()
 	float skillCooldownTime2 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.second.name);
 
 	//クールダウンバーのスケールを更新
-	UpdateCooldownBarScale(skillUISettings_[0], skillConfigs[0], skillCooldownTime1, currentSkillPairSet.first.cooldownDuration);
-	UpdateCooldownBarScale(skillUISettings_[1], skillConfigs[1], skillCooldownTime2, currentSkillPairSet.second.cooldownDuration);
+	UpdateCooldownBarScale(skillUISettings_[0], skillConfigs_[0], skillCooldownTime1, currentSkillPairSet.first.cooldownDuration);
+	UpdateCooldownBarScale(skillUISettings_[1], skillConfigs_[1], skillCooldownTime2, currentSkillPairSet.second.cooldownDuration);
 }
 
 void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)

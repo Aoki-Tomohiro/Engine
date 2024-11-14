@@ -32,7 +32,7 @@ public:
         int32_t pressedFrame = 0; //押されているフレーム
     };
 
-    //スプライトの基本設定を保持する構造体
+    //スプライトの基本設定
     struct SpriteSettings
     {
         std::unique_ptr<Sprite> sprite = nullptr;  //スプライト
@@ -40,14 +40,14 @@ public:
         Vector2 scale{ 1.0f, 1.0f };               //スプライトのスケール
     };
 
-    //ボタンのUI設定を保持する構造体
+    //ボタンのUI設定
     struct ButtonUISettings
     {
         SpriteSettings buttonSprite{}; //ボタンのスプライト設定
         SpriteSettings fontSprite{};   //フォントのスプライト設定
     };
 
-    //スキルのUI設定を保持する構造体
+    //スキルのUI設定
     struct SkillUISettings
     {
         ButtonUISettings buttonSettings{};           //スキルボタンの設定
@@ -101,10 +101,18 @@ public:
     //通常状態のパラメーター
     struct RootParameters
     {
-        float walkThreshold = 0.3f; // 歩きの閾値
-        float walkSpeed = 9.0f;     // 歩きの移動速度
-        float runThreshold = 0.6f;  // 走りの閾値
-        float runSpeed = 18.0f;     // 走りの移動速度
+        float walkThreshold = 0.3f; //歩きの閾値
+        float walkSpeed = 9.0f;     //歩きの移動速度
+        float runThreshold = 0.6f;  //走りの閾値
+        float runSpeed = 18.0f;     //走りの移動速度
+    };
+
+    //魔法攻撃用のパラメーター
+    struct MagicAttackParameters
+    {
+        float chargeTimeThreshold = 1.0f;   //チャージマジックのため時間
+        float cooldownTime = 0.6f;          //通常魔法のクールタイム
+        float magicProjectileSpeed = 96.0f; //魔法の速度
     };
 
     //スキルのパラメーター
@@ -112,16 +120,6 @@ public:
     {
         std::string name{};
         float cooldownDuration = 0.0f;
-    };
-
-    //魔法攻撃用のパラメーター
-    struct MagicAttackParameters
-    {
-        float chargeTimeThreshold = 1.0f;               // チャージマジックのため時間
-        float cooldownTime = 0.6f;                      // 通常魔法のクールタイム
-        float magicProjectileSpeed = 96.0f;             // 魔法の速度
-        float verticalRetreatSpeed = 10.0f;             // 垂直後退速度
-        Vector3 acceleration = { 0.0f, -64.0f ,60.0f }; // 加速度
     };
 
     /// <summary>
@@ -301,25 +299,14 @@ private:
     //ボタンのUIの設定
     std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};
 
+    //ボタンのUIの構成
+    std::array<ButtonConfig, kMaxButtons> buttonConfigs_{};
+
     //スキルのUIの設定
     std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
 
-    //ボタンのUIの構成
-    const std::vector<ButtonConfig> buttonConfigs = {
-        { "xbox_button_a_outline.png", "Jump.png", {1000.0f, 630.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_b_outline.png", "Dash.png", {1048.0f, 582.0f}, {1108.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_x_outline.png", "Attack.png", {952.0f, 582.0f}, {880.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_y_outline.png", "Fire.png", {1000.0f, 534.0f}, {904.0f, 544.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_lb_outline.png", "Lockon.png", {1070.0f, 429.0f}, {1139.0f, 439.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_rb_outline.png", "Dodge.png", {1070.0f, 484.0f}, {1139.0f, 496.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_rt_outline.png", "Change.png", {1070.0f, 370.0f}, {1139.0f, 382.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }
-    };
-
     //スキルのUIの構成
-    const std::vector<SkillConfig> skillConfigs = {
-        { "xbox_button_x_outline.png", "LaunchAttack.png", { 952.0f, 582.0f }, { 790.0f,596.0f }, {1.0f, 1.0f}, {0.3f, 0.3f}, { 955.0f, 580.0f }, { 28.0f,4.0f }},
-        { "xbox_button_y_outline.png", "SpinAttack.png", { 1000.0f,534.0f }, { 880.0f,544.0f }, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1004.0f,530.0f }, { 28.0f,4.0f }},
-    };
+    std::array<SkillConfig, kMaxSkillCount> skillConfigs_{};
 
     //魔法攻撃用ワーク
     MagicAttackWork magicAttackWork_{};
