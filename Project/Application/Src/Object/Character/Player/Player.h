@@ -76,9 +76,6 @@ public:
     //アクションフラグ
     enum class ActionFlag
     {
-        kDashing,                      // ダッシュ状態かどうか
-        kLaunchAttack,                 // 打ち上げ攻撃状態かどうか
-        kFallingAttack,                // 落下攻撃状態かどうか
         kMagicAttackEnabled,           // 魔法攻撃が有効かどうか
         kChargeMagicAttackEnabled,     // 溜め魔法攻撃が有効かどうか
         kCanStomp,                     // ストンプが可能かどうか
@@ -110,11 +107,11 @@ public:
         float runSpeed = 18.0f;     // 走りの移動速度
     };
 
-    //攻撃用のパラメーター
-    struct AttackParameters
+    //スキルのパラメーター
+    struct SkillParameters
     {
-        int32_t comboNum = 4;        // コンボの数
-        float attackDistance = 6.0f; // 攻撃の補正を掛ける距離
+        std::string name{};
+        float cooldownDuration = 0.0f;
     };
 
     //魔法攻撃用のパラメーター
@@ -125,21 +122,6 @@ public:
         float magicProjectileSpeed = 96.0f;             // 魔法の速度
         float verticalRetreatSpeed = 10.0f;             // 垂直後退速度
         Vector3 acceleration = { 0.0f, -64.0f ,60.0f }; // 加速度
-    };
-
-    //打ち上げ攻撃のパラメーター
-    struct LaunchAttackParameters : public SkillParameters
-    {
-        LaunchAttackParameters() : SkillParameters{ 6.0f } {};
-    };
-
-    //回転攻撃用のパラメーター
-    struct SpinAttackParameters : public SkillParameters
-    {
-        SpinAttackParameters() : SkillParameters{ 6.0f } {};
-        float totalRotation = std::numbers::pi_v<float> *2.0f * 3.0f;
-        float totalDuration = 0.6f;
-        float riseHeight = 4.0f;
     };
 
     /// <summary>
@@ -193,8 +175,8 @@ public:
     void SetActionFlag(const ActionFlag& actionFlag, bool value) { actionFlags_[actionFlag] = value; };
 
     //スキルのクールダウン確認・リセット
-    const bool GetIsCooldownComplete(const Skill& skill) const { return skillCooldownManager_->IsCooldownComplete(skill); };
-    void ResetCooldown(const Skill& skill) { skillCooldownManager_->ResetCooldown(skill); };
+    const bool GetIsCooldownComplete(const std::string& name) const { return skillCooldownManager_->IsCooldownComplete(name); };
+    void ResetCooldown(const std::string& name) { skillCooldownManager_->ResetCooldown(name); };
 
     //カメラを設定・取得
     void SetCamera(const Camera* camera) { camera_ = camera; };
@@ -206,10 +188,6 @@ public:
 
     //各パラメーターの取得
     const RootParameters& GetRootParameters() const { return rootParameters_; };
-    const AttackParameters& GetGroundAttackParameters() const { return groundAttackParameters_; };
-    const AttackParameters& GetAerialAttackParameters() const { return aerialAttackAttackParameters_; };
-    const LaunchAttackParameters& GetLaunchAttackParameters() const { return launchAttackParameters_; };
-    const SpinAttackParameters& GetSpinAttackParameters() const { return spinAttackParameters_; };
     const MagicAttackParameters& GetMagicAttackParameters() const { return magicAttackParameters_; };
 
 private:
@@ -300,6 +278,14 @@ private:
     //スキルクールダウンマネージャー
     std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
 
+    //スキルのパラメーター
+    std::vector<std::pair<SkillParameters, SkillParameters>> skillPairSets_{
+        { { {"LaunchAttack", 6.0f}, {"SpinAttack", 4.0f} } },
+    };
+
+    //現在選択中のスキルセット
+    int32_t activeSkillSetIndex_ = 0;
+
     //アクションフラグ
     std::unordered_map<ActionFlag, bool> actionFlags_{};
 
@@ -358,10 +344,6 @@ private:
 
     //各種パラメーター
     RootParameters rootParameters_{};
-    AttackParameters groundAttackParameters_{ .comboNum = 4, .attackDistance = 3.0f };
-    AttackParameters aerialAttackAttackParameters_{ .comboNum = 3, .attackDistance = 3.0f };
-    LaunchAttackParameters launchAttackParameters_{};
-    SpinAttackParameters spinAttackParameters_{};
     MagicAttackParameters magicAttackParameters_{};
 };
 

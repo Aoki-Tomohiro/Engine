@@ -20,8 +20,11 @@ void Player::Initialize()
 
 	//スキルクールダウンマネージャーの初期化
 	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
-	skillCooldownManager_->AddSkill(Skill::kLaunchAttack, &launchAttackParameters_);
-	skillCooldownManager_->AddSkill(Skill::kSpinAttack, &spinAttackParameters_);
+	for (const auto skillPairSet : skillPairSets_)
+	{
+		skillCooldownManager_->AddSkill(skillPairSet.first.name, skillPairSet.first.cooldownDuration);
+		skillCooldownManager_->AddSkill(skillPairSet.second.name, skillPairSet.second.cooldownDuration);
+	}
 
 	//ダメージエフェクト用のスプライトの生成
 	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
@@ -431,14 +434,16 @@ void Player::UpdateSkillCooldowns()
 	//スキルクールダウンマネージャーの更新
 	skillCooldownManager_->Update();
 
-	const SkillConfig& config1 = skillConfigs[0];
-	const SkillConfig& config2 = skillConfigs[1];
+	//現在のスキルペアのセットを取得
+	std::pair<SkillParameters, SkillParameters> currentSkillPairSet = skillPairSets_[activeSkillSetIndex_];
 
-	float launchAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kLaunchAttack);
-	float spinAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kSpinAttack);
+	//スキルのクールダウンの時間を取得
+	float skillCooldownTime1 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.first.name);
+	float skillCooldownTime2 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.second.name);
 
-	UpdateCooldownBarScale(skillUISettings_[0], config1, launchAttackCooldownTime, launchAttackParameters_.cooldownDuration);
-	UpdateCooldownBarScale(skillUISettings_[1], config2, spinAttackCooldownTime, spinAttackParameters_.cooldownDuration);
+	//クールダウンバーのスケールを更新
+	UpdateCooldownBarScale(skillUISettings_[0], skillConfigs[0], skillCooldownTime1, currentSkillPairSet.first.cooldownDuration);
+	UpdateCooldownBarScale(skillUISettings_[1], skillConfigs[1], skillCooldownTime2, currentSkillPairSet.second.cooldownDuration);
 }
 
 void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)

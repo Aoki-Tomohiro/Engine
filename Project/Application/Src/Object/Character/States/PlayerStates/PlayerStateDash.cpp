@@ -14,9 +14,6 @@ void PlayerStateDash::Initialize()
 	//音声データの読み込み
 	dashAudioHandle_ = audio_->LoadAudioFile("Dash.mp3");
 
-	//ダッシュのフラグを設定
-	GetPlayer()->SetActionFlag(Player::ActionFlag::kDashing, true);
-
 	//ダッシュ開始時のアニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(currentAnimation_);
 }
@@ -87,8 +84,6 @@ void PlayerStateDash::FinalizeDash()
 	character_->SetIsVisible(true);
 	//武器を表示
 	character_->GetWeapon()->SetIsVisible(true);
-	//ダッシュのフラグをリセット
-	GetPlayer()->SetActionFlag(Player::ActionFlag::kDashing, false);
 	//ラジアルブラーを無効化
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 }
