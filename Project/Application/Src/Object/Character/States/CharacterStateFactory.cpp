@@ -7,6 +7,8 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateMagicAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAbility.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateRoot.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateStun.h"
 
 CharacterStateFactory* CharacterStateFactory::GetInstance()
 {
@@ -82,9 +84,13 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 ICharacterState* CharacterStateFactory::CreateEnemyState(const std::string& stateName)
 {
 	//通常状態
-	if (stateName == "Idle")
+	if (stateName == "Idle" || stateName == "Move")
 	{
-		return nullptr;
+		return new EnemyStateRoot();
+	}
+	else if (stateName == "Stun")
+	{
+		return new EnemyStateStun();
 	}
 
 	//一致する名前の状態がなければnullptrを返す

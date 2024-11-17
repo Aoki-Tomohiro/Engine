@@ -102,7 +102,6 @@ struct RotationEvent : public AnimationEvent
 //攻撃のリアクションタイプ
 enum class ReactionType
 {
-    kNone,      //無し
     kFlinch,    //のけぞり
     kKnockback, //吹き飛ばし
 };
@@ -231,7 +230,7 @@ namespace
     const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" }; //移動イベントタイプ
     const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" }; //イージングタイプ
     const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" }; //イベントのトリガー条件
-    const char* REACTION_TYPES[] = { "None", "Flinch", "Knockback" }; //リアクションタイプ
+    const char* REACTION_TYPES[] = { "Flinch", "Knockback" }; //リアクションタイプ
     const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };//ポストエフェクトのタイプ
     const char* SOUND_EFFECT_TYPES[] = { "None", "NormalHit", "Dash", "Damage" }; //SEのタイプ
     const char* CANCEL_TYPES[] = { "None", "Move", "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "FallingAttack", "Ability" }; //キャンセルタイプ

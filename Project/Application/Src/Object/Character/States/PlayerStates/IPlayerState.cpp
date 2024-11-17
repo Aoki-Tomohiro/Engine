@@ -25,6 +25,12 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 		//差分ベクトルを計算
 		Vector3 difference = enemyPosition - playerPosition;
 
+		//Y成分の差が許容範囲内であれば、速度のY成分を0に設定
+		if (std::abs(difference.y) < maxAllowableYDifference)
+		{
+			difference.y = 0.0f;
+		}
+
 		//速度を計算
 		processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(difference) * Mathf::Length(velocityMovementEvent->velocity);
 
@@ -79,8 +85,17 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 		//敵の座標を取得
 		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
 
+		//差分ベクトルを計算
+		Vector3 difference = enemyPosition - playerPosition;
+
+		//Y成分の差が許容範囲内であれば、速度のY成分を0に設定
+		if (std::abs(difference.y) < maxAllowableYDifference)
+		{
+			difference.y = 0.0f;
+		}
+
 		//目標座標を計算
-		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(enemyPosition - playerPosition) * Mathf::Length(easingMovementEvent->targetPosition);
+		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(difference) * Mathf::Length(easingMovementEvent->targetPosition);
 	}
 	else if (easingMovementEvent->useStickInput)
 	{
@@ -122,10 +137,12 @@ void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent, const int3
 	//キャンセルアクションのボタンが押されていたら遷移
 	if (GetPlayer()->IsButtonTriggered(cancelEvent->cancelType))
 	{
-		//キャンセルの条件が設定されていない場合はフラグを立ててデフォルトの状態遷移を行う
+		//キャンセルの条件が設定されていない場合
 		if (cancelEvent->cancelType == "None")
 		{
+			//フラグを立てる
 			processedCancelDatas_[animationEventIndex].isCanceled = true;
+			//デフォルトの状態遷移を行う
 			HandleStateTransition();
 		}
 		//キャンセルの条件が設定されている場合はその種類に基づいて状態遷移を行う

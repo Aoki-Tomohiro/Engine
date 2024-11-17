@@ -5,6 +5,9 @@ void Enemy::Initialize()
 	//基底クラスの初期化
 	BaseCharacter::Initialize();
 
+	//重力加速度の初期化
+	gravityAcceleration_ = -42.0f;
+
 	//HPの初期化
 	maxHp_ = 800.0f;
 	hp_ = maxHp_;
@@ -29,8 +32,7 @@ void Enemy::Update()
 void Enemy::OnCollision(GameObject* gameObject)
 {
 	//状態の衝突判定処理
-	(void*)gameObject;
-	//currentState_->OnCollision(gameObject);
+	currentState_->OnCollision(gameObject);
 }
 
 void Enemy::InitializeAnimator()

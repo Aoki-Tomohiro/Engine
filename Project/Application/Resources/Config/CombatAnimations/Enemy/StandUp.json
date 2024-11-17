@@ -1,0 +1,25 @@
+{
+    "Enemy": {
+        "StandUp": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "CancelType": "None",
+                    "EndEventTime": 8.300000190734863,
+                    "EventType": "Cancel",
+                    "StartEventTime": 6.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.4000000953674316,
+                    "Duration": 8.300000190734863
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

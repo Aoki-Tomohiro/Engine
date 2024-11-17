@@ -35,19 +35,19 @@
                     "KnockbackAcceleration": [
                         0.0,
                         0.0,
-                        -1.0
+                        -4.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
                         8.0,
-                        1.0
+                        4.0
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinch",
                     "StartEventTime": 0.47999998927116394
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "ChargeMagic",
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -93,19 +93,19 @@
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent7": {
-                    "BufferedActionType": "Attack",
+                    "BufferedActionType": "Magic",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent8": {
-                    "BufferedActionType": "Ability",
+                    "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "Magic",
+                    "BufferedActionType": "Attack",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

@@ -79,10 +79,10 @@ void CameraStateFollow::ApplyCameraRotation(const Vector3& inputValue)
 	//現在のクォータニオンを取得
 	const Quaternion& currentQuaternion = cameraController_->GetDestinationQuaternion();
 
-	//Y軸（水平回転）のクォータニオンをワールド空間で適用
+	//Y軸のクォータニオンをワールド空間で適用
 	Quaternion newQuaternionY = Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, rotation.y) * currentQuaternion;
 
-	//X軸（垂直回転）のクォータニオンをローカル空間で適用
+	//X軸のクォータニオンをローカル空間で適用
 	Quaternion newQuaternionX = newQuaternionY * Mathf::MakeRotateAxisAngleQuaternion({ 1.0f, 0.0f, 0.0f }, -rotation.x);
 
 	//合成された回転クォータニオンをカメラに設定

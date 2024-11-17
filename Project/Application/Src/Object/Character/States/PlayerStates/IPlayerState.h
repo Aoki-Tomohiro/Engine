@@ -50,4 +50,7 @@ private:
 protected:
 	//インプット
 	Input* input_ = nullptr;
+
+	//Y成分の差が許容範囲内かどうかを判定するための閾値
+	const float maxAllowableYDifference = 4.0f;
 };

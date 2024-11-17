@@ -14,11 +14,18 @@ void IEnemyState::InitializeEasingMovementEvent(const EasingMovementEvent*, cons
 {
 }
 
-void IEnemyState::HandleCancelAction(const CancelEvent*, const int32_t)
+void IEnemyState::HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
 {
+	//キャンセルの条件が設定されていない場合
+	if (cancelEvent->cancelType == "None")
+	{
+		//フラグを立てる
+		processedCancelDatas_[animationEventIndex].isCanceled = true;
+		//デフォルトの状態遷移を行う
+		HandleStateTransition();
+	}
 }
 
 void IEnemyState::HandleBufferedAction(const BufferedActionEvent*, const int32_t)
 {
-
 }

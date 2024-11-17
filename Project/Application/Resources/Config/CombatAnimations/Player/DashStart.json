@@ -9,7 +9,7 @@
                     "MoveTowardsEnemy": true,
                     "MovementType": "Velocity",
                     "RotateTowardsMovement": false,
-                    "StartEventTime": 0.03999999910593033,
+                    "StartEventTime": 0.029999999329447746,
                     "UseStickInput": false,
                     "Velocity": [
                         0.0,
@@ -31,7 +31,7 @@
                     "ParticleEffectName": "Dash",
                     "PostEffectType": "RadialBlur",
                     "SoundEffectType": "Dash",
-                    "StartEventTime": 0.03999999910593033
+                    "StartEventTime": 0.029999999329447746
                 },
                 "AnimationEvent2": {
                     "AnimationName": "Dash",
@@ -39,7 +39,7 @@
                     "EndEventTime": 0.06700000166893005,
                     "EventTrigger": "ActionStart",
                     "EventType": "CameraAnimation",
-                    "StartEventTime": 0.03999999910593033,
+                    "StartEventTime": 0.029999999329447746,
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent3": {

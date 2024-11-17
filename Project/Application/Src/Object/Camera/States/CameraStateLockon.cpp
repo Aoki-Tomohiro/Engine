@@ -8,42 +8,46 @@ void CameraStateLockon::Initialize()
 	//オフセット値の初期化
 	cameraController_->SetOffset(cameraController_->GetLockonCameraParameters().offset);
 
-	//ロックオン対象の位置を取得
-	Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
+	////ロックオン対象の位置を取得
+	//Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
 
-	//現在のカメラ位置からロックオン対象までの方向ベクトルを計算
-	currentDirection_ = Mathf::Normalize(lockOnPosition - cameraController_->GetCameraPosition());
+	////現在のカメラ位置からロックオン対象までの方向ベクトルを計算
+	//currentDirection_ = Mathf::Normalize(lockOnPosition - cameraController_->GetCameraPosition());
 
-	//前のフレームの方向ベクトルを更新
-	previousDirection_ = currentDirection_;
+	////前のフレームの方向ベクトルを更新
+	//previousDirection_ = currentDirection_;
 }
 
 void CameraStateLockon::Update()
 {
-	//前のフレームの方向ベクトルを更新
-	previousDirection_ = currentDirection_;
-
-	//ロックオン対象の位置を取得
-	Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
-
-	//カメラ座標を取得
-	Vector3 cameraPosition = cameraController_->GetCameraPosition();
-
-	//現在のカメラ位置からロックオン対象までの方向ベクトルを計算
-	currentDirection_ = Mathf::Normalize(lockOnPosition - cameraPosition);
-
-	//プレイヤーと敵が一定距離中にいる場合
-	if (IsCameraCloseToTarget(cameraPosition, lockOnPosition))
+	//ロックオン中の場合
+	if (cameraController_->GetLockon()->ExistTarget())
 	{
-		//クォータニオンによる回転を計算
-		Quaternion newQuaternion = CalculateNewRotation();
-		//現在のクォータニオンに新しい回転を加算
-		cameraController_->SetDestinationQuaternion(Mathf::Normalize(newQuaternion * cameraController_->GetDestinationQuaternion()));
-	}
-	//プレイヤーと敵が一定距離外であり前の方向と現在の方向が異なる場合
-	else if (previousDirection_ != currentDirection_)
-	{
-		cameraController_->SetDestinationQuaternion(Mathf::LookAt(cameraPosition, lockOnPosition));
+		//前のフレームの方向ベクトルを更新
+		previousDirection_ = currentDirection_;
+
+		//ロックオン対象の位置を取得
+		Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
+
+		//カメラ座標を取得
+		Vector3 cameraPosition = cameraController_->GetCameraPosition();
+
+		//現在のカメラ位置からロックオン対象までの方向ベクトルを計算
+		currentDirection_ = Mathf::Normalize(lockOnPosition - cameraPosition);
+
+		//プレイヤーと敵が一定距離中にいる場合
+		if (IsCameraCloseToTarget(cameraPosition, lockOnPosition))
+		{
+			//クォータニオンによる回転を計算
+			Quaternion newQuaternion = CalculateNewRotation();
+			//現在のクォータニオンに新しい回転を加算
+			cameraController_->SetDestinationQuaternion(Mathf::Normalize(newQuaternion * cameraController_->GetDestinationQuaternion()));
+		}
+		//プレイヤーと敵が一定距離外であり前の方向と現在の方向が異なる場合
+		else if (previousDirection_ != currentDirection_)
+		{
+			cameraController_->SetDestinationQuaternion(Mathf::LookAt(cameraPosition, lockOnPosition));
+		}
 	}
 
 	//ロックオン対象がいない場合、追従カメラに切り替え

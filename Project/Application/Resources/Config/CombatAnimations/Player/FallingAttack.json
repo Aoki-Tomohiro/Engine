@@ -28,9 +28,9 @@
                         3.0
                     ],
                     "HitboxSize": [
-                        2.0,
-                        2.0,
-                        2.0
+                        3.0,
+                        6.0,
+                        3.0
                     ],
                     "KnockbackAcceleration": [
                         0.0,
@@ -39,16 +39,16 @@
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        0.0,
+                        -100.0,
                         0.0
                     ],
                     "MaxHitCount": 10,
-                    "ReactionType": "None",
+                    "ReactionType": "Knockback",
                     "StartEventTime": 1.600000023841858
                 },
                 "AnimationEvent2": {
                     "Damage": 10.0,
-                    "EndEventTime": 2.0,
+                    "EndEventTime": 1.899999976158142,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
                     "HitboxCenter": [
@@ -57,23 +57,23 @@
                         3.0
                     ],
                     "HitboxSize": [
-                        2.0,
-                        2.0,
-                        2.0
+                        3.0,
+                        6.0,
+                        3.0
                     ],
                     "KnockbackAcceleration": [
                         0.0,
                         0.0,
-                        0.0
+                        -30.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        0.0,
-                        0.0
+                        20.0,
+                        30.0
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 1.7999999523162842
+                    "StartEventTime": 1.8200000524520874
                 },
                 "AnimationEvent3": {
                     "CameraShakeDuration": 0.6000000238418579,
