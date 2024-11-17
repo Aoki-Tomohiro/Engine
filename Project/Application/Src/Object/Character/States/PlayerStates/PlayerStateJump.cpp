@@ -9,6 +9,9 @@ void PlayerStateJump::Initialize()
 	//スティックの入力の強さを計算
 	float inputLength = Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() });
 
+	//アニメーションブレンドを無効にする
+	character_->GetAnimator()->SetIsBlending(false);
+
 	//ジャンプのアニメーションとアニメーションイベントを設定
 	ConfigureJumpAnimationAndEvents(inputLength);
 }

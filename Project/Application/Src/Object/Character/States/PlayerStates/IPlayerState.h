@@ -5,22 +5,11 @@
 class Player;
 
 /// <summary>
-/// プレイヤー
+/// プレイヤーの状態
 /// </summary>
 class IPlayerState : public ICharacterState
 {
 public:
-	//アクションの種類
-	enum class ActionType
-	{
-		kMove,
-		kDodge,
-		kDash,
-		kAttack,
-		kLaunchAttack,
-		kSpinAttack,
-	};
-
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -30,11 +19,6 @@ public:
 	Player* GetPlayer() const;
 
 protected:
-	/// <summary>
-	/// 状態遷移
-	/// </summary>
-	virtual void HandleStateTransition() override;
-
 	/// <summary>
 	/// イージング移動イベントの初期化
 	/// </summary>

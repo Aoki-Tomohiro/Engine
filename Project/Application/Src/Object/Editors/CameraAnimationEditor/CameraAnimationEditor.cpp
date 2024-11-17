@@ -14,19 +14,19 @@ void CameraAnimationEditor::Update()
 	//カメラパスが存在しない場合は処理を飛ばす
 	if (cameraPaths_.empty()) { return; };
 
-	//現在編集しているカメラパスの名前
-	static std::string currentEditPathName;
-
 	//編集するカメラパスを選択
-	SelectFromMap("Camera Paths", currentEditPathName, cameraPaths_);
+	SelectFromMap("Camera Paths", currentEditPathName_, cameraPaths_);
 
 	//現在のカメラパスの設定を取得
-	auto effectIt = cameraPaths_.find(currentEditPathName);
+	auto effectIt = cameraPaths_.find(currentEditPathName_);
 	//カメラパスが見つからなければ処理を飛ばす
 	if (effectIt == cameraPaths_.end()) return;
 
-	//選択したパーティクルエフェクトのコントロールを表示
-	DisplayCameraPathControls(currentEditPathName);
+	//デバッグのコントロールを表示
+	DisplayDebugControls();
+
+	//選択したカメラパスのコントロールを表示
+	DisplayCameraPathControls(currentEditPathName_);
 
 	//キーフレームを追加
 	ImGui::SeparatorText("Add Key Frame");
@@ -45,7 +45,7 @@ void CameraAnimationEditor::AddCameraAnimation()
 	//新しいカメラパスの名前を入力
 	ImGui::InputText("New Camera Path Name", newCameraPathName, sizeof(newCameraPathName));
 
-	//新しいパカメラパスを追加
+	//新しいカメラパスを追加
 	if (ImGui::Button("Add Camera Path"))
 	{
 		//名前をstd::stringに格納
@@ -61,6 +61,25 @@ void CameraAnimationEditor::AddCameraAnimation()
 		cameraPaths_[cameraPathName] = CameraPath();
 		//入力バッファのクリア
 		std::memset(newCameraPathName, '\0', sizeof(newCameraPathName));
+	}
+}
+
+void CameraAnimationEditor::DisplayDebugControls()
+{
+	//デバッグのフラグの設定
+	ImGui::Checkbox("Is Debug", &isDebug_);
+
+	//デバッグのフラグが立っているとき
+	if (isDebug_)
+	{
+		if (ImGui::Button("Play Animation"))
+		{
+			isPlayingCurrentCameraAnimation_ = true;
+		}
+		else
+		{
+			isPlayingCurrentCameraAnimation_ = false;
+		}
 	}
 }
 
@@ -226,6 +245,7 @@ void CameraAnimationEditor::AddKeyFrame(CameraPath& cameraPath)
 	ImGui::DragFloat3("Position", &newKeyFrame_.position.x, 0.01f);
 	ImGui::DragFloat4("Rotation", &newKeyFrame_.rotation.x, 0.01f);
 	ImGui::DragFloat("Fov", &newKeyFrame_.fov, 0.01f);
+	newKeyFrame_.rotation = Mathf::Normalize(newKeyFrame_.rotation);
 
 	//キーフレームを追加して設定を初期化
 	if (ImGui::Button("AddKeyFrame"))

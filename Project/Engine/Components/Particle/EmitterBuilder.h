@@ -16,6 +16,8 @@ public:
 
 	EmitterBuilder& SetEmitterLifeTime(const float emitterLifeTime);
 
+	EmitterBuilder& SetFollowTarget(const Vector3* followTarget);
+
 	EmitterBuilder& SetTranslation(const Vector3& translate);
 
 	EmitterBuilder& SetRadius(const float radius);

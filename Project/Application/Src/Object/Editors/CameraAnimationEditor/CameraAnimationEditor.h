@@ -27,6 +27,18 @@ public:
 	//全てのカメラパスを取得
 	const std::map<std::string, CameraPath>& GetCameraPaths() const { return cameraPaths_; };
 
+	//現在のキーフレームを取得
+	const CameraKeyFrame& GetNewKeyFrame() const { return newKeyFrame_; };
+
+	//デバッグのフラグを取得
+	const bool GetIsDebug() const { return isDebug_; };
+
+	//現在のアニメーションを再生するかどうかのフラグを取得
+	const bool GetIsPlayingCurrentCameraAnimation() const { return isPlayingCurrentCameraAnimation_; };
+
+	//現在編集中のカメラパスの名前を取得
+	const std::string& GetCurrentEditPathName() const { return currentEditPathName_; };
+
 private:
 	//保存先ファイルパス
 	const std::string kDirectoryPath = "Application/Resources/Config/CameraAnimations/";
@@ -35,6 +47,11 @@ private:
 	/// カメラアニメーションを追加
 	/// </summary>
 	void AddCameraAnimation();
+
+	/// <summary>
+	/// デバッグ用のコントロールを表示
+	/// </summary>
+	void DisplayDebugControls();
 
 	/// <summary>
 	/// カメラパスのコントロールを表示
@@ -87,6 +104,15 @@ private:
 
 	//新しいカメラパス
 	CameraKeyFrame newKeyFrame_{};
+
+	//デバッグ中かどうか
+	bool isDebug_ = false;
+
+	//現在編集中のカメラパスの名前
+	std::string currentEditPathName_{};
+
+	//現在編集中のカメラアニメーションを再生したかどうか
+	bool isPlayingCurrentCameraAnimation_ = false;
 };
 
 

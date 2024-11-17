@@ -18,6 +18,31 @@
                     ]
                 },
                 "AnimationEvent1": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 0.06599999964237213,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "Dash",
+                    "PostEffectType": "RadialBlur",
+                    "SoundEffectType": "Dash",
+                    "StartEventTime": 0.03999999910593033
+                },
+                "AnimationEvent2": {
+                    "AnimationName": "Dash",
+                    "AnimationSpeed": 1.0,
+                    "EndEventTime": 0.06700000166893005,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.03999999910593033,
+                    "SyncWithCharacterAnimation": true
+                },
+                "AnimationEvent3": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 0.06700000166893005,
                     "EventType": "BufferedAction",

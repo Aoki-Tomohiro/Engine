@@ -6,10 +6,6 @@ Enemy* IEnemyState::GetEnemy() const
 	return dynamic_cast<Enemy*>(GetCharacter());
 }
 
-void IEnemyState::HandleStateTransition()
-{
-}
-
 void IEnemyState::InitializeVelocityMovement(const VelocityMovementEvent*, const int32_t)
 {
 }

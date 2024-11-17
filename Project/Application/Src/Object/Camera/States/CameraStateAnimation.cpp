@@ -4,12 +4,16 @@
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"
+#include "Application/Src/Object/Camera/States/CameraStateDebug.h"
 #include <numbers>
 
 void CameraStateAnimation::Initialize()
 {
 	//カメラパスを取得
 	cameraPath_ = cameraController_->GetCameraAnimationEditor()->GetCameraPath(animationName_);
+
+	//追従対象のクォータニオンを取得
+	followTargetQuaternion_ = cameraController_->GetTarget()->worldTransform_.quaternion_;
 }
 
 void CameraStateAnimation::Update()
@@ -26,8 +30,16 @@ void CameraStateAnimation::Update()
 	//アニメーションが終了している場合、次の状態へ遷移
 	if (animationTime_ >= cameraPath_.GetDuration())
 	{
-		//ロックオンに応じて遷移する状態を変える
-		cameraController_->GetLockon()->ExistTarget() ? cameraController_->ChangeState(new CameraStateLockon()) : cameraController_->ChangeState(new CameraStateFollow());
+		//デバッグのフラグが立っていた場合はデバッグ状態に遷移
+		if (cameraController_->GetCameraAnimationEditor()->GetIsDebug())
+		{
+			cameraController_->ChangeState(new CameraStateDebug());
+		}
+		//デバッグのフラグが立っていなかった場合はロックオンに応じて遷移する状態を変える
+		else
+		{
+			cameraController_->GetLockon()->ExistTarget() ? cameraController_->ChangeState(new CameraStateLockon()) : cameraController_->ChangeState(new CameraStateFollow());
+		}
 	}
 }
 
@@ -60,7 +72,7 @@ void CameraStateAnimation::UpdateCameraTransform(const CameraKeyFrame& keyFrame)
 	cameraController_->SetOffset(keyFrame.position);
 
 	//キーフレームの回転情報を基にカメラの回転を設定
-	cameraController_->SetDestinationQuaternion(keyFrame.rotation * cameraController_->GetTarget()->worldTransform_.quaternion_);
+	cameraController_->SetDestinationQuaternion(followTargetQuaternion_ * keyFrame.rotation);
 
 	//キーフレームの視野角情報を基にカメラのFOVを設定
 	cameraController_->SetFov(keyFrame.fov * (std::numbers::pi_v<float> / 180.0f));

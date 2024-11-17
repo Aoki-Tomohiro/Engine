@@ -18,19 +18,10 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "CameraShakeDuration": 0.07999999821186066,
-                    "CameraShakeIntensity": [
-                        0.0,
-                        0.800000011920929,
-                        0.0
-                    ],
                     "Damage": 10.0,
                     "EndEventTime": 1.0,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
-                    "HitParticleName": "Hit",
-                    "HitSEType": "Normal",
-                    "HitStopDuration": 0.07999999821186066,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -52,17 +43,93 @@
                         0.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Knockback",
+                    "ReactionType": "Flinch",
                     "StartEventTime": 0.699999988079071
                 },
+                "AnimationEvent10": {
+                    "BufferedActionType": "Magic",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent11": {
+                    "BufferedActionType": "Jump",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent12": {
+                    "BufferedActionType": "ChargeMagic",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent13": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent14": {
+                    "BufferedActionType": "FallingAttack",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
                 "AnimationEvent2": {
+                    "CameraShakeDuration": 0.11999999731779099,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.2000000476837158,
+                        0.0
+                    ],
+                    "EndEventTime": 1.0,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.11999999731779099,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 0.699999988079071
+                },
+                "AnimationEvent3": {
                     "CancelType": "Attack",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent3": {
-                    "BufferedActionType": "Attack",
+                "AnimationEvent4": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent5": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent6": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent7": {
+                    "CancelType": "Jump",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent8": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent9": {
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

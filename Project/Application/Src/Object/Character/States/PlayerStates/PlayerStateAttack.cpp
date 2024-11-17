@@ -14,7 +14,7 @@ void PlayerStateAttack::Initialize()
 	//アニメーションブレンドを無効にする
 	character_->GetAnimator()->SetIsBlending(false);
 
-	//ダッシュ開始時のアニメーションの再生とアニメーションコントローラーを取得
+	//攻撃アニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(animationName_);
 }
 
@@ -52,33 +52,17 @@ const std::string PlayerStateAttack::SetAerialAnimationName()const
 
 void PlayerStateAttack::UpdateComboIndex()
 {
-	//全てのアニメーションキャンセルを確認
-	for (const ProcessedCancelData& cancelData : processedCancelDatas_)
+	//攻撃状態に遷移されたかどうかを確認
+	if (!comboNext_ && HasStateTransitioned("Attack"))
 	{
-		//アニメーションキャンセルが行われていた場合コンボインデックスを初期化
-		if (cancelData.isCanceled)
-		{
-			if (cancelData.cancelActionName != "Attack")
-			{
-				comboIndex = 0;
-			}
-			else
-			{
-				++comboIndex;
-			}
-		}
+		//次のコンボを有効にする
+		comboNext_ = true;
+		//コンボインデックスをインクリメント
+		++comboIndex;
 	}
-
-	//全ての先行入力を確認
-	for (const ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
+	//それ以外の状態に遷移した場合はコンボをリセット
+	else if(!comboNext_ && HasStateTransitioned())
 	{
-		//先行入力されたアクションがAttackである場合
-		if (!comboNext_ && bufferedActionData.isBufferedInputActive && bufferedActionData.bufferedActionName == "Attack")
-		{
-			//次のコンボを有効にする
-			comboNext_ = true;
-			//コンボインデックスをインクリメント
-			++comboIndex;
-		}
+		comboIndex = 0;
 	}
 }

@@ -83,9 +83,9 @@ void ParticleEffectEditor::CreateParticles(const std::string& particleEffectName
 			Vector3 maxVelocity = Mathf::RotateVector(emitterSetting.velocityMax, quaternion);
 
 			//エミッターを生成
-			ParticleEmitter* newEmitter = EmitterBuilder().SetEmitterName(emitterSettings.first).SetTranslation(translation).SetRadius(emitterSetting.radius).SetCount(emitterSetting.count)
-				.SetRotate(emitterSetting.rotateMin, emitterSetting.rotateMax).SetScale(emitterSetting.scaleMin, emitterSetting.scaleMax).SetVelocity(minVelocity, maxVelocity)
-				.SetLifeTime(emitterSetting.lifeTimeMin, emitterSetting.lifeTimeMax).SetColor(emitterSetting.colorMin, emitterSetting.colorMax).SetFrequency(emitterSetting.frequency)
+			ParticleEmitter* newEmitter = EmitterBuilder().SetEmitterName(emitterSettings.first).SetFollowTarget(emitterSetting.followEnabled ? &position : nullptr).SetTranslation(translation)
+				.SetRadius(emitterSetting.radius).SetCount(emitterSetting.count).SetRotate(emitterSetting.rotateMin, emitterSetting.rotateMax).SetScale(emitterSetting.scaleMin, emitterSetting.scaleMax)
+				.SetVelocity(minVelocity, maxVelocity).SetLifeTime(emitterSetting.lifeTimeMin, emitterSetting.lifeTimeMax).SetColor(emitterSetting.colorMin, emitterSetting.colorMax).SetFrequency(emitterSetting.frequency)
 				.SetEmitterLifeTime(emitterSetting.emitterLifeTime).SetAlignToDirection(emitterSetting.alignToDirection).SetEnableColorOverLifeTime(emitterSetting.enableColorOverLifeTime)
 				.SetTargetColor(emitterSetting.targetColor).SetEnableAlphaOverLifeTime(emitterSetting.enableAlphaOverLifeTime).SetTargetAlpha(emitterSetting.targetAlpha)
 				.SetEnableSizeOverLifeTime(emitterSetting.enableSizeOverLifeTime).SetTargetScale(emitterSetting.targetScale).SetEnableRotationOverLifeTime(emitterSetting.enableRotationOverLifeTime)
@@ -321,6 +321,7 @@ void ParticleEffectEditor::SaveFile(const std::string& particleEffectName)
 			nlohmann::json emitterJson = nlohmann::json::object();
 			//エミッターの情報を書き込む
 			const EmitterSettings& emitterSetting = emitterSettings.second;
+			emitterJson["FollowEnabled"] = emitterSetting.followEnabled;
 			emitterJson["Translation"] = nlohmann::json::array({ emitterSetting.translate.x, emitterSetting.translate.y, emitterSetting.translate.z });
 			emitterJson["Radius"] = emitterSetting.radius;
 			emitterJson["Count"] = emitterSetting.count;
@@ -534,6 +535,7 @@ void ParticleEffectEditor::SetEmitterSettings(ParticleSystemSettings& particleSy
 		nlohmann::json emitterData = emitterItem.value();
 		//エミッターの設定を取得
 		EmitterSettings& emitterSettings = particleSystemSettings.emitters[emitterName];
+		emitterSettings.followEnabled = emitterData["FollowEnabled"];
 		emitterSettings.translate = { emitterData["Translation"][0].get<float>(), emitterData["Translation"][1].get<float>(), emitterData["Translation"][2].get<float>() };
 		emitterSettings.radius = emitterData["Radius"].get<float>();
 		emitterSettings.count = emitterData["Count"].get<int32_t>();
@@ -712,6 +714,7 @@ void ParticleEffectEditor::EditEmitterSettings(ParticleSystemSettings& selectedS
 		{
 			ImGui::DragFloat("Emitter LifeTime", &emitterSetting.emitterLifeTime, 0.01f);
 			ImGui::DragFloat3("Translation", &emitterSetting.translate.x, 0.01f);
+			ImGui::Checkbox("Follow Enabled", &emitterSetting.followEnabled);
 			ImGui::DragFloat("Emission Radius", &emitterSetting.radius, 0.01f);
 			ImGui::DragInt("Particle Count", &emitterSetting.count);
 			ImGui::DragFloat("Frequency", &emitterSetting.frequency, 0.01f);

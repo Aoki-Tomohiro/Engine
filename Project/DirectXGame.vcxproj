@@ -20,6 +20,7 @@
     <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraShake.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateAnimation.cpp" />
+    <ClCompile Include="Application\Src\Object\Camera\States\CameraStateDebug.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateFollow.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateLockon.cpp" />
     <ClCompile Include="Application\Src\Object\Character\BaseCharacter.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraPath.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CombatAnimationEditor\CombatAnimationEditor.cpp" />
@@ -173,6 +175,7 @@
     <ClInclude Include="Application\Src\Object\Camera\CameraController.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraShake.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateAnimation.h" />
+    <ClInclude Include="Application\Src\Object\Camera\States\CameraStateDebug.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateFollow.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateLockon.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\ICameraState.h" />
@@ -190,6 +193,7 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDodge.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateFalling.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateJump.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateRoot.h" />
     <ClInclude Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraPath.h" />
     <ClInclude Include="Application\Src\Object\Editors\CombatAnimationEditor\AnimationEvents.h" />

@@ -35,23 +35,26 @@ void ICharacterState::UpdateAnimationState()
 	ProcessAnimationEvents(currentAnimationTime);
 }
 
-const bool ICharacterState::CheckAndTransitionBufferedAction()
+void ICharacterState::HandleStateTransition()
 {
-	//先行入力があるかを確認
-	for (ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
+	//先行入力があった場合はその状態に遷移して処理を飛ばす
+	if (CheckAndTransitionBufferedAction())
 	{
-		//先行入力があった場合
-		if (!bufferedActionData.bufferedActionName.empty())
-		{
-			//状態遷移
-			character_->ChangeState(bufferedActionData.bufferedActionName);
-
-			//状態遷移が行われた
-			return true;
-		}
+		return;
 	}
 
-	return false;
+	//プレイヤーが地面にいなかった場合は落下状態にする
+	Vector3 position = character_->GetPosition();
+	if (position.y > 0.0f)
+	{
+		character_->ChangeState("Falling");
+	}
+	//地面にいる場合は地面に埋まらないように座標を補正して通常状態に戻す
+	else
+	{
+		character_->SetPosition({ position.x, 0.0f, position.z });
+		character_->ChangeState("Idle");
+	}
 }
 
 void ICharacterState::InitializeProcessedData()
@@ -61,6 +64,7 @@ void ICharacterState::InitializeProcessedData()
 	processedEasingDatas_.resize(animationController_->GetAnimationEventCount(EventType::kMovement));
 	processedRotationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kRotation));
 	processedAttackDatas_.resize(animationController_->GetAnimationEventCount(EventType::kAttack));
+	processedEffectDatas_.resize(animationController_->GetAnimationEventCount(EventType::kEffect));
 	processedCameraAnimationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCameraAnimation));
 	processedCancelDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCancel));
 	processedBufferedActionDatas_.resize(animationController_->GetAnimationEventCount(EventType::kBufferedAction));
@@ -90,7 +94,7 @@ void ICharacterState::ProcessAnimationEvents(const float currentAnimationTime)
 	for (const std::shared_ptr<AnimationEvent>& animationEvent : animationController_->animationEvents)
 	{
 		//現在のアニメーション時間にイベントが発生しているか確認
-		if (animationEvent->startEventTime <= currentAnimationTime && animationEvent->endEventTime > currentAnimationTime)
+		if (animationEvent->startEventTime <= currentAnimationTime && animationEvent->endEventTime >= currentAnimationTime)
 		{
 			//アニメーションイベントを処理
 			ProcessAnimationEvent(animationEvent.get(), currentAnimationTime, animationEventIndex[static_cast<int>(animationEvent->eventType)]);
@@ -112,27 +116,24 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 	switch (animationEvent->eventType)
 	{
 	case EventType::kMovement:
-		//移動イベントの処理
 		ProcessMovementEvent(static_cast<const MovementEvent*>(animationEvent), animationTime, animationEventIndex);
 		break;
 	case EventType::kRotation:
-		//回転イベントの処理
 		ProcessRotationEvent(static_cast<const RotationEvent*>(animationEvent), animationTime, animationEventIndex);
 		break;
 	case EventType::kAttack:
-		//攻撃イベントの処理
 		ProcessAttackEvent(static_cast<const AttackEvent*>(animationEvent), animationEventIndex);
 		break;
+	case EventType::kEffect:
+		ProcessEffectEvent(static_cast<const EffectEvent*>(animationEvent), animationEventIndex);
+		break;
 	case EventType::kCameraAnimation:
-		//カメラアニメーションイベントの処理
 		ProcessCameraAnimationEvent(static_cast<const CameraAnimationEvent*>(animationEvent), animationEventIndex);
 		break;
 	case EventType::kCancel:
-		//キャンセルイベントの処理
 		ProcessCancelEvent(static_cast<const CancelEvent*>(animationEvent), animationEventIndex);
 		break;
 	case EventType::kBufferedAction:
-		//先行入力イベントの処理
 		ProcessBufferedActionEvent(static_cast<const BufferedActionEvent*>(animationEvent), animationEventIndex);
 		break;
 	}
@@ -140,17 +141,15 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 
 void ICharacterState::ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime, const int32_t animationEventIndex)
 {
-	//移動イベントの種類に応じて処理を分岐
-	switch (movementEvent->movementType)
+	//速度による移動イベントの処理
+	if (movementEvent->movementType == MovementType::kVelocity)
 	{
-	case MovementType::kVelocity:
-		//速度移動イベントの処理
 		ProcessVelocityMovementEvent(static_cast<const VelocityMovementEvent*>(movementEvent), animationEventIndex);
-		break;
-	case MovementType::kEasing:
-		//イージング移動イベントの処理
+	}
+	//イージングによる移動イベントの処理
+	else if (movementEvent->movementType == MovementType::kEasing)
+	{
 		ProcessEasingMovementEvent(static_cast<const EasingMovementEvent*>(movementEvent), animationTime, animationEventIndex);
-		break;
 	}
 }
 
@@ -190,25 +189,16 @@ void ICharacterState::ProcessEasingMovementEvent(const EasingMovementEvent* easi
 	}
 
 	//イージング係数を計算
-	float easingParameter = (animationTime - easingMovementEvent->startEventTime) / (easingMovementEvent->endEventTime - easingMovementEvent->startEventTime);
-	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
-
-	//イージングの種類に応じて処理を変える
-	switch (easingMovementEvent->easingType)
-	{
-	case EasingType::kEaseIn:
-		easingParameter = Mathf::EaseInSine(easingParameter);
-		break;
-	case EasingType::kEaseOut:
-		easingParameter = Mathf::EaseOutSine(easingParameter);
-		break;
-	case EasingType::kEaseInOut:
-		easingParameter = Mathf::EaseInOutSine(easingParameter);
-		break;
-	}
+	float easingParameter = GetEasingParameter(easingMovementEvent, easingMovementEvent->easingType, animationTime);
 
 	//キャラクターの位置を更新
 	character_->SetPosition(Mathf::Lerp(processedEasingDatas_[animationEventIndex].startPosition, processedEasingDatas_[animationEventIndex].targetPosition, easingParameter));
+}
+
+void ICharacterState::InitializeRotationEvent(const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedRotationDatas_[animationEventIndex].isActive = true;
 }
 
 void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex)
@@ -216,27 +206,11 @@ void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, c
 	//回転イベントがまだアクティブでない場合の初期化処理
 	if (!processedRotationDatas_[animationEventIndex].isActive)
 	{
-		//回転イベントの初期化
-		processedRotationDatas_[animationEventIndex].isActive = true;
+		InitializeRotationEvent(animationEventIndex);
 	}
 
 	//イージング係数を計算
-	float easingParameter = (animationTime - rotationEvent->startEventTime) / (rotationEvent->endEventTime - rotationEvent->startEventTime);
-	easingParameter = std::min<float>(1.0f, std::max<float>(0.0f, easingParameter));
-
-	//イージングの種類に応じて処理を変える
-	switch (rotationEvent->easingType)
-	{
-	case EasingType::kEaseIn:
-		easingParameter = Mathf::EaseInSine(easingParameter);
-		break;
-	case EasingType::kEaseOut:
-		easingParameter = Mathf::EaseOutSine(easingParameter);
-		break;
-	case EasingType::kEaseInOut:
-		easingParameter = Mathf::EaseInOutSine(easingParameter);
-		break;
-	}
+	float easingParameter = GetEasingParameter(rotationEvent, rotationEvent->easingType, animationTime);
 
 	//累計のイージングされた回転量を計算
 	float totalEasedRotation = rotationEvent->rotationAngle * easingParameter;
@@ -254,17 +228,22 @@ void ICharacterState::ProcessRotationEvent(const RotationEvent* rotationEvent, c
 	character_->SetDestinationQuaternion(Mathf::Normalize(character_->GetDestinationQuaternion() * newQuaternion));
 }
 
+void ICharacterState::InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedAttackDatas_[animationEventIndex].isActive = true;
+	//武器の軌跡を有効にする
+	character_->GetWeapon()->SetIsTrailActive(true);
+	//攻撃パラメータを武器に適用
+	character_->ApplyParametersToWeapon(attackEvent);
+}
+
 void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
 {
 	//攻撃イベントがまだアクティブでない場合の初期化処理
 	if (!processedAttackDatas_[animationEventIndex].isActive)
 	{
-		//アクティブ状態にする
-		processedAttackDatas_[animationEventIndex].isActive = true;
-		//武器の軌跡を有効にする
-		character_->GetWeapon()->SetIsTrailActive(true);
-		//攻撃パラメータを武器に適用
-		character_->ApplyParametersToWeapon(attackEvent);
+		InitializeAttackEvent(attackEvent, animationEventIndex);
 	}
 
 	//現在のヒットカウントが最大ヒットカウントに達していない場合
@@ -292,21 +271,78 @@ void ICharacterState::ProcessAttackEvent(const AttackEvent* attackEvent, const i
 	}
 }
 
+void ICharacterState::InitializeEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedEffectDatas_[animationEventIndex].isActive = true;
+
+	//ポストエフェクトのタイプを設定
+	processedEffectDatas_[animationEventIndex].postEffectType = effectEvent->postEffectType;
+
+	//アクション開始時にトリガーする状態の場合はエフェクトを適用
+	if (effectEvent->trigger == EventTrigger::kActionStart)
+	{
+		ApplyEffect(effectEvent, character_->GetPosition());
+	}
+}
+
+void ICharacterState::ProcessEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex)
+{
+	//エフェクトイベントがまだアクティブでない場合の初期化処理
+	if (!processedEffectDatas_[animationEventIndex].isActive)
+	{
+		InitializeEffectEvent(effectEvent, animationEventIndex);
+	}
+
+	//攻撃が敵に当たったらエフェクトを適用する
+	if (effectEvent->trigger == EventTrigger::kImpact && character_->GetWeapon()->GetIsHit())
+	{ 
+		ApplyEffect(effectEvent, character_->GetWeapon()->GetComponent<TransformComponent>()->GetWorldPosition());
+	}
+}
+
+void ICharacterState::ApplyEffect(const EffectEvent* effectEvent, const Vector3& emitterPosition)
+{
+	//ヒットストップ開始
+	character_->GetHitStop()->Start(effectEvent->hitStopDuration);
+	//カメラシェイク開始
+	character_->GetCameraController()->StartCameraShake(effectEvent->cameraShakeIntensity, effectEvent->cameraShakeDuration);
+	//パーティクルの生成
+	character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles(effectEvent->particleEffectName, emitterPosition, character_->GetQuaternion());
+	//ポストエフェクトを適用
+	switch (effectEvent->postEffectType)
+	{
+	case PostEffectType::kRadialBlur: 
+		PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
+		break;
+	}
+	//サウンドエフェクトを再生
+	character_->PlaySoundEffect(effectEvent->soundEffectType);
+}
+
+void ICharacterState::InitializeCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedCameraAnimationDatas_[animationEventIndex].isActive = true;
+
+	//アクション開始時にトリガーする状態の場合はカメラアニメーションを再生
+	if (cameraAnimationEvent->trigger == EventTrigger::kActionStart)
+	{
+		processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
+		character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
+	}
+}
+
 void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex)
 {
 	//カメラアニメーションイベントがまだアクティブでない場合の初期化処理
 	if (!processedCameraAnimationDatas_[animationEventIndex].isActive)
 	{
-		processedCameraAnimationDatas_[animationEventIndex].isActive = true;
-		if (cameraAnimationEvent->trigger == CameraAnimationTrigger::kActionStart)
-		{
-			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
-			character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
-		}
+		InitializeCameraAnimationEvent(cameraAnimationEvent, animationEventIndex);
 	}
 
 	//攻撃が敵に当たった場合アニメーションを再生する
-	if (!processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted && cameraAnimationEvent->trigger == CameraAnimationTrigger::kImpact)
+	if (!processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted && cameraAnimationEvent->trigger == EventTrigger::kImpact)
 	{
 		if (character_->GetWeapon()->GetIsHit())
 		{
@@ -316,13 +352,20 @@ void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* ca
 	}
 }
 
+void ICharacterState::InitializeCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedCancelDatas_[animationEventIndex].isActive = true;
+	//キャンセルアクションの名前を設定
+	processedCancelDatas_[animationEventIndex].cancelActionName = cancelEvent->cancelType;
+}
+
 void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
 {
-	//速度移動イベントがまだアクティブでない場合の初期化処理
+	//キャンセルイベントがまだアクティブでない場合の初期化処理
 	if (!processedCancelDatas_[animationEventIndex].isActive)
 	{
-		processedCancelDatas_[animationEventIndex].isActive = true;
-		processedCancelDatas_[animationEventIndex].cancelActionName = cancelEvent->cancelType;
+		InitializeCancelEvent(cancelEvent, animationEventIndex);
 	}
 
 	//先行入力があった場合その状態に遷移
@@ -332,16 +375,155 @@ void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const i
 	HandleCancelAction(cancelEvent, animationEventIndex);
 }
 
+void ICharacterState::InitializeBufferedActionEvent(const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedBufferedActionDatas_[animationEventIndex].isActive = true;
+}
+
 void ICharacterState::ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
 {
 	//先行入力イベントがまだアクティブでない場合の初期化処理
 	if (!processedBufferedActionDatas_[animationEventIndex].isActive)
 	{
-		processedBufferedActionDatas_[animationEventIndex].isActive = true;
+		InitializeBufferedActionEvent(animationEventIndex);
 	}
 
 	//先行入力アクションを処理
 	HandleBufferedAction(bufferedActionEvent, animationEventIndex);
+}
+
+void ICharacterState::ResetProcessedData(const EventType eventType, const int32_t animationEventIndex)
+{
+	//各イベントタイプに応じて処理データをリセット
+	switch (eventType)
+	{
+	case EventType::kMovement:
+		ResetMovementData(animationEventIndex);
+		break;
+	case EventType::kRotation:
+		ResetRotationData(animationEventIndex);
+		break;
+	case EventType::kAttack:
+		ResetAttackData(animationEventIndex);
+		break;
+	case EventType::kEffect:
+		ResetEffectData(animationEventIndex);
+		break;
+	case EventType::kCameraAnimation:
+		ResetCameraAnimationData(animationEventIndex);
+		break;
+	case EventType::kCancel:
+		ResetCancelData(animationEventIndex);
+		break;
+	case EventType::kBufferedAction:
+		ResetBufferedActionData(animationEventIndex);
+		break;
+	}
+}
+
+void ICharacterState::ResetMovementData(const int32_t animationEventIndex)
+{
+	//速度移動イベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (!processedVelocityDatas_.empty() && processedVelocityDatas_[animationEventIndex].isActive)
+	{
+		processedVelocityDatas_[animationEventIndex].isActive = false;
+	}
+	
+	//イージング移動イベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (!processedEasingDatas_.empty() && processedEasingDatas_[animationEventIndex].isActive)
+	{
+		processedEasingDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+void ICharacterState::ResetRotationData(const int32_t animationEventIndex)
+{
+	//回転イベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (processedRotationDatas_[animationEventIndex].isActive)
+	{
+		processedEasingDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+void ICharacterState::ResetAttackData(const int32_t animationEventIndex)
+{
+	//攻撃イベントが存在しているかつアクティブ状態の場合
+	if (processedAttackDatas_[animationEventIndex].isActive)
+	{
+		//アクティブフラグをリセット
+		processedAttackDatas_[animationEventIndex].isActive = false;
+		//武器を取得
+		Weapon* weapon = character_->GetWeapon();
+		//軌跡エフェクトを無効化
+		weapon->SetIsTrailActive(false);
+		//攻撃状態を無効化
+		weapon->SetIsAttack(false);
+	}
+}
+
+void ICharacterState::ResetEffectData(const int32_t animationEventIndex)
+{
+	//エフェクトイベントが存在しているかつアクティブ状態の場合
+	if (processedEffectDatas_[animationEventIndex].isActive)
+	{
+		//アクティブフラグをリセット
+		processedEffectDatas_[animationEventIndex].isActive = false;
+		//ポストエフェクトを無効化
+		switch (processedEffectDatas_[animationEventIndex].postEffectType)
+		{
+		case PostEffectType::kRadialBlur:
+			PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+			break;
+		}
+	}
+}
+
+void ICharacterState::ResetCameraAnimationData(const int32_t animationEventIndex)
+{
+	//カメラアニメーションイベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (processedCameraAnimationDatas_[animationEventIndex].isActive)
+	{
+		processedCameraAnimationDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+void ICharacterState::ResetCancelData(const int32_t animationEventIndex)
+{
+	//キャンセルイベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (processedCancelDatas_[animationEventIndex].isActive)
+	{
+		processedCancelDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+void ICharacterState::ResetBufferedActionData(const int32_t animationEventIndex)
+{
+	//先行入力イベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (processedBufferedActionDatas_[animationEventIndex].isActive)
+	{
+		processedBufferedActionDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+const float ICharacterState::GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const
+{
+	//イージング係数を計算
+	float easingParameter = (animationTime - animationEvent->startEventTime) / (animationEvent->endEventTime - animationEvent->startEventTime);
+	easingParameter = std::clamp(easingParameter, 0.0f, 1.0f);
+
+	//イージングの種類に応じた処理
+	switch (easingType)
+	{
+	case EasingType::kEaseIn:
+		return Mathf::EaseInSine(easingParameter);
+	case EasingType::kEaseOut:
+		return Mathf::EaseOutSine(easingParameter);
+	case EasingType::kEaseInOut:
+		return Mathf::EaseInOutSine(easingParameter);
+	default:
+		return easingParameter;
+	}
 }
 
 const bool ICharacterState::IsOpponentInProximity(const float proximityDistance) const
@@ -359,25 +541,46 @@ const bool ICharacterState::IsOpponentInProximity(const float proximityDistance)
 	return Mathf::Length(otherPosition - myPosition) < proximityDistance;
 }
 
-void ICharacterState::ResetProcessedData(const EventType eventType, const int32_t animationEventIndex)
+bool ICharacterState::CheckAndTransitionBufferedAction()
 {
-	//各イベントタイプに応じて処理データをリセット
-	switch (eventType)
+	//先行入力があるかを確認
+	for (ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
 	{
-	case EventType::kMovement:
-		processedVelocityDatas_[animationEventIndex].isActive = false;
-		processedEasingDatas_[animationEventIndex].isActive = false;
-		break;
-	case EventType::kRotation:
-		processedRotationDatas_[animationEventIndex].isActive = false;
-		break;
-	case EventType::kAttack:
-		processedAttackDatas_[animationEventIndex].isActive = false;
-		character_->GetWeapon()->SetIsAttack(false);
-		character_->GetWeapon()->SetIsTrailActive(false);
-		break;
-	case EventType::kBufferedAction:
-		processedBufferedActionDatas_[animationEventIndex].isActive = false;
-		break;
+		//先行入力がない場合は飛ばす
+		if (bufferedActionData.bufferedActionName.empty()) continue;
+
+		//フラグを立てて状態遷移させる
+		if (character_->ChangeState(bufferedActionData.bufferedActionName))
+		{
+			//状態遷移が行われた
+			bufferedActionData.isTransitioned = true;
+			return true;
+		}
 	}
+	return false;
+}
+
+bool ICharacterState::HasStateTransitioned(const std::string& actionName) const
+{
+	//全てのアニメーションキャンセルを確認
+	for (const ProcessedCancelData& cancelData : processedCancelDatas_)
+	{
+		//指定されたアクション名と一致しない場合はスキップ
+		if (!actionName.empty() && actionName != cancelData.cancelActionName) continue;
+
+		//アニメーションキャンセルが行われていた場合
+		if (cancelData.isCanceled) return true;
+	}
+
+	//全ての先行入力を確認
+	for (const ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
+	{
+		//指定されたアクション名と一致しない場合はスキップ
+		if (!actionName.empty() && actionName != bufferedActionData.bufferedActionName) continue;
+
+		//先行入力がアクティブである場合
+		if (bufferedActionData.isTransitioned) return true;
+	}
+
+	return false;
 }

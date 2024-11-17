@@ -1,6 +1,7 @@
 #include "CameraStateFollow.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"
+#include "Application/Src/Object/Camera/States/CameraStateDebug.h"
 
 void CameraStateFollow::Initialize()
 {
@@ -42,6 +43,11 @@ void CameraStateFollow::Update()
 	if (cameraController_->GetLockon()->ExistTarget())
 	{
 		cameraController_->ChangeState(new CameraStateLockon());
+	}
+	//デバッグのフラグが立っていた場合はデバッグ状態に遷移
+	else if (cameraController_->GetCameraAnimationEditor()->GetIsDebug())
+	{
+		cameraController_->ChangeState(new CameraStateDebug());
 	}
 }
 

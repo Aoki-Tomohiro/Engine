@@ -7,9 +7,6 @@ void Weapon::Initialize()
 	//基底クラスの初期化
 	GameObject::Initialize();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
-
 	//トランスフォームの初期化
 	InitializeTransform();
 
@@ -24,9 +21,6 @@ void Weapon::Initialize()
 
 	//軌跡の初期化
 	InitializeTrail();
-
-	//音声データの初期化
-	InitializeHitAudio();
 }
 
 void Weapon::Update()
@@ -60,12 +54,6 @@ void Weapon::OnCollision(GameObject*)
 {
 	//ヒットフラグを立てる
 	isHit_ = true;
-
-	//プレイヤーの武器の場合は各エフェクトを発生させる
-	if (name_ == "PlayerWeapon")
-	{
-		HandlePlayerWeaponCollision();
-	}
 }
 
 void Weapon::InitializeTransform()
@@ -119,12 +107,6 @@ void Weapon::InitializeTrail()
 	TextureManager::Load("Trail2.png");
 	trail_ = TrailRenderer::CreateTrail(name_);
 	trail_->SetTexture("Trail2.png");
-}
-
-void Weapon::InitializeHitAudio()
-{
-	//ヒット時の音声データを初期化
-	hitAudioHandle_ = audio_->LoadAudioFile("Hit.mp3");
 }
 
 void Weapon::UpdateCollider()
@@ -219,16 +201,4 @@ void Weapon::UpdateImGui()
 	ImGui::ColorEdit4("TrailStartColor", &trailStartColor_.x);
 	ImGui::ColorEdit4("TrailEndColor", &trailEndColor_.x);
 	ImGui::End();
-}
-
-void Weapon::HandlePlayerWeaponCollision()
-{
-	//ヒットストップを開始
-	hitStop_->Start(hitEffectConfig_.hitStopDuration);
-
-	//ヒット音を再生
-	audio_->PlayAudio(hitAudioHandle_, false, 0.2f);
-
-	//ヒットエフェクトを生成
-	editorManager_->GetParticleEffectEditor()->CreateParticles(hitEffectConfig_.hitParticleName, transform_->GetWorldPosition(), Mathf::IdentityQuaternion());
 }

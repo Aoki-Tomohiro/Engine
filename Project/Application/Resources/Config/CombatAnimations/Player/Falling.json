@@ -3,7 +3,7 @@
         "Falling": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "EndEventTime": 0.30000001192092896,
+                    "EndEventTime": 1.100000023841858,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
                     "MoveTowardsEnemy": false,
@@ -21,7 +21,13 @@
                     "CancelType": "Move",
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Cancel",
-                    "StartEventTime": 0.30000001192092896
+                    "StartEventTime": 0.3199999928474426
+                },
+                "AnimationEvent2": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 0.4000000059604645,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
                 }
             },
             "AnimationSpeedConfigs": {

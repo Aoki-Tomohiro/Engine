@@ -55,5 +55,8 @@ private:
 
 	//アニメーションの時間
 	float animationTime_ = 0.0f;
+
+	//追従対象のクォータニオン
+	Quaternion followTargetQuaternion_ = Mathf::IdentityQuaternion();
 };
 

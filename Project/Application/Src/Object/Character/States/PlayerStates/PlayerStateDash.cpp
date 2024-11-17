@@ -8,12 +8,6 @@ void PlayerStateDash::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
-
-	//音声データの読み込み
-	dashAudioHandle_ = audio_->LoadAudioFile("Dash.mp3");
-
 	//ダッシュ開始時のアニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(currentAnimation_);
 }
@@ -26,8 +20,11 @@ void PlayerStateDash::Update()
 	//ダッシュ終了アニメーションへの遷移チェック
 	CheckTransitionToDashEndAnimation();
 
-	//速度移動イベントの処理
-	HandleVelocityMovement();
+	//速度移動イベントが無効の場合はダッシュ終了処理
+	if (processedVelocityDatas_.empty() || !processedVelocityDatas_[0].isActive)
+	{
+		FinalizeDash();
+	}
 
 	//現在のアニメーションがダッシュ終了かつアニメーションが終了していた場合
 	if (character_->GetAnimator()->GetIsAnimationFinished() && currentAnimation_ == "DashEnd")
@@ -53,12 +50,6 @@ void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* ve
 	character_->SetIsVisible(false);
 	//武器を一時的に非表示にする
 	character_->GetWeapon()->SetIsVisible(false);
-	//ダッシュのパーティクルを生成
-	character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Dash", character_->GetJointWorldPosition("mixamorig:Hips"), character_->GetQuaternion());
-	//音声データの再生
-	audio_->PlayAudio(dashAudioHandle_, false, 0.2f);
-	//ラジアルブラーを有効にする
-	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(true);
 }
 
 void PlayerStateDash::CheckTransitionToDashEndAnimation()
@@ -84,44 +75,4 @@ void PlayerStateDash::FinalizeDash()
 	character_->SetIsVisible(true);
 	//武器を表示
 	character_->GetWeapon()->SetIsVisible(true);
-	//ラジアルブラーを無効化
-	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
-}
-
-void PlayerStateDash::HandleVelocityMovement()
-{
-	//速度移動イベントが有効の場合
-	if (!processedVelocityDatas_.empty() && processedVelocityDatas_[0].isActive)
-	{
-		//煙のエミッターを更新
-		UpdateSmokeEmitters();
-	}
-	//速度移動イベントが無効の場合はダッシュ終了処理
-	else
-	{
-		FinalizeDash();
-	}
-}
-
-void PlayerStateDash::UpdateSmokeEmitters()
-{
-	//煙のエミッター座標を更新
-	for (int32_t i = 0; i < 2; ++i)
-	{
-		if (ParticleEmitter* emitter = character_->GetEditorManager()->GetParticleEffectEditor()->GetEmitter("Smoke", "Smoke" + std::to_string(i + 1)))
-		{
-			//オフセット値
-			Vector3 offset = Mathf::RotateVector(dashParticleOffset_, character_->GetQuaternion()) * static_cast<float>(i);
-
-			//エミッターの座標を設定
-			emitter->SetTranslate(character_->GetJointWorldPosition("mixamorig:Hips") + offset);
-		}
-	}
-
-	//煙のリングのエミッター座標を更新
-	if (ParticleEmitter* emitter = character_->GetEditorManager()->GetParticleEffectEditor()->GetEmitter("SmokeRing", "SmokeRing"))
-	{
-		//エミッターの座標を設定
-		emitter->SetTranslate(character_->GetJointWorldPosition("mixamorig:Hips"));
-	}
 }

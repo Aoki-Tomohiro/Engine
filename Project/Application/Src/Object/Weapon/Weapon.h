@@ -3,17 +3,13 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Primitive/TrailRenderer.h"
-#include "Engine/Components/Audio/Audio.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Collision/OBBCollider.h"
 #include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
-#include "Application/Src/Object/Editors/EditorManager.h"
-#include "Application/Src/Object/HitStop/HitStop.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/AnimationEvents.h"
 
 /// <summary>
 /// 武器
@@ -65,19 +61,9 @@ public:
 	const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
 	void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
 
-	//ヒットエフェクトコンフィグを取得・設定
-	const HitEffectConfig& GetHitEffectConfig() const { return hitEffectConfig_; };
-	void SetHitEffectConfig(const HitEffectConfig& hitEffectConfig) { hitEffectConfig_ = hitEffectConfig; };
-
 	//攻撃フラグの取得・設定
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
-
-	//ヒットストップを設定
-	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
-
-	//エディターマネージャーを設定
-	void SetEditorManager(const EditorManager* editorManager) { editorManager_ = editorManager; };
 
 private:
 	/// <summary>
@@ -106,11 +92,6 @@ private:
 	void InitializeTrail();
 
 	/// <summary>
-	/// ヒットSEの初期化
-	/// </summary>
-	void InitializeHitAudio();
-
-	/// <summary>
 	/// コライダーの更新
 	/// </summary>
 	void UpdateCollider();
@@ -136,15 +117,7 @@ private:
 	/// </summary>
 	void UpdateImGui();
 
-	/// <summary>
-	/// プレイヤーの武器が衝突した時の処理
-	/// </summary>
-	void HandlePlayerWeaponCollision();
-
 private:
-	//オーディオ
-	Audio* audio_ = nullptr;
-
 	//トランスフォーム
 	TransformComponent* transform_ = nullptr;
 
@@ -153,12 +126,6 @@ private:
 
 	//コライダー
 	OBBCollider* collider_ = nullptr;
-
-	//エディターマネージャー
-	const EditorManager* editorManager_ = nullptr;
-
-	//ヒットストップ
-	HitStop* hitStop_ = nullptr;
 
 	//Colliderのオフセット
 	Vector3 defaultColliderOffset_{ 0.0f, 0.0f, 3.0f };
@@ -175,9 +142,6 @@ private:
 	//ノックバックのパラメーター
 	KnockbackParameters knockbackParameters_{};
 
-	//エフェクトの設定
-	HitEffectConfig hitEffectConfig_{};
-
 	//攻撃フラグ
 	bool isAttack_ = false;
 
@@ -186,9 +150,6 @@ private:
 
 	//デバッグフラグ
 	bool isDebug_ = false;
-
-	//オーディオハンドル
-	uint32_t hitAudioHandle_ = 0;
 
 	//軌跡
 	Trail* trail_ = nullptr;

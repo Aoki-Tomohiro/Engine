@@ -41,13 +41,20 @@ private:
 	/// <param name="landingPosition">着地座標</param>
 	void ProcessLanding(const Vector3& landingPosition);
 
-	/// <summary>
-	/// 空中にいる際のアニメーションの管理
-	/// </summary>
-	void HandleAirborneAnimation();
-
 private:
 	//着地フラグ
-	bool isLanding_ = false;
+	bool isCurrentlyLanding_ = false;
+
+	//現在のアニメーションを停止する時間
+	float animationPauseThreshold_ = 0.0f;
+
+	//落下アニメーションを停止する時間
+	float fallingAnimationPauseTime_ = 0.3f;
+
+	//落下攻撃アニメーションの開始時間
+	float fallingAttackStartTime_ = 1.4f;
+
+	//落下攻撃アニメーションを停止する時間
+	float fallingAttackPauseTime_ = 1.78f;
 };
 

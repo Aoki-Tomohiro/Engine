@@ -24,6 +24,8 @@ void CameraController::Update()
 	//カメラの座標を更新
 	UpdateCameraPosition();
 
+	//
+
 	//状態の更新
 	state_->Update();
 

@@ -37,45 +37,26 @@ void PlayerStateRoot::Update()
 		SetIdleAnimationIfNotPlaying();
 	}
 
-	//状態遷移
-	HandleStateTransition();
+	//遷移可能なアクション一覧
+	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability" };
+
+	//アクションリストをループし、ボタン入力をチェック
+	for (const auto& action : actions)
+	{
+		//対応するボタンが押されていた場合
+		if (GetPlayer()->IsButtonTriggered(action))
+		{
+			//対応する状態に遷移
+			character_->ChangeState(action);
+			return;
+		}
+	}
 }
 
 void PlayerStateRoot::OnCollision(GameObject* other)
 {
 	//衝突処理
 	GetCharacter()->ProcessCollisionImpact(other, true);
-}
-
-void PlayerStateRoot::HandleStateTransition()
-{
-	//プレイヤーを取得
-	Player* player = GetPlayer();
-
-	//Aボタンを押したとき
-	if (player->IsButtonTriggered("Jump"))
-	{
-		//ジャンプ状態に遷移
-		player->ChangeState("Jump");
-	}
-	//RBを押したとき
-	else if (player->IsButtonTriggered("Dodge"))
-	{
-		//回避状態に遷移
-		player->ChangeState("Dodge");
-	}
-	//Bボタンを押した時
-	else if (player->IsButtonTriggered("Dash"))
-	{
-		//ダッシュ状態に遷移
-		player->ChangeState("Dash");
-	}
-	//Xボタンを押した時
-	else if (player->IsButtonTriggered("Attack"))
-	{
-		//攻撃状態に遷移
-		player->ChangeState("Attack");
-	}
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()

@@ -26,11 +26,6 @@ public:
 
 private:
 	/// <summary>
-	/// 状態遷移
-	/// </summary>
-	void HandleStateTransition() override;
-
-	/// <summary>
 	/// 現在のアニメーションがIdleではない場合再生する処理
 	/// </summary>
 	void SetIdleAnimationIfNotPlaying();

@@ -35,8 +35,6 @@ public:
 private:
 	void UpdateColliders();
 
-	void HandleCameraShake();
-
 	void UpdateCameraAndLockOn();
 
 	void HandleTransition();

@@ -101,9 +101,6 @@ void GamePlayScene::Update()
 	//コライダーをクリアし、必要なオブジェクトを追加
 	UpdateColliders();
 
-	//カメラシェイクの処理
-	HandleCameraShake();
-
 	//カメラとロックオンの更新
 	UpdateCameraAndLockOn();
 
@@ -244,16 +241,6 @@ void GamePlayScene::UpdateColliders()
 
 	//衝突判定
 	collisionManager_->CheckAllCollisions();
-}
-
-void GamePlayScene::HandleCameraShake()
-{
-	//プレイヤーの武器がヒットした場合、カメラシェイクを開始
-	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon");
-	if (weapon->GetIsHit())
-	{
-		cameraController_->StartCameraShake(weapon->GetHitEffectConfig().cameraShakeIntensity, weapon->GetHitEffectConfig().cameraShakeDuration);
-	}
 }
 
 void GamePlayScene::UpdateCameraAndLockOn()

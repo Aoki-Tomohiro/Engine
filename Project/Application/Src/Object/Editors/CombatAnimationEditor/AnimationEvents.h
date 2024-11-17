@@ -4,12 +4,13 @@
 
 #pragma region イベント基底構造体
 
-// イベントの種類を表す列挙体
+//イベントの種類を表す列挙体
 enum class EventType
 {
     kMovement,        //移動イベント
     kRotation,        //回転イベント
     kAttack,          //攻撃イベント
+    kEffect,          //エフェクトイベント
     kCameraAnimation, //カメラアニメーションイベント
     kCancel,          //キャンセルイベント
     kBufferedAction,  //先行入力イベント
@@ -101,14 +102,9 @@ struct RotationEvent : public AnimationEvent
 //攻撃のリアクションタイプ
 enum class ReactionType
 {
+    kNone,      //無し
     kFlinch,    //のけぞり
     kKnockback, //吹き飛ばし
-};
-
-//ヒット音の種類
-enum class HitSEType
-{
-    kNormal, //通常ヒット音
 };
 
 //攻撃に関する設定
@@ -129,19 +125,9 @@ struct HitboxParameters
 //ノックバックの設定
 struct KnockbackParameters
 {
-    Vector3 velocity{};      //初速
-    Vector3 acceleration{};  //加速度
-};
-
-//ヒットエフェクトの設定
-struct HitEffectConfig
-{
-    float hitStopDuration = 0.0f;     //ヒット時の一時停止時間
-    float cameraShakeDuration = 0.0f; //カメラ揺れ時間
-    Vector3 cameraShakeIntensity{};   //カメラ揺れ強度
-    std::string hitParticleName{};    //ヒット時のエフェクト
-    HitSEType hitSEType{};            //ヒット時の音
-    ReactionType reactionType{};      //リアクションタイプ
+    Vector3 velocity{};          //初速
+    Vector3 acceleration{};      //加速度
+    ReactionType reactionType{}; //リアクションタイプ
 };
 
 //攻撃イベント
@@ -152,29 +138,62 @@ struct AttackEvent : public AnimationEvent
     AttackParameters attackParameters{};       //攻撃の設定
     HitboxParameters hitboxParameters{};       //当たり判定
     KnockbackParameters knockbackParameters{}; //ノックバック設定
-    HitEffectConfig effectConfigs{};           //ヒットエフェクト設定
+};
+
+#pragma endregion
+
+#pragma region エフェクトイベント
+
+//イベントのトリガー条件
+enum class EventTrigger
+{
+    kActionStart, //アクション開始時
+    kImpact,      //攻撃ヒット時
+};
+
+//ポストエフェクトの種類
+enum class PostEffectType
+{
+    kNone,       //無し
+    kRadialBlur, //ラジアルブラー
+};
+
+//ヒット音の種類
+enum class SoundEffectType
+{
+    kNone,      //無し
+    kNormalHit, //通常ヒット音
+    kDash,      //ダッシュ
+    kDamage,    //ダメージ
+};
+
+//エフェクトのイベント
+struct EffectEvent : public AnimationEvent
+{
+    EffectEvent() : AnimationEvent(EventType::kEffect) {};
+
+    EventTrigger trigger{};            //イベントのトリガー条件
+    float hitStopDuration = 0.0f;      //ヒットストップの時間
+    float cameraShakeDuration = 0.0f;  //カメラ揺れ時間
+    Vector3 cameraShakeIntensity{};    //カメラ揺れ強度
+    std::string particleEffectName{};  //パーティクルの名前
+    PostEffectType postEffectType{};   //ポストエフェクトの種類
+    SoundEffectType soundEffectType{}; //SEのタイプ
 };
 
 #pragma endregion
 
 #pragma region カメラアニメーションイベント
 
-//カメラアニメーションのトリガー条件
-enum class CameraAnimationTrigger
-{
-    kActionStart, //アクション開始時
-    kImpact,      //攻撃ヒット時
-};
-
 //カメラアニメーションイベント
 struct CameraAnimationEvent : public AnimationEvent
 {
     CameraAnimationEvent() : AnimationEvent(EventType::kCameraAnimation) {}
 
+    EventTrigger trigger{};            //イベントのトリガー条件
     std::string animationName{};       //アニメーション名
     float animationSpeed = 1.0f;       //アニメーションの速度
     bool syncWithCharacterAnimation{}; //キャラクターのアニメーションに同期させるかどうか
-    CameraAnimationTrigger trigger{};  //アニメーションが再生される条件
 };
 
 #pragma endregion
@@ -208,14 +227,15 @@ struct BufferedActionEvent : public AnimationEvent
 //イベントタイプに対応する文字列配列
 namespace
 {
-    const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "CameraAnimation", "Cancel", "Buffered Action"}; //イベントタイプ
+    const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "Effect", "CameraAnimation", "Cancel", "Buffered Action"}; //イベントタイプ
     const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" }; //移動イベントタイプ
     const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" }; //イージングタイプ
-    const char* HIT_SE_TYPES[] = { "Normal" }; //ヒット音SEタイプ
-    const char* REACTION_TYPES[] = { "Flinch", "Knockback" }; //リアクションタイプ
-    const char* CAMERA_ANIMATION_TRIGGERS[] = { "ActionStart", "Impact" }; //カメラアニメーションのトリガー条件
-    const char* CANCEL_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //キャンセルタイプ
-    const char* BUFFERED_ACTION_TYPES[] = { "Move", "Dodge", "Dash", "Attack", "Stomp", "Magic", "ChargeMagic", "FallingAttack", "Ability1" ,"Ability2" }; //先行入力タイプ
+    const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" }; //イベントのトリガー条件
+    const char* REACTION_TYPES[] = { "None", "Flinch", "Knockback" }; //リアクションタイプ
+    const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };//ポストエフェクトのタイプ
+    const char* SOUND_EFFECT_TYPES[] = { "None", "NormalHit", "Dash", "Damage" }; //SEのタイプ
+    const char* CANCEL_TYPES[] = { "None", "Move", "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "FallingAttack", "Ability" }; //キャンセルタイプ
+    const char* BUFFERED_ACTION_TYPES[] = { "Move", "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "FallingAttack", "Ability" }; //先行入力タイプ
 }
 
 #pragma endregion

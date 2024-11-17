@@ -16,6 +16,7 @@ public:
 	//エミッターの構造体
 	struct EmitterSettings
 	{
+		bool followEnabled = false;                  //追尾させるかどうか
 		Vector3 translate = { 0.0f,0.0f,0.0f };      //位置
 		float radius = 1.0f;                         //射出半径
 		int32_t count = 10;                          //射出数

@@ -3,20 +3,21 @@
 
 class Enemy;
 
+/// <summary>
+/// 敵の状態
+/// </summary>
 class IEnemyState : public ICharacterState
 {
 public:
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	virtual ~IEnemyState() override = default;
 
 	//敵を取得
 	Enemy* GetEnemy() const;
 
 protected:
-	/// <summary>
-	/// 状態遷移
-	/// </summary>
-	virtual void HandleStateTransition() override;
-
 	/// <summary>
 	/// イージング移動イベントの初期化
 	/// </summary>

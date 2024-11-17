@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/CombatAnimationEditor.h"
 
 class ICharacterState
@@ -37,6 +38,12 @@ public:
 		float elapsedAttackTime{}; //攻撃判定が発生するまでの経過時間
 	};
 
+	//エフェクトに関するイベントの構造体
+	struct ProcessedEffectData : public ProcessedEventData
+	{
+		PostEffectType postEffectType{};  //ポストエフェクトの種類
+	};
+
 	//カメラアニメーションに関するイベントの構造体
 	struct ProcessedCameraAnimationData : public ProcessedEventData
 	{
@@ -54,7 +61,8 @@ public:
 	struct ProcessedBufferedActionData : public ProcessedEventData
 	{
 		std::string bufferedActionName{};   //先行入力のアクションの名前
-		bool isBufferedInputActive{};       //先行入力で状態を遷移したかどうか
+		bool isBufferedInputActive{};       //先行入力が有効かどうか
+		bool isTransitioned{};              //実際に状態遷移が発生したかどうか
 	};
 
 	/// <summary>
@@ -95,17 +103,10 @@ protected:
 	void UpdateAnimationState();
 
 	/// <summary>
-	/// 先行入力があるか確認し、状態を遷移させる
-	/// </summary>
-	/// <returns>状態遷移したかどうか</returns>
-	const bool CheckAndTransitionBufferedAction();
-
-	/// <summary>
 	/// 状態遷移
 	/// </summary>
-	virtual void HandleStateTransition() = 0;
+	void HandleStateTransition();
 
-private:
 	/// <summary>
 	/// 各パラメーターを初期化
 	/// </summary>
@@ -170,12 +171,25 @@ private:
 	void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime, const int32_t animationEventIndex);
 
 	/// <summary>
+	/// 回転イベントの初期化
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	virtual void InitializeRotationEvent(const int32_t animationEventIndex);
+
+	/// <summary>
 	/// 回転イベントを実行
 	/// </summary>
 	/// <param name="rotationEvent">回転イベント</param>
 	/// <param name="animationTime">アニメーションの時間</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
 	void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 攻撃イベントの初期化
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	virtual void InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 攻撃イベントの処理
@@ -185,11 +199,46 @@ private:
 	void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
 
 	/// <summary>
+	/// エフェクトイベントの初期化
+	/// </summary>
+	/// <param name="effectEvent">エフェクトイベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	virtual void InitializeEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// エフェクトイベントの処理
+	/// </summary>
+	/// <param name="effectEvent">エフェクトイベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void ProcessEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// エフェクトを適用
+	/// </summary>
+	/// <param name="effectEvent">エフェクトイベント</param>
+	/// <param name="emitterPosition">エミッターの座標</param> 
+	void ApplyEffect(const EffectEvent* effectEvent, const Vector3& emitterPosition);
+
+	/// <summary>
+	/// カメラアニメーションイベントの初期化
+	/// </summary>
+	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	virtual void InitializeCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
+
+	/// <summary>
 	/// カメラアニメーションイベントの処理
 	/// </summary>
 	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
 	void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// キャンセルイベントの初期化
+	/// </summary>
+	/// <param name="cancelEvent">キャンセルイベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	virtual void InitializeCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
 
 	/// <summary>
 	/// キャンセルイベントの処理
@@ -202,6 +251,12 @@ private:
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
 	virtual void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex) = 0;
+
+	/// <summary>
+	/// 先行入力イベントの初期化
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	virtual void InitializeBufferedActionEvent(const int32_t animationEventIndex);
 
 	/// <summary>
 	/// 先行入力イベントの処理
@@ -218,6 +273,64 @@ private:
 	virtual void HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex) = 0;
 
 	/// <summary>
+	/// 処理済みデータをリセット
+	/// </summary>
+	/// <param name="eventType">イベントの種類</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetProcessedData(const EventType eventType, const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 移動データをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetMovementData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 回転データをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetRotationData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 攻撃データをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetAttackData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// エフェクトデータをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetEffectData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// カメラアニメーションデータをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetCameraAnimationData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// キャンセルデータをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetCancelData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// 先行入力データをリセット
+	/// </summary>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ResetBufferedActionData(const int32_t animationEventIndex);
+
+	/// <summary>
+	/// イージングパラメーターを取得
+	/// </summary>
+	/// <param name="animationEvent">アニメーションイベント</param>
+	/// <param name="easingType">イージングタイプ</param>
+	/// <param name="animationTime">アニメーション時間</param>
+	/// <returns>イージングの時間</returns>
+	const float GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const;
+
+	/// <summary>
 	/// 相手が一定以内にいるか確認
 	/// </summary>
 	/// <param name="proximityDistance">距離</param>
@@ -225,11 +338,17 @@ private:
 	const bool IsOpponentInProximity(const float proximityDistance) const;
 
 	/// <summary>
-	/// 処理済みデータをリセット
+	/// 先行入力があるか確認し、状態を遷移させる
 	/// </summary>
-	/// <param name="eventType">イベントの種類</param>
-	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
-	void ResetProcessedData(const EventType eventType, const int32_t animationEventIndex);
+	/// <returns>状態遷移したかどうか</returns>
+	bool CheckAndTransitionBufferedAction();
+
+	/// <summary>
+	/// 状態遷移が発生したかどうか
+	/// </summary>
+	/// <param name="actionName">遷移したアクションの名前</param>
+	/// <returns>状態遷移が発生したかどうか</returns>
+	bool HasStateTransitioned(const std::string& actionName = "") const;
 
 protected:
 	//移動制限
@@ -255,6 +374,9 @@ protected:
 
 	//攻撃イベント用の構造体
 	std::vector<ProcessedAttackData> processedAttackDatas_{};
+
+	//エフェクトイベント用の構造体
+	std::vector<ProcessedEffectData> processedEffectDatas_{};
 
 	//カメラアニメーションイベントの構造体
 	std::vector<ProcessedCameraAnimationData> processedCameraAnimationDatas_{};

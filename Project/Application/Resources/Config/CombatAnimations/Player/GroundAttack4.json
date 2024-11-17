@@ -18,19 +18,10 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "CameraShakeDuration": 0.11999999731779099,
-                    "CameraShakeIntensity": [
-                        0.0,
-                        1.0,
-                        0.0
-                    ],
                     "Damage": 10.0,
                     "EndEventTime": 1.5,
                     "EventType": "Attack",
-                    "HitInterval": 0.1599999964237213,
-                    "HitParticleName": "Hit",
-                    "HitSEType": "Normal",
-                    "HitStopDuration": 0.11999999731779099,
+                    "HitInterval": 0.10000000149011612,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -56,10 +47,38 @@
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent2": {
+                    "CameraShakeDuration": 0.14000000059604645,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.399999976158142,
+                        0.0
+                    ],
+                    "EndEventTime": 1.5,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.14000000059604645,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent3": {
                     "CancelType": "Dodge",
                     "EndEventTime": 2.4670000076293945,
                     "EventType": "Cancel",
                     "StartEventTime": 1.5
+                },
+                "AnimationEvent4": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 2.4670000076293945,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent5": {
+                    "BufferedActionType": "Ability",
+                    "EndEventTime": 1.5,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
                 }
             },
             "AnimationSpeedConfigs": {

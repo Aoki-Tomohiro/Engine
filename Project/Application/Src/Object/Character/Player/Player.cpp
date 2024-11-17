@@ -11,9 +11,6 @@ void Player::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
-
 	//HPの初期化
 	maxHp_ = 100.0f;
 	hp_ = maxHp_;
@@ -30,9 +27,6 @@ void Player::Initialize()
 	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 	damageEffect_.sprite->SetColor(damageEffect_.color);
 	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
-
-	//音声データの読み込み
-	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
 
 	//状態の初期化
 	ChangeState("Move");
@@ -150,7 +144,7 @@ void Player::OnCollision(GameObject* gameObject)
 void Player::ApplyDamageAndKnockback(const KnockbackParameters& knockbackSettings, const float damage, const bool transitionToStun)
 {
 	//ダメージの音を再生
-	audio_->PlayAudio(damageAudioHandle_, false, 0.2f);
+	audio_->PlayAudio(audioHandles_[SoundEffectType::kDamage], false, 0.2f);
 
 	//ダメージエフェクトのタイマーと色を設定
 	damageEffect_.timer = 0.0f;
@@ -176,28 +170,6 @@ void Player::LookAtEnemy()
 
 	//回転処理
 	Rotate(Mathf::Normalize(rotateVector));
-}
-
-const bool Player::IsButtonTriggered(const std::string& actionName) const
-{
-	//各アクションに対応するボタン状態を返すためのマップ
-	static const std::unordered_map<std::string, std::function<bool()>> actionMap = {
-		{"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
-		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered; }},
-		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
-		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
-		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
-		{"Stomp", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && GetActionFlag(Player::ActionFlag::kCanStomp); }},
-		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled); }},
-		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled); }},
-		{"FallingAttack",[this]() {return buttonStates_[Player::ButtonType::X].isPressed && buttonStates_[Player::ButtonType::A].isPressed; }},
-		{"Ability1",[this]() {return buttonStates_[Player::ButtonType::X].isPressed && input_->GetRightTriggerValue() > kRightTriggerThreshold; }},
-		{"Ability2",[this]() {return buttonStates_[Player::ButtonType::Y].isPressed && input_->GetRightTriggerValue() > kRightTriggerThreshold; }},
-	};
-
-	//マップに存在する場合は判定を返し存在しない場合はfalseを返す
-	auto it = actionMap.find(actionName);
-	return it != actionMap.end() ? it->second() : false; 
 }
 
 void Player::InitializeAnimator()
@@ -231,35 +203,6 @@ void Player::InitializeAnimator()
 
 void Player::InitializeUISprites()
 {
-	//ボタンの構成を設定
-	buttonConfigs_ = { {
-		{ "xbox_button_a_outline.png", "Jump.png", {1000.0f, 630.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_button_b_outline.png", "Dash.png", {1048.0f, 582.0f}, {1108.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_button_x_outline.png", "Attack.png", {952.0f, 582.0f}, {880.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_button_y_outline.png", "Fire.png", {1000.0f, 534.0f}, {904.0f, 544.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_lb_outline.png", "Lockon.png", {1070.0f, 429.0f}, {1139.0f, 439.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_rb_outline.png", "Dodge.png", {1070.0f, 484.0f}, {1139.0f, 496.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-		{ "xbox_rt_outline.png", "Change.png", {1070.0f, 370.0f}, {1139.0f, 382.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
-	};
-
-	//ボタンのUIの設定
-	for (int32_t i = 0; i < kMaxButtons; ++i)
-	{
-		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
-	}
-
-	//スキルの構成を設定
-	skillConfigs_ = { {
-		{ "xbox_button_x_outline.png", "LaunchAttack.png", { 952.0f, 582.0f }, { 790.0f,596.0f }, {1.0f, 1.0f}, {0.3f, 0.3f}, { 955.0f, 580.0f }, { 28.0f,4.0f }},
-		{ "xbox_button_y_outline.png", "SpinAttack.png", { 1000.0f,534.0f }, { 880.0f,544.0f }, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1004.0f,530.0f }, { 28.0f,4.0f }},}
-	};
-
-	//スキルのUIの設定
-	for (int32_t i = 0; i < kMaxSkillCount; ++i)
-	{
-		SetSkillUISprite(skillUISettings_[i], skillConfigs_[i]);
-	}
-
 	//テクスチャの名前を設定
 	hpTextureNames_ = { {
 		{"barBack_horizontalLeft.png", "barBack_horizontalMid.png", "barBack_horizontalRight.png"},
@@ -271,6 +214,18 @@ void Player::InitializeUISprites()
 		{ {	{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
 		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},}
 	};
+
+	//ボタンのUIの設定
+	for (int32_t i = 0; i < kMaxButtons; ++i)
+	{
+		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
+	}
+
+	//スキルのUIの設定
+	for (int32_t i = 0; i < kMaxSkillCount; ++i)
+	{
+		SetSkillUISprite(skillUISettings_[i], skillConfigs_[i]);
+	}
 
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
@@ -503,4 +458,68 @@ void Player::DrawSkillUI(const SkillUISettings& uiSettings)
 	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
 	uiSettings.buttonSettings.fontSprite.sprite->Draw();
 	uiSettings.cooldownBarSprite->Draw();
+}
+
+bool Player::CheckFallingAttack()
+{
+	//XとAが同時に押されているか確認
+	if (buttonStates_[Player::ButtonType::X].isPressed && buttonStates_[Player::ButtonType::A].isPressed)
+	{
+		//落下攻撃フラグを設定
+		SetActionFlag(ActionFlag::kFallingAttackEnabled, true);
+		//落下攻撃発動
+		return true;
+	}
+	//落下攻撃不発動
+	return false;
+}
+
+bool Player::CheckAndTriggerAbility()
+{
+	//アビリティ1の条件を確認
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::X))
+	{
+		SetActionFlag(ActionFlag::kAbility1Enabled, true);
+		return true;
+	}
+
+	//アビリティ2の条件を確認
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::Y))
+	{
+		SetActionFlag(ActionFlag::kAbility2Enabled, true);
+		return true;
+	}
+
+	//どちらのアビリティも条件を満たさなかった場合
+	return false;
+}
+
+bool Player::IsAbilityAvailable(const SkillParameters& skill, const Player::ButtonType button)
+{
+	//クールダウンが完了しているかをチェック
+	if (!GetIsCooldownComplete(skill.name))
+	{ 
+		return false; 
+	}
+
+	//ボタンが押されているかをチェック
+	if (!buttonStates_[button].isPressed) 
+	{ 
+		return false; 
+	}
+
+	//右トリガーが適切な値であるかをチェック
+	if (input_->GetRightTriggerValue() <= kRightTriggerThreshold)
+	{ 
+		return false;
+	}
+
+	//地面でのみ使用可能なスキルの場合、空中であれば使用できない
+	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f)
+	{ 
+		return false;
+	}
+
+	//すべての条件を満たしていればアビリティは使用可能
+	return true;
 }

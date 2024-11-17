@@ -8,12 +8,6 @@ class PlayerStateAbility : public IPlayerState
 {
 public:
 	/// <summary>
-	/// コンストラクタ
-	/// </summary>
-	/// <param name="abilityNum">アビリティの番号</param>
-	PlayerStateAbility(const int32_t abilityNum) : abilityNum_(abilityNum) {};
-
-	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize() override;
@@ -30,7 +24,13 @@ public:
 	void OnCollision(GameObject* other) override;
 
 private:
-	//アビリティの番号
-	int32_t abilityNum_ = 0;
+	/// <summary>
+	/// アビリティの名前の取得とフラグのリセット
+	/// </summary>
+	const std::string GetAbilityNameAndResetFlag() const;
+
+private:
+	//アビリティの名前
+	std::string abilityName_{};
 };
 

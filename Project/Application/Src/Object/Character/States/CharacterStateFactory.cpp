@@ -5,6 +5,7 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateMagicAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAbility.h"
 
 CharacterStateFactory* CharacterStateFactory::GetInstance()
@@ -39,12 +40,12 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 		return new PlayerStateRoot();
 	}
 	//ジャンプ状態に遷移
-	else if (stateName == "Jump")
+	else if (stateName == "Jump" || stateName == "Stomp")
 	{
 		return new PlayerStateJump();
 	}
 	//落下状態に遷移
-	else if (stateName == "Falling")
+	else if (stateName == "Falling" || stateName == "FallingAttack")
 	{
 		return new PlayerStateFalling();
 	}
@@ -63,10 +64,15 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 	{
 		return new PlayerStateAttack();
 	}
-	//アビリティ状態に遷移
-	else if (stateName.find("Ability") != std::string::npos)
+	//魔法攻撃状態に遷移
+	else if (stateName == "Magic" || stateName == "ChargeMagic")
 	{
-		return new PlayerStateAbility(std::stoi(stateName.substr(7)));
+		return new PlayerStateMagicAttack();
+	}
+	//アビリティ状態に遷移
+	else if (stateName == "Ability")
+	{
+		return new PlayerStateAbility();
 	}
 
 	//一致する名前の状態がなければnullptrを返す

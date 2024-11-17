@@ -9,6 +9,9 @@ void BaseCharacter::Initialize()
     //基底クラスの初期化
     GameObject::Initialize();
 
+    //オーディオの初期化
+    InitializeAudio();
+
     //トランスフォームの初期化
     InitializeTransform();
 
@@ -106,10 +109,15 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
     }
 }
 
-void BaseCharacter::ChangeState(const std::string& newStateName)
+bool BaseCharacter::ChangeState(const std::string& newStateName)
 {
     //新しい状態を生成して次の状態に設定
-    nextState_ = std::unique_ptr<ICharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
+    if (!nextState_)
+    {
+        nextState_ = std::unique_ptr<ICharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
+        return true;
+    }
+    return false;
 }
 
 void BaseCharacter::Move(const Vector3& velocity)
@@ -158,13 +166,11 @@ void BaseCharacter::ApplyParametersToWeapon(const AttackEvent* attackEvent)
     //ヒットボックスのパラメーターを設定
     weapon_->SetHitboxParameters(attackEvent->hitboxParameters);
 
-    //エフェクトコンフィグを武器に設定
-    weapon_->SetHitEffectConfig(attackEvent->effectConfigs);
-
     //ノックバックのパラメーターを設定
     KnockbackParameters knockbackParameters{};
     knockbackParameters.velocity = Mathf::RotateVector(attackEvent->knockbackParameters.velocity, transform_->worldTransform_.quaternion_);
     knockbackParameters.acceleration = Mathf::RotateVector(attackEvent->knockbackParameters.acceleration, transform_->worldTransform_.quaternion_);
+    knockbackParameters.reactionType = attackEvent->knockbackParameters.reactionType;
     weapon_->SetKnockbackParameters(knockbackParameters);
 }
 
@@ -202,6 +208,15 @@ void BaseCharacter::StartModelShake()
     modelShake_.originalPosition = GetPosition();
 }
 
+void BaseCharacter::PlaySoundEffect(const SoundEffectType soundEffectType)
+{
+    auto it = audioHandles_.find(soundEffectType);
+    if (it != audioHandles_.end())
+    {
+        audio_->PlayAudio(it->second, false, 0.2f);
+    }
+}
+
 void BaseCharacter::StartDebugMode(const std::string& animationName)
 {
     isDebug_ = true;
@@ -234,6 +249,17 @@ const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName)
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition(jointName) - transform_->GetWorldPosition();
+}
+
+void BaseCharacter::InitializeAudio()
+{
+    //オーディオのインスタンスを取得
+    audio_ = Audio::GetInstance();
+
+    //音声データの読み込み
+    audioHandles_[SoundEffectType::kNormalHit] = audio_->LoadAudioFile("Hit.mp3");
+    audioHandles_[SoundEffectType::kDash] = audio_->LoadAudioFile("Dash.mp3");
+    audioHandles_[SoundEffectType::kDamage] = audio_->LoadAudioFile("Damage.mp3");
 }
 
 void BaseCharacter::InitializeTransform()
@@ -288,10 +314,6 @@ void BaseCharacter::InitializeWeapon()
 {
     //武器を生成
     weapon_ = gameObjectManager_->CreateGameObject<Weapon>(name_ + "Weapon");
-    //エディターマネージャーを設定
-    weapon_->SetEditorManager(editorManager_);
-    //ヒットストップを設定
-    weapon_->SetHitStop(hitStop_);
     //キャラクターの右手に親子付け
     TransformComponent* weaponTransform = weapon_->GetComponent<TransformComponent>();
     weaponTransform->worldTransform_.SetParent(&model_->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));

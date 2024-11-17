@@ -21,9 +21,9 @@ struct AnimationSpeedConfig
 //アニメーションコントローラー
 struct AnimationController
 {
-	std::vector<AnimationSpeedConfig> animationSpeedConfigs{};      //アニメーションの速度と持続時間
-	std::vector<std::shared_ptr<AnimationEvent>> animationEvents{}; //アニメーションイベント
-	Vector3 inPlaceAxis = { 1.0f,1.0f,1.0f };                       //アニメーションの動かす軸
+	std::vector<AnimationSpeedConfig> animationSpeedConfigs{};             //アニメーションの速度と持続時間
+	std::vector<std::shared_ptr<AnimationEvent>> animationEvents{};        //アニメーションイベント
+	Vector3 inPlaceAxis = { 1.0f,1.0f,1.0f };                              //アニメーションの動かす軸
 	const int32_t GetAnimationEventCount(const EventType eventType) const; //アニメーションイベントの数を取得
 };
 
@@ -160,6 +160,13 @@ private:
 	void SaveAttackEvent(const AttackEvent* attackEvent, nlohmann::json& eventJson);
 
 	/// <summary>
+	/// エフェクトイベントを保存
+	/// </summary>
+	/// <param name="effectEvent">エフェクトイベント</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveEffectEvent(const EffectEvent* effectEvent, nlohmann::json& eventJson);
+
+	/// <summary>
 	/// カメラアニメーションイベントを保存
 	/// </summary>
 	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
@@ -249,6 +256,13 @@ private:
 	std::shared_ptr<AttackEvent> LoadAttackEvent(const nlohmann::json& eventJson) const;
 
 	/// <summary>
+	/// エフェクトイベントを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>エフェクトイベント</returns>
+	std::shared_ptr<EffectEvent> LoadEffectEvent(const nlohmann::json& eventJson) const;
+
+	/// <summary>
 	/// カメラアニメーションイベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
@@ -318,6 +332,12 @@ private:
 	void AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
+	/// エフェクトイベントを追加
+	/// </summary>
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddEffectEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+
+	/// <summary>
 	/// カメラアニメーションイベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
@@ -354,16 +374,22 @@ private:
 	void EditRotationEvent(RotationEvent* rotationEvent);
 
 	/// <summary>
-	/// カメラアニメーションイベントの編集
-	/// </summary>
-	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
-	void EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent);
-
-	/// <summary>
 	/// 攻撃イベントを編集
 	/// </summary>
 	/// <param name="attackEvent">攻撃イベント</param>
 	void EditAttackEvent(AttackEvent* attackEvent);
+
+	/// <summary>
+	/// エフェクトイベントを編集
+	/// </summary>
+	/// <param name="effectEvent">エフェクトイベント</param>
+	void EditEffectEvent(EffectEvent* effectEvent);
+
+	/// <summary>
+	/// カメラアニメーションイベントの編集
+	/// </summary>
+	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
+	void EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent);
 
 	/// <summary>
 	/// キャンセルイベントを編集

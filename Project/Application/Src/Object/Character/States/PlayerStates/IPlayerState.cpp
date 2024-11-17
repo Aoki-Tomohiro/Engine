@@ -8,30 +8,6 @@ Player* IPlayerState::GetPlayer() const
 	return dynamic_cast<Player*>(GetCharacter());
 }
 
-void IPlayerState::HandleStateTransition()
-{
-	//先行入力があった場合はその状態に遷移して処理を飛ばす
-	if (CheckAndTransitionBufferedAction())
-	{
-		return;
-	}
-
-	//座標を取得
-	Vector3 position = character_->GetPosition();
-
-	//プレイヤーが地面にいなかった場合は落下状態にする
-	if (position.y > 0.0f)
-	{
-		character_->ChangeState("Falling");
-	}
-	//地面にいる場合は地面に埋まらないように座標を補正して通常状態に戻す
-	else
-	{
-		character_->SetPosition({ position.x, 0.0f, position.z });
-		character_->ChangeState("Move");
-	}
-}
-
 void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
@@ -146,18 +122,24 @@ void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent, const int3
 	//キャンセルアクションのボタンが押されていたら遷移
 	if (GetPlayer()->IsButtonTriggered(cancelEvent->cancelType))
 	{
-		//キャンセルされたフラグを立てる
-		processedCancelDatas_[animationEventIndex].isCanceled = true;
-
-		//新しい状態に遷移
-		character_->ChangeState(cancelEvent->cancelType);
+		//キャンセルの条件が設定されていない場合はフラグを立ててデフォルトの状態遷移を行う
+		if (cancelEvent->cancelType == "None")
+		{
+			processedCancelDatas_[animationEventIndex].isCanceled = true;
+			HandleStateTransition();
+		}
+		//キャンセルの条件が設定されている場合はその種類に基づいて状態遷移を行う
+		else
+		{
+			processedCancelDatas_[animationEventIndex].isCanceled = character_->ChangeState(cancelEvent->cancelType);
+		}
 	}
 }
 
 void IPlayerState::HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
 {
-	//キャンセルアクションのボタンが押されていたら遷移
-	if (GetPlayer()->IsButtonTriggered(bufferedActionEvent->bufferedActionType))
+	//全ての先行入力が一度も設定されていない場合かつ、キャンセルアクションのボタンが押された場合に先行入力を設定する
+	if (std::all_of(processedBufferedActionDatas_.begin(), processedBufferedActionDatas_.end(), [](const auto& data) { return !data.isBufferedInputActive; }) && GetPlayer()->IsButtonTriggered(bufferedActionEvent->bufferedActionType))
 	{
 		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
 		processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive = true;

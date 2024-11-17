@@ -12,6 +12,12 @@ void ParticleEmitter::Initialize(const std::string& name, const float lifeTime)
 
 void ParticleEmitter::Update()
 {
+	//追従対象がいればエミッターの座標を更新
+	if (followTarget_)
+	{
+		translate_ = *followTarget_;
+	}
+
 	//タイムを減算
 	frequencyTime_ -= GameTimer::GetDeltaTime();
 

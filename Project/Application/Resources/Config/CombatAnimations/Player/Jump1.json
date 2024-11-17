@@ -28,6 +28,36 @@
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
+                },
+                "AnimationEvent3": {
+                    "CancelType": "Jump",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent4": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent5": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent6": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent7": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
                 }
             },
             "AnimationSpeedConfigs": {

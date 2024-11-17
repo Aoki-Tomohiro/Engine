@@ -24,6 +24,7 @@
                         "EnableColorOverLifeTime": false,
                         "EnableRotationOverLifeTime": false,
                         "EnableSizeOverLifeTime": false,
+                        "FollowEnabled": false,
                         "Frequency": 0.009999999776482582,
                         "IsBillboard": true,
                         "LifeTimeMax": 0.6000000238418579,

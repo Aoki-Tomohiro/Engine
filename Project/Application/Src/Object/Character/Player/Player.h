@@ -1,7 +1,6 @@
 #pragma once
 #include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Audio/Audio.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 #include "Application/Src/Object/Character/Player/SkillCooldownManager.h"
 #include "Application/Src/Object/Character/States/PlayerStates/IPlayerState.h"
@@ -76,9 +75,12 @@ public:
     //アクションフラグ
     enum class ActionFlag
     {
-        kMagicAttackEnabled,           // 魔法攻撃が有効かどうか
-        kChargeMagicAttackEnabled,     // 溜め魔法攻撃が有効かどうか
-        kCanStomp,                     // ストンプが可能かどうか
+        kMagicAttackEnabled,       //魔法攻撃が有効かどうか
+        kChargeMagicAttackEnabled, //溜め魔法攻撃が有効かどうか
+        kCanStomp,                 //ストンプが可能かどうか
+        kFallingAttackEnabled,     //落下攻撃が有効かどうか
+        kAbility1Enabled,          //アビリティ1が有効かどうか
+        kAbility2Enabled,          //アビリティ2が有効かどうか
     };
 
     //ダメージエフェクトの構造体
@@ -118,8 +120,9 @@ public:
     //スキルのパラメーター
     struct SkillParameters
     {
-        std::string name{};
-        float cooldownDuration = 0.0f;
+        std::string name{};              //名前
+        float cooldownDuration = 0.0f;   //クールダウンの時間
+        bool canUseOnGroundOnly = false; //地面にいる時しか発動できないかどうか
     };
 
     /// <summary>
@@ -166,7 +169,14 @@ public:
     /// </summary>
     /// <param name="actionName">アクションの名前</param>
     /// <returns>ボタンが押されたかどうか</returns>
-    const bool IsButtonTriggered(const std::string& actionName) const;
+    const bool IsButtonTriggered(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName)() : false; };
+
+    /// <summary>
+    /// アビリティの名前を取得
+    /// </summary>
+    /// <param name="isSecond">`true`で2番目の名前、`false`で最初の名前。</param>
+    /// <returns>アビリティの名前</returns>
+    const std::string& GetAbilityName(const bool isSecond) const { return isSecond ? skillPairSets_[activeSkillSetIndex_].second.name : skillPairSets_[activeSkillSetIndex_].first.name; };
 
     //アクションフラグの取得・設定
     const bool GetActionFlag(const ActionFlag& actionFlag) const { auto it = actionFlags_.find(actionFlag); return it != actionFlags_.end() && it->second; };
@@ -266,6 +276,26 @@ private:
     /// <param name="uiSettings">スキルのUIの設定</param>
     void DrawSkillUI(const SkillUISettings& uiSettings);
 
+    /// <summary>
+    /// 落下攻撃の条件を確認して発動
+    /// </summary>
+    /// <returns>発動したかどうか</returns>
+    bool CheckFallingAttack();
+
+    /// <summary>
+    /// アビリティの条件を確認して発動
+    /// </summary>
+    /// <returns>発動したかどうか</returns>
+    bool CheckAndTriggerAbility();
+
+    /// <summary>
+    /// アビリティが使用可能かを確認
+    /// </summary>
+    /// <param name="skill">スキル</param>
+    /// <param name="button">ボタン</param>
+    /// <returns>アビリティを使用できるかどうか</returns>
+    bool IsAbilityAvailable(const SkillParameters& skill, const Player::ButtonType button);
+
 private:
     //インプット
     Input* input_ = nullptr;
@@ -277,8 +307,8 @@ private:
     std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
 
     //スキルのパラメーター
-    std::vector<std::pair<SkillParameters, SkillParameters>> skillPairSets_{
-        { { {"LaunchAttack", 6.0f}, {"SpinAttack", 4.0f} } },
+    const std::array<std::pair<SkillParameters, SkillParameters>, kMaxSkillCount / 2> skillPairSets_ = { {
+        {SkillParameters{"LaunchAttack", 6.0f, true}, SkillParameters{"SpinAttack", 4.0f, false}}}
     };
 
     //現在選択中のスキルセット
@@ -291,22 +321,47 @@ private:
     std::array<ButtonState, kMaxButtons> buttonStates_{};
 
     //ボタン定数を保持する配列
-    std::array<WORD, kMaxButtons> buttonMappings_{
+    const std::array<WORD, kMaxButtons> buttonMappings_{
         XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
         XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
+    };
+
+    //アクションに対応する条件式を保持するマップ
+    const std::unordered_map<std::string, std::function<bool()>> actionMap_ = {
+        {"None", [this]() {return true; }},
+        {"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
+        {"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }},
+        {"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
+        {"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
+        {"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+        {"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+        {"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+        {"FallingAttack",[this]() {return CheckFallingAttack();}},
+        {"Ability",[this]() {return CheckAndTriggerAbility(); }},
     };
 
     //ボタンのUIの設定
     std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};
 
     //ボタンのUIの構成
-    std::array<ButtonConfig, kMaxButtons> buttonConfigs_{};
+    const std::array<ButtonConfig, kMaxButtons> buttonConfigs_{ {
+        { "xbox_button_a_outline.png", "Jump.png", {1000.0f, 630.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_button_b_outline.png", "Dash.png", {1048.0f, 582.0f}, {1108.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_button_x_outline.png", "Attack.png", {952.0f, 582.0f}, {880.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_button_y_outline.png", "Fire.png", {1000.0f, 534.0f}, {904.0f, 544.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_lb_outline.png", "Lockon.png", {1070.0f, 429.0f}, {1139.0f, 439.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_rb_outline.png", "Dodge.png", {1070.0f, 484.0f}, {1139.0f, 496.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { "xbox_rt_outline.png", "Change.png", {1070.0f, 370.0f}, {1139.0f, 382.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
+    };
 
     //スキルのUIの設定
     std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
 
     //スキルのUIの構成
-    std::array<SkillConfig, kMaxSkillCount> skillConfigs_{};
+    const std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
+        { "xbox_button_x_outline.png", "LaunchAttack.png", { 952.0f, 582.0f }, { 790.0f,596.0f }, {1.0f, 1.0f}, {0.3f, 0.3f}, { 955.0f, 580.0f }, { 28.0f,4.0f }},
+        { "xbox_button_y_outline.png", "SpinAttack.png", { 1000.0f,534.0f }, { 880.0f,544.0f }, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1004.0f,530.0f }, { 28.0f,4.0f }},}
+    };
 
     //魔法攻撃用ワーク
     MagicAttackWork magicAttackWork_{};
@@ -314,20 +369,17 @@ private:
     //ダメージエフェクトの構造体
     DamageEffect damageEffect_{};
 
-    //ストンプ可能な距離
-    const float kStompRange_ = 6.0f;
-
-    //右トリガーの入力閾値
-    const float kRightTriggerThreshold = 0.7f;
-
-    //オーディオハンドル
-    uint32_t damageAudioHandle_ = 0;
-
     //カメラ
     const Camera* camera_ = nullptr;
 
     //ロックオン
     const Lockon* lockon_ = nullptr;
+
+    //ストンプ可能な距離
+    const float kStompRange_ = 6.0f;
+
+    //右トリガーの入力閾値
+    const float kRightTriggerThreshold = 0.7f;
 
     //各種パラメーター
     RootParameters rootParameters_{};

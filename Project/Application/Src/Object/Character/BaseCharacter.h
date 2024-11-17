@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/2D/Sprite.h"
+#include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
@@ -9,9 +10,11 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/HitStop/HitStop.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Character/States/ICharacterState.h"
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
+#include "Application/Src/Object/Editors/EditorManager.h"
 
 /// <summary>
 /// キャラクターの基底クラス
@@ -51,7 +54,8 @@ public:
     /// 状態遷移
     /// </summary>
     /// <param name="newStateName">新しい状態の名前</param>
-    void ChangeState(const std::string& newStateName);
+    /// <returns>遷移したかどうか</returns>
+    bool ChangeState(const std::string& newStateName);
 
     /// <summary>
     /// 移動処理
@@ -87,6 +91,12 @@ public:
     /// モデルシェイク開始
     /// </summary>
     void StartModelShake();
+
+    /// <summary>
+    /// サウンドエフェクトを再生
+    /// </summary>
+    /// <param name="soundEffectType">サウンドエフェクトのタイプ</param>
+    void PlaySoundEffect(const SoundEffectType soundEffectType);
 
     /// <summary>
     /// デバッグモードの開始
@@ -137,6 +147,10 @@ public:
     Weapon* GetWeapon() const { return weapon_; };
     void SetWeapon(Weapon* weapon) { weapon_ = weapon; };
 
+    //ヒットストップを取得・設定
+    HitStop* GetHitStop() const { return hitStop_; };
+    void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
+
     //カメラコントローラーの取得・設定
     CameraController* GetCameraController() const { return cameraController_; };
     void SetCameraController(CameraController* cameraController) { cameraController_ = cameraController; };
@@ -159,9 +173,6 @@ public:
 
     //タイトルシーンのフラグを設定
     void SetIsInTitleScene(const bool isInTitleScene) { isInTitleScene_ = isInTitleScene; };
-
-    //ヒットストップを設定
-    void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
 
     //アニメーターを取得
     AnimatorComponent* GetAnimator() const { return animator_; };
@@ -191,6 +202,11 @@ protected:
         kMiddle,
         kRight,
     };
+
+    /// <summary>
+    /// オーディオの初期化
+    /// </summary>
+    virtual void InitializeAudio();
 
     /// <summary>
     /// トランスフォームの初期化
@@ -281,6 +297,9 @@ protected:
     //移動制限
     const float kMoveLimit = 100.0f;
 
+    //オーディオ
+    Audio* audio_ = nullptr;
+
     //現在の状態
     std::unique_ptr<ICharacterState> currentState_ = nullptr;
 
@@ -322,6 +341,9 @@ protected:
 
     //モデルシェイク
     ModelShake modelShake_{};
+
+    //オーディオハンドル
+    std::map<SoundEffectType, uint32_t> audioHandles_{};
 
     //重力加速度
     float gravityAcceleration_ = -180.0f;
