@@ -75,9 +75,10 @@ public:
     //アクションフラグ
     enum class ActionFlag
     {
+        kCanStomp,                 //ストンプが可能かどうか
+        kDashAttackEnabled,        //ダッシュ攻撃が有効かどうか
         kMagicAttackEnabled,       //魔法攻撃が有効かどうか
         kChargeMagicAttackEnabled, //溜め魔法攻撃が有効かどうか
-        kCanStomp,                 //ストンプが可能かどうか
         kFallingAttackEnabled,     //落下攻撃が有効かどうか
         kAbility1Enabled,          //アビリティ1が有効かどうか
         kAbility2Enabled,          //アビリティ2が有効かどうか

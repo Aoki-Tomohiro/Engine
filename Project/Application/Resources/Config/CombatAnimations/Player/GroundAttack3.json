@@ -47,7 +47,7 @@
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "Ability",
+                    "BufferedActionType": "Attack",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -93,19 +93,19 @@
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent7": {
-                    "BufferedActionType": "Magic",
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent8": {
-                    "BufferedActionType": "ChargeMagic",
+                    "BufferedActionType": "Magic",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "Attack",
+                    "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -113,7 +113,7 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.4000000953674316,
+                    "AnimationSpeed": 2.5999999046325684,
                     "Duration": 0.800000011920929
                 },
                 "AnimationSpeedConfig1": {

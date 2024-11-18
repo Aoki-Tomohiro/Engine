@@ -76,10 +76,10 @@
                     "StartEventTime": 1.8200000524520874
                 },
                 "AnimationEvent3": {
-                    "CameraShakeDuration": 0.6000000238418579,
+                    "CameraShakeDuration": 0.30000001192092896,
                     "CameraShakeIntensity": [
                         0.0,
-                        2.0,
+                        6.0,
                         0.0
                     ],
                     "EndEventTime": 3.700000047683716,

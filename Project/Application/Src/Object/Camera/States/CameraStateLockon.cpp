@@ -7,15 +7,6 @@ void CameraStateLockon::Initialize()
 {
 	//オフセット値の初期化
 	cameraController_->SetOffset(cameraController_->GetLockonCameraParameters().offset);
-
-	////ロックオン対象の位置を取得
-	//Vector3 lockOnPosition = cameraController_->GetLockon()->GetTargetPosition();
-
-	////現在のカメラ位置からロックオン対象までの方向ベクトルを計算
-	//currentDirection_ = Mathf::Normalize(lockOnPosition - cameraController_->GetCameraPosition());
-
-	////前のフレームの方向ベクトルを更新
-	//previousDirection_ = currentDirection_;
 }
 
 void CameraStateLockon::Update()
@@ -36,7 +27,7 @@ void CameraStateLockon::Update()
 		currentDirection_ = Mathf::Normalize(lockOnPosition - cameraPosition);
 
 		//プレイヤーと敵が一定距離中にいる場合
-		if (IsCameraCloseToTarget(cameraPosition, lockOnPosition))
+		if (IsWithinLockonDistance(cameraController_->GetInterTarget(), lockOnPosition))
 		{
 			//クォータニオンによる回転を計算
 			Quaternion newQuaternion = CalculateNewRotation();
@@ -62,7 +53,7 @@ void CameraStateLockon::Update()
 	}
 }
 
-const Quaternion CameraStateLockon::CalculateNewRotation() const
+Quaternion CameraStateLockon::CalculateNewRotation() const
 {
 	//前の方向ベクトルと現在の方向ベクトルを正規化して水平面上の方向を取得
 	Vector3 previous = Mathf::Normalize(Vector3{ previousDirection_.x, 0.0f, previousDirection_.z });
@@ -89,7 +80,8 @@ const Quaternion CameraStateLockon::CalculateNewRotation() const
 		: Mathf::MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, -angle);
 }
 
-const bool CameraStateLockon::IsCameraCloseToTarget(const Vector3& cameraPosition, const Vector3& lockOnTargetPosition) const
+bool CameraStateLockon::IsWithinLockonDistance(const Vector3& followPosition, const Vector3& lockonPosition)
 {
-	return Mathf::Length(lockOnTargetPosition - cameraPosition) <= cameraController_->GetLockonCameraParameters().maxDistance;
+	Vector3 diff = lockonPosition - followPosition;
+	return Mathf::Length({ diff.x, 0.0f, diff.z }) <= cameraController_->GetLockonCameraParameters().maxDistance;
 }

@@ -47,31 +47,31 @@
                     "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "Ability",
-                    "EndEventTime": 1.0,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent11": {
                     "BufferedActionType": "Magic",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent12": {
+                "AnimationEvent11": {
                     "BufferedActionType": "Jump",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent13": {
+                "AnimationEvent12": {
                     "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent14": {
+                "AnimationEvent13": {
                     "BufferedActionType": "Attack",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent14": {
+                    "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -129,7 +129,7 @@
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "FallingAttack",
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -137,7 +137,7 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.4000000953674316,
+                    "AnimationSpeed": 2.5999999046325684,
                     "Duration": 1.7000000476837158
                 }
             },

@@ -730,25 +730,25 @@
       <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateAnimation.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\Player\Player.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateDebug.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Camera\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRoot.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\Player\Player.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1197,25 +1197,25 @@
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateAnimation.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\Player\Player.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateDebug.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Camera\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateRoot.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\Player\Player.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

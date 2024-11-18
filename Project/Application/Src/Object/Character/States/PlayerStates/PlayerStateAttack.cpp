@@ -8,14 +8,17 @@ void PlayerStateAttack::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーション名を設定
-	animationName_ = character_->GetPosition().y > 0.0f ? SetAerialAnimationName() : SetGroundAnimationName();
+	//空中か地上かによってアニメーション名を決定
+	animationName_ = DetermineAnimationName();
 
 	//アニメーションブレンドを無効にする
 	character_->GetAnimator()->SetIsBlending(false);
 
 	//攻撃アニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(animationName_);
+
+	//ダッシュ攻撃の処理を実行
+	HandleDashAttack();
 }
 
 void PlayerStateAttack::Update()
@@ -40,14 +43,34 @@ void PlayerStateAttack::OnCollision(GameObject* other)
 	character_->ProcessCollisionImpact(other, true);
 }
 
-const std::string PlayerStateAttack::SetGroundAnimationName() const
+std::string PlayerStateAttack::DetermineAnimationName() const
+{
+	//現在の高さを確認し、空中攻撃か地上攻撃かを決定
+	return character_->GetPosition().y > 0.0f ? GetAerialAnimationName() : GetGroundAnimationName();
+}
+
+const std::string PlayerStateAttack::GetGroundAnimationName() const
 {
 	return "GroundAttack" + std::to_string(comboIndex + 1);
 }
 
-const std::string PlayerStateAttack::SetAerialAnimationName()const 
+const std::string PlayerStateAttack::GetAerialAnimationName()const
 {
 	return "AerialAttack" + std::to_string(comboIndex + 1);
+}
+
+void PlayerStateAttack::HandleDashAttack()
+{
+	//ダッシュ攻撃が有効化されている場合
+	if (GetPlayer()->GetActionFlag(Player::ActionFlag::kDashAttackEnabled))
+	{
+		//フラグを無効化
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kDashAttackEnabled, false);
+
+		//アニメーション開始時間を設定
+		float startTime = animationName_.find("GroundAttack") != std::string::npos ? groundAttackStartTime_ : aerialAttackStartTime_;
+		character_->GetAnimator()->SetCurrentAnimationTime(startTime);
+	}
 }
 
 void PlayerStateAttack::UpdateComboIndex()

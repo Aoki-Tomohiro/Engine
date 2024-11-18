@@ -31,7 +31,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent10": {
-                    "CancelType": "FallingAttack",
+                    "CancelType": "Attack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 1.399999976158142
@@ -99,7 +99,7 @@
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        20.0,
+                        18.0,
                         0.0
                     ],
                     "MaxHitCount": 5,
@@ -180,7 +180,7 @@
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent9": {
-                    "CancelType": "Attack",
+                    "CancelType": "FallingAttack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 1.399999976158142

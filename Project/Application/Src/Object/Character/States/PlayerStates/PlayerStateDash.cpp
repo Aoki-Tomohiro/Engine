@@ -8,6 +8,9 @@ void PlayerStateDash::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
+	//アニメーションブレンドを有効にする
+	character_->GetAnimator()->SetIsBlending(true);
+
 	//ダッシュ開始時のアニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(currentAnimation_);
 }
@@ -17,22 +20,11 @@ void PlayerStateDash::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
-	//ダッシュ終了アニメーションへの遷移チェック
-	CheckTransitionToDashEndAnimation();
-
-	//速度移動イベントが無効の場合はダッシュ終了処理
-	if (processedVelocityDatas_.empty() || !processedVelocityDatas_[0].isActive)
-	{
-		FinalizeDash();
-	}
-
 	//現在のアニメーションがダッシュ終了かつアニメーションが終了していた場合
-	if (character_->GetAnimator()->GetIsAnimationFinished() && currentAnimation_ == "DashEnd")
+	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{	
-		//ダッシュ終了処理
-		FinalizeDash();
-		//デフォルトの状態に遷移
-		HandleStateTransition();
+		//現在のアニメーションがダッシュ開始の場合
+		currentAnimation_ == "DashStart" ? CheckTransitionToDashEndAnimation() : HandleStateTransition();
 	}
 }
 
@@ -54,19 +46,21 @@ void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* ve
 
 void PlayerStateDash::CheckTransitionToDashEndAnimation()
 {
-	if (currentAnimation_ == "DashStart" && character_->GetAnimator()->GetIsAnimationFinished())
+	//ダッシュ終了処理
+	FinalizeDash();
+
+	//先行入力があった場合は状態を遷移してダッシュ攻撃のフラグを立てる
+	if (CheckAndTransitionBufferedAction())
 	{
-		//先行入力があった場合はダッシュ状態のリセットをして状態を遷移
-		if (CheckAndTransitionBufferedAction())
-		{
-			FinalizeDash();
-			return;
-		}
-		//現在のアニメーションの名前を変更
-		currentAnimation_ = "DashEnd";
-		//ダッシュ終了時のアニメーションの再生とアニメーションコントローラーを取得
-		SetAnimationControllerAndPlayAnimation(currentAnimation_);
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kDashAttackEnabled, true);
+		return;
 	}
+
+	//現在のアニメーションの名前を変更
+	currentAnimation_ = "DashEnd";
+
+	//ダッシュ終了時のアニメーションの再生とアニメーションコントローラーを取得
+	SetAnimationControllerAndPlayAnimation(currentAnimation_);
 }
 
 void PlayerStateDash::FinalizeDash()
