@@ -43,13 +43,15 @@ const std::string PlayerStateAbility::GetAbilityNameAndResetFlag() const
 	//1番目または2番目のアビリティをフラグに基づいて取得
 	if (player->GetActionFlag(Player::ActionFlag::kAbility1Enabled))
 	{
+		//1番目のアビリティ
 		player->SetActionFlag(Player::ActionFlag::kAbility1Enabled, false);
-		return player->GetAbilityName(false);  //1番目のアビリティ
+		return player->GetAbilityName(false);
 	}
 	else if (player->GetActionFlag(Player::ActionFlag::kAbility2Enabled))
 	{
+		//2番目のアビリティ
 		player->SetActionFlag(Player::ActionFlag::kAbility2Enabled, false);
-		return player->GetAbilityName(true);   //2番目のアビリティ
+		return player->GetAbilityName(true);
 	}
 	return ""; //フラグが立っていない場合は空文字
 }

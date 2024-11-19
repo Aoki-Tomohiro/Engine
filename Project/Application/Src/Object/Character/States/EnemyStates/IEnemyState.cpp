@@ -28,4 +28,5 @@ void IEnemyState::HandleCancelAction(const CancelEvent* cancelEvent, const int32
 
 void IEnemyState::HandleBufferedAction(const BufferedActionEvent*, const int32_t)
 {
+
 }
