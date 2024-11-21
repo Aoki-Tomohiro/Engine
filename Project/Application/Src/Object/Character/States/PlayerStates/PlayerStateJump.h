@@ -37,6 +37,11 @@ private:
 	void ApplyGravity();
 
 	/// <summary>
+	/// ロックオン中かどうかを判別して敵の方向に向ける処理
+	/// </summary>
+	void LookAtLockonTarget();
+
+	/// <summary>
 	/// 地面に着地しているかを確認
 	/// </summary>
 	void CheckLandingAndTransitionState();

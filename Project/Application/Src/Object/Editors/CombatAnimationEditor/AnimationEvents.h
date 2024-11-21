@@ -157,15 +157,6 @@ enum class PostEffectType
     kRadialBlur, //ラジアルブラー
 };
 
-//ヒット音の種類
-enum class SoundEffectType
-{
-    kNone,      //無し
-    kNormalHit, //通常ヒット音
-    kDash,      //ダッシュ
-    kDamage,    //ダメージ
-};
-
 //エフェクトのイベント
 struct EffectEvent : public AnimationEvent
 {
@@ -175,9 +166,9 @@ struct EffectEvent : public AnimationEvent
     float hitStopDuration = 0.0f;      //ヒットストップの時間
     float cameraShakeDuration = 0.0f;  //カメラ揺れ時間
     Vector3 cameraShakeIntensity{};    //カメラ揺れ強度
+    std::string soundEffectType{};     //SEのタイプ
     std::string particleEffectName{};  //パーティクルの名前
     PostEffectType postEffectType{};   //ポストエフェクトの種類
-    SoundEffectType soundEffectType{}; //SEのタイプ
 };
 
 #pragma endregion
@@ -227,14 +218,11 @@ struct BufferedActionEvent : public AnimationEvent
 namespace
 {
     const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "Effect", "CameraAnimation", "Cancel", "Buffered Action"}; //イベントタイプ
-    const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" }; //移動イベントタイプ
-    const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" }; //イージングタイプ
-    const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" }; //イベントのトリガー条件
-    const char* REACTION_TYPES[] = { "Flinch", "Knockback" }; //リアクションタイプ
-    const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };//ポストエフェクトのタイプ
-    const char* SOUND_EFFECT_TYPES[] = { "None", "NormalHit", "Dash", "Damage" }; //SEのタイプ
-    const char* CANCEL_TYPES[] = { "None", "Move", "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "FallingAttack", "Ability" }; //キャンセルタイプ
-    const char* BUFFERED_ACTION_TYPES[] = { "Move", "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "FallingAttack", "Ability" }; //先行入力タイプ
+    const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                   //移動イベントタイプ
+    const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                               //イージングタイプ
+    const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" };                                                                //イベントのトリガー条件
+    const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                                                  //リアクションタイプ
+    const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };                                                                //ポストエフェクトのタイプ
 }
 
 #pragma endregion

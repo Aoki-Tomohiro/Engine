@@ -96,7 +96,7 @@ public:
     /// サウンドエフェクトを再生
     /// </summary>
     /// <param name="soundEffectType">サウンドエフェクトのタイプ</param>
-    void PlaySoundEffect(const SoundEffectType soundEffectType);
+    void PlaySoundEffect(const std::string& soundEffectType);
 
     /// <summary>
     /// デバッグモードの開始
@@ -114,14 +114,14 @@ public:
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのワールド座標</returns>
-    const Vector3 GetJointWorldPosition(const std::string& jointName) const;
+    Vector3 GetJointWorldPosition(const std::string& jointName) const;
 
     /// <summary>
     /// ジョイントのローカル座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのローカル座標<</returns>
-    const Vector3 GetJointLocalPosition(const std::string& jointName) const;
+    Vector3 GetJointLocalPosition(const std::string& jointName) const;
 
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
@@ -158,6 +158,12 @@ public:
     //エディターマネージャーの取得・設定
     const EditorManager* GetEditorManager() const { return editorManager_; };
     void SetEditorManager(const EditorManager* editorManager) { editorManager_ = editorManager; };
+
+    //アクションマップのキーを取得
+    const std::vector<std::string> GetActionKeys() const { return GetKeysFromMap(actionMap_); };
+
+    //オーディオハンドルのキーを取得
+    const std::vector<std::string> GetAudioHandles() const { return GetKeysFromMap(audioHandles_); };
 
     //重力加速度を取得
     const float GetGravityAcceleration() const { return gravityAcceleration_; };
@@ -204,9 +210,14 @@ protected:
     };
 
     /// <summary>
+    /// アクションマップの初期化
+    /// </summary>
+    virtual void InitializeActionMap() = 0;
+
+    /// <summary>
     /// オーディオの初期化
     /// </summary>
-    virtual void InitializeAudio();
+    virtual void InitializeAudio() = 0;
 
     /// <summary>
     /// トランスフォームの初期化
@@ -242,6 +253,11 @@ protected:
     /// 環境変数の初期化
     /// </summary>
     virtual void InitializeGlobalVariables();
+
+    /// <summary>
+    /// 環境変数の適用
+    /// </summary>
+    virtual void ApplyGlobalVariables();
 
     /// <summary>
     /// 回転の更新処理
@@ -289,13 +305,23 @@ protected:
     void ResetToOriginalPosition();
 
     /// <summary>
-    /// 環境変数の適用
+    /// 指定されたコンテナのキーを取り出し配列として返す関数
     /// </summary>
-    virtual void ApplyGlobalVariables();
+    /// <typeparam name="Type">キーと値のペアで構成されるコンテナ型</typeparam>
+    /// <param name="map">キーと値のペアを格納するコンテナ</param>
+    /// <returns>コンテナ内のすべてのキーを格納した配列</returns>
+    template <typename Type>
+    std::vector<std::string> GetKeysFromMap(const Type& map) const;
 
 protected:
     //移動制限
-    const float kMoveLimit = 100.0f;
+    const float kMoveLimit_ = 100.0f;
+
+    //体力の最大値
+    const float kMaxHp_ = 100.0f;
+
+    //重力加速度
+    const float gravityAcceleration_ = -110.0f;
 
     //オーディオ
     Audio* audio_ = nullptr;
@@ -342,17 +368,14 @@ protected:
     //モデルシェイク
     ModelShake modelShake_{};
 
+    //アクションに対応する条件式を保持するマップ
+    std::map<std::string, std::function<bool()>> actionMap_{};
+
     //オーディオハンドル
-    std::map<SoundEffectType, uint32_t> audioHandles_{};
-
-    //重力加速度
-    float gravityAcceleration_ = -180.0f;
-
-    //体力の最大値
-    float maxHp_ = 0.0f;
+    std::map<std::string, uint32_t> audioHandles_{};
 
     //体力
-    float hp_ = 0.0f;
+    float hp_ = kMaxHp_;
 
     //体力のスプライトの名前
     std::array<std::array<std::string, 3>, 2> hpTextureNames_{};
@@ -385,3 +408,17 @@ protected:
     const EditorManager* editorManager_ = nullptr;
 };
 
+
+template<typename Type>
+inline std::vector<std::string> BaseCharacter::GetKeysFromMap(const Type& map) const
+{
+    //キーを格納するための配列
+    std::vector<std::string> keys;
+    //キーをすべて追加
+    for (const auto& pair : map)
+    {
+        keys.push_back(pair.first);
+    }
+    //キーを格納した配列を返す
+    return keys;
+}

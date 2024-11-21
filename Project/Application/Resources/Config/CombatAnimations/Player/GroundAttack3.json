@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "Damage": 10.0,
+                    "Damage": 0.07999999821186066,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
                     "HitInterval": 0.03999999910593033,
@@ -34,7 +34,7 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        0.0,
+                        60.0,
                         -4.0
                     ],
                     "KnockbackVelocity": [
@@ -47,7 +47,7 @@
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "Attack",
+                    "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -93,19 +93,19 @@
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent7": {
-                    "BufferedActionType": "Ability",
+                    "BufferedActionType": "Attack",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent8": {
-                    "BufferedActionType": "Magic",
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "ChargeMagic",
+                    "BufferedActionType": "Magic",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

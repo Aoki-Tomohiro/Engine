@@ -88,6 +88,16 @@ public:
 	const RootParameters& GetRootParameters() const { return rootParameters_; };
 
 private:
+	/// <summary>
+	/// アクションマップの初期化
+	/// </summary>
+	void InitializeActionMap() override;
+
+	/// <summary>
+	/// オーディオの初期化
+	/// </summary>
+	void InitializeAudio() override;
+
     /// <summary>
     /// アニメーターの初期化
     /// </summary>

@@ -26,13 +26,13 @@ void CombatAnimationEditor::Update()
 	if (ImGui::BeginTabBar("Characters"))
 	{
 		//各キャラクターのアニメーション編集
-		for (const auto& editableCharacter : editableCharacters_)
+		for (const auto& editableCharacter : characterDatas_)
 		{
 			//アイテムバーを表示
 			if (ImGui::BeginTabItem(editableCharacter.first.c_str()))
 			{
 				//キャラクターのアニメーションを編集
-				EditCharacterAnimations(editableCharacter.second);
+				EditCharacterAnimations(editableCharacter.second.character);
 
 				//アイテムバーを終了
 				ImGui::EndTabItem();
@@ -45,33 +45,24 @@ void CombatAnimationEditor::Update()
 
 void CombatAnimationEditor::AddEditableCharacter(BaseCharacter* character)
 {
-	//キャラクター名を取得
+	//キャラクターデータを追加
 	const std::string& characterName = character->GetName();
-
-	//同じキャラクターが存在していない場合は追加
-	if (editableCharacters_.find(characterName) == editableCharacters_.end())
-	{
-		editableCharacters_[characterName] = character;
-	}
-
-	//同じアニメーションデータが存在しない場合は追加
-	if (characterAnimations_.find(characterName) == characterAnimations_.end())
-	{
-		characterAnimations_[characterName] = CharacterAnimationData();
-	}
+	characterDatas_[characterName].character = character;
+	characterDatas_[characterName].actionCategories["Actions"] = character->GetActionKeys();
+	characterDatas_[characterName].actionCategories["SoundEffects"] = character->GetAudioHandles();
 }
 
 const AnimationController& CombatAnimationEditor::GetAnimationController(const std::string& characterName, const std::string& animationName) const
 {
 	//キャラクターアニメーションを探す
-	auto characterAnimation = characterAnimations_.find(characterName);
+	auto characterAnimation = characterDatas_.find(characterName);
 	//キャラクターアニメーションが見つかった場合
-	if (characterAnimation != characterAnimations_.end())
+	if (characterAnimation != characterDatas_.end())
 	{
 		//アニメーションコントローラーを探す
-		auto animationController = characterAnimation->second.animationControllers.find(animationName);
+		auto animationController = characterAnimation->second.animationData.animationControllers.find(animationName);
 		//アニメーションコントローラーが見つかった場合はそれを返す
-		if (animationController != characterAnimation->second.animationControllers.end())
+		if (animationController != characterAnimation->second.animationData.animationControllers.end())
 		{
 			return animationController->second;
 		}
@@ -84,7 +75,7 @@ const AnimationController& CombatAnimationEditor::GetAnimationController(const s
 void CombatAnimationEditor::EditCharacterAnimations(BaseCharacter* character)
 {
 	//キャラクターのアニメーションのデータを取得
-	CharacterAnimationData& characterAnimationData = characterAnimations_[character->GetName()];
+	CharacterAnimationData& characterAnimationData = characterDatas_[character->GetName()].animationData;
 
 	//キャラクターのアニメーターを取得
 	AnimatorComponent* animator = character->GetComponent<AnimatorComponent>();
@@ -115,7 +106,7 @@ void CombatAnimationEditor::EditCharacterAnimations(BaseCharacter* character)
 	ManageAnimationSpeedConfigs(animationController.animationSpeedConfigs);
 
 	//アニメーションイベントを管理
-	ManageAnimationEvents(animationController.animationEvents);
+	ManageAnimationEvents(animationController.animationEvents, characterDatas_[character->GetName()].actionCategories);
 }
 
 void CombatAnimationEditor::ToggleDebugMode(BaseCharacter* character, CharacterAnimationData& characterAnimationData, bool isDebug)
@@ -161,7 +152,7 @@ void CombatAnimationEditor::DisplayAnimationControllerControls(const std::string
 void CombatAnimationEditor::SaveFile(const std::string& characterName, const std::string& animationControllerName)
 {
 	//アニメーションコントローラーを取得
-	const AnimationController& animationController = characterAnimations_[characterName].animationControllers[animationControllerName];
+	const AnimationController& animationController = characterDatas_[characterName].animationData.animationControllers[animationControllerName];
 
 	//jsonの構造体作成
 	nlohmann::json root = nlohmann::json::object();
@@ -295,7 +286,7 @@ void CombatAnimationEditor::SaveEffectEvent(const EffectEvent* effectEvent, nloh
 	//パラメーターを保存
 	eventJson.update({ {"EventType", "Effect"},{"StartEventTime", effectEvent->startEventTime},{"EndEventTime", effectEvent->endEventTime},
 		{"HitStopDuration", effectEvent->hitStopDuration},{"CameraShakeDuration", effectEvent->cameraShakeDuration},{"CameraShakeIntensity", {effectEvent->cameraShakeIntensity.x, effectEvent->cameraShakeIntensity.y, effectEvent->cameraShakeIntensity.z}},
-		{"ParticleEffectName", effectEvent->particleEffectName},{"PostEffectType", POST_EFFECT_TYPES[static_cast<int>(effectEvent->postEffectType)]}, {"SoundEffectType", SOUND_EFFECT_TYPES[static_cast<int>(effectEvent->soundEffectType)]},
+		{"SoundEffectType", effectEvent->soundEffectType},{"ParticleEffectName", effectEvent->particleEffectName},{"PostEffectType", POST_EFFECT_TYPES[static_cast<int>(effectEvent->postEffectType)]},
 		{"EventTrigger", EVENT_TRIGGERS[static_cast<int>(effectEvent->trigger)]} });
 }
 
@@ -367,7 +358,7 @@ void CombatAnimationEditor::LoadFile(const std::string& characterName, const std
 	nlohmann::json animationControllerJson = root[characterName][animationControllerName];
 
 	//アニメーションコントローラーのデータを取得
-	AnimationController& animationController = characterAnimations_[characterName].animationControllers[animationControllerName];
+	AnimationController& animationController = characterDatas_[characterName].animationData.animationControllers[animationControllerName];
 
 	//アニメーション速度設定を読み込む
 	animationController.animationSpeedConfigs.clear();
@@ -600,6 +591,8 @@ std::shared_ptr<EffectEvent> CombatAnimationEditor::LoadEffectEvent(const nlohma
 	effectEvent->cameraShakeDuration = eventJson["CameraShakeDuration"];
 	//カメラシェイクの強さを設定
 	effectEvent->cameraShakeIntensity = { eventJson["CameraShakeIntensity"][0].get<float>(), eventJson["CameraShakeIntensity"][1].get<float>(), eventJson["CameraShakeIntensity"][2].get<float>() };
+	//サウンドエフェクトの種類を設定
+	effectEvent->soundEffectType = eventJson["SoundEffectType"];
 	//パーティクルエフェクトの名前を設定
 	effectEvent->particleEffectName = eventJson["ParticleEffectName"];
 	//ポストエフェクトの種類を設定
@@ -608,14 +601,6 @@ std::shared_ptr<EffectEvent> CombatAnimationEditor::LoadEffectEvent(const nlohma
 		if (eventJson["PostEffectType"] == POST_EFFECT_TYPES[i])
 		{
 			effectEvent->postEffectType = static_cast<PostEffectType>(i);
-		}
-	}
-	//サウンドエフェクトの種類を設定
-	for (int32_t i = 0; i < IM_ARRAYSIZE(SOUND_EFFECT_TYPES); ++i)
-	{
-		if (eventJson["SoundEffectType"] == SOUND_EFFECT_TYPES[i])
-		{
-			effectEvent->soundEffectType = static_cast<SoundEffectType>(i);
 		}
 	}
 	//イベントのトリガー条件を設定
@@ -762,7 +747,7 @@ void CombatAnimationEditor::EditAnimationSpeedConfigs(std::vector<AnimationSpeed
 	}
 }
 
-void CombatAnimationEditor::ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+void CombatAnimationEditor::ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories)
 {
 	//アニメーションイベントを追加
 	ImGui::SeparatorText("Add Animation Event");
@@ -773,7 +758,7 @@ void CombatAnimationEditor::ManageAnimationEvents(std::vector<std::shared_ptr<An
 
 	//アニメーションイベントを編集
 	ImGui::SeparatorText("Animation Events");
-	EditAnimationEvents(animationEvents);
+	EditAnimationEvents(animationEvents, actionCategories);
 }
 
 void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
@@ -893,17 +878,11 @@ void CombatAnimationEditor::AddBufferedActionEvent(std::vector<std::shared_ptr<A
 	}
 }
 
-void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories)
 {
 	//アニメーションイベントの名前
-	static const std::unordered_map<EventType, std::string> eventNames = {
-		{ EventType::kMovement, "Movement Event" },
-		{ EventType::kRotation, "Rotation Event"},
-		{ EventType::kAttack, "Attack Event " },
-		{ EventType::kEffect, "Effect Event "},
-		{ EventType::kCameraAnimation, "Camera Animation Event "},
-		{ EventType::kCancel, "Cancel Event " },
-		{ EventType::kBufferedAction, "Buffered Action Event " },
+	static const std::unordered_map<EventType, std::string> eventNames = { { EventType::kMovement, "Movement Event" }, { EventType::kRotation, "Rotation Event"}, { EventType::kAttack, "Attack Event " },
+		{ EventType::kEffect, "Effect Event "},{ EventType::kCameraAnimation, "Camera Animation Event "},{ EventType::kCancel, "Cancel Event " },{ EventType::kBufferedAction, "Buffered Action Event " },
 	};
 
 	//アニメーションイベントのインデックス
@@ -937,16 +916,16 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 				EditAttackEvent(dynamic_cast<AttackEvent*>(animationEvents[i].get()));
 				break;
 			case EventType::kEffect:
-				EditEffectEvent(dynamic_cast<EffectEvent*>(animationEvents[i].get()));
+				EditEffectEvent(dynamic_cast<EffectEvent*>(animationEvents[i].get()), actionCategories.find("SoundEffects")->second);
 				break;
 			case EventType::kCameraAnimation:
 				EditCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()));
 				break;
 			case EventType::kCancel:
-				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()));
+				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()), actionCategories.find("Actions")->second);
 				break;
 			case EventType::kBufferedAction:
-				EditBufferedActionEvent(dynamic_cast<BufferedActionEvent*>(animationEvents[i].get()));
+				EditBufferedActionEvent(dynamic_cast<BufferedActionEvent*>(animationEvents[i].get()), actionCategories.find("Actions")->second);
 				break;
 			}
 
@@ -1001,11 +980,7 @@ void CombatAnimationEditor::EditMovementEvent(MovementEvent* movementEvent)
 		ImGui::DragFloat3("Target Position", &easingMovementEvent->targetPosition.x, 0.001f);
 
 		//イージングの種類を選択
-		int easingTypeIndex = static_cast<int>(easingMovementEvent->easingType);
-		if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
-		{
-			easingMovementEvent->easingType = static_cast<EasingType>(easingTypeIndex);
-		}
+		SelectFromEnum("Easing Type", easingMovementEvent->easingType, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES));
 	}
 }
 
@@ -1021,11 +996,7 @@ void CombatAnimationEditor::EditRotationEvent(RotationEvent* rotationEvent)
 	ImGui::DragFloat("Rotation Angle", &rotationEvent->rotationAngle, 0.001f);
 
 	//イージングの種類を選択
-	int easingTypeIndex = static_cast<int>(rotationEvent->easingType);
-	if (ImGui::Combo("Easing Type", &easingTypeIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
-	{
-		rotationEvent->easingType = static_cast<EasingType>(easingTypeIndex);
-	}
+	SelectFromEnum("Easing Type", rotationEvent->easingType, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES));
 }
 
 void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
@@ -1072,19 +1043,14 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 		ImGui::DragFloat3("Acceleration", &attackEvent->knockbackParameters.acceleration.x, 0.001f);
 
 		//リアクションのタイプを選択
-		int selectedReactionType = static_cast<int>(attackEvent->knockbackParameters.reactionType);
-		if (ImGui::Combo("Reaction Type", &selectedReactionType, REACTION_TYPES, IM_ARRAYSIZE(REACTION_TYPES)))
-		{
-			//選択した反応タイプを設定
-			attackEvent->knockbackParameters.reactionType = static_cast<ReactionType>(selectedReactionType);
-		}
+		SelectFromEnum("Reaction Type", attackEvent->knockbackParameters.reactionType, REACTION_TYPES, IM_ARRAYSIZE(REACTION_TYPES));
 
 		//ツリーノードを閉じる
 		ImGui::TreePop();
 	}
 }
 
-void CombatAnimationEditor::EditEffectEvent(EffectEvent* effectEvent)
+void CombatAnimationEditor::EditEffectEvent(EffectEvent* effectEvent, const std::vector<std::string>& soundEffects)
 {
 	//アニメーションイベントの時間を編集
 	EditEventTime(effectEvent);
@@ -1101,28 +1067,14 @@ void CombatAnimationEditor::EditEffectEvent(EffectEvent* effectEvent)
 	//パーティクルエフェクトを選択
 	SelectFromMap("Particle Effect Name", effectEvent->particleEffectName, particleEffectEditor_->GetParticleEffectConfigs(), false);
 
-	//ポストエフェクトのタイプを選択
-	int selectedPostEffectType = static_cast<int>(effectEvent->postEffectType);
-	if (ImGui::Combo("Post Effect Type", &selectedPostEffectType, POST_EFFECT_TYPES, IM_ARRAYSIZE(POST_EFFECT_TYPES)))
-	{
-		//選択したポストエフェクトタイプを設定
-		effectEvent->postEffectType = static_cast<PostEffectType>(selectedPostEffectType);
-	}
-
 	//サウンドエフェクトタイプの選択
-	int selectedSoundEffectType = static_cast<int>(effectEvent->soundEffectType);
-	if (ImGui::Combo("Sound Effect Type", &selectedSoundEffectType, SOUND_EFFECT_TYPES, IM_ARRAYSIZE(SOUND_EFFECT_TYPES)))
-	{
-		//選択したサウンドエフェクトタイプを設定
-		effectEvent->soundEffectType = static_cast<SoundEffectType>(selectedSoundEffectType);
-	}
+	EditCombo("Sound Effect Type", effectEvent->soundEffectType, soundEffects);
+
+	//ポストエフェクトのタイプを選択
+	SelectFromEnum("Post Effect Type", effectEvent->postEffectType, POST_EFFECT_TYPES, IM_ARRAYSIZE(POST_EFFECT_TYPES));
 
 	//イベントのトリガー条件を選択
-	int triggerIndex = static_cast<int>(effectEvent->trigger);
-	if (ImGui::Combo("Event Trigger", &triggerIndex, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS)))
-	{
-		effectEvent->trigger = static_cast<EventTrigger>(triggerIndex);
-	}
+	SelectFromEnum("Event Trigger", effectEvent->trigger, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS));
 }
 
 void CombatAnimationEditor::EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent)
@@ -1140,27 +1092,48 @@ void CombatAnimationEditor::EditCameraAnimationEvent(CameraAnimationEvent* camer
 	ImGui::Checkbox("Sync With Character Animation", &cameraAnimationEvent->syncWithCharacterAnimation);
 
 	//イベントのトリガー条件を選択
-	int triggerIndex = static_cast<int>(cameraAnimationEvent->trigger);
-	if (ImGui::Combo("Event Trigger", &triggerIndex, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS)))
-	{
-		cameraAnimationEvent->trigger = static_cast<EventTrigger>(triggerIndex);
-	}
+	SelectFromEnum("Event Trigger", cameraAnimationEvent->trigger, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS));
 }
 
-void CombatAnimationEditor::EditCancelEvent(CancelEvent* cancelEvent)
+void CombatAnimationEditor::EditCancelEvent(CancelEvent* cancelEvent, const std::vector<std::string>& actions)
 {
 	//アニメーションイベントの時間を編集
 	EditEventTime(cancelEvent);
 
 	//キャンセルアクションの種類を選択
-	EditCombo("Cancel Type", cancelEvent->cancelType, CANCEL_TYPES, IM_ARRAYSIZE(CANCEL_TYPES));
+	EditCombo("Cancel Type", cancelEvent->cancelType, actions);
 }
 
-void CombatAnimationEditor::EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent)
+void CombatAnimationEditor::EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent, const std::vector<std::string>& actions)
 {
 	//アニメーションイベントの時間を編集
 	EditEventTime(bufferedActionEvent);
 
 	//先行入力の種類を選択
-	EditCombo("Buffered Action Type", bufferedActionEvent->bufferedActionType, BUFFERED_ACTION_TYPES, IM_ARRAYSIZE(BUFFERED_ACTION_TYPES));
+	EditCombo("Buffered Action Type", bufferedActionEvent->bufferedActionType, actions);
+}
+
+void CombatAnimationEditor::EditCombo(const char* label, std::string& selectedName, const std::vector<std::string>& items)
+{
+	if (ImGui::BeginCombo(label, selectedName.c_str()))
+	{
+		for (int i = 0; i < items.size(); ++i)
+		{
+			//選択されたかどうかのフラグ
+			bool isSelected = (selectedName == items[i]);
+			//項目を追加
+			if (ImGui::Selectable(items[i].c_str(), isSelected))
+			{
+				//選択された値を更新
+				selectedName = items[i];
+			}
+
+			//初めて選択された項目にチェックマークを表示
+			if (isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
 }

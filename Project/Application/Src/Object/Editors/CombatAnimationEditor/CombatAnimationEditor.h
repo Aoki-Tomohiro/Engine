@@ -40,6 +40,14 @@ public:
 		std::string selectedAnimation{}; //選択中のアニメーション名
 	};
 
+	//キャラクターデータ
+	struct CharacterData
+	{
+		BaseCharacter* character;                                         //編集対象キャラクター
+		CharacterAnimationData animationData;                             //アニメーションデータ
+		std::map<std::string,std::vector<std::string>> actionCategories;  //アクションのリスト
+	};
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -305,7 +313,8 @@ private:
 	/// アニメーションイベントを管理
 	/// </summary>
 	/// <param name="animationEvents">全てのアニメーションイベント</param>
-	void ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+	/// <param name="actionCategories">アクションカテゴリ</param>
+	void ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories);
 
 	/// <summary>
 	/// アニメーションイベントを追加
@@ -359,7 +368,8 @@ private:
 	/// アニメーションイベントを編集
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+	/// <param name="actionCategories">アクションカテゴリ</param>
+	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories);
 
 	/// <summary>
 	/// 移動イベントを編集
@@ -383,7 +393,8 @@ private:
 	/// エフェクトイベントを編集
 	/// </summary>
 	/// <param name="effectEvent">エフェクトイベント</param>
-	void EditEffectEvent(EffectEvent* effectEvent);
+	/// <param name="soundEffects">サウンドエフェクトの名前一覧</param>
+	void EditEffectEvent(EffectEvent* effectEvent, const std::vector<std::string>& soundEffects);
 
 	/// <summary>
 	/// カメラアニメーションイベントの編集
@@ -395,13 +406,23 @@ private:
 	/// キャンセルイベントを編集
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
-	void EditCancelEvent(CancelEvent* cancelEvent);
+	/// <param name="actions">アクションの名前一覧</param>
+	void EditCancelEvent(CancelEvent* cancelEvent, const std::vector<std::string>& actions);
 
 	/// <summary>
 	/// 先行入力イベントを編集
 	/// </summary>
 	/// <param name="bufferedActionEvent">先行入力イベント</param>
-	void EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent);
+	/// <param name="actions">アクションの名前一覧</param>
+	void EditBufferedActionEvent(BufferedActionEvent* bufferedActionEvent, const std::vector<std::string>& actions);
+
+	/// <summary>
+	/// 選択された要素の名前を更新するComboBoxを作成
+	/// </summary>
+	/// <param name="label">ラベル名</param>
+	/// <param name="selectedName">選択された要素の名前</param>
+	/// <param name="items">表示する選択肢を格納した配列</param>
+	void EditCombo(const char* label, std::string& selectedName, const std::vector<std::string>& items);
 
 	/// <summary>
 	/// コンテナの中から要素を選択するためのComboBoxを作成する関数
@@ -415,15 +436,15 @@ private:
 	void SelectFromMap(const char* label, std::string& selectedName, const std::map<std::string, Type>& items, const bool showLabel);
 
 	/// <summary>
-	/// 選択された要素の名前を更新するComboBoxを作成
+	/// 列挙型を選択するためのコンボボックスを作成する関数
 	/// </summary>
-	/// <typeparam name="Type">コンテナに格納されている値の型</typeparam>
+	/// <typeparam name="Type">列挙型の型</typeparam>
 	/// <param name="label">ラベル名</param>
-	/// <param name="selectedName">選択された要素の名前</param>
-	/// <param name="items">表示する選択肢を格納した配列</param>
-	/// <param name="itemCount">選択肢の数</param>
+	/// <param name="enumValue">選択された列挙型の名前</param>
+	/// <param name="items">列挙型の文字列配列</param>
+	/// <param name="itemCount">列挙型の文字列配列のサイズ</param>
 	template<typename Type>
-	void EditCombo(const char* label, std::string& selectedName, const Type* items, int itemCount);
+	void SelectFromEnum(const char* label, Type& enumValue, const char* items[], int itemCount);
 
 	/// <summary>
 	/// アニメーションイベントの時間を編集
@@ -434,11 +455,8 @@ private:
 	void EditEventTime(Type* animationEvent);
 
 private:
-	//アニメーションイベント
-	std::map<std::string, CharacterAnimationData> characterAnimations_{};
-
-	//編集するキャラクター
-	std::map<std::string, BaseCharacter*> editableCharacters_{};
+	//キャラクターデータ
+	std::map<std::string, CharacterData> characterDatas_{};
 
 	//パーティクルエフェクトエディター
 	const ParticleEffectEditor* particleEffectEditor_ = nullptr;
@@ -485,28 +503,14 @@ inline void CombatAnimationEditor::SelectFromMap(const char* label, std::string&
 }
 
 template<typename Type>
-inline void CombatAnimationEditor::EditCombo(const char* label, std::string& selectedName, const Type* items, int itemCount)
+inline void CombatAnimationEditor::SelectFromEnum(const char* label, Type& enumValue, const char* items[], int itemCount)
 {
-	if (ImGui::BeginCombo(label, selectedName.c_str()))
+	//選択中の列挙体のインデックス
+	int selectedIndex = static_cast<int>(enumValue);
+	//列挙体を選択
+	if (ImGui::Combo(label, &selectedIndex, items, itemCount))
 	{
-		for (int i = 0; i < itemCount; ++i)
-		{
-			//選択されたかどうかのフラグ
-			bool isSelected = (selectedName == items[i]);
-			//項目を追加
-			if (ImGui::Selectable(items[i], isSelected))
-			{
-				//選択された値を更新
-				selectedName = items[i];
-			}
-
-			//初めて選択された項目にチェックマークを表示
-			if (isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndCombo();
+		enumValue = static_cast<Type>(selectedIndex);
 	}
 }
 

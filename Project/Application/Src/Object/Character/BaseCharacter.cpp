@@ -9,6 +9,12 @@ void BaseCharacter::Initialize()
     //基底クラスの初期化
     GameObject::Initialize();
 
+    //オーディオのインスタンスを取得
+    audio_ = Audio::GetInstance();
+
+    //アクションマップの初期化
+    InitializeActionMap();
+
     //オーディオの初期化
     InitializeAudio();
 
@@ -208,7 +214,7 @@ void BaseCharacter::StartModelShake()
     modelShake_.originalPosition = GetPosition();
 }
 
-void BaseCharacter::PlaySoundEffect(const SoundEffectType soundEffectType)
+void BaseCharacter::PlaySoundEffect(const std::string& soundEffectType)
 {
     auto it = audioHandles_.find(soundEffectType);
     if (it != audioHandles_.end())
@@ -232,7 +238,7 @@ void BaseCharacter::EndDebugMode()
     animator_->ResumeAnimation();
 }
 
-const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName) const
+Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName) const
 {
     //ジョイントのワールドトランスフォームを取得
     WorldTransform jointWorldTransform = model_->GetModel()->GetJointWorldTransform(jointName);
@@ -245,21 +251,10 @@ const Vector3 BaseCharacter::GetJointWorldPosition(const std::string& jointName)
     };
 }
 
-const Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName) const
+Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName) const
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition(jointName) - transform_->GetWorldPosition();
-}
-
-void BaseCharacter::InitializeAudio()
-{
-    //オーディオのインスタンスを取得
-    audio_ = Audio::GetInstance();
-
-    //音声データの読み込み
-    audioHandles_[SoundEffectType::kNormalHit] = audio_->LoadAudioFile("Hit.mp3");
-    audioHandles_[SoundEffectType::kDash] = audio_->LoadAudioFile("Dash.mp3");
-    audioHandles_[SoundEffectType::kDamage] = audio_->LoadAudioFile("Damage.mp3");
 }
 
 void BaseCharacter::InitializeTransform()
@@ -354,10 +349,10 @@ void BaseCharacter::RestrictMovement()
     float distance = Mathf::Length(transform_->worldTransform_.translation_);
 
     //距離が移動制限を超えているかどうかを確認
-    if (distance > kMoveLimit)
+    if (distance > kMoveLimit_)
     {
         //スケールを計算して移動制限範囲に収めるよう位置を調整
-        float scale = kMoveLimit / distance;
+        float scale = kMoveLimit_ / distance;
         transform_->worldTransform_.translation_ *= scale;
     }
 
@@ -374,7 +369,7 @@ void BaseCharacter::UpdateHP()
     hp_ = std::max<float>(hp_, 0.0f);
 
     //体力バーの中央部分のサイズを更新
-    Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / maxHp_), hpBarSegmentTextureSize_.y };
+    Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / kMaxHp_), hpBarSegmentTextureSize_.y };
     hpSprites_[kFront][kMiddle]->SetTextureSize(currentHpSize);
 
     //体力バーの右側部分の位置を調整

@@ -11,22 +11,11 @@ void Player::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//HPの初期化
-	maxHp_ = 100.0f;
-	hp_ = maxHp_;
+	//スキルクール弾マネージャーの初期化
+	InitializeSkillCooldownManager();
 
-	//スキルクールダウンマネージャーの初期化
-	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
-	for (const auto skillPairSet : skillPairSets_)
-	{
-		skillCooldownManager_->AddSkill(skillPairSet.first.name, skillPairSet.first.cooldownDuration);
-		skillCooldownManager_->AddSkill(skillPairSet.second.name, skillPairSet.second.cooldownDuration);
-	}
-
-	//ダメージエフェクト用のスプライトの生成
-	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
-	damageEffect_.sprite->SetColor(damageEffect_.color);
-	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
+	//ダメージエフェクトのスプライトを生成
+	InitializeDamageEffectSprite();
 
 	//状態の初期化
 	ChangeState("Move");
@@ -144,7 +133,7 @@ void Player::OnCollision(GameObject* gameObject)
 void Player::ApplyDamageAndKnockback(const KnockbackParameters& knockbackSettings, const float damage, const bool transitionToStun)
 {
 	//ダメージの音を再生
-	audio_->PlayAudio(audioHandles_[SoundEffectType::kDamage], false, 0.2f);
+	audio_->PlayAudio(audioHandles_["Damage"], false, 0.2f);
 
 	//ダメージエフェクトのタイマーと色を設定
 	damageEffect_.timer = 0.0f;
@@ -170,6 +159,26 @@ void Player::LookAtEnemy()
 
 	//回転処理
 	Rotate(Mathf::Normalize(rotateVector));
+}
+
+void Player::InitializeActionMap()
+{
+	//アクションマップの初期化
+	actionMap_ = { {"None", [this]() {return true; }}, {"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
+		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}, {"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
+		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }}, {"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"FallingAttack",[this]() {return CheckFallingAttack(); }},{"Ability",[this]() {return CheckAndTriggerAbility(); }},
+	};
+}
+
+void Player::InitializeAudio()
+{
+	//音声データの読み込み
+	audioHandles_["NormalHit"] = audio_->LoadAudioFile("Hit.mp3");
+	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
+	audioHandles_["Damage"] = audio_->LoadAudioFile("Damage.mp3");
 }
 
 void Player::InitializeAnimator()
@@ -229,6 +238,26 @@ void Player::InitializeUISprites()
 
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
+}
+
+void Player::InitializeSkillCooldownManager()
+{
+	//スキルクールダウンマネージャーの初期化
+	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
+	//スキルを追加
+	for (const auto skillPairSet : skillPairSets_)
+	{
+		skillCooldownManager_->AddSkill(skillPairSet.first.name, skillPairSet.first.cooldownDuration);
+		skillCooldownManager_->AddSkill(skillPairSet.second.name, skillPairSet.second.cooldownDuration);
+	}
+}
+
+void Player::InitializeDamageEffectSprite()
+{
+	//ダメージエフェクト用のスプライトの生成
+	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	damageEffect_.sprite->SetColor(damageEffect_.color);
+	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
 }
 
 void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)

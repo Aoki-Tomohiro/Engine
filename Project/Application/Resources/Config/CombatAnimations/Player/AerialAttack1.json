@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "Damage": 10.0,
+                    "Damage": 0.07999999821186066,
                     "EndEventTime": 1.0800000429153442,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -34,7 +34,7 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        0.0,
+                        60.0,
                         -4.0
                     ],
                     "KnockbackVelocity": [
@@ -47,31 +47,31 @@
                     "StartEventTime": 0.7799999713897705
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "Attack",
-                    "EndEventTime": 1.0800000429153442,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent11": {
-                    "BufferedActionType": "Ability",
-                    "EndEventTime": 1.0800000429153442,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent12": {
-                    "BufferedActionType": "FallingAttack",
-                    "EndEventTime": 1.0800000429153442,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent13": {
                     "BufferedActionType": "Magic",
                     "EndEventTime": 1.0800000429153442,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent14": {
+                "AnimationEvent11": {
                     "BufferedActionType": "ChargeMagic",
+                    "EndEventTime": 1.0800000429153442,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent12": {
+                    "BufferedActionType": "Jump",
+                    "EndEventTime": 1.0800000429153442,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent13": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 1.0800000429153442,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent14": {
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.0800000429153442,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -129,7 +129,7 @@
                     "StartEventTime": 1.0800000429153442
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "Jump",
+                    "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.0800000429153442,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

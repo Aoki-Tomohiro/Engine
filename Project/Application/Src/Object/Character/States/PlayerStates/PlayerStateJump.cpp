@@ -24,6 +24,9 @@ void PlayerStateJump::Update()
 	//重力を適用
 	ApplyGravity();
 
+	//ロックオン中は敵の方向に向ける
+	LookAtLockonTarget();
+
 	//キャラクターが着地しているかを確認
 	CheckLandingAndTransitionState();
 }
@@ -55,6 +58,15 @@ void PlayerStateJump::ApplyGravity()
 	if (!processedVelocityDatas_.empty())
 	{
 		processedVelocityDatas_[0].velocity += accelerationVector * GameTimer::GetDeltaTime();
+	}
+}
+
+void PlayerStateJump::LookAtLockonTarget()
+{
+	//ロックオン中敵の方向を向ける
+	if (GetPlayer()->GetLockon()->ExistTarget())
+	{
+		GetPlayer()->LookAtEnemy();
 	}
 }
 

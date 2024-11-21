@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "Damage": 10.0,
+                    "Damage": 0.10000000149011612,
                     "EndEventTime": 1.5,
                     "EventType": "Attack",
                     "HitInterval": 0.10000000149011612,
@@ -34,7 +34,7 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        0.0,
+                        60.0,
                         -50.0
                     ],
                     "KnockbackVelocity": [

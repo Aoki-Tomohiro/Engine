@@ -187,10 +187,6 @@ public:
     const bool GetIsCooldownComplete(const std::string& name) const { return skillCooldownManager_->IsCooldownComplete(name); };
     void ResetCooldown(const std::string& name) { skillCooldownManager_->ResetCooldown(name); };
 
-    //カメラを設定・取得
-    void SetCamera(const Camera* camera) { camera_ = camera; };
-    const Camera* GetCamera() const { return camera_; };
-
     //ロックオンを設定・取得
     void SetLockon(const Lockon* lockon) { lockon_ = lockon; };
     const Lockon* GetLockon() const { return lockon_; };
@@ -201,6 +197,16 @@ public:
 
 private:
     /// <summary>
+    /// アクションマップの初期化
+    /// </summary>
+    void InitializeActionMap() override;
+
+    /// <summary>
+    /// オーディオの初期化
+    /// </summary>
+    void InitializeAudio() override;
+
+    /// <summary>
     /// アニメーターの初期化
     /// </summary>
     void InitializeAnimator() override;
@@ -209,6 +215,16 @@ private:
     /// UIのスプライトの初期化
     /// </summary>
     void InitializeUISprites() override;
+
+    /// <summary>
+    /// スキルクールダウンマネージャーの初期化
+    /// </summary>
+    void InitializeSkillCooldownManager();
+
+    /// <summary>
+    /// ダメージエフェクトのスプライトを生成
+    /// </summary>
+    void InitializeDamageEffectSprite();
 
     /// <summary>
     /// ボタンのUIスプライトを設定
@@ -301,9 +317,6 @@ private:
     //インプット
     Input* input_ = nullptr;
 
-    //オーディオ
-    Audio* audio_ = nullptr;
-
     //スキルクールダウンマネージャー
     std::unique_ptr<SkillCooldownManager> skillCooldownManager_ = nullptr;
 
@@ -325,20 +338,6 @@ private:
     const std::array<WORD, kMaxButtons> buttonMappings_{
         XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
         XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
-    };
-
-    //アクションに対応する条件式を保持するマップ
-    const std::unordered_map<std::string, std::function<bool()>> actionMap_ = {
-        {"None", [this]() {return true; }},
-        {"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
-        {"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }},
-        {"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
-        {"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
-        {"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-        {"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-        {"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-        {"FallingAttack",[this]() {return CheckFallingAttack();}},
-        {"Ability",[this]() {return CheckAndTriggerAbility(); }},
     };
 
     //ボタンのUIの設定
@@ -369,9 +368,6 @@ private:
 
     //ダメージエフェクトの構造体
     DamageEffect damageEffect_{};
-
-    //カメラ
-    const Camera* camera_ = nullptr;
 
     //ロックオン
     const Lockon* lockon_ = nullptr;
