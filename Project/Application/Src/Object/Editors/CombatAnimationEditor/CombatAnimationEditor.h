@@ -45,7 +45,6 @@ public:
 	{
 		BaseCharacter* character;                                         //編集対象キャラクター
 		CharacterAnimationData animationData;                             //アニメーションデータ
-		std::map<std::string,std::vector<std::string>> actionCategories;  //アクションのリスト
 	};
 
 	/// <summary>
@@ -226,7 +225,7 @@ private:
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>移動イベント</returns>
-	std::shared_ptr<MovementEvent> LoadMovementEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<MovementEvent> LoadMovementEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 移動イベントを初期化
@@ -240,56 +239,56 @@ private:
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>速度移動イベント</returns>
-	std::shared_ptr<VelocityMovementEvent> LoadVelocityMovementEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<VelocityMovementEvent> LoadVelocityMovementEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// イージング移動イベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>イージング移動イベント</returns>
-	std::shared_ptr<EasingMovementEvent> LoadEasingMovementEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<EasingMovementEvent> LoadEasingMovementEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 回転イベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>回転イベント</returns>
-	std::shared_ptr<RotationEvent> LoadRotationEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<RotationEvent> LoadRotationEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 攻撃イベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>攻撃イベント</returns>
-	std::shared_ptr<AttackEvent> LoadAttackEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<AttackEvent> LoadAttackEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// エフェクトイベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>エフェクトイベント</returns>
-	std::shared_ptr<EffectEvent> LoadEffectEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<EffectEvent> LoadEffectEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// カメラアニメーションイベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>カメラアニメーションイベント</returns>
-	std::shared_ptr<CameraAnimationEvent> LoadCameraAnimationEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<CameraAnimationEvent> LoadCameraAnimationEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// キャンセルイベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>キャンセルイベント</returns>
-	std::shared_ptr<CancelEvent> LoadCancelEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<CancelEvent> LoadCancelEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// 先行入力イベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
 	/// <returns>先行入力イベント</returns>
-	std::shared_ptr<BufferedActionEvent> LoadBufferedActionEvent(const nlohmann::json& eventJson) const;
+	std::shared_ptr<BufferedActionEvent> LoadBufferedActionEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
 	/// アニメーション速度の設定を管理
@@ -313,8 +312,8 @@ private:
 	/// アニメーションイベントを管理
 	/// </summary>
 	/// <param name="animationEvents">全てのアニメーションイベント</param>
-	/// <param name="actionCategories">アクションカテゴリ</param>
-	void ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories);
+	/// <param name="character">キャラクター</param>
+	void ManageAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const BaseCharacter* character);
 
 	/// <summary>
 	/// アニメーションイベントを追加
@@ -368,8 +367,8 @@ private:
 	/// アニメーションイベントを編集
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
-	/// <param name="actionCategories">アクションカテゴリ</param>
-	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const std::map<std::string, std::vector<std::string>>& actionCategories);
+	/// <param name="character">キャラクター</param>
+	void EditAnimationEvents(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents, const BaseCharacter* character);
 
 	/// <summary>
 	/// 移動イベントを編集
@@ -444,7 +443,18 @@ private:
 	/// <param name="items">列挙型の文字列配列</param>
 	/// <param name="itemCount">列挙型の文字列配列のサイズ</param>
 	template<typename Type>
-	void SelectFromEnum(const char* label, Type& enumValue, const char* items[], int itemCount);
+	void SelectFromEnum(const char* label, Type& enumValue, const char* items[], const int32_t itemCount);
+
+	/// <summary>
+	/// jsonの値と指定されたタイプの配列を比較し、対応するインデックスを基に値を設定する関数
+	/// </summary>
+	/// <typeparam name="Type">設定する列挙型の型</typeparam>
+	/// <param name="jsonValue">jsonの値</param>
+	/// <param name="target">設定先の列挙型変数</param>
+	/// <param name="typesArray">列挙型の文字列配列</param>
+	/// <param name="arraySize">文字列配列のサイズ</param>
+	template<typename Type>
+	void SetEnumFromJson(const std::string& jsonValue, Type& target, const char* typesArray[], const int32_t arraySize);
 
 	/// <summary>
 	/// アニメーションイベントの時間を編集
@@ -503,7 +513,7 @@ inline void CombatAnimationEditor::SelectFromMap(const char* label, std::string&
 }
 
 template<typename Type>
-inline void CombatAnimationEditor::SelectFromEnum(const char* label, Type& enumValue, const char* items[], int itemCount)
+inline void CombatAnimationEditor::SelectFromEnum(const char* label, Type& enumValue, const char* items[], const int32_t itemCount)
 {
 	//選択中の列挙体のインデックス
 	int selectedIndex = static_cast<int>(enumValue);
@@ -515,8 +525,24 @@ inline void CombatAnimationEditor::SelectFromEnum(const char* label, Type& enumV
 }
 
 template<typename Type>
+inline void CombatAnimationEditor::SetEnumFromJson(const std::string& jsonValue, Type& target, const char* typesArray[], const int32_t arraySize)
+{
+	//配列の各要素を走査
+	for (int32_t i = 0; i < arraySize; ++i)
+	{
+		//JSONの値が配列内の文字列と一致する場合
+		if (jsonValue == typesArray[i])
+		{
+			//一致したインデックスを列挙型の値として設定
+			target = static_cast<Type>(i);
+			return;
+		}
+	}
+}
+
+template<typename Type>
 inline void CombatAnimationEditor::EditEventTime(Type* animationEvent)
 {
-	ImGui::DragFloat("Start Event Time", &animationEvent->startEventTime, 0.001f);
-	ImGui::DragFloat("End Event Time", &animationEvent->endEventTime, 0.001f);
+	ImGui::DragFloat("開始時間", &animationEvent->startEventTime, 0.001f);
+	ImGui::DragFloat("終了時間", &animationEvent->endEventTime, 0.001f);
 }

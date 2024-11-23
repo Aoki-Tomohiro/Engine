@@ -49,7 +49,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent2": {
-                    "Damage": 0.6000000238418579,
+                    "Damage": 1.2000000476837158,
                     "EndEventTime": 0.10000000149011612,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -78,7 +78,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent3": {
-                    "Damage": 0.05999999865889549,
+                    "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",
                     "HitInterval": 0.05999999865889549,

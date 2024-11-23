@@ -19,7 +19,7 @@
                     "UseStickInput": false
                 },
                 "AnimationEvent1": {
-                    "Damage": 0.07999999821186066,
+                    "Damage": 0.800000011920929,
                     "EndEventTime": 1.340000033378601,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -36,12 +36,12 @@
                     "KnockbackAcceleration": [
                         0.0,
                         40.0,
-                        0.0
+                        -10.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
                         40.0,
-                        0.0
+                        10.0
                     ],
                     "MaxHitCount": 0,
                     "ReactionType": "Knockback",

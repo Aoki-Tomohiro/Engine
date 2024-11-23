@@ -9,9 +9,6 @@ void BaseCharacter::Initialize()
     //基底クラスの初期化
     GameObject::Initialize();
 
-    //オーディオのインスタンスを取得
-    audio_ = Audio::GetInstance();
-
     //アクションマップの初期化
     InitializeActionMap();
 
@@ -129,7 +126,7 @@ bool BaseCharacter::ChangeState(const std::string& newStateName)
 void BaseCharacter::Move(const Vector3& velocity)
 {
     //移動処理
-    transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime();
+    transform_->worldTransform_.translation_ += velocity * GameTimer::GetDeltaTime() * timeScale_;
 }
 
 void BaseCharacter::Rotate(const Vector3& vector)
@@ -151,7 +148,7 @@ void BaseCharacter::ApplyKnockback()
 
     //重力加速度を考慮
     Vector3 gravity = { 0.0f, gravityAcceleration_, 0.0f };
-    knockbackParameters_.velocity += (gravity + knockbackParameters_.acceleration) * GameTimer::GetDeltaTime();
+    knockbackParameters_.velocity += (gravity + knockbackParameters_.acceleration) * GameTimer::GetDeltaTime() * timeScale_;
 
     //移動処理
     Move(knockbackParameters_.velocity);
@@ -191,7 +188,7 @@ void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool tr
     //衝突相手が魔法だった場合
     else if (Magic* magic = dynamic_cast<Magic*>(gameObject))
     {
-        ApplyDamageAndKnockback(magic->GetKnockbackParameters(), magic->GetDamage(), magic->GetMagicType() == Magic::MagicType::kCharged);
+        ApplyDamageAndKnockback(magic->GetKnockbackParameters(), magic->GetDamage(), transitionToStun ? magic->GetMagicType() == Magic::MagicType::kCharged : false);
     }
     //衝突相手がレーザーだった場合
     else if (Laser* laser = dynamic_cast<Laser*>(gameObject))
@@ -216,7 +213,12 @@ void BaseCharacter::StartModelShake()
 
 void BaseCharacter::PlaySoundEffect(const std::string& soundEffectType)
 {
+    //サウンドエフェクトが設定されていなければ飛ばす
+    if (soundEffectType == "None") return;
+
+    //指定のサウンドエフェクトを探す
     auto it = audioHandles_.find(soundEffectType);
+    //指定のサウンドエフェクトが見つかった場合は再生する
     if (it != audioHandles_.end())
     {
         audio_->PlayAudio(it->second, false, 0.2f);
@@ -255,6 +257,15 @@ Vector3 BaseCharacter::GetJointLocalPosition(const std::string& jointName) const
 {
     //腰のジョイントのローカル座標を返す
     return GetJointWorldPosition(jointName) - transform_->GetWorldPosition();
+}
+
+void BaseCharacter::InitializeAudio()
+{
+    //オーディオのインスタンスを取得
+    audio_ = Audio::GetInstance();
+
+    //デフォルトのオーディオハンドルを追加
+    audioHandles_["None"] = 0;
 }
 
 void BaseCharacter::InitializeTransform()
@@ -412,7 +423,7 @@ void BaseCharacter::TransitionToNextState()
 void BaseCharacter::UpdateModelShake()
 {
     //モデルシェイクの経過時間を進める
-    modelShake_.elapsedTime += GameTimer::GetDeltaTime();
+    modelShake_.elapsedTime += GameTimer::GetDeltaTime() * timeScale_;
 
     //モデルシェイクの経過時間が一定値を超えていたら終了させる
     if (modelShake_.elapsedTime > modelShake_.duration)
@@ -436,7 +447,7 @@ void BaseCharacter::ApplyModelShake()
         //座標をずらす
         Vector3 currentPosition = GetPosition();
         modelShake_.originalPosition = currentPosition;
-        currentPosition += intensity * GameTimer::GetDeltaTime();
+        currentPosition += intensity * GameTimer::GetDeltaTime() * timeScale_;
         SetPosition(currentPosition);
     }
 }

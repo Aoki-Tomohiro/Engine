@@ -6,8 +6,11 @@ void PlayerStateRoot::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーションブレンドを有効化する
+	//アニメーションブレンドを有効にする
 	character_->GetAnimator()->SetIsBlending(true);
+
+	//アニメーションブレンドの時間を設定
+	character_->GetAnimator()->SetBlendDuration(0.2f);
 }
 
 void PlayerStateRoot::Update()
@@ -37,6 +40,18 @@ void PlayerStateRoot::Update()
 		SetIdleAnimationIfNotPlaying();
 	}
 
+	//状態遷移処理
+	HandleStateTransition();
+}
+
+void PlayerStateRoot::OnCollision(GameObject* other)
+{
+	//衝突処理
+	GetCharacter()->ProcessCollisionImpact(other, true);
+}
+
+void PlayerStateRoot::HandleStateTransitionInternal()
+{
 	//遷移可能なアクション一覧
 	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability" };
 
@@ -44,19 +59,13 @@ void PlayerStateRoot::Update()
 	for (const auto& action : actions)
 	{
 		//対応するボタンが押されていた場合
-		if (GetPlayer()->IsButtonTriggered(action))
+		if (GetPlayer()->GetActionCondition(action))
 		{
 			//対応する状態に遷移
 			character_->ChangeState(action);
 			return;
 		}
 	}
-}
-
-void PlayerStateRoot::OnCollision(GameObject* other)
-{
-	//衝突処理
-	GetCharacter()->ProcessCollisionImpact(other, true);
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()

@@ -37,11 +37,11 @@ void Weapon::Update()
 	//軌跡の更新
 	UpdateTrail();
 
-	//環境変数の適用
-	ApplyGlobalVariables();
-
 	//ImGuiの更新
 	UpdateImGui();
+
+	//環境変数の適用
+	ApplyGlobalVariables();
 }
 
 void Weapon::Draw(const Camera& camera)
@@ -193,9 +193,6 @@ void Weapon::UpdateImGui()
 	ImGui::Begin(name_.c_str());
 	ImGui::Checkbox("IsDebug", &isDebug_);
 	ImGui::Checkbox("IsAttack", &isAttack_);
-	ImGui::DragFloat3("Translation", &transform_->worldTransform_.translation_.x, 0.01f);
-	ImGui::DragFloat3("Rotation", &transform_->worldTransform_.rotation_.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transform_->worldTransform_.scale_.x, 0.01f);
 	ImGui::DragFloat3("HeadOffset", &headOffset_.x);
 	ImGui::DragFloat3("FrontOffset", &frontOffset_.x);
 	ImGui::ColorEdit4("TrailStartColor", &trailStartColor_.x);

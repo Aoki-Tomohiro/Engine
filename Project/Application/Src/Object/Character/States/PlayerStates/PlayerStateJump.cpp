@@ -57,7 +57,7 @@ void PlayerStateJump::ApplyGravity()
 	//速度に重力加速度を加算
 	if (!processedVelocityDatas_.empty())
 	{
-		processedVelocityDatas_[0].velocity += accelerationVector * GameTimer::GetDeltaTime();
+		processedVelocityDatas_[0].velocity += accelerationVector * GameTimer::GetDeltaTime() * character_->GetTimeScale();
 	}
 }
 

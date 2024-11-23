@@ -3,7 +3,7 @@
         "LaunchAttack": {
             "AnimationEvents": {
                 "AnimationEvent0": {
-                    "Damage": 0.10000000149011612,
+                    "Damage": 1.2000000476837158,
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -32,7 +32,7 @@
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent1": {
-                    "Damage": 0.05999999865889549,
+                    "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",
                     "HitInterval": 0.009999999776482582,

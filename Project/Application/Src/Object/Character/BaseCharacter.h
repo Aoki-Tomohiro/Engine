@@ -123,6 +123,13 @@ public:
     /// <returns>ジョイントのローカル座標<</returns>
     Vector3 GetJointLocalPosition(const std::string& jointName) const;
 
+    /// <summary>
+    /// アクションが実行可能かどうかを返す
+    /// </summary>
+    /// <param name="actionName">アクション名</param>
+    /// <returns>アクションが実行可能かどうか</returns>
+    const bool GetActionCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName)() : false; };
+
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
     void SetPosition(const Vector3& position) { transform_->worldTransform_.translation_ = position; };
@@ -142,6 +149,10 @@ public:
     //ゲームの終了状態の取得・設定
     const bool GetIsGameFinished() const { return isGameFinished_; };
     void SetIsGameFinished(const bool isGameFinished) { isGameFinished_ = isGameFinished; };
+
+    //タイムスケールの取得・設定
+    const float GetTimeScale() const { return timeScale_; };
+    void SetTimeScale(const float timeScale) { timeScale_ = timeScale; };
 
     //武器を取得・設定
     Weapon* GetWeapon() const { return weapon_; };
@@ -183,6 +194,9 @@ public:
     //アニメーターを取得
     AnimatorComponent* GetAnimator() const { return animator_; };
 
+    //コライダーを取得
+    AABBCollider* GetCollider() const { return collider_; };
+
 protected:
     //モデルシェイク用の構造体
     struct ModelShake
@@ -217,7 +231,7 @@ protected:
     /// <summary>
     /// オーディオの初期化
     /// </summary>
-    virtual void InitializeAudio() = 0;
+    virtual void InitializeAudio();
 
     /// <summary>
     /// トランスフォームの初期化
@@ -373,6 +387,9 @@ protected:
 
     //オーディオハンドル
     std::map<std::string, uint32_t> audioHandles_{};
+
+    //タイムスケール
+    float timeScale_ = 1.0f;
 
     //体力
     float hp_ = kMaxHp_;

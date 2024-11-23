@@ -1,0 +1,39 @@
+{
+    "Enemy": {
+        "Dodge": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EasingType": "EaseIn",
+                    "EndEventTime": 0.699999988079071,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "TargetPosition": [
+                        0.0,
+                        0.0,
+                        -20.0
+                    ],
+                    "UseStickInput": false
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 0.699999988079071
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 1.6670000553131104
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

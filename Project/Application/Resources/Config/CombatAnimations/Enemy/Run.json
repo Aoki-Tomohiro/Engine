@@ -1,0 +1,40 @@
+{
+    "Enemy": {
+        "Run": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 0.7670000195503235,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        40.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 0.7670000195503235,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.399999976158142,
+                    "Duration": 0.7670000195503235
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

@@ -57,7 +57,7 @@ void PlayerStateFalling::ApplyGravity()
 	if (!processedVelocityDatas_.empty() && processedVelocityDatas_[0].isActive)
 	{
 		Vector3 gravityForce = { 0.0f, character_->GetGravityAcceleration(), 0.0f };
-		processedVelocityDatas_[0].velocity += gravityForce * GameTimer::GetDeltaTime();
+		processedVelocityDatas_[0].velocity += gravityForce * GameTimer::GetDeltaTime() * character_->GetTimeScale();
 	}
 }
 

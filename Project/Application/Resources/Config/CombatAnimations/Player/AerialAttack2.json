@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "Damage": 0.07999999821186066,
+                    "Damage": 1.0,
                     "EndEventTime": 1.0,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -47,31 +47,31 @@
                     "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "Attack",
-                    "EndEventTime": 1.0,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent11": {
                     "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent12": {
+                "AnimationEvent11": {
                     "BufferedActionType": "Ability",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent13": {
+                "AnimationEvent12": {
                     "BufferedActionType": "Magic",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent14": {
+                "AnimationEvent13": {
                     "BufferedActionType": "Jump",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent14": {
+                    "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -129,7 +129,7 @@
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "ChargeMagic",
+                    "BufferedActionType": "Attack",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

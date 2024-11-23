@@ -60,7 +60,7 @@ void GamePlayScene::Initialize()
 	player_->SetEditorManager(editorManager_.get());
 	//コンバットアニメーションエディターにプレイヤーを設定
 	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-	//カメラコントローラーについじゅ対象を設定
+	//カメラコントローラーに追従対象を設定
 	cameraController_->SetTarget(player_->GetComponent<TransformComponent>());
 
 	//敵の初期化
@@ -266,18 +266,14 @@ void GamePlayScene::HandleTransition()
 	if (transition_->GetFadeState() != transition_->FadeState::In)
 	{
 		//敵が死亡状態の場合ゲームクリアのフラグを立てる
-		if (enemy_->GetIsDead())
+		if (enemy_->GetIsGameFinished())
 		{
 			isGameClear_ = true;
-			player_->SetIsGameFinished(true);
-			enemy_->SetIsGameFinished(true);
 		}
 		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
-		else if (player_->GetIsDead())
+		else if (player_->GetIsGameFinished())
 		{
 			isGameOver_ = true;
-			player_->SetIsGameFinished(true);
-			enemy_->SetIsGameFinished(true);
 		}
 	}
 

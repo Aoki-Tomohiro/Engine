@@ -16,44 +16,16 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 	//敵に向かって移動する場合
 	if(velocityMovementEvent->moveTowardsEnemy && GetPlayer()->GetLockon()->ExistTarget())
 	{
-		//プレイヤーの座標を取得
-		Vector3 playerPosition = character_->GetPosition();
-
-		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
-
-		//差分ベクトルを計算
-		Vector3 difference = enemyPosition - playerPosition;
-
-		//Y成分の差が許容範囲内であれば、速度のY成分を0に設定
-		if (std::abs(difference.y) < maxAllowableYDifference)
-		{
-			difference.y = 0.0f;
-		}
+		//プレイヤーと敵の方向ベクトルを計算
+		Vector3 direction = CalculateDirectionToEnemy();
 
 		//速度を計算
-		processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(difference) * Mathf::Length(velocityMovementEvent->velocity);
-
-		//進行方向に回転させる
-		character_->Rotate(Mathf::Normalize(Vector3{ processedVelocityDatas_[animationEventIndex].velocity.x, 0.0f, processedVelocityDatas_[animationEventIndex].velocity.z }));
+		processedVelocityDatas_[animationEventIndex].velocity = direction * Mathf::Length(velocityMovementEvent->velocity);
 	}
 	else if (velocityMovementEvent->useStickInput)
 	{
-		//スティックの入力値を取得
-		Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
-
-		//スティック入力が閾値を超えていた場合
-		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
-		{
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::Normalize(inputValue) * Mathf::Length({ velocityMovementEvent->velocity.x, 0.0f, velocityMovementEvent->velocity.z });
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(processedVelocityDatas_[animationEventIndex].velocity, GetPlayer()->GetCameraController()->GetCamera().quaternion_);
-			processedVelocityDatas_[animationEventIndex].velocity.y = velocityMovementEvent->velocity.y;
-		}
-		else
-		{
-			//固定速度を使用して移動ベクトルを設定
-			processedVelocityDatas_[animationEventIndex].velocity = Mathf::RotateVector(velocityMovementEvent->velocity, character_->GetQuaternion());
-		}
+		//スティック入力に基づいて移動ベクトルを計算
+		processedVelocityDatas_[animationEventIndex].velocity = ProcessStickInputMovement(velocityMovementEvent->velocity, GetPlayer()->GetRootParameters().walkThreshold);
 	}
 	else
 	{
@@ -79,41 +51,16 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 	//敵に向かって移動する場合
 	if (easingMovementEvent->moveTowardsEnemy && GetPlayer()->GetLockon()->ExistTarget())
 	{
-		//プレイヤーの座標を取得
-		Vector3 playerPosition = character_->GetPosition();
-
-		//敵の座標を取得
-		Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
-
-		//差分ベクトルを計算
-		Vector3 difference = enemyPosition - playerPosition;
-
-		//Y成分の差が許容範囲内であれば、速度のY成分を0に設定
-		if (std::abs(difference.y) < maxAllowableYDifference)
-		{
-			difference.y = 0.0f;
-		}
+		//プレイヤーと敵の方向ベクトルを計算
+		Vector3 direction = CalculateDirectionToEnemy();
 
 		//目標座標を計算
-		processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(difference) * Mathf::Length(easingMovementEvent->targetPosition);
+		processedEasingDatas_[animationEventIndex].targetPosition = direction * Mathf::Length(easingMovementEvent->targetPosition);
 	}
 	else if (easingMovementEvent->useStickInput)
 	{
-		//スティックの入力値を取得
-		Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
-
-		//スティック入力が閾値を超えていた場合
-		if (Mathf::Length(inputValue) > GetPlayer()->GetRootParameters().walkThreshold)
-		{
-			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::Normalize(inputValue) * Mathf::Length({ easingMovementEvent->targetPosition.x, 0.0f, easingMovementEvent->targetPosition.z });
-			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(processedEasingDatas_[animationEventIndex].targetPosition, GetPlayer()->GetCameraController()->GetCamera().quaternion_);
-			processedEasingDatas_[animationEventIndex].targetPosition.y = easingMovementEvent->targetPosition.y;
-		}
-		else
-		{
-			//固定座標を使用して目標座標を設定
-			processedEasingDatas_[animationEventIndex].targetPosition = Mathf::RotateVector(easingMovementEvent->targetPosition, character_->GetQuaternion());
-		}
+		//スティック入力に基づいて目標座標を計算
+		processedEasingDatas_[animationEventIndex].targetPosition = ProcessStickInputMovement(easingMovementEvent->targetPosition, GetPlayer()->GetRootParameters().walkThreshold);
 	}
 	else
 	{
@@ -132,33 +79,58 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 	}
 }
 
-void IPlayerState::HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
+void IPlayerState::HandleStateTransitionInternal()
 {
-	//キャンセルアクションのボタンが押されていたら遷移
-	if (GetPlayer()->IsButtonTriggered(cancelEvent->cancelType))
+	//プレイヤーが地面にいなかった場合は落下状態にする
+	Vector3 position = character_->GetPosition();
+	if (position.y > 0.0f)
 	{
-		//キャンセルの条件が設定されていない場合
-		if (cancelEvent->cancelType == "None")
-		{
-			//フラグを立てる
-			processedCancelDatas_[animationEventIndex].isCanceled = true;
-			//デフォルトの状態遷移を行う
-			HandleStateTransition();
-		}
-		//キャンセルの条件が設定されている場合はその種類に基づいて状態遷移を行う
-		else
-		{
-			processedCancelDatas_[animationEventIndex].isCanceled = character_->ChangeState(cancelEvent->cancelType);
-		}
+		character_->ChangeState("Falling");
+	}
+	//地面にいる場合は地面に埋まらないように座標を補正して通常状態に戻す
+	else
+	{
+		character_->SetPosition({ position.x, 0.0f, position.z });
+		character_->ChangeState("Idle");
 	}
 }
 
-void IPlayerState::HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
+Vector3 IPlayerState::CalculateDirectionToEnemy() const
 {
-	//全ての先行入力が一度も設定されていない場合かつ、キャンセルアクションのボタンが押された場合に先行入力を設定する
-	if (std::all_of(processedBufferedActionDatas_.begin(), processedBufferedActionDatas_.end(), [](const auto& data) { return !data.isBufferedInputActive; }) && GetPlayer()->IsButtonTriggered(bufferedActionEvent->bufferedActionType))
+	//プレイヤーの座標を取得
+	Vector3 playerPosition = character_->GetPosition();
+
+	//敵の座標を取得
+	Vector3 enemyPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetPosition();
+
+	//差分ベクトルを計算
+	Vector3 difference = enemyPosition - playerPosition;
+
+	//Y成分の差が許容範囲内であれば、速度のY成分を0に設定
+	if (std::abs(difference.y) < maxAllowableYDifference)
 	{
-		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
-		processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive = true;
+		difference.y = 0.0f;
 	}
+
+	//正規化して返す
+	return Mathf::Normalize(difference);
+}
+
+Vector3 IPlayerState::ProcessStickInputMovement(const Vector3& velocity, const float walkThreshold) const
+{
+	//スティックの入力値を取得
+	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
+
+	//スティック入力が閾値を超えていた場合
+	if (Mathf::Length(inputValue) > walkThreshold)
+	{
+		//入力値に基づいて移動ベクトルを計算
+		Vector3 movementVelocity = Mathf::Normalize(inputValue) * Mathf::Length({ velocity.x, 0.0f, velocity.z });
+		movementVelocity = Mathf::RotateVector(movementVelocity, GetPlayer()->GetCameraController()->GetCamera().quaternion_);
+		movementVelocity.y = velocity.y;
+		return movementVelocity;
+	}
+
+	//閾値以下の場合、固定速度での移動ベクトルを設定
+	return Mathf::RotateVector(velocity, character_->GetQuaternion());
 }

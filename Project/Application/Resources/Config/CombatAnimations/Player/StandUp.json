@@ -1,0 +1,31 @@
+{
+    "Player": {
+        "StandUp": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "CancelType": "Dodge",
+                    "EndEventTime": 6.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent1": {
+                    "CancelType": "None",
+                    "EndEventTime": 8.300000190734863,
+                    "EventType": "Cancel",
+                    "StartEventTime": 6.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 8.300000190734863
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

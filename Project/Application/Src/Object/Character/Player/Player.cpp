@@ -164,17 +164,25 @@ void Player::LookAtEnemy()
 void Player::InitializeActionMap()
 {
 	//アクションマップの初期化
-	actionMap_ = { {"None", [this]() {return true; }}, {"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
-		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}, {"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
-		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }}, {"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+	actionMap_ = {
+		{"None", [this]() {return true; }},
+		{"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
+		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}, 
+		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
+		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
+		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
 		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
 		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-		{"FallingAttack",[this]() {return CheckFallingAttack(); }},{"Ability",[this]() {return CheckAndTriggerAbility(); }},
+		{"FallingAttack",[this]() {return CheckFallingAttack(); }},
+		{"Ability",[this]() {return CheckAndTriggerAbility(); }},
 	};
 }
 
 void Player::InitializeAudio()
 {
+	//基底クラスの呼び出し
+	BaseCharacter::InitializeAudio();
+
 	//音声データの読み込み
 	audioHandles_["NormalHit"] = audio_->LoadAudioFile("Hit.mp3");
 	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
@@ -196,8 +204,8 @@ void Player::InitializeAnimator()
 		{"Falling", "Player/Animations/Falling.gltf"}, {"GroundAttack1", "Player/Animations/GroundAttack1.gltf"},  {"GroundAttack2", "Player/Animations/GroundAttack2.gltf"},
 		{"GroundAttack3", "Player/Animations/GroundAttack3.gltf"}, {"GroundAttack4", "Player/Animations/GroundAttack4.gltf"}, {"AerialAttack1", "Player/Animations/AerialAttack1.gltf"},
 		{"AerialAttack2", "Player/Animations/AerialAttack2.gltf"}, {"AerialAttack3", "Player/Animations/AerialAttack3.gltf"}, {"LaunchAttack", "Player/Animations/LaunchAttack.gltf"},
-		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Impact", "Player/Animations/Impact.gltf"},
-		{"Death", "Player/Animations/Death.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}
+		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}, 
+		{"HitStun", "Player/Animations/HitStun.gltf"}, {"Knockdown", "Player/Animations/Knockdown.gltf"}, {"StandUp", "Player/Animations/StandUp.gltf"},{"Death", "Player/Animations/Death.gltf"}
 	};
 
 	//アニメーションを追加
@@ -353,7 +361,7 @@ void Player::UpdateCooldownTimer()
 	//クールダウンのタイマーを進める
 	if (magicAttackWork_.cooldownTimer > 0.0f)
 	{
-		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime();
+		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime() * timeScale_;
 	}
 }
 
@@ -409,7 +417,7 @@ void Player::HandleMagicCharge()
 void Player::ContinueCharging()
 {
 	//チャージタイマーを進める
-	magicAttackWork_.chargeTimer += GameTimer::GetDeltaTime();
+	magicAttackWork_.chargeTimer += GameTimer::GetDeltaTime() * timeScale_;
 
 	//チャージの閾値をチェック
 	if (magicAttackWork_.chargeTimer > magicAttackParameters_.chargeTimeThreshold)
@@ -459,7 +467,7 @@ void Player::UpdateDamageEffect()
 	if (damageEffect_.color.w > 0.0f)
 	{
 		//エフェクトタイマーを更新
-		damageEffect_.timer += GameTimer::GetDeltaTime();
+		damageEffect_.timer += GameTimer::GetDeltaTime() * timeScale_;
 
 		//透明度を計算
 		float fadeOutProgress = damageEffect_.timer / damageEffect_.duration;

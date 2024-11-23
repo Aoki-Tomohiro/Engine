@@ -1,0 +1,41 @@
+{
+    "Enemy": {
+        "Dash": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EasingType": "EaseOut",
+                    "EndEventTime": 1.0670000314712524,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "TargetPosition": [
+                        0.0,
+                        0.0,
+                        20.0
+                    ],
+                    "UseStickInput": false
+                },
+                "AnimationEvent1": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 1.0670000314712524,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 1.0670000314712524
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

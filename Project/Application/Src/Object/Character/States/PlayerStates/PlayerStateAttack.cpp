@@ -14,6 +14,9 @@ void PlayerStateAttack::Initialize()
 	//アニメーションブレンドを無効にする
 	character_->GetAnimator()->SetIsBlending(false);
 
+	//攻撃フラグを立てる
+	GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, true);
+
 	//攻撃アニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(animationName_);
 
@@ -29,10 +32,14 @@ void PlayerStateAttack::Update()
 	//コンボインデックスの更新
 	UpdateComboIndex();
 
-	//アニメーションが終了していた場合コンボインデックスをリセットして状態遷移する
+	//アニメーションが終了していた場合
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
+		//攻撃フラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+		//コンボをリセット
 		comboIndex = 0;
+		//デフォルトの状態に遷移
 		HandleStateTransition();
 	}
 }
@@ -83,9 +90,12 @@ void PlayerStateAttack::UpdateComboIndex()
 		//コンボインデックスをインクリメント
 		++comboIndex;
 	}
-	//それ以外の状態に遷移した場合はコンボをリセット
+	//攻撃以外の状態に遷移されていた場合
 	else if(!comboNext_ && HasStateTransitioned())
 	{
+		//攻撃フラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+		//コンボをリセット
 		comboIndex = 0;
 	}
 }

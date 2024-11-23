@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent1": {
-                    "Damage": 0.05999999865889549,
+                    "Damage": 0.6000000238418579,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
                     "HitInterval": 0.019999999552965164,
@@ -47,7 +47,7 @@
                     "StartEventTime": 0.47999998927116394
                 },
                 "AnimationEvent10": {
-                    "BufferedActionType": "ChargeMagic",
+                    "BufferedActionType": "Ability",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -93,19 +93,19 @@
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent7": {
-                    "BufferedActionType": "Attack",
+                    "BufferedActionType": "Magic",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent8": {
-                    "BufferedActionType": "Ability",
+                    "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent9": {
-                    "BufferedActionType": "Magic",
+                    "BufferedActionType": "Attack",
                     "EndEventTime": 1.5329999923706055,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
@@ -114,7 +114,7 @@
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
                     "AnimationSpeed": 3.200000047683716,
-                    "Duration": 0.699999988079071
+                    "Duration": 0.800000011920929
                 },
                 "AnimationSpeedConfig1": {
                     "AnimationSpeed": 1.600000023841858,

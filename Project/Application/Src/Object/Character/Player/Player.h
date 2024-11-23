@@ -82,6 +82,7 @@ public:
         kFallingAttackEnabled,     //落下攻撃が有効かどうか
         kAbility1Enabled,          //アビリティ1が有効かどうか
         kAbility2Enabled,          //アビリティ2が有効かどうか
+        kIsAttacking,              //攻撃したかどうか
     };
 
     //ダメージエフェクトの構造体
@@ -164,13 +165,6 @@ public:
     /// 魔法攻撃のクールダウンをリセット
     /// </summary>
     void ResetMagicAttackCooldownTime() { magicAttackWork_.cooldownTimer = magicAttackParameters_.cooldownTime; };
-
-    /// <summary>
-    /// ボタンが押されたかどうか
-    /// </summary>
-    /// <param name="actionName">アクションの名前</param>
-    /// <returns>ボタンが押されたかどうか</returns>
-    const bool IsButtonTriggered(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName)() : false; };
 
     /// <summary>
     /// アビリティの名前を取得

@@ -6,6 +6,9 @@ void PlayerStateAbility::Initialize()
 	//アビリティの名前の取得とフラグを初期化
 	abilityName_ = GetAbilityNameAndResetFlag();
 
+	//攻撃フラグを立てる
+	GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, true);
+
 	//アビリティのアニメーションの再生とアニメーションコントローラーを取得
 	SetAnimationControllerAndPlayAnimation(abilityName_);
 }
@@ -15,16 +18,23 @@ void PlayerStateAbility::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
-	//状態遷移が発生していた場合はクールダウンをリセットする
+	//状態遷移が発生していた場合
 	if (HasStateTransitioned())
 	{
+		//アビリティのクールダウンをリセット
 		GetPlayer()->ResetCooldown(abilityName_);
+		//攻撃フラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
 	}
 
-	//アニメーションが終了していた場合アビリティのクールダウンをリセットし状態遷移する
+	//アニメーションが終了していた場合
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{
+		//攻撃フラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+		//アビリティのクールダウンをリセット
 		GetPlayer()->ResetCooldown(abilityName_);
+		//デフォルトの状態に遷移
 		HandleStateTransition();
 	}
 }

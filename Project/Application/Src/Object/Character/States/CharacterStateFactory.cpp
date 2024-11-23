@@ -1,4 +1,5 @@
 #include "CharacterStateFactory.h"
+#include "Application/Src/Object/Character/States/CharacterStateDeath.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateFalling.h"
@@ -7,7 +8,14 @@
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateMagicAttack.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAbility.h"
-#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateRoot.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateIdle.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateMoveTowardPlayer.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateMoveAwayFromPlayer.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateMoveSideToPlayer.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateDodge.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateApproach.h"
+#include "Application/Src/Object/Character/States/EnemyStates/EnemyStateAttack.h"
 #include "Application/Src/Object/Character/States/EnemyStates/EnemyStateStun.h"
 
 CharacterStateFactory* CharacterStateFactory::GetInstance()
@@ -18,8 +26,13 @@ CharacterStateFactory* CharacterStateFactory::GetInstance()
 
 ICharacterState* CharacterStateFactory::CreateCharacterState(const std::string& characterName, const std::string& stateName)
 {
+	//死亡状態に遷移
+	if (stateName == "Death")
+	{
+		return new CharacterStateDeath();
+	}
 	//キャラクターの名前がプレイヤーだった場合
-	if (characterName == "Player")
+	else if (characterName == "Player")
 	{
 		//新しいプレイヤーの状態を生成
 		return CreatePlayerState(stateName);
@@ -76,6 +89,11 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 	{
 		return new PlayerStateAbility();
 	}
+	//スタン状態に遷移
+	else if (stateName == "Stun")
+	{
+		return new PlayerStateStun();
+	}
 
 	//一致する名前の状態がなければnullptrを返す
 	return nullptr;
@@ -86,8 +104,39 @@ ICharacterState* CharacterStateFactory::CreateEnemyState(const std::string& stat
 	//通常状態
 	if (stateName == "Idle" || stateName == "Move")
 	{
-		return new EnemyStateRoot();
+		return new EnemyStateIdle();
 	}
+	//前進状態
+	else if (stateName == "MoveTowardPlayer")
+	{
+		return new EnemyStateMoveTowardPlayer();
+	}
+	//後進状態
+	else if (stateName == "MoveAwayFromPlayer")
+	{
+		return new EnemyStateMoveAwayFromPlayer();
+	}
+	//左右移動状態
+	else if (stateName == "MoveSideToPlayer")
+	{
+		return new EnemyStateMoveSideToPlayer();
+	}
+	//回避状態
+	else if (stateName == "Dodge")
+	{
+		return new EnemyStateDodge();
+	}
+	//接近状態
+	else if (stateName == "Approach")
+	{
+		return new EnemyStateApproach();
+	}
+	//攻撃状態
+	else if (stateName == "Attack" || stateName == "VerticalSlash" || stateName == "SpinAttack" || stateName == "ComboSlash1" || stateName == "ComboSlash2")
+	{
+		return new EnemyStateAttack(stateName);
+	}
+	//スタン状態
 	else if (stateName == "Stun")
 	{
 		return new EnemyStateStun();

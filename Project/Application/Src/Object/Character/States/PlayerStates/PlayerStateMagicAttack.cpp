@@ -11,6 +11,9 @@ void PlayerStateMagicAttack::Initialize()
     //アニメーションブレンドを有効にする
     character_->GetAnimator()->SetIsBlending(true);
 
+    //攻撃フラグを立てる
+    GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, true);
+
     //溜め魔法攻撃を初期化し、必要に応じてアニメーション開始時間を設定
     if (InitializeMagicAttack(GetPlayer()))
     {
@@ -23,9 +26,12 @@ void PlayerStateMagicAttack::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
-    //アニメーションが終了した場合、デフォルトの状態に遷移
+    //アニメーションが終了していた場合
     if (character_->GetAnimator()->GetIsAnimationFinished())
     {
+        //攻撃のフラグをリセット
+        GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+        //デフォルトの状態に遷移
         HandleStateTransition();
     }
 }

@@ -20,32 +20,38 @@ public:
 
 protected:
 	/// <summary>
-	/// イージング移動イベントの初期化
+	/// 速度移動イベントの初期化
 	/// </summary>
-	/// <param name="easingMovementEvent">イージング移動イベント</param>
+	/// <param name="easingMovementEvent">速度移動イベント</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
-	virtual void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
+	void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
 
 	/// <summary>
 	/// イージング移動イベントの初期化
 	/// </summary>
 	/// <param name="easingMovementEvent">イージング移動イベント</param>
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
-	virtual void InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex) override;
+	void InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex) override;
 
 private:
 	/// <summary>
-	/// キャンセルアクションを実行
+	/// デフォルトの状態遷移処理
 	/// </summary>
-	/// <param name="cancelEvent">キャンセルイベント</param>
-	void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex) override;
+	virtual void HandleStateTransitionInternal() override;
 
 	/// <summary>
-	/// 先行入力イベントを実行
+	/// プレイヤーと敵の座標差分を計算する関数
 	/// </summary>
-	/// <param name="bufferedActionEvent">先行入力イベント</param>
-	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
-	void HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex) override;
+	/// <returns></returns>
+	Vector3 CalculateDirectionToEnemy() const;
+
+	/// <summary>
+	/// スティック入力に基づいて移動ベクトルを計算する共通関数
+	/// </summary>
+	/// <param name="vector">ベクトル</param>
+	/// <param name="walkThreshold">歩きの閾値</param>
+	/// <returns>移動ベクトル</returns>
+	Vector3 ProcessStickInputMovement(const Vector3& vector, const float walkThreshold) const;
 
 protected:
 	//インプット

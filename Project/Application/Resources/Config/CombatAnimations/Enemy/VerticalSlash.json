@@ -1,0 +1,124 @@
+{
+    "Enemy": {
+        "VerticalSlash": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EasingType": "EaseIn",
+                    "EndEventTime": 0.6000000238418579,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "TargetPosition": [
+                        0.0,
+                        4.0,
+                        0.0
+                    ],
+                    "UseStickInput": false
+                },
+                "AnimationEvent1": {
+                    "EasingType": "EaseIn",
+                    "EndEventTime": 1.0,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 0.6000000238418579,
+                    "TargetPosition": [
+                        0.0,
+                        0.0,
+                        10.0
+                    ],
+                    "UseStickInput": false
+                },
+                "AnimationEvent2": {
+                    "EasingType": "EaseIn",
+                    "EndEventTime": 1.600000023841858,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 1.0,
+                    "TargetPosition": [
+                        0.0,
+                        -12.0,
+                        1.0
+                    ],
+                    "UseStickInput": false
+                },
+                "AnimationEvent3": {
+                    "Damage": 6.0,
+                    "EndEventTime": 1.600000023841858,
+                    "EventType": "Attack",
+                    "HitInterval": 0.0,
+                    "HitboxCenter": [
+                        0.0,
+                        0.0,
+                        4.0
+                    ],
+                    "HitboxSize": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ],
+                    "KnockbackAcceleration": [
+                        0.0,
+                        0.0,
+                        -40.0
+                    ],
+                    "KnockbackVelocity": [
+                        0.0,
+                        0.0,
+                        40.0
+                    ],
+                    "MaxHitCount": 1,
+                    "ReactionType": "Knockback",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent4": {
+                    "CameraShakeDuration": 0.20000000298023224,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        2.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.7999999523162842,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "VerticalSlash",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "",
+                    "StartEventTime": 1.600000023841858
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 0.5
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 0.800000011920929,
+                    "Duration": 1.0
+                },
+                "AnimationSpeedConfig2": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 1.600000023841858
+                },
+                "AnimationSpeedConfig3": {
+                    "AnimationSpeed": 0.6000000238418579,
+                    "Duration": 2.4670000076293945
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}
