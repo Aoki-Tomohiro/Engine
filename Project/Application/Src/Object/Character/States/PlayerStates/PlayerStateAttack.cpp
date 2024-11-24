@@ -48,6 +48,8 @@ void PlayerStateAttack::OnCollision(GameObject* other)
 {
 	//衝突処理
 	character_->ProcessCollisionImpact(other, true);
+	//コンボをリセット
+	comboIndex = 0;
 }
 
 std::string PlayerStateAttack::DetermineAnimationName() const

@@ -280,9 +280,6 @@
     <Filter Include="ソース ファイル\Application\Object\Character\States">
       <UniqueIdentifier>{55ce9604-4905-467e-85ff-aca60c2b6e5a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Character\States\EnemyStates">
-      <UniqueIdentifier>{5d7ead75-a524-4a50-8537-779f40040a66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Character\States\PlayerStates">
       <UniqueIdentifier>{ffd072b4-c4ca-4199-bf08-da0b7e59c0dc}</UniqueIdentifier>
     </Filter>
@@ -309,9 +306,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Character\States\PlayerStates">
       <UniqueIdentifier>{a1139873-cb91-46cd-973b-6d807a9b65d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Character\States\EnemyStates">
-      <UniqueIdentifier>{82a9ae70-b0d2-4584-8ef9-6b089abdf5aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Pillar\States">
       <UniqueIdentifier>{aac19873-fe23-4c1a-b6df-efb63acacd13}</UniqueIdentifier>
@@ -345,6 +339,12 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Editors\ParticleEffectEditor">
       <UniqueIdentifier>{e47b2c84-861b-408b-a991-b9bbb20ce663}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\Character\States\EnemyStates">
+      <UniqueIdentifier>{5d7ead75-a524-4a50-8537-779f40040a66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\Character\States\EnemyStates">
+      <UniqueIdentifier>{82a9ae70-b0d2-4584-8ef9-6b089abdf5aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -750,35 +750,35 @@
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.cpp">
       <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveTowardPlayer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveAwayFromPlayer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateIdle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateApproach.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateAttack.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDodge.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\Character\States\CharacterStateStun.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateIdle.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveAwayFromPlayer.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveTowardPlayer.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\CharacterStateDeath.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\Character\States\CharacterStateStun.cpp">
+      <Filter>ソース ファイル\Application\Object\Character\States</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1247,35 +1247,35 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateMagicAttack.h">
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveTowardPlayer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveAwayFromPlayer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateIdle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateApproach.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateDodge.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\Character\States\CharacterStateStun.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateIdle.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveAwayFromPlayer.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveTowardPlayer.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\EnemyStates</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\CharacterStateDeath.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\Character\States\CharacterStateStun.h">
+      <Filter>ヘッダー ファイル\Application\Object\Character\States</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
