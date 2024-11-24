@@ -15,7 +15,7 @@ void CameraAnimationEditor::Update()
 	if (cameraPaths_.empty()) { return; };
 
 	//編集するカメラパスを選択
-	SelectFromMap("Camera Paths", currentEditPathName_, cameraPaths_);
+	SelectFromMap("カメラアニメーション一覧", currentEditPathName_, cameraPaths_);
 
 	//現在のカメラパスの設定を取得
 	auto effectIt = cameraPaths_.find(currentEditPathName_);
@@ -29,11 +29,11 @@ void CameraAnimationEditor::Update()
 	DisplayCameraPathControls(currentEditPathName_);
 
 	//キーフレームを追加
-	ImGui::SeparatorText("Add Key Frame");
+	ImGui::SeparatorText("キーフレームを追加");
 	AddKeyFrame(effectIt->second);
 
 	//全てのキーフレームの編集
-	ImGui::SeparatorText("Edit Key Frame");
+	ImGui::SeparatorText("キーフレームを編集");
 	EditKeyFrames(effectIt->second);
 }
 
@@ -43,10 +43,10 @@ void CameraAnimationEditor::AddCameraAnimation()
 	static char newCameraPathName[128] = { '\0' };
 
 	//新しいカメラパスの名前を入力
-	ImGui::InputText("New Camera Path Name", newCameraPathName, sizeof(newCameraPathName));
+	ImGui::InputText("新しいカメラアニメーションの名前", newCameraPathName, sizeof(newCameraPathName));
 
 	//新しいカメラパスを追加
-	if (ImGui::Button("Add Camera Path"))
+	if (ImGui::Button("カメラアニメーションを追加"))
 	{
 		//名前をstd::stringに格納
 		std::string cameraPathName(newCameraPathName);
@@ -67,12 +67,12 @@ void CameraAnimationEditor::AddCameraAnimation()
 void CameraAnimationEditor::DisplayDebugControls()
 {
 	//デバッグのフラグの設定
-	ImGui::Checkbox("Is Debug", &isDebug_);
+	ImGui::Checkbox("デバッグ状態にするかどうか", &isDebug_);
 
 	//デバッグのフラグが立っているとき
 	if (isDebug_)
 	{
-		if (ImGui::Button("Play Animation"))
+		if (ImGui::Button("アニメーションを再生"))
 		{
 			isPlayingCurrentCameraAnimation_ = true;
 		}
@@ -86,7 +86,7 @@ void CameraAnimationEditor::DisplayDebugControls()
 void CameraAnimationEditor::DisplayCameraPathControls(const std::string& cameraPathName)
 {
 	//保存
-	if (ImGui::Button("Save"))
+	if (ImGui::Button("保存"))
 	{
 		SaveFile(cameraPathName);
 	}
@@ -95,7 +95,7 @@ void CameraAnimationEditor::DisplayCameraPathControls(const std::string& cameraP
 	ImGui::SameLine();
 
 	//読み込み
-	if (ImGui::Button("Load"))
+	if (ImGui::Button("読み込み"))
 	{
 		LoadFile(cameraPathName);
 	}
@@ -241,14 +241,14 @@ void CameraAnimationEditor::LoadFile(const std::string& cameraPathName)
 void CameraAnimationEditor::AddKeyFrame(CameraPath& cameraPath)
 {
 	//キーフレームを編集
-	ImGui::DragFloat("Time", &newKeyFrame_.time, 0.01f);
-	ImGui::DragFloat3("Position", &newKeyFrame_.position.x, 0.01f);
-	ImGui::DragFloat4("Rotation", &newKeyFrame_.rotation.x, 0.01f);
-	ImGui::DragFloat("Fov", &newKeyFrame_.fov, 0.01f);
+	ImGui::DragFloat("時間", &newKeyFrame_.time, 0.01f);
+	ImGui::DragFloat3("座標", &newKeyFrame_.position.x, 0.01f);
+	ImGui::DragFloat4("回転", &newKeyFrame_.rotation.x, 0.01f);
+	ImGui::DragFloat("視野角", &newKeyFrame_.fov, 0.01f);
 	newKeyFrame_.rotation = Mathf::Normalize(newKeyFrame_.rotation);
 
 	//キーフレームを追加して設定を初期化
-	if (ImGui::Button("AddKeyFrame"))
+	if (ImGui::Button("キーフレームを追加"))
 	{
 		cameraPath.AddKeyFrame(newKeyFrame_);
 		newKeyFrame_ = CameraKeyFrame();
@@ -267,19 +267,20 @@ void CameraAnimationEditor::EditKeyFrames(CameraPath& cameraPath)
 		CameraKeyFrame& keyFrame = cameraPath.GetCameraKeyFrame(i);
 
 		//ツリーノードの名前を設定
-		std::string nodeName = "KeyFrame" + std::to_string(i);
+		std::string nodeName = "キーフレーム " + std::to_string(i);
 
 		//ツリーノードを展開
 		if (ImGui::TreeNode(nodeName.c_str()))
 		{
 			//キーフレームを編集
-			ImGui::DragFloat("Time", &keyFrame.time, 0.001f);
-			ImGui::DragFloat3("Position", &keyFrame.position.x, 0.001f);
-			ImGui::DragFloat4("Rotation", &keyFrame.rotation.x, 0.001f);
-			ImGui::DragFloat("Fov", &keyFrame.fov, 0.01f);
+			ImGui::DragFloat("時間", &keyFrame.time, 0.001f);
+			ImGui::DragFloat3("座標", &keyFrame.position.x, 0.001f);
+			ImGui::DragFloat4("回転", &keyFrame.rotation.x, 0.001f);
+			ImGui::DragFloat("視野角", &keyFrame.fov, 0.01f);
+			keyFrame.rotation = Mathf::Normalize(keyFrame.rotation);
 
 			//削除ボタンを追加
-			if (ImGui::Button("Delete"))
+			if (ImGui::Button("削除"))
 			{
 				indicesToRemove.push_back(i);
 			}

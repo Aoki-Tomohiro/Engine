@@ -48,8 +48,6 @@ void CombatAnimationEditor::AddEditableCharacter(BaseCharacter* character)
 	//キャラクターデータを追加
 	const std::string& characterName = character->GetName();
 	characterDatas_[characterName].character = character;
-	//characterDatas_[characterName].actionCategories["Actions"] = character->GetActionKeys();
-	//characterDatas_[characterName].actionCategories["SoundEffects"] = character->GetAudioHandles();
 }
 
 const AnimationController& CombatAnimationEditor::GetAnimationController(const std::string& characterName, const std::string& animationName) const
@@ -808,7 +806,7 @@ void CombatAnimationEditor::AddRotationEvent(std::vector<std::shared_ptr<Animati
 void CombatAnimationEditor::AddAttackEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
 {
 	//攻撃イベントを追加
-	if (ImGui::Button("攻撃ベントを追加"))
+	if (ImGui::Button("攻撃イベントを追加"))
 	{
 		animationEvents.push_back(std::make_shared<AttackEvent>());
 	}

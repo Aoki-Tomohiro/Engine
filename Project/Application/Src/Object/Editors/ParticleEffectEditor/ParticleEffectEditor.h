@@ -341,7 +341,7 @@ inline void ParticleEffectEditor::EditSettingsSection(const std::string& section
 	editCallback(settingIt->second);
 
 	//設定を削除
-	std::string removeButtonText = "Remove " + sectionName;
+	std::string removeButtonText = sectionName + "を削除";
 	ImGui::Spacing();
 	if (ImGui::Button(removeButtonText.c_str()))
 	{

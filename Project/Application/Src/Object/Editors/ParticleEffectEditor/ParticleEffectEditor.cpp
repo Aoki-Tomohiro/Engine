@@ -29,7 +29,7 @@ void ParticleEffectEditor::Update()
 	static std::string currentEditEffectName;
 
 	//編集するパーティクルエフェクトの設定を選択
-	SelectFromMap<ParticleEffectConfig>("Particle Effects", currentEditEffectName, particleEffectConfigs_);
+	SelectFromMap<ParticleEffectConfig>("パーティクルエフェクト一覧", currentEditEffectName, particleEffectConfigs_);
 
 	//現在のパーティクルエフェクトの設定を取得
 	auto effectIt = particleEffectConfigs_.find(currentEditEffectName);
@@ -40,7 +40,7 @@ void ParticleEffectEditor::Update()
 	DisplayEffectControls(currentEditEffectName);
 
 	//パーティクルシステムの設定を追加
-	ImGui::SeparatorText("Add Particle System Setting");
+	ImGui::SeparatorText("パーティクルシステムの設定を追加");
 	AddParticleSystemSetting(effectIt->second);
 
 	//パーティクルシステムが存在しなければ処理を飛ばす
@@ -249,10 +249,10 @@ void ParticleEffectEditor::AddNewParticleEffectSetting()
 	static char newParticleEffectSettingName[128] = { '\0' };
 
 	//新しいパーティクルエフェクトの設定名を入力
-	ImGui::InputText("New Particle Effect Name", newParticleEffectSettingName, sizeof(newParticleEffectSettingName));
+	ImGui::InputText("新しいパーティクルエフェクトの名前", newParticleEffectSettingName, sizeof(newParticleEffectSettingName));
 
 	//新しいパーティクルエフェクトの設定を追加
-	if (ImGui::Button("Add Particle Effect"))
+	if (ImGui::Button("パーティクルエフェクトを追加"))
 	{
 		//名前をstd::stringに格納
 		std::string particleEffectName(newParticleEffectSettingName);
@@ -273,7 +273,7 @@ void ParticleEffectEditor::AddNewParticleEffectSetting()
 void ParticleEffectEditor::DisplayEffectControls(const std::string& effectName)
 {
 	//保存
-	if (ImGui::Button("Save"))
+	if (ImGui::Button("保存"))
 	{
 		SaveFile(effectName);
 	}
@@ -282,13 +282,13 @@ void ParticleEffectEditor::DisplayEffectControls(const std::string& effectName)
 	ImGui::SameLine();
 
 	//読み込み
-	if (ImGui::Button("Load"))
+	if (ImGui::Button("読み込み"))
 	{
 		LoadFile(effectName);
 	}
 
 	//現在編集中のパーティクルを生成
-	if (ImGui::Button("CreateParticles"))
+	if (ImGui::Button("パーティクルを生成"))
 	{
 		CreateParticles(effectName, { 0.0f,0.0f,0.0f }, Mathf::IdentityQuaternion());
 	}
@@ -621,10 +621,10 @@ void ParticleEffectEditor::AddParticleSystemSetting(ParticleEffectConfig& select
 	static std::string selectedSystemName;
 
 	//編集するパーティクルシステムの設定を選択
-	SelectFromMap<ParticleSystem*>("Particle Systems", selectedSystemName, particleSystems_);
+	SelectFromMap<ParticleSystem*>("パーティクルシステムを選択", selectedSystemName, particleSystems_);
 
 	//同じパーティクルシステムの設定が存在しなければ新しい設定を追加
-	if (ImGui::Button("Add Particle System"))
+	if (ImGui::Button("パーティクルシステムの設定を追加"))
 	{
 		if (selectedEffect.particleSystems.find(selectedSystemName) == selectedEffect.particleSystems.end())
 		{
@@ -639,7 +639,7 @@ void ParticleEffectEditor::EditParticleSystemSettings(ParticleEffectConfig& sele
 	static std::string currentEditSystemName;
 
 	//パーティクルシステムの設定
-	EditSettingsSection<ParticleSystemSettings>("Edit Particle Systems", selectedEffect.particleSystems, currentEditSystemName, 
+	EditSettingsSection<ParticleSystemSettings>("パーティクルシステムの設定", selectedEffect.particleSystems, currentEditSystemName, 
 		[this](ParticleSystemSettings& systemSetting)
 		{
 			//新しいエミッターの設定を追加
@@ -678,14 +678,13 @@ void ParticleEffectEditor::AddEmitterSetting(ParticleSystemSettings& selectedSys
 	static char newEmitterSettingName[128] = { '\0' };
 
 	//区切り線と編集名を表示
-	ImGui::NewLine();
-	ImGui::SeparatorText("Emitter Settings");
+	ImGui::SeparatorText("エミッターの設定");
 
 	//新しいエミッターの設定名を入力
-	ImGui::InputText("New Emitter Name", newEmitterSettingName, sizeof(newEmitterSettingName));
+	ImGui::InputText("新しいエミッターの名前", newEmitterSettingName, sizeof(newEmitterSettingName));
 
 	//新しいエミッターの設定を追加
-	if (ImGui::Button("Add Emitter"))
+	if (ImGui::Button("エミッターの設定を追加"))
 	{
 		//名前をstd::stringに格納
 		std::string emitterName(newEmitterSettingName);
@@ -709,46 +708,46 @@ void ParticleEffectEditor::EditEmitterSettings(ParticleSystemSettings& selectedS
 	static std::string currentEditEmitterName;
 
 	//エミッターの設定
-	EditSettingsSection<EmitterSettings>("Particle Emitters", selectedSystem.emitters, currentEditEmitterName,
+	EditSettingsSection<EmitterSettings>("エミッターの設定", selectedSystem.emitters, currentEditEmitterName,
 		[](EmitterSettings& emitterSetting)
 		{
-			ImGui::DragFloat("Emitter LifeTime", &emitterSetting.emitterLifeTime, 0.01f);
-			ImGui::DragFloat3("Translation", &emitterSetting.translate.x, 0.01f);
-			ImGui::Checkbox("Follow Enabled", &emitterSetting.followEnabled);
-			ImGui::DragFloat("Emission Radius", &emitterSetting.radius, 0.01f);
-			ImGui::DragInt("Particle Count", &emitterSetting.count);
-			ImGui::DragFloat("Frequency", &emitterSetting.frequency, 0.01f);
-			ImGui::Checkbox("Align to Direction", &emitterSetting.alignToDirection);
-			ImGui::Checkbox("Billboard Mode", &emitterSetting.isBillboard);
-			ImGui::DragFloat3("Min Rotation", &emitterSetting.rotateMin.x, 0.01f);
-			ImGui::DragFloat3("Max Rotation", &emitterSetting.rotateMax.x, 0.01f);
-			ImGui::DragFloat3("Min Scale", &emitterSetting.scaleMin.x, 0.01f);
-			ImGui::DragFloat3("Max Scale", &emitterSetting.scaleMax.x, 0.01f);
-			ImGui::DragFloat3("Min Velocity", &emitterSetting.velocityMin.x, 0.01f);
-			ImGui::DragFloat3("Max Velocity", &emitterSetting.velocityMax.x, 0.01f);
-			ImGui::DragFloat("Min Particle LifeTime", &emitterSetting.lifeTimeMin, 0.01f);
-			ImGui::DragFloat("Max Particle LifeTime", &emitterSetting.lifeTimeMax, 0.01f);
-			ImGui::ColorEdit4("Min Color", &emitterSetting.colorMin.x);
-			ImGui::ColorEdit4("Max Color", &emitterSetting.colorMax.x);
-			ImGui::Checkbox("Enable Color Over Lifetime", &emitterSetting.enableColorOverLifeTime);
+			ImGui::DragFloat("エミッターの寿命", &emitterSetting.emitterLifeTime, 0.01f);
+			ImGui::DragFloat3("エミッターの座標", &emitterSetting.translate.x, 0.01f);
+			ImGui::Checkbox("エミッターを追尾させるかどうか", &emitterSetting.followEnabled);
+			ImGui::DragFloat("エミッターの半径", &emitterSetting.radius, 0.01f);
+			ImGui::DragInt("パーティクルの生成数", &emitterSetting.count);
+			ImGui::DragFloat("パーティクルの発生間隔", &emitterSetting.frequency, 0.01f);
+			ImGui::Checkbox("進行方向に回転させるかどうか", &emitterSetting.alignToDirection);
+			ImGui::Checkbox("ビルボードさせるかどうか", &emitterSetting.isBillboard);
+			ImGui::DragFloat3("角度の最小値", &emitterSetting.rotateMin.x, 0.01f);
+			ImGui::DragFloat3("角度の最大値", &emitterSetting.rotateMax.x, 0.01f);
+			ImGui::DragFloat3("大きさの最小値", &emitterSetting.scaleMin.x, 0.01f);
+			ImGui::DragFloat3("大きさの最大値", &emitterSetting.scaleMax.x, 0.01f);
+			ImGui::DragFloat3("速度の最小値", &emitterSetting.velocityMin.x, 0.01f);
+			ImGui::DragFloat3("速度の最大値", &emitterSetting.velocityMax.x, 0.01f);
+			ImGui::DragFloat("パーティクルの寿命の最小値", &emitterSetting.lifeTimeMin, 0.01f);
+			ImGui::DragFloat("パーティクルの寿命の最大値", &emitterSetting.lifeTimeMax, 0.01f);
+			ImGui::ColorEdit4("色の最小値", &emitterSetting.colorMin.x);
+			ImGui::ColorEdit4("色の最大値", &emitterSetting.colorMax.x);
+			ImGui::Checkbox("寿命に応じて色を変えるかどうか", &emitterSetting.enableColorOverLifeTime);
 			if (emitterSetting.enableColorOverLifeTime)
 			{
-				ImGui::ColorEdit3("Target Color", &emitterSetting.targetColor.x);
+				ImGui::ColorEdit3("目標の色", &emitterSetting.targetColor.x);
 			}
-			ImGui::Checkbox("Enable Alpha Over Lifetime", &emitterSetting.enableAlphaOverLifeTime);
+			ImGui::Checkbox("寿命に応じて透明度を変えるかどうか", &emitterSetting.enableAlphaOverLifeTime);
 			if (emitterSetting.enableAlphaOverLifeTime)
 			{
-				ImGui::DragFloat("Target Alpha", &emitterSetting.targetAlpha, 0.01f, 0.0f, 1.0f);
+				ImGui::DragFloat("目標の透明度", &emitterSetting.targetAlpha, 0.01f, 0.0f, 1.0f);
 			}
-			ImGui::Checkbox("Enable Size Over Lifetime", &emitterSetting.enableSizeOverLifeTime);
+			ImGui::Checkbox("寿命に応じて大きさを変えるかどうか", &emitterSetting.enableSizeOverLifeTime);
 			if (emitterSetting.enableSizeOverLifeTime)
 			{
-				ImGui::DragFloat3("Target Scale", &emitterSetting.targetScale.x, 0.01f, 0.0f);
+				ImGui::DragFloat3("目標の大きさ", &emitterSetting.targetScale.x, 0.01f, 0.0f);
 			}
-			ImGui::Checkbox("Enable Rotation Over Lifetime", &emitterSetting.enableRotationOverLifeTime);
+			ImGui::Checkbox("寿命に応じて回転させるかどうか", &emitterSetting.enableRotationOverLifeTime);
 			if (emitterSetting.enableRotationOverLifeTime)
 			{
-				ImGui::DragFloat3("Rotation Speed", &emitterSetting.rotSpeed.x, 0.01f, -360.0f, 360.0f);
+				ImGui::DragFloat3("回転速度", &emitterSetting.rotSpeed.x, 0.01f, -360.0f, 360.0f);
 			}
 		}
 	);
@@ -760,14 +759,13 @@ void ParticleEffectEditor::AddAccelerationFieldSetting(ParticleSystemSettings& s
 	static char newAccelerationFieldSettingName[128] = { '\0' };
 
 	//区切り線と編集名を表示
-	ImGui::NewLine();
-	ImGui::SeparatorText("Acceleration Field Settings");
+	ImGui::SeparatorText("加速フィールドの設定");
 
 	//新しい加速フィールドの設定名を入力
-	ImGui::InputText("New Acceleration Field Name", newAccelerationFieldSettingName, sizeof(newAccelerationFieldSettingName));
+	ImGui::InputText("新しい加速フィールドの名前", newAccelerationFieldSettingName, sizeof(newAccelerationFieldSettingName));
 
 	//新しい加速フィールドの設定を追加
-	if (ImGui::Button("Add Acceleration Field"))
+	if (ImGui::Button("加速フィールドを追加"))
 	{
 		//名前をstd::stringに格納
 		std::string accelerationFieldName(newAccelerationFieldSettingName);
@@ -791,14 +789,14 @@ void ParticleEffectEditor::EditAccelerationFieldSettings(ParticleSystemSettings&
 	static std::string currentEditAccelerationFieldName;
 
 	//加速フィールドの設定
-	EditSettingsSection<AccelerationFieldSettings>("Acceleration Fields", selectedSystem.accelerationFields, currentEditAccelerationFieldName,
+	EditSettingsSection<AccelerationFieldSettings>("加速フィールドの設定", selectedSystem.accelerationFields, currentEditAccelerationFieldName,
 		[](AccelerationFieldSettings& accelerationFieldSetting)
 		{
-			ImGui::DragFloat("LifeTime", &accelerationFieldSetting.deathTimer, 0.01f);
-			ImGui::DragFloat3("Translation", &accelerationFieldSetting.translate.x, 0.01f);
-			ImGui::DragFloat3("Min", &accelerationFieldSetting.min.x, 0.01f);
-			ImGui::DragFloat3("Max", &accelerationFieldSetting.max.x, 0.01f);
-			ImGui::DragFloat3("Acceleration", &accelerationFieldSetting.acceleration.x, 0.01f);
+			ImGui::DragFloat("寿命", &accelerationFieldSetting.deathTimer, 0.01f);
+			ImGui::DragFloat3("座標", &accelerationFieldSetting.translate.x, 0.01f);
+			ImGui::DragFloat3("最小座標", &accelerationFieldSetting.min.x, 0.01f);
+			ImGui::DragFloat3("最大座標", &accelerationFieldSetting.max.x, 0.01f);
+			ImGui::DragFloat3("加速度", &accelerationFieldSetting.acceleration.x, 0.01f);
 		}
 	);
 }
@@ -809,14 +807,13 @@ void ParticleEffectEditor::AddGravityFieldSetting(ParticleSystemSettings& select
 	static char newGravityFieldSettingName[128] = { '\0' };
 
 	//区切り線と編集名を表示
-	ImGui::NewLine();
-	ImGui::SeparatorText("Gravity Field Settings");
+	ImGui::SeparatorText("重力フィールドの設定");
 
 	//新しい重力フィールドの設定名を入力
-	ImGui::InputText("New Gravity Field Name", newGravityFieldSettingName, sizeof(newGravityFieldSettingName));
+	ImGui::InputText("新しい重力フィールドの設定", newGravityFieldSettingName, sizeof(newGravityFieldSettingName));
 
 	//新しい重力フィールドの設定を追加
-	if (ImGui::Button("Add Gravity Field"))
+	if (ImGui::Button("重力フィールドの設定を追加"))
 	{
 		//名前をstd::stringに格納
 		std::string gravityFieldName(newGravityFieldSettingName);
@@ -840,15 +837,15 @@ void ParticleEffectEditor::EditGravityFieldSettings(ParticleSystemSettings& sele
 	static std::string currentEditGravityFieldName;
 
 	//重力フィールドの設定
-	EditSettingsSection<GravityFieldSettings>("Gravity Fields", selectedSystem.gravityFields, currentEditGravityFieldName,
+	EditSettingsSection<GravityFieldSettings>("重力フィールドの設定", selectedSystem.gravityFields, currentEditGravityFieldName,
 		[](GravityFieldSettings& gravityFieldSetting)
 		{
-			ImGui::DragFloat("LifeTime", &gravityFieldSetting.deathTimer, 0.01f);
-			ImGui::DragFloat3("Translation", &gravityFieldSetting.translate.x, 0.01f);
-			ImGui::DragFloat3("Min", &gravityFieldSetting.min.x, 0.01f);
-			ImGui::DragFloat3("Max", &gravityFieldSetting.max.x, 0.01f);
-			ImGui::DragFloat("Strength", &gravityFieldSetting.strength, 0.01f);
-			ImGui::DragFloat("StopDistance", &gravityFieldSetting.stopDistance, 0.01f);
+			ImGui::DragFloat("寿命", &gravityFieldSetting.deathTimer, 0.01f);
+			ImGui::DragFloat3("座標", &gravityFieldSetting.translate.x, 0.01f);
+			ImGui::DragFloat3("最小座標", &gravityFieldSetting.min.x, 0.01f);
+			ImGui::DragFloat3("最大座標", &gravityFieldSetting.max.x, 0.01f);
+			ImGui::DragFloat("引力", &gravityFieldSetting.strength, 0.01f);
+			ImGui::DragFloat("移動を止める距離", &gravityFieldSetting.stopDistance, 0.01f);
 		}
 	);
 }

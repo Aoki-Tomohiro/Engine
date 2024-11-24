@@ -5,10 +5,10 @@
 //キーフレーム
 struct CameraKeyFrame
 {
-	float time = 0.0f;                             //時間
-	Vector3 position = { 0.0f,2.0f,-10.0f };       //座標
-	Quaternion rotation = { 0.0f,0.0f,0.0f,1.0f }; //回転
-	float fov = 45.0f;                             //視野角
+	float time = 0.0f;                                //時間
+	Vector3 position = { 0.0f, 1.0f, -10.0f };        //座標
+	Quaternion rotation = { 0.0f, 0.0f, 0.0f, 1.0f }; //回転
+	float fov = 45.0f;                                //視野角
 };
 
 /// <summary>
