@@ -11,6 +11,12 @@ void PlayerStateRoot::Initialize()
 
 	//アニメーションブレンドの時間を設定
 	character_->GetAnimator()->SetBlendDuration(0.2f);
+
+	//ロックオン中の場合は敵の方向に回転させる
+	if (GetPlayer()->GetLockon()->ExistTarget())
+	{
+		GetPlayer()->LookAtEnemy();
+	}
 }
 
 void PlayerStateRoot::Update()

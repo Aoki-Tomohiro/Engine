@@ -1,0 +1,23 @@
+{
+    "Enemy": {
+        "Death": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "AnimationName": "GameClear",
+                    "AnimationSpeed": 1.0,
+                    "EndEventTime": 0.5,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.0,
+                    "SyncWithCharacterAnimation": false
+                }
+            },
+            "AnimationSpeedConfigs": null,
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

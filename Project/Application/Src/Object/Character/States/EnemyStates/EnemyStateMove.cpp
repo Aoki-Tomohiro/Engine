@@ -14,8 +14,8 @@ void EnemyStateMove::Initialize()
 
 void EnemyStateMove::Update()
 {
-	//デバッグのフラグが立っている場合は処理を飛ばす
-	if (GetEnemy()->GetIsDebug()) return;
+	//デバッグのフラグが立っている、またはゲームが終了している場合は処理を飛ばす
+	if (GetEnemy()->GetIsDebug() || character_->GetIsGameFinished()) return;
 
 	//プレイヤーの方向に向かせる
 	GetEnemy()->LookAtPlayer();

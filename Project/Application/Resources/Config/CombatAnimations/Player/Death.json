@@ -1,0 +1,28 @@
+{
+    "Player": {
+        "Death": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "AnimationName": "GameOver",
+                    "AnimationSpeed": 1.0,
+                    "EndEventTime": 2.3329999446868896,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.0,
+                    "SyncWithCharacterAnimation": true
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 8.0,
+                    "Duration": 2.3329999446868896
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

@@ -58,8 +58,7 @@ void CameraStateAnimation::UpdateAnimationTime()
 	else
 	{
 		//アニメーション速度に応じて独立したアニメーション時間を進行
-		const float kDeltaTime = 1.0f / 60.0f;
-		animationTime_ += animationSpeed_ * kDeltaTime;
+		animationTime_ += animationSpeed_ * GameTimer::GetDeltaTime();
 	}
 
 	//カメラパスの持続時間内にアニメーション時間をクランプ

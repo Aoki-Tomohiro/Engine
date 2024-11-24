@@ -262,21 +262,6 @@ void GamePlayScene::UpdateCameraAndLockOn()
 
 void GamePlayScene::HandleTransition()
 {
-	//FadeInしていないとき
-	if (transition_->GetFadeState() != transition_->FadeState::In)
-	{
-		//敵が死亡状態の場合ゲームクリアのフラグを立てる
-		if (enemy_->GetIsGameFinished())
-		{
-			isGameClear_ = true;
-		}
-		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
-		else if (player_->GetIsGameFinished())
-		{
-			isGameOver_ = true;
-		}
-	}
-
 	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
 	if (isGameClear_ || isGameOver_)
 	{
@@ -291,5 +276,24 @@ void GamePlayScene::HandleTransition()
 	{
 		audio_->StopAudio(audioHandle_);
 		sceneManager_->ChangeScene("GameTitleScene");
+	}
+
+	//FadeInしていないとき
+	if (transition_->GetFadeState() != transition_->FadeState::In)
+	{
+		if (isGameClear_ || isGameOver_) return;
+
+		//敵が死亡状態の場合ゲームクリアのフラグを立てる
+		if (enemy_->GetIsGameFinished())
+		{
+			isGameClear_ = true;
+			player_->SetIsGameFinished(true);
+		}
+		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
+		else if (player_->GetIsGameFinished())
+		{
+			isGameOver_ = true;
+			enemy_->SetIsGameFinished(true);
+		}
 	}
 }

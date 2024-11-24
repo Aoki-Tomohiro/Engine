@@ -112,7 +112,7 @@
                     "Damage": 6.0,
                     "EndEventTime": 2.9000000953674316,
                     "EventType": "Attack",
-                    "HitInterval": 0.0,
+                    "HitInterval": 0.10000000149011612,
                     "HitboxCenter": [
                         0.0,
                         0.0,

@@ -45,7 +45,7 @@ void PlayerStateFalling::Update()
 void PlayerStateFalling::OnCollision(GameObject* other)
 {
 	//衝突処理
-	character_->ProcessCollisionImpact(other, true);
+	character_->ProcessCollisionImpact(other, false);
 }
 
 void PlayerStateFalling::ApplyGravity()

@@ -16,5 +16,5 @@ void EnemyStateMoveSideToPlayer::Initialize()
 	std::string animationName = (direction == WalkDirection::kRight) ? "Walk3" : "Walk4";
 
 	//アニメーションを再生
-	SetAnimationControllerAndPlayAnimation(animationName, true);
+	SetAnimationControllerAndPlayAnimation(character_->GetIsGameFinished() ? "Idle" : animationName, true);
 }

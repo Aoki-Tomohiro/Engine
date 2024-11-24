@@ -18,6 +18,18 @@ void CharacterStateDeath::Update()
 	//地面に埋まらないように座標を補正
 	ClampPositionToGround();
 
+	//カメラアニメーションイベントが終了したらタイムスケールをもとに戻す
+	if (!processedCameraAnimationDatas_.empty() && !processedCameraAnimationDatas_[0].isActive)
+	{
+		//タイムスケールを元に戻す
+		GameTimer::SetTimeScale(1.0f);
+	}
+	else
+	{
+		//タイムスケールを設定
+		GameTimer::SetTimeScale(0.2f);
+	}
+
 	//アニメーションが終了しているかつ地面にいる場合
 	if (character_->GetAnimator()->GetIsAnimationFinished() && character_->GetPosition().y == 0.0f)
 	{

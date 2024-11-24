@@ -10,5 +10,5 @@ void EnemyStateMoveTowardPlayer::Initialize()
 	InitializeRandomWaitTimeBeforeMovement(GetEnemy()->GetRootParameters().minWaitTimeBeforeMovement, GetEnemy()->GetRootParameters().maxWaitTimeBeforeMovement);
 
 	//アニメーションを再生
-	SetAnimationControllerAndPlayAnimation("Walk1", true);
+	SetAnimationControllerAndPlayAnimation(character_->GetIsGameFinished() ? "Idle" : "Walk1", true);
 }

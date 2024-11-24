@@ -31,7 +31,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent10": {
-                    "CancelType": "FallingAttack",
+                    "CancelType": "Attack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 1.399999976158142
@@ -173,14 +173,14 @@
                 "AnimationEvent8": {
                     "AnimationName": "SpinAttack",
                     "AnimationSpeed": 1.0,
-                    "EndEventTime": 3.200000047683716,
-                    "EventTrigger": "ActionStart",
+                    "EndEventTime": 0.10000000149011612,
+                    "EventTrigger": "Impact",
                     "EventType": "CameraAnimation",
                     "StartEventTime": 0.0,
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent9": {
-                    "CancelType": "Attack",
+                    "CancelType": "FallingAttack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 1.399999976158142
