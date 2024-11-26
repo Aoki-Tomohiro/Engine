@@ -307,11 +307,6 @@ private:
     /// <returns>アビリティを使用できるかどうか</returns>
     bool IsAbilityAvailable(const SkillParameters& skill, const Player::ButtonType button);
 
-    /// <summary>
-    /// ボタンの入力状態の更新
-    /// </summary>
-    void UpdateButtonStates();
-
 private:
     //インプット
     Input* input_ = nullptr;
@@ -335,15 +330,6 @@ private:
 
     //ボタン定数を保持する配列
     const std::array<WORD, kMaxButtons> buttonMappings_{
-        XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
-        XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
-    };
-
-    //ボタンの状態
-    std::array<ButtonState, kMaxButtons> buttonStates_{};
-
-    //ボタン定数を保持する配列
-    std::array<WORD, kMaxButtons> buttonMappings_{
         XINPUT_GAMEPAD_A,XINPUT_GAMEPAD_B,XINPUT_GAMEPAD_X,XINPUT_GAMEPAD_Y,
         XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
     };
