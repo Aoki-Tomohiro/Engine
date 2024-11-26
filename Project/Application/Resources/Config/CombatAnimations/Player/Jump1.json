@@ -1,0 +1,76 @@
+{
+    "Player": {
+        "Jump1": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 1.0,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        24.0,
+                        0.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "CancelType": "Dash",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent2": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent3": {
+                    "CancelType": "Jump",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent4": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent5": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent6": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent7": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 1.0
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

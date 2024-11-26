@@ -145,7 +145,7 @@ void CommandContext::DrawIndexedInstanced(UINT indexCount, UINT instanceCount)
 void CommandContext::Close()
 {
 	HRESULT hr = commandList_->Close();
-	assert(SUCCEEDED(hr));
+	if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 }
 
 void CommandContext::Reset()

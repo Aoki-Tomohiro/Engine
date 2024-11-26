@@ -1,0 +1,65 @@
+{
+    "Player": {
+        "DashStart": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 0.06700000166893005,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.029999999329447746,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        80.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 0.06599999964237213,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "Dash",
+                    "PostEffectType": "RadialBlur",
+                    "SoundEffectType": "Dash",
+                    "StartEventTime": 0.029999999329447746
+                },
+                "AnimationEvent2": {
+                    "AnimationName": "Dash",
+                    "AnimationSpeed": 1.0,
+                    "EndEventTime": 0.06700000166893005,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.029999999329447746,
+                    "SyncWithCharacterAnimation": true
+                },
+                "AnimationEvent3": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 0.06700000166893005,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 0.07999999821186066,
+                    "Duration": 0.06700000166893005
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

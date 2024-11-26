@@ -1,59 +1,79 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Audio/Audio.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 #include "Application/Src/Object/Magic/Magic.h"
 
+/// <summary>
+/// 魔法攻撃状態に遷移
+/// </summary>
 class PlayerStateMagicAttack : public IPlayerState
 {
 public:
-	enum MagicAttackState
-	{
-		kCharge,
-		kFire,
-		kRecovery,
-	};
-
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 衝突処理
+	/// </summary>
+	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject* other) override;
 
 private:
-	void SetMagicAttackAnimation(const std::string& animationName);
+	/// <summary>
+	/// 攻撃イベントの初期化
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex) override;
 
-	void UpdateAnimationPhase(float currentAnimationTime);
+	/// <summary>
+	/// 魔法攻撃の初期化
+	/// </summary>
+	/// <param name="player">プレイヤー</param>
+	/// <returns>溜め魔法攻撃が発生したかどうか</returns>
+	bool InitializeMagicAttack(Player* player);
 
-	void ExecuteMagicAttack();
+	/// <summary>
+	/// 魔法を生成
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	Magic* CreateMagicObject(const AttackEvent* attackEvent);
 
-	void ResetToFirePhase();
+	/// <summary>
+	/// 魔法の速度を計算
+	/// </summary>
+	/// <returns>魔法の速度</returns>
+	Vector3 CalculateMagicVelocity();
 
-	void UpdateRotation();
+	/// <summary>
+	/// ロックオン時の速度を計算
+	/// </summary>
+	/// <param name="player">プレイヤー</param>
+	Vector3 CalculateLockonVelocity(Player* player);
 
-	void CreateMagicProjectile();
+	/// <summary>
+	/// ノックバックのパラメーターを生成
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	KnockbackParameters CreateKnockbackParameters(const AttackEvent* attackEvent);
 
-	const Vector3 GetMagicProjectileVelocity();
-
-	void SetMagicProjectileTransform(Magic* magic);
-
-	bool CheckRecoveryCancel();
+	/// <summary>
+	/// 魔法のトランスフォームを設定
+	/// </summary>
+	/// <param name="magic">魔法</param>
+	void SetMagicTransform(Magic* magic);
 
 private:
-	//インプット
-	Input* input_ = nullptr;
+	//魔法の種類
+	Magic::MagicType magicType_{};
 
-	//オーディオ
-	Audio* audio_ = nullptr;
-
-	//アニメーションの状態
-	CombatAnimationState animationState_{};
-
-	//フェーズのインデックス
-	int32_t phaseIndex_ = 0;
-
-	//オーディオハンドル
-	uint32_t fireAudioHandle_ = 0;
+	//溜め魔法攻撃のアニメーション開始時間
+	float chargeMagicAttackStartTime_ = 1.0f;
 };
 

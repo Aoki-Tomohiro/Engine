@@ -5,6 +5,8 @@ class CameraController;
 class ICameraState
 {
 public:
+	virtual ~ICameraState() = default;
+
 	virtual void Initialize() = 0;
 
 	virtual void Update() = 0;

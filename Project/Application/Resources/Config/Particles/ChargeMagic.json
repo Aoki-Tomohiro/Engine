@@ -1,34 +1,34 @@
 {
     "ChargeMagic": {
         "ParticleSystems": {
-            "Normal": {
+            "Circle": {
                 "AccelerationFields": {},
                 "Emitters": {
-                    "Normal": {
+                    "Circle": {
                         "AlignToDirection": false,
                         "ColorMax": [
                             1.0,
-                            0.29411765933036804,
+                            0.14901961386203766,
                             0.0,
                             1.0
                         ],
                         "ColorMin": [
                             1.0,
-                            0.29411762952804565,
+                            0.14705884456634521,
                             0.0,
                             1.0
                         ],
-                        "Count": 1,
-                        "EmitIn360Degrees": true,
+                        "Count": 4,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": false,
                         "EnableRotationOverLifeTime": false,
                         "EnableSizeOverLifeTime": true,
+                        "FollowEnabled": false,
                         "Frequency": 0.5,
                         "IsBillboard": true,
-                        "LifeTimeMax": 0.4000000059604645,
-                        "LifeTimeMin": 0.4000000059604645,
+                        "LifeTimeMax": 0.30000001192092896,
+                        "LifeTimeMin": 0.30000001192092896,
                         "Radius": 0.0,
                         "RotSpeed": [
                             0.0,
@@ -46,14 +46,14 @@
                             0.0
                         ],
                         "ScaleMax": [
-                            0.20000000298023224,
-                            0.20000000298023224,
-                            0.20000000298023224
+                            1.0,
+                            1.0,
+                            1.0
                         ],
                         "ScaleMin": [
-                            0.20000000298023224,
-                            0.20000000298023224,
-                            0.20000000298023224
+                            1.0,
+                            1.0,
+                            1.0
                         ],
                         "TargetAlpha": 0.0,
                         "TargetColor": [
@@ -62,24 +62,24 @@
                             1.0
                         ],
                         "TargetScale": [
-                            0.4000000059604645,
-                            0.4000000059604645,
-                            0.4000000059604645
+                            2.5,
+                            2.5,
+                            2.5
                         ],
                         "Translation": [
+                            0.20000000298023224,
+                            1.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
                             0.0,
                             0.0,
                             0.0
                         ],
-                        "VelocityMax": [
-                            0.4000000059604645,
-                            0.4000000059604645,
-                            0.4000000059604645
-                        ],
                         "VelocityMin": [
-                            0.4000000059604645,
-                            0.4000000059604645,
-                            0.4000000059604645
+                            0.0,
+                            0.0,
+                            0.0
                         ]
                     }
                 },

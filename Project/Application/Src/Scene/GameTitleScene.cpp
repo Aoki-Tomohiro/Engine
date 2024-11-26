@@ -29,6 +29,9 @@ void GameTitleScene::Initialize()
 	particleManager_->Clear();
 	particleManager_->SetCamera(camera_);
 
+	//TrailRendererにカメラを設定
+	TrailRenderer::GetInstance()->SetCamera(camera_);
+
 	//プレイヤーを取得
 	Player* player = gameObjectManager_->GetGameObject<Player>("Player");
 	//タイトルシーンのフラグを設定

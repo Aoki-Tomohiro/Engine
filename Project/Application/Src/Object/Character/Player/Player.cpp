@@ -1,9 +1,7 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDeath.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
+#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 
 void Player::Initialize()
 {
@@ -13,73 +11,36 @@ void Player::Initialize()
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
+	//スキルクール弾マネージャーの初期化
+	InitializeSkillCooldownManager();
 
-	//HPの初期化
-	maxHp_ = 100.0f;
-	hp_ = maxHp_;
-
-	//スキルクールダウンマネージャーの初期化
-	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
-	skillCooldownManager_->AddSkill(Skill::kLaunchAttack, &launchAttackParameters_);
-	skillCooldownManager_->AddSkill(Skill::kSpinAttack, &spinAttackParameters_);
-
-	//ダメージエフェクト用のスプライトの生成
-	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
-	damageEffect_.sprite->SetColor(damageEffect_.color);
-	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
-
-	//音声データの読み込み
-	damageAudioHandle_ = audio_->LoadAudioFile("Damage.mp3");
+	//ダメージエフェクトのスプライトを生成
+	InitializeDamageEffectSprite();
 
 	//状態の初期化
-	ChangeState(new PlayerStateRoot());
+	ChangeState("Move");
 }
 
 void Player::Update()
 {
-	//モデルシェイクでずれた分の座標をリセット
-	ResetToOriginalPosition();
-
-	//モデルシェイクの更新
-	UpdateModelShake();
-
-	//タイトルシーンにいない場合
-	if (!isInTitleScene_)
+	//タイトルシーンにいる場合は基底クラスの更新だけする
+	if (isInTitleScene_)
 	{
-		//ストンプが可能かどうかを判定する
-		//プレイヤーの腰のジョイントのワールド座標を取得	
-		Vector3 playerPosition = GetJointWorldPosition("mixamorig:Hips");
-
-		//敵の座標を取得
-		Vector3 enemyPosition = gameObjectManager_->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
-
-		//距離を計算
-		float distance = Mathf::Length(enemyPosition - playerPosition);
-
-		//ストンプ可能な距離にいた場合はストンプのフラグを立てる
-		if (distance < kStompRange)
-		{
-			SetActionFlag(ActionFlag::kCanStomp, true);
-		}
-		else
-		{
-			SetActionFlag(ActionFlag::kCanStomp, false);
-		}
-
-		//入力状態の更新
-		UpdateButtonStates();
-
-		//状態の更新
-		state_->Update();
-
-		//魔法攻撃の更新
-		UpdateMagicAttack();
+		GameObject::Update();
+		return;
 	}
+
+	//ボタンの入力状態の更新
+	UpdateButtonStates();
 
 	//スキルのクールダウンの更新
 	UpdateSkillCooldowns();
+
+	//ストンプのフラグの更新
+	UpdateStompFlag();
+
+	//魔法攻撃の更新
+	UpdateMagicAttack();
 
 	//ダメージエフェクトの更新
 	UpdateDamageEffect();
@@ -91,7 +52,6 @@ void Player::Update()
 void Player::DrawUI()
 {
 	//右トリガーの値が閾値を超えているかをチェック
-	const float kRightTriggerThreshold = 0.7f;
 	bool shouldDrawSkillUI = input_->GetRightTriggerValue() > kRightTriggerThreshold;
 
 	//ボタン数だけループ
@@ -166,20 +126,21 @@ void Player::OnCollision(GameObject* gameObject)
 	else
 	{
 		//状態の衝突判定処理
-		state_->OnCollision(gameObject);
+		currentState_->OnCollision(gameObject);
 	}
 }
 
-void Player::ChangeState(IPlayerState* newState)
+void Player::ApplyDamageAndKnockback(const KnockbackParameters& knockbackSettings, const float damage, const bool transitionToStun)
 {
-	//新しい状態の設定
-	newState->SetPlayer(this);
+	//ダメージの音を再生
+	audio_->PlayAudio(audioHandles_["Damage"], false, 0.2f);
 
-	//新しい状態の初期化
-	newState->Initialize();
+	//ダメージエフェクトのタイマーと色を設定
+	damageEffect_.timer = 0.0f;
+	damageEffect_.color.w = 0.2f;
 
-	//現在の状態を新しい状態に更新
-	state_.reset(newState);
+	//基底クラスの呼び出し
+	BaseCharacter::ApplyDamageAndKnockback(knockbackSettings, damage, transitionToStun);
 }
 
 void Player::LookAtEnemy()
@@ -200,6 +161,34 @@ void Player::LookAtEnemy()
 	Rotate(Mathf::Normalize(rotateVector));
 }
 
+void Player::InitializeActionMap()
+{
+	//アクションマップの初期化
+	actionMap_ = {
+		{"None", [this]() {return true; }},
+		{"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
+		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}, 
+		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
+		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
+		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"FallingAttack",[this]() {return CheckFallingAttack(); }},
+		{"Ability",[this]() {return CheckAndTriggerAbility(); }},
+	};
+}
+
+void Player::InitializeAudio()
+{
+	//基底クラスの呼び出し
+	BaseCharacter::InitializeAudio();
+
+	//音声データの読み込み
+	audioHandles_["NormalHit"] = audio_->LoadAudioFile("Hit.mp3");
+	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
+	audioHandles_["Damage"] = audio_->LoadAudioFile("Damage.mp3");
+}
+
 void Player::InitializeAnimator()
 {
 	//基底クラスの呼び出し
@@ -215,8 +204,8 @@ void Player::InitializeAnimator()
 		{"Falling", "Player/Animations/Falling.gltf"}, {"GroundAttack1", "Player/Animations/GroundAttack1.gltf"},  {"GroundAttack2", "Player/Animations/GroundAttack2.gltf"},
 		{"GroundAttack3", "Player/Animations/GroundAttack3.gltf"}, {"GroundAttack4", "Player/Animations/GroundAttack4.gltf"}, {"AerialAttack1", "Player/Animations/AerialAttack1.gltf"},
 		{"AerialAttack2", "Player/Animations/AerialAttack2.gltf"}, {"AerialAttack3", "Player/Animations/AerialAttack3.gltf"}, {"LaunchAttack", "Player/Animations/LaunchAttack.gltf"},
-		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Impact", "Player/Animations/Impact.gltf"},
-		{"Death", "Player/Animations/Death.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}
+		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}, 
+		{"HitStun", "Player/Animations/HitStun.gltf"}, {"Knockdown", "Player/Animations/Knockdown.gltf"}, {"StandUp", "Player/Animations/StandUp.gltf"},{"Death", "Player/Animations/Death.gltf"}
 	};
 
 	//アニメーションを追加
@@ -231,34 +220,52 @@ void Player::InitializeAnimator()
 
 void Player::InitializeUISprites()
 {
-	//ボタンのUIの設定
-	for (int32_t i = 0; i < kMaxButtons; ++i)
-	{
-		SetButtonUISprite(buttonUISettings_[i], buttonConfigs[i]);
-	}
-
-	//スキルのUIの設定
-	for (int32_t i = 0; i < kMaxSkillCount; ++i)
-	{
-		SetSkillUISprite(skillUISettings_[i], skillConfigs[i]);
-	}
-
 	//テクスチャの名前を設定
 	hpTextureNames_ = { {
 		{"barBack_horizontalLeft.png", "barBack_horizontalMid.png", "barBack_horizontalRight.png"},
-		{"barRed_horizontalLeft.png", "barRed_horizontalMid.png", "barRed_horizontalRight.png"},
-		}
+		{"barRed_horizontalLeft.png", "barRed_horizontalMid.png", "barRed_horizontalRight.png"},}
 	};
 
 	//スプライトの座標を設定
 	hpBarSegmentPositions_ = { {
 		{ {	{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
-		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
-		}
+		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},}
 	};
+
+	//ボタンのUIの設定
+	for (int32_t i = 0; i < kMaxButtons; ++i)
+	{
+		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
+	}
+
+	//スキルのUIの設定
+	for (int32_t i = 0; i < kMaxSkillCount; ++i)
+	{
+		SetSkillUISprite(skillUISettings_[i], skillConfigs_[i]);
+	}
 
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
+}
+
+void Player::InitializeSkillCooldownManager()
+{
+	//スキルクールダウンマネージャーの初期化
+	skillCooldownManager_ = std::make_unique<SkillCooldownManager>();
+	//スキルを追加
+	for (const auto skillPairSet : skillPairSets_)
+	{
+		skillCooldownManager_->AddSkill(skillPairSet.first.name, skillPairSet.first.cooldownDuration);
+		skillCooldownManager_->AddSkill(skillPairSet.second.name, skillPairSet.second.cooldownDuration);
+	}
+}
+
+void Player::InitializeDamageEffectSprite()
+{
+	//ダメージエフェクト用のスプライトの生成
+	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	damageEffect_.sprite->SetColor(damageEffect_.color);
+	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
 }
 
 void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)
@@ -290,144 +297,6 @@ void Player::SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& co
 	uiSettings.cooldownBarSprite->SetScale(config.skillBarScale);
 }
 
-void Player::ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun)
-{
-	//ダメージの音を再生
-	audio_->PlayAudio(damageAudioHandle_, false, 0.2f);
-
-	//ダメージエフェクトのタイマーと色を設定
-	damageEffect_.timer = 0.0f;
-	damageEffect_.color.w = 0.2f;
-
-	//基底クラスの呼び出し
-	BaseCharacter::ApplyDamageAndKnockback(knockbackSettings, damage, transitionToStun);
-}
-
-void Player::UpdateMagicAttack()
-{
-	//クールダウンのタイマーを進める
-	if (magicAttackWork_.cooldownTimer > 0.0f)
-	{
-		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime();
-	}
-
-	//Yボタンが押されていた場合
-	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
-	{
-		//魔法がチャージされていない場合はチャージを始める
-		if (!magicAttackWork_.isCharging)
-		{
-			magicAttackWork_.isCharging = true;
-			magicAttackWork_.chargeTimer = 0.0f;
-		}
-		//魔法がチャージされている場合
-		else
-		{
-			//チャージタイマーを進める
-			magicAttackWork_.chargeTimer += GameTimer::GetDeltaTime();
-
-			//チャージの閾値を超えていた場合は溜め魔法を生成
-			if (magicAttackWork_.chargeTimer > magicAttackParameters_.chargeTimeThreshold)
-			{
-				//チャージフラグを立てる
-				actionFlags_[ActionFlag::kChargeMagicAttackEnabled] = true;
-				actionFlags_[ActionFlag::kMagicAttackEnabled] = false;
-			}
-			//チャージの閾値を超えていない場合
-			else
-			{
-				//魔法攻撃のクールタイムを超えていた場合
-				if (magicAttackWork_.cooldownTimer <= 0.0f)
-				{
-					//魔法攻撃のフラグを立てる
-					actionFlags_[ActionFlag::kMagicAttackEnabled] = true;
-					actionFlags_[ActionFlag::kChargeMagicAttackEnabled] = false;
-				}
-			}
-		}
-	}
-	//Yボタンが押されていない場合
-	else
-	{
-		//魔法をチャージ中の場合
-		if (magicAttackWork_.isCharging)
-		{
-			//フラグをリセット
-			magicAttackWork_.isCharging = false;
-			magicAttackWork_.chargeTimer = 0.0f;
-		}
-	}
-}
-
-void Player::UpdateSkillCooldowns()
-{
-	//スキルクールダウンマネージャーの更新
-	skillCooldownManager_->Update();
-
-	const SkillConfig& config1 = skillConfigs[0];
-	const SkillConfig& config2 = skillConfigs[1];
-
-	float launchAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kLaunchAttack);
-	float spinAttackCooldownTime = skillCooldownManager_->GetCooldownTime(Skill::kSpinAttack);
-
-	UpdateCooldownBarScale(skillUISettings_[0], config1, launchAttackCooldownTime, launchAttackParameters_.cooldownDuration);
-	UpdateCooldownBarScale(skillUISettings_[1], config2, spinAttackCooldownTime, spinAttackParameters_.cooldownDuration);
-}
-
-void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)
-{
-	float currentScale = config.skillBarScale.x * (cooldownTime / cooldownDuration);
-	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
-}
-
-void Player::UpdateDamageEffect()
-{
-	//エフェクトがアクティブな場合のみ処理
-	if (damageEffect_.color.w > 0.0f)
-	{
-		//エフェクトタイマーを更新
-		damageEffect_.timer += GameTimer::GetDeltaTime();
-
-		//透明度を計算
-		float fadeOutProgress = damageEffect_.timer / damageEffect_.duration;
-		damageEffect_.color.w = std::max<float>(0.0f, 0.2f * (1.0f - fadeOutProgress));
-
-		//エフェクトが完全に消えた場合、タイマーと色をリセット
-		if (damageEffect_.color.w == 0.0f)
-		{
-			damageEffect_.timer = 0.0f;
-		}
-	}
-
-	//ダメージのスプライトの色を設定
-	damageEffect_.sprite->SetColor(damageEffect_.color);
-}
-
-void Player::DrawButtonUI(const ButtonUISettings& uiSettings)
-{
-	uiSettings.buttonSprite.sprite->Draw();
-	uiSettings.fontSprite.sprite->Draw();
-}
-
-void Player::DrawSkillUI(const SkillUISettings& uiSettings)
-{
-	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
-	uiSettings.buttonSettings.fontSprite.sprite->Draw();
-	uiSettings.cooldownBarSprite->Draw();
-}
-
-void Player::TransitionToStunState()
-{
-	//スタン状態に遷移
-	ChangeState(new PlayerStateStun());
-}
-
-void Player::TransitionToDeathState()
-{
-	//死亡状態に遷移
-	ChangeState(new PlayerStateDeath());
-}
-
 void Player::UpdateButtonStates()
 {
 	//全てのボタンの状態を更新
@@ -437,7 +306,7 @@ void Player::UpdateButtonStates()
 		if (input_->IsPressButtonEnter(buttonMappings_[i]))
 		{
 			//押されたフラグを立てる
-			buttonStates_[i].isPressed = true; 
+			buttonStates_[i].isPressed = true;
 			//押し始めた時間をリセット
 			buttonStates_[i].pressedFrame = 0;
 		}
@@ -485,4 +354,209 @@ void Player::UpdateButtonStates()
 			buttonStates_[i].isReleased = false;
 		}
 	}
+}
+
+void Player::UpdateCooldownTimer()
+{
+	//クールダウンのタイマーを進める
+	if (magicAttackWork_.cooldownTimer > 0.0f)
+	{
+		magicAttackWork_.cooldownTimer -= GameTimer::GetDeltaTime() * timeScale_;
+	}
+}
+
+void Player::UpdateStompFlag()
+{
+	//プレイヤーの指定したジョイントのワールド座標を取得
+	Vector3 playerPosition = GetJointWorldPosition("mixamorig:Hips");
+
+	//敵の指定したジョイントのワールド座標を取得
+	Vector3 enemyPosition = gameObjectManager_->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
+
+	//距離を計算しストンプ可能な距離内かを判定
+	bool canStomp = Mathf::Length(enemyPosition - playerPosition) < kStompRange_;
+	SetActionFlag(ActionFlag::kCanStomp, canStomp);
+}
+
+void Player::UpdateMagicAttack()
+{
+	//クールダウンのタイマーを進める
+	UpdateCooldownTimer();
+
+	//Yボタン押している場合
+	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
+	{
+		HandleMagicCharge();
+	}
+	else
+	{
+		//魔法をチャージ中の場合、フラグをリセット
+		if (magicAttackWork_.isCharging)
+		{
+			magicAttackWork_.isCharging = false;
+			magicAttackWork_.chargeTimer = 0.0f;
+		}
+	}
+}
+
+void Player::HandleMagicCharge()
+{
+	//魔法がチャージされていない場合はチャージを開始
+	if (!magicAttackWork_.isCharging)
+	{
+		magicAttackWork_.isCharging = true;
+		magicAttackWork_.chargeTimer = 0.0f;
+	}
+	//チャージ中の場合はチャージを継続
+	else
+	{
+		ContinueCharging();
+	}
+}
+
+void Player::ContinueCharging()
+{
+	//チャージタイマーを進める
+	magicAttackWork_.chargeTimer += GameTimer::GetDeltaTime() * timeScale_;
+
+	//チャージの閾値をチェック
+	if (magicAttackWork_.chargeTimer > magicAttackParameters_.chargeTimeThreshold)
+	{
+		//チャージフラグを立てる
+		actionFlags_[ActionFlag::kChargeMagicAttackEnabled] = true;
+		actionFlags_[ActionFlag::kMagicAttackEnabled] = false;
+	}
+	else
+	{
+		//魔法攻撃のクールタイムを確認
+		if (magicAttackWork_.cooldownTimer <= 0.0f)
+		{
+			//魔法攻撃のフラグを立てる
+			actionFlags_[ActionFlag::kMagicAttackEnabled] = true;
+			actionFlags_[ActionFlag::kChargeMagicAttackEnabled] = false;
+		}
+	}
+}
+
+void Player::UpdateSkillCooldowns()
+{
+	//スキルクールダウンマネージャーの更新
+	skillCooldownManager_->Update();
+
+	//現在のスキルペアのセットを取得
+	std::pair<SkillParameters, SkillParameters> currentSkillPairSet = skillPairSets_[activeSkillSetIndex_];
+
+	//スキルのクールダウンの時間を取得
+	float skillCooldownTime1 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.first.name);
+	float skillCooldownTime2 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.second.name);
+
+	//クールダウンバーのスケールを更新
+	UpdateCooldownBarScale(skillUISettings_[0], skillConfigs_[0], skillCooldownTime1, currentSkillPairSet.first.cooldownDuration);
+	UpdateCooldownBarScale(skillUISettings_[1], skillConfigs_[1], skillCooldownTime2, currentSkillPairSet.second.cooldownDuration);
+}
+
+void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)
+{
+	float currentScale = config.skillBarScale.x * (cooldownTime / cooldownDuration);
+	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
+}
+
+void Player::UpdateDamageEffect()
+{
+	//エフェクトがアクティブな場合のみ処理
+	if (damageEffect_.color.w > 0.0f)
+	{
+		//エフェクトタイマーを更新
+		damageEffect_.timer += GameTimer::GetDeltaTime() * timeScale_;
+
+		//透明度を計算
+		float fadeOutProgress = damageEffect_.timer / damageEffect_.duration;
+		damageEffect_.color.w = std::max<float>(0.0f, 0.2f * (1.0f - fadeOutProgress));
+
+		//エフェクトが完全に消えた場合、タイマーと色をリセット
+		if (damageEffect_.color.w == 0.0f)
+		{
+			damageEffect_.timer = 0.0f;
+		}
+	}
+
+	//ダメージのスプライトの色を設定
+	damageEffect_.sprite->SetColor(damageEffect_.color);
+}
+
+void Player::DrawButtonUI(const ButtonUISettings& uiSettings)
+{
+	uiSettings.buttonSprite.sprite->Draw();
+	uiSettings.fontSprite.sprite->Draw();
+}
+
+void Player::DrawSkillUI(const SkillUISettings& uiSettings)
+{
+	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
+	uiSettings.buttonSettings.fontSprite.sprite->Draw();
+	uiSettings.cooldownBarSprite->Draw();
+}
+
+bool Player::CheckFallingAttack()
+{
+	//XとAが同時に押されているか確認
+	if (buttonStates_[Player::ButtonType::X].isPressed && buttonStates_[Player::ButtonType::A].isPressed)
+	{
+		//落下攻撃フラグを設定
+		SetActionFlag(ActionFlag::kFallingAttackEnabled, true);
+		//落下攻撃発動
+		return true;
+	}
+	//落下攻撃不発動
+	return false;
+}
+
+bool Player::CheckAndTriggerAbility()
+{
+	//アビリティ1の条件を確認
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::X))
+	{
+		SetActionFlag(ActionFlag::kAbility1Enabled, true);
+		return true;
+	}
+
+	//アビリティ2の条件を確認
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::Y))
+	{
+		SetActionFlag(ActionFlag::kAbility2Enabled, true);
+		return true;
+	}
+
+	//どちらのアビリティも条件を満たさなかった場合
+	return false;
+}
+
+bool Player::IsAbilityAvailable(const SkillParameters& skill, const Player::ButtonType button)
+{
+	//クールダウンが完了しているかをチェック
+	if (!GetIsCooldownComplete(skill.name))
+	{ 
+		return false; 
+	}
+
+	//ボタンが押されているかをチェック
+	if (!buttonStates_[button].isPressed) 
+	{ 
+		return false; 
+	}
+
+	//右トリガーが適切な値であるかをチェック
+	if (input_->GetRightTriggerValue() <= kRightTriggerThreshold)
+	{ 
+		return false;
+	}
+
+	//地面でのみ使用可能なスキルの場合、空中であれば使用できない
+	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f)
+	{ 
+		return false;
+	}
+
+	//すべての条件を満たしていればアビリティは使用可能
+	return true;
 }

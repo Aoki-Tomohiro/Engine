@@ -1,106 +1,71 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Components/Input/Input.h"
-#include "Engine/Math/MathFunction.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 
+/// <summary>
+/// 攻撃状態
+/// </summary>
 class PlayerStateAttack : public IPlayerState
 {
 public:
-	//攻撃の状態
-	enum AttackState
-	{
-		kCharge,
-		kAttack,
-		kRecovery,
-	};
-
-	//次の攻撃
-	enum NextState
-	{
-		kNormalCombo,
-		kDash,
-		kLaunchAttack,
-		kSpinAttack,
-		kFallingAttack,
-		kChargeMagic,
-		kStomp,
-	};
-
-	//攻撃用ワーク
-	struct WorkAttack
-	{
-		float attackParameter = 0.0f;                 //攻撃用のパラメーター
-		int32_t hitCount = 0;                         //ヒットカウント
-		int32_t comboIndex = 0;                       //現在のコンボのインデックス
-		int32_t inComboPhase = 0;                     //現在のコンボの中のフェーズ
-		bool comboNext = false;                       //次のコンボが有効かどうか
-		NextState comboNextState = kNormalCombo;      //次のコンボの状態
-		bool isMovementFinished = false;              //移動が終了しているかどうか
-	};
-
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 衝突処理
+	/// </summary>
+	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject* other) override;
 
 private:
-	void PlayAttackAnimation(const bool isAerial);
+	/// <summary>
+	/// 空中か地上かによってアニメーション名を決定
+	/// </summary>
+	/// <returns>アニメーションの名前</returns>
+	std::string DetermineAnimationName() const;
 
-	void LoadAnimationStates(const bool isAerial);
+	/// <summary>
+	/// 地上のアニメーションの名前を返す
+	/// </summary>
+	/// <returns>地上のアニメーションの名前</returns>
+	const std::string GetGroundAnimationName() const;
 
-	void InitializeDashAttack();
+	/// <summary>
+	/// 空中のアニメーションの名前を返す
+	/// </summary>
+	/// <returns>空中のアニメーションの名前</returns>
+	const std::string GetAerialAnimationName() const;
 
-	void CalculateVelocity();
+	/// <summary>
+	/// ダッシュ攻撃の処理
+	/// </summary>
+	void HandleDashAttack();
 
-	void EvaluateComboProgress();
-
-	void UpdateComboStateBasedOnButtonPress();
-
-	void UpdateComboStateWithoutTrigger();
-
-	void EnableCombo(const NextState& nextState);
-
-	void UpdateAnimationAndHandlePhase();
-
-	void HandleComboPhase();
-
-	void ChargeUpdate();
-
-	void AttackUpdate();
-
-	void RecoveryUpdate();
-
-	void RotatePlayerTowardsEnemy();
-
-	void UpdateComboState();
-
-	float GetAttackDuration();
-
-	void HandleComboTransition();
-
-	void CorrectPlayerPosition();
-
-	void HandleNormalComboTransition();
-
-	void ResetAttackWork();
-
-	void HandleDirectionalChange();
-
-	void FinalizeAttackState();
+	/// <summary>
+	/// コンボのインデックスの更新
+	/// </summary>
+	void UpdateComboIndex();
 
 private:
-	//インプット
-	Input* input_ = nullptr;
+	//コンボのインデックス
+	static int32_t comboIndex;
 
-	//攻撃用ワーク
-	WorkAttack workAttack_{};
+	//アニメーションの名前
+	std::string animationName_{};
 
-	//速度
-	Vector3 velocity_{};
+	//次のコンボが有効かどうか
+	bool comboNext_ = false;
 
-	//アニメーションの状態
-	std::vector<CombatAnimationState> animationStates_{};
+	//地上攻撃のアニメーション開始時間
+	float groundAttackStartTime_ = 0.48f;
+
+	//空中攻撃のアニメーション開始時間
+	float aerialAttackStartTime_ = 0.78f;
 };
 

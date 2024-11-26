@@ -14,7 +14,7 @@ void DescriptorHeap::Initialize(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT numDescrip
     descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
     HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap_));
-    assert(SUCCEEDED(hr));
+    if (FAILED(hr)) { assert(SUCCEEDED(hr)); };
 
     //ディスクリプタサイズの取得
     descriptorSize_ = device->GetDescriptorHandleIncrementSize(type);

@@ -1,0 +1,34 @@
+{
+    "Player": {
+        "DodgeBackward": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 0.9300000071525574,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.2800000011920929,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        -30.0
+                    ]
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.5999999046325684,
+                    "Duration": 1.0
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

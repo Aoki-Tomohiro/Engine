@@ -21,6 +21,8 @@ void ImGuiManager::Initialize() {
 	//ImGuiの初期化
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("Application/Resources/Fonts/SourceHanSans-Regular.ttc", 16.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(application_->GetHwnd());
 	ImGui_ImplDX12_Init(graphicsCore_->GetDevice(),
@@ -44,7 +46,7 @@ void ImGuiManager::End() {
 }
 
 void ImGuiManager::Draw() {
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(USE_IMGUI)
 
 	//コマンドリストを取得
 	CommandContext* commandContext = graphicsCore_->GetCommandContext();

@@ -1,16 +1,20 @@
 #pragma once
 #include "Engine/2D/Sprite.h"
+#include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
 #include "Engine/Components/Collision/AABBCollider.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
-#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
-#include <array>
+#include "Engine/Utilities/GlobalVariables.h"
+#include "Application/Src/Object/Weapon/Weapon.h"
+#include "Application/Src/Object/HitStop/HitStop.h"
+#include "Application/Src/Object/Camera/CameraController.h"
+#include "Application/Src/Object/Character/States/ICharacterState.h"
+#include "Application/Src/Object/Character/States/CharacterStateFactory.h"
+#include "Application/Src/Object/Editors/EditorManager.h"
 
 /// <summary>
 /// キャラクターの基底クラス
@@ -26,12 +30,12 @@ public:
     /// <summary>
     /// 初期化
     /// </summary>
-    virtual void Initialize();
+    virtual void Initialize() override;
 
     /// <summary>
     /// 更新処理
     /// </summary>
-    virtual void Update();
+    virtual void Update() override;
 
     /// <summary>
     /// UIの描画
@@ -41,10 +45,17 @@ public:
     /// <summary>
     /// ダメージとノックバックを適用
     /// </summary>
-    /// <param name="knockbackSettings">ノックバックの設定</param>
+    /// <param name="knockbackParameters">ノックバックのパラメーター</param>
     /// <param name="damage">ダメージ</param>
     /// <param name="transitionToStun">スタン状態に遷移するかどうか</param>
-    virtual void ApplyDamageAndKnockback(const KnockbackSettings& knockbackSettings, const float damage, const bool transitionToStun);
+    virtual void ApplyDamageAndKnockback(const KnockbackParameters& knockbackParameters, const float damage, const bool transitionToStun);
+
+    /// <summary>
+    /// 状態遷移
+    /// </summary>
+    /// <param name="newStateName">新しい状態の名前</param>
+    /// <returns>遷移したかどうか</returns>
+    bool ChangeState(const std::string& newStateName);
 
     /// <summary>
     /// 移動処理
@@ -66,14 +77,8 @@ public:
     /// <summary>
     /// 武器にパラメーターを設定
     /// </summary>
-    /// <param name="weaponName">武器の名前</param>
-    /// <param name="combatPhase">パラメーター</param>
-    void ApplyParametersToWeapon(const std::string& weaponName, const CombatPhase& combatPhase);
-
-    /// <summary>
-    /// アニメーションによる座標のずれを補正
-    /// </summary>
-    void CorrectAnimationOffset();
+    /// <param name="attackEvent">攻撃イベント</param>
+    void ApplyParametersToWeapon(const AttackEvent* attackEvent);
 
     /// <summary>
     /// ダメージを食らった時の処理
@@ -88,18 +93,42 @@ public:
     void StartModelShake();
 
     /// <summary>
+    /// サウンドエフェクトを再生
+    /// </summary>
+    /// <param name="soundEffectType">サウンドエフェクトのタイプ</param>
+    void PlaySoundEffect(const std::string& soundEffectType);
+
+    /// <summary>
+    /// デバッグモードの開始
+    /// </summary>
+    /// <param name="animationName">アニメーションの名前</param>
+    void StartDebugMode(const std::string& animationName);
+
+    /// <summary>
+    /// デバッグモードの終了
+    /// </summary>
+    void EndDebugMode();
+
+    /// <summary>
     /// ジョイントのワールド座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのワールド座標</returns>
-    const Vector3 GetJointWorldPosition(const std::string& jointName);
+    Vector3 GetJointWorldPosition(const std::string& jointName) const;
 
     /// <summary>
     /// ジョイントのローカル座標を取得
     /// </summary>
     /// <param name="jointName">ジョイントの名前</param>
     /// <returns>ジョイントのローカル座標<</returns>
-    const Vector3 GetJointLocalPosition(const std::string& jointName);
+    Vector3 GetJointLocalPosition(const std::string& jointName) const;
+
+    /// <summary>
+    /// アクションが実行可能かどうかを返す
+    /// </summary>
+    /// <param name="actionName">アクション名</param>
+    /// <returns>アクションが実行可能かどうか</returns>
+    const bool GetActionCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName)() : false; };
 
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
@@ -113,30 +142,48 @@ public:
     const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
     void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
-    //コンバットアニメーションエディタの取得・設定
-    const CombatAnimationEditor* GetCombatAnimationEditor() const { return combatAnimationEditor_; };
-    void SetCombatAnimationEditor(const CombatAnimationEditor* combatAnimationEditor) { combatAnimationEditor_ = combatAnimationEditor; };
-
-    //パーティクルエフェクトマネージャーの取得・設定
-    ParticleEffectManager* GetParticleEffectManager() const { return particleEffectManager_; };
-    void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
-
-    //ノックバックを取得・設定
-    const KnockbackSettings& GetKnockbackSettings() const { return knockbackSettings_; };
-    void SetKnockbackSettings(const KnockbackSettings& knockbackSettings) { knockbackSettings_ = knockbackSettings; };
+    //ノックバックのパラメーターを取得・設定
+    const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
+    void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
 
     //ゲームの終了状態の取得・設定
     const bool GetIsGameFinished() const { return isGameFinished_; };
     void SetIsGameFinished(const bool isGameFinished) { isGameFinished_ = isGameFinished; };
 
-    //死亡フラグの取得
-    const bool GetIsDead() const { return isDead_; };
+    //タイムスケールの取得・設定
+    const float GetTimeScale() const { return timeScale_; };
+    void SetTimeScale(const float timeScale) { timeScale_ = timeScale; };
+
+    //武器を取得・設定
+    Weapon* GetWeapon() const { return weapon_; };
+    void SetWeapon(Weapon* weapon) { weapon_ = weapon; };
+
+    //ヒットストップを取得・設定
+    HitStop* GetHitStop() const { return hitStop_; };
+    void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
+
+    //カメラコントローラーの取得・設定
+    CameraController* GetCameraController() const { return cameraController_; };
+    void SetCameraController(CameraController* cameraController) { cameraController_ = cameraController; };
+
+    //エディターマネージャーの取得・設定
+    const EditorManager* GetEditorManager() const { return editorManager_; };
+    void SetEditorManager(const EditorManager* editorManager) { editorManager_ = editorManager; };
+
+    //アクションマップのキーを取得
+    const std::vector<std::string> GetActionKeys() const { return GetKeysFromMap(actionMap_); };
+
+    //オーディオハンドルのキーを取得
+    const std::vector<std::string> GetAudioHandles() const { return GetKeysFromMap(audioHandles_); };
 
     //重力加速度を取得
     const float GetGravityAcceleration() const { return gravityAcceleration_; };
 
-    //アニメーション補正フラグの設定
-    void SetIsAnimationCorrectionActive(const float isAnimationCorrectionActive) { isAnimationCorrectionActive_ = isAnimationCorrectionActive; };
+    //デバッグのフラグの設定・取得
+    const bool GetIsDebug() const { return isDebug_; };
+
+    //死亡フラグの取得
+    const bool GetIsDead() const { return isDead_; };
 
     //回転の補間速度を設定
     void SetQuaternionInterpolationSpeed(const float quaternionInterpolationSpeed) { quaternionInterpolationSpeed_ = quaternionInterpolationSpeed; };
@@ -146,6 +193,9 @@ public:
 
     //アニメーターを取得
     AnimatorComponent* GetAnimator() const { return animator_; };
+
+    //コライダーを取得
+    AABBCollider* GetCollider() const { return collider_; };
 
 protected:
     //モデルシェイク用の構造体
@@ -174,6 +224,16 @@ protected:
     };
 
     /// <summary>
+    /// アクションマップの初期化
+    /// </summary>
+    virtual void InitializeActionMap() = 0;
+
+    /// <summary>
+    /// オーディオの初期化
+    /// </summary>
+    virtual void InitializeAudio();
+
+    /// <summary>
     /// トランスフォームの初期化
     /// </summary>
     virtual void InitializeTransform();
@@ -199,49 +259,49 @@ protected:
     virtual void InitializeUISprites();
 
     /// <summary>
+    /// 武器の初期化
+    /// </summary>
+    virtual void InitializeWeapon();
+
+    /// <summary>
+    /// 環境変数の初期化
+    /// </summary>
+    virtual void InitializeGlobalVariables();
+
+    /// <summary>
+    /// 環境変数の適用
+    /// </summary>
+    virtual void ApplyGlobalVariables();
+
+    /// <summary>
     /// 回転の更新処理
     /// </summary>
-    virtual void UpdateRotation();
+    void UpdateRotation();
 
     /// <summary>
     /// コライダーの更新
     /// </summary>
-    virtual void UpdateCollider();
+    void UpdateCollider();
 
     /// <summary>
     /// 移動制限
     /// </summary>
-    virtual void RestrictMovement();
+    void RestrictMovement();
 
     /// <summary>
     /// HPの更新
     /// </summary>
-    virtual void UpdateHP();
+    void UpdateHP();
 
     /// <summary>
     /// 死亡状態に遷移するかを確認
     /// </summary>
-    virtual void CheckAndTransitionToDeath();
+    void CheckAndTransitionToDeath();
 
     /// <summary>
-    /// デバッグの更新
+    /// 次の状態に遷移
     /// </summary>
-    virtual void UpdateDebug();
-
-    /// <summary>
-    /// ImGuiの更新
-    /// </summary>
-    virtual void UpdateImGui();
-
-    /// <summary>
-    /// スタン状態への遷移処理
-    /// </summary>
-    virtual void TransitionToStunState() = 0;
-
-    /// <summary>
-    /// 死亡状態への遷移処理
-    /// </summary>
-    virtual void TransitionToDeathState() = 0;
+    void TransitionToNextState();
 
     /// <summary>
     /// モデルシェイクの更新
@@ -258,12 +318,54 @@ protected:
     /// </summary>
     void ResetToOriginalPosition();
 
+    /// <summary>
+    /// 指定されたコンテナのキーを取り出し配列として返す関数
+    /// </summary>
+    /// <typeparam name="Type">キーと値のペアで構成されるコンテナ型</typeparam>
+    /// <param name="map">キーと値のペアを格納するコンテナ</param>
+    /// <returns>コンテナ内のすべてのキーを格納した配列</returns>
+    template <typename Type>
+    std::vector<std::string> GetKeysFromMap(const Type& map) const;
+
 protected:
     //移動制限
-    const float kMoveLimit = 100.0f;
+    const float kMoveLimit_ = 100.0f;
+
+    //体力の最大値
+    const float kMaxHp_ = 100.0f;
+
+    //重力加速度
+    const float gravityAcceleration_ = -110.0f;
+
+    //オーディオ
+    Audio* audio_ = nullptr;
+
+    //現在の状態
+    std::unique_ptr<ICharacterState> currentState_ = nullptr;
+
+    //新しい状態
+    std::unique_ptr<ICharacterState> nextState_ = nullptr;
+
+    //キャラクターの新しい状態を生成するファクトリー
+    CharacterStateFactory* characterStateFactory_ = nullptr;
 
     //トランスフォーム
     TransformComponent* transform_ = nullptr;
+
+    //モデル
+    ModelComponent* model_ = nullptr;
+
+    //アニメーター
+    AnimatorComponent* animator_ = nullptr;
+
+    //コライダー
+    AABBCollider* collider_ = nullptr;
+
+    //武器
+    Weapon* weapon_ = nullptr;
+
+    //ヒットストップ
+    HitStop* hitStop_ = nullptr;
 
     //クォータニオン
     Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
@@ -271,41 +373,26 @@ protected:
     //クォータニオンの補間速度
     float quaternionInterpolationSpeed_ = 0.4f;
 
-    //前のフレームの腰の座標
-    Vector3 preAnimationHipPosition_{};
-
     //コライダーのオフセット値
     Vector3 colliderOffset_{};
 
-    //モデル
-    ModelComponent* model_ = nullptr;
-
-    //アニメーション
-    AnimatorComponent* animator_ = nullptr;
-
-    //コライダー
-    AABBCollider* collider_ = nullptr;
-
-    //コンバットアニメーションエディター
-    const CombatAnimationEditor* combatAnimationEditor_ = nullptr;
-
-    //パーティクルエフェクトマネージャー
-    ParticleEffectManager* particleEffectManager_ = nullptr;
-
-    //ノックバックの設定
-    KnockbackSettings knockbackSettings_{};
+    //ノックバックのパラメーター
+    KnockbackParameters knockbackParameters_{};
 
     //モデルシェイク
     ModelShake modelShake_{};
 
-    //重力加速度
-    float gravityAcceleration_ = -42.0f;
+    //アクションに対応する条件式を保持するマップ
+    std::map<std::string, std::function<bool()>> actionMap_{};
 
-    //体力の最大値
-    float maxHp_ = 0.0f;
+    //オーディオハンドル
+    std::map<std::string, uint32_t> audioHandles_{};
+
+    //タイムスケール
+    float timeScale_ = 1.0f;
 
     //体力
-    float hp_ = 0.0f;
+    float hp_ = kMaxHp_;
 
     //体力のスプライトの名前
     std::array<std::array<std::string, 3>, 2> hpTextureNames_{};
@@ -319,14 +406,11 @@ protected:
     //体力のスプライトサイズ
     Vector2 hpBarSegmentTextureSize_ = { 480.0f,18.0f };
 
-    //アニメーションの座標補正を有効にするかどうか
-    bool isAnimationCorrectionActive_ = false;
+    //タイトルシーンにいるかどうか
+    bool isInTitleScene_ = false;
 
     //死亡フラグ
     bool isDead_ = false;
-
-    //タイトルシーンにいるかどうか
-    bool isInTitleScene_ = false;
 
     //ゲームが終了したかどうか
     bool isGameFinished_ = false;
@@ -334,16 +418,24 @@ protected:
     //デバッグのフラグ
     bool isDebug_ = false;
 
-    //前回のデバッグのフラグ
-    bool wasDebugActive_ = false;
+    //カメラコントローラー
+    CameraController* cameraController_ = nullptr;
 
-    //アニメーションの時間
-    float animationTime_ = 0.0f;
-
-    //現在のアニメーションの名前
-    std::string currentAnimationName_ = "Idle";
-
-    //全てのアニメーションの名前
-    std::vector<std::string> animationNames_{};
+    //エディターマネージャー
+    const EditorManager* editorManager_ = nullptr;
 };
 
+
+template<typename Type>
+inline std::vector<std::string> BaseCharacter::GetKeysFromMap(const Type& map) const
+{
+    //キーを格納するための配列
+    std::vector<std::string> keys;
+    //キーをすべて追加
+    for (const auto& pair : map)
+    {
+        keys.push_back(pair.first);
+    }
+    //キーを格納した配列を返す
+    return keys;
+}

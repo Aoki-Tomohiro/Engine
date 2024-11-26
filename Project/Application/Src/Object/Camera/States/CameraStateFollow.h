@@ -2,34 +2,39 @@
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
-#include <numbers>
 
+/// <summary>
+/// 追従カメラの状態
+/// </summary>
 class CameraStateFollow : public ICameraState
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
 private:
-	void UpdateCameraRotation();
+	/// <summary>
+	/// カメラのX軸の角度を制限
+	/// </summary>
+	/// <param name="inputValue">入力値</param>
+	/// <param name="direction">カメラから追従対象のベクトル</param>
+	void ClampVerticalRotation(Vector3& inputValue, const Vector3& direction);
 
-	void ClampVerticalRotation(Vector3& input, const Vector3& direction);
-
-	void ApplyCameraRotation(const Vector3& input);
-
-	Vector3 GetRightStickInput() const;
-
-	const bool IsPlayerPerformingAction() const;
+	/// <summary>
+	/// カメラの回転を適用
+	/// </summary>
+	/// <param name="inputValue">入力値</param>
+	void ApplyCameraRotation(const Vector3& inputValue);
 
 private:
-	//Input
+	//インプット
 	Input* input_ = nullptr;
-
-	//X軸のQuaternion
-	Quaternion quaternionX = Mathf::IdentityQuaternion();
-
-	//Y軸のQuaternion
-	Quaternion quaternionY = Mathf::IdentityQuaternion();
 };
 

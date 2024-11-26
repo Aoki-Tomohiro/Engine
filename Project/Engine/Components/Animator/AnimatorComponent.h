@@ -11,7 +11,7 @@ public:
 
 	void AddAnimation(const std::string& animationName, Animation* animation);
 
-	void PlayAnimation(const std::string& animationName, const float speed, const bool loop);
+	void PlayAnimation(const std::string& animationName, const float speed, const bool loop, const Vector3& inPlaceAxis = { 1.0f,1.0f,1.0f });
 
 	void StopAnimation();
 
@@ -69,6 +69,8 @@ public:
 
 	Animation* GetAnimation(const std::string& animationName) const;
 
+	const std::map<std::string, std::unique_ptr<Animation>>& GetAnimations() const { return animations_; };
+
 private:
 	//アニメーションのマップ
 	std::map<std::string, std::unique_ptr<Animation>> animations_{};
@@ -90,5 +92,8 @@ private:
 
 	//アニメーションブレンドの持続時間
 	float blendDuration_ = 0.2f;
+
+	//固定する軸
+	Vector3 inPlaceAxis_ = { 1.0f,1.0f,1.0f };
 };
 

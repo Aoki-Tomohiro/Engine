@@ -1,145 +1,101 @@
 #include "PlayerStateFalling.h"
 #include "Application/Src/Object/Character/Player/Player.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateFallingAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateChargeMagicAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
 
 void PlayerStateFalling::Initialize()
 {
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーションの状態の取得
-	animationState_ = player_->GetCombatAnimationEditor()->GetAnimationState("Falling");
+	//アニメーションブレンドを有効にする
+	character_->GetAnimator()->SetIsBlending(true);
 
-	//アニメーションブレンドを有効化する
-	player_->GetAnimator()->SetIsBlending(true);
+	//落下攻撃が有効かどうかを確認し、アニメーション停止時間を設定
+	bool isInFallingAttackState = GetPlayer()->GetActionFlag(Player::ActionFlag::kFallingAttackEnabled);
+	animationPauseThreshold_ = isInFallingAttackState ? fallingAttackPauseTime_ : fallingAnimationPauseTime_;
 
-	//落下アニメーションを再生
-	player_->GetAnimator()->PlayAnimation("Falling", 1.0f, false);
+	//アニメーションを再生
+	SetAnimationControllerAndPlayAnimation(isInFallingAttackState ? "FallingAttack" : "Falling");
+
+	//落下攻撃が有効な場合はフラグをリセットし、アニメーション時間を設定
+	if (isInFallingAttackState)
+	{
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kFallingAttackEnabled, false);
+		character_->GetAnimator()->SetNextAnimationTime(fallingAttackStartTime_);
+	}
 }
 
 void PlayerStateFalling::Update()
 {
-	//アニメーションによる座標のずれを補正
-	player_->CorrectAnimationOffset();
+	//アニメーションイベントを実行
+	UpdateAnimationState();
 
-	//プレイヤーが着地している場合の処理
-	if (isLanding_)
-	{
-		HandleLanding();
-		return;
-	}
-	//Bボタンを押されていた場合
-	else if (player_->IsTriggered(Player::ButtonType::B))
-	{
-		//ダッシュ状態に遷移
-		player_->ChangeState(new PlayerStateDash());
-		return;
-	}
-	//Aボタンを押されていた場合
-	else if (player_->IsTriggered(Player::ButtonType::A) && player_->GetActionFlag(Player::ActionFlag::kCanStomp))
-	{
-		//ジャンプ状態に遷移
-		player_->ChangeState(new PlayerStateJump());
-		return;
-	}
-	//Yボタンを離した時
-	else if (player_->IsReleased(Player::ButtonType::Y) && player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
-	{
-		//溜め魔法攻撃状態に遷移
-		player_->ChangeState(new PlayerStateChargeMagicAttack());
-		return;
-	}
-	//AボタンとXボタンを押したとき
-	else if (player_->ArePressed(Player::ButtonType::A, Player::ButtonType::X))
-	{
-		//落下攻撃状態に遷移
-		player_->ChangeState(new PlayerStateFallingAttack());
-		return;
-	}
-
-	//アニメーションの更新
-	CheckAndPauseAnimation();
-
-	//プレイヤーの落下処理
+	//重力を適用
 	ApplyGravity();
 
-	//プレイヤーが地面についたらを確認
-	CheckLanding();
+	//空中または地面にいる場合の処理
+	CheckAndHandleLanding();
+
+	//デフォルトの状態に遷移
+	if (character_->GetAnimator()->GetIsAnimationFinished())
+	{
+		HandleStateTransition();
+	}
 }
 
 void PlayerStateFalling::OnCollision(GameObject* other)
 {
 	//衝突処理
-	player_->ProcessCollisionImpact(other, true);
+	character_->ProcessCollisionImpact(other, false);
 }
 
 void PlayerStateFalling::ApplyGravity()
 {
-	//重力加速度ベクトルの設定
-	Vector3 accelerationVector = { 0.0f, player_->GetJumpParameters().gravityAcceleration, 0.0f};
+	//すでに着地している場合は重力を適用しない
+	if (isCurrentlyLanding_) return;
 
-	//速度に重力加速度を加算
-	velocity_ += accelerationVector * GameTimer::GetDeltaTime();
-
-	//移動処理
-	player_->Move(velocity_);
+	//速度移動イベントが存在しアクティブ状態であれば重力を適用
+	if (!processedVelocityDatas_.empty() && processedVelocityDatas_[0].isActive)
+	{
+		Vector3 gravityForce = { 0.0f, character_->GetGravityAcceleration(), 0.0f };
+		processedVelocityDatas_[0].velocity += gravityForce * GameTimer::GetDeltaTime() * character_->GetTimeScale();
+	}
 }
 
-void PlayerStateFalling::CheckAndPauseAnimation()
+void PlayerStateFalling::CheckAndHandleLanding()
 {
 	//アニメーターを取得
-	AnimatorComponent* animator = player_->GetAnimator();
+	AnimatorComponent* animator = character_->GetAnimator();
 
 	//現在のアニメーション時間を取得
-	float animationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
+	float currentAnimationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
 
-	//アニメーション時間が指定したフェーズの終了時間を超えた場合
-	if (animationTime > animationState_.phases[0].duration)
+	//現在のキャラクターの位置を取得
+	Vector3 currentPosition = character_->GetPosition();
+
+	//地面に到達した場合
+	if (currentPosition.y < 0.0f && !isCurrentlyLanding_)
 	{
-		//落下アニメーションを一時停止
-		animator->PauseAnimation();
+		ProcessLanding(currentPosition);
+	}
+	//空中状態の場合
+	else if (currentAnimationTime >= animationPauseThreshold_)
+	{
+		//着地フラグの状態によってアニメーションを管理
+		isCurrentlyLanding_ ? character_->GetAnimator()->ResumeAnimation() : character_->GetAnimator()->PauseAnimation();
 	}
 }
 
-void PlayerStateFalling::CheckLanding()
+void PlayerStateFalling::ProcessLanding(const Vector3& landingPosition)
 {
-	//プレイヤーの座標を取得
-	Vector3 position = player_->GetPosition();
+	//着地フラグの設定
+	isCurrentlyLanding_ = true;
 
-	//プレイヤーが地面についた場合
-	if (position.y <= 0.0f)
-	{
-		//着地フラグを立てる
-		isLanding_ = true;
+	//速度を0にリセット
+	processedVelocityDatas_[0].velocity = { 0.0f, 0.0f, 0.0f };
 
-		//プレイヤーが地面に埋まらないように座標を補正
-		position.y = 0.0f;
-		player_->SetPosition(position);
+	//キャラクターの位置を地面に合わせる
+	character_->SetPosition({ landingPosition.x, 0.0f, landingPosition.z });
 
-		//パーティクルを出す
-		player_->GetParticleEffectManager()->CreateParticles("Landing", player_->GetPosition(), player_->GetDestinationQuaternion());
-
-		//落下アニメーションを一時停止を解除
-		player_->GetAnimator()->ResumeAnimation();
-	}
-}
-
-void PlayerStateFalling::HandleLanding()
-{
-	//アニメーションの再生が終了していたら通常状態に戻す
-	if (Mathf::Length(GetInputValue()) > player_->GetRootParameters().walkThreshold || player_->GetAnimator()->GetIsAnimationFinished())
-	{
-		player_->ChangeState(new PlayerStateRoot());
-	}
-}
-
-Vector3 PlayerStateFalling::GetInputValue()
-{
-	//スティックの入力を取得
-	return { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
+	//着地パーティクルを生成
+	character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", landingPosition, character_->GetQuaternion());
 }

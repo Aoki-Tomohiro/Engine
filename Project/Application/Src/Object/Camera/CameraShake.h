@@ -3,13 +3,28 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
+/// <summary>
+/// カメラシェイクをするクラス
+/// </summary>
 class CameraShake
 {
 public:
+	/// <summary>
+	/// カメラシェイク開始
+	/// </summary>
+	/// <param name="intensity">強さ</param>
+	/// <param name="duration">長さ</param>
 	void Start(const Vector3& intensity, const float duration);
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// カメラシェイクのオフセット値を取得
+	/// </summary>
+	/// <returns>カメラシェイクのオフセット値</returns>
 	const Vector3& GetShakeOffset() const { return shakeOffset_; };
 
 private:

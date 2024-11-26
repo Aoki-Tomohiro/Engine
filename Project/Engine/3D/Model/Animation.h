@@ -48,9 +48,9 @@ public:
 
 	void UpdateAnimationTime();
 
-	void ApplyAnimation(Model* model, WorldTransform& worldTransform);
+	void ApplyAnimation(Model* model, WorldTransform& worldTransform, const Vector3& inPlaceAxis = { 1.0f, 1.0f, 1.0f });
 
-	void ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* animation, const float blendFactor);
+	void ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* animation, const float blendFactor, const Vector3& inPlaceAxis = { 1.0f, 1.0f, 1.0f });
 
 	void PlayAnimation(const std::string& animationName, const float speed, const bool loop);
 
@@ -87,11 +87,11 @@ private:
 
 	void ApplyNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& animationData);
 
-	void ApplySkeletonAnimation(Model* model, const AnimationData& animationData);
+	void ApplySkeletonAnimation(Model* model, const AnimationData& animationData, const Vector3& inPlaceAxis);
 
 	void ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTransform, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor);
 
-	void ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor);
+	void ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor, const Vector3& inPlaceAxis);
 
 private:
 	//アニメーションデータ

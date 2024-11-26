@@ -13,7 +13,11 @@ public:
 
 	const std::string& GetName() const { return name_; }
 
-	void SetName(const std::string& name) { name_ = name; }
+	void SetName(const std::string& name) { name_ = name; };
+
+	const Vector3* GetFollowTarget() const { return followTarget_; };
+
+	void SetFollowTarget(const Vector3* followTarget) { followTarget_ = followTarget; };
 
 	const Vector3& GetTranslate() const { return translate_; };
 
@@ -122,6 +126,9 @@ public:
 private:
 	//名前
 	std::string name_{};
+
+	//追従座標
+	const Vector3* followTarget_ = nullptr;
 
 	//位置
 	Vector3 translate_ = { 0.0f,0.0f,0.0f };

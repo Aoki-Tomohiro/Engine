@@ -17,10 +17,6 @@ void SampleScene::Initialize()
 
 	//カメラを取得
 	camera_ = CameraManager::GetCamera("Camera");
-
-	//パーティクルエフェクトマネージャーの生成
-	particleEffectManager_ = std::make_unique<ParticleEffectManager>();
-	particleEffectManager_->Initialize(camera_);
 }
 
 void SampleScene::Finalize()
@@ -31,9 +27,6 @@ void SampleScene::Update()
 {
 	//GameObjectの更新
 	gameObjectManager_->Update();
-
-	//パーティクルエフェクトマネージャーの更新
-	particleEffectManager_->Update();
 
 	//カメラの更新
 	camera_->UpdateMatrix();

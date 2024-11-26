@@ -1,5 +1,6 @@
 #include "Lockon.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 
 void Lockon::Initialize()
 {
@@ -37,7 +38,7 @@ void Lockon::Draw()
 const Vector3 Lockon::GetTargetPosition() const
 {
 	//ターゲットがいる場合は腰のジョイントのワールド座標を返す
-	return target_ ? target_->GetJointWorldPosition("mixamorig:Hips") : Vector3();
+	return target_ ? target_->GetWorldPosition() + targetOffset_ : Vector3();
 }
 
 void Lockon::UpdateTargeting()
@@ -54,7 +55,7 @@ void Lockon::UpdateTargeting()
 		else
 		{
 			//ターゲットを設定
-			target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy");
+			target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetComponent<TransformComponent>();
 		}
 	}
 }
@@ -74,7 +75,7 @@ const Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const 
 void Lockon::SetLockonMarkPosition(const Camera* camera)
 {
 	//敵のロックオン座標取得
-	Vector2 screenPosition = WorldToScreenPosition(target_->GetJointWorldPosition("mixamorig:Hips"), camera);
+	Vector2 screenPosition = WorldToScreenPosition(target_->GetWorldPosition() + targetOffset_, camera);
 	//スプライトの座標を設定
 	lockonMark_->SetPosition(screenPosition);
 }

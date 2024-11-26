@@ -1,0 +1,41 @@
+{
+    "Enemy": {
+        "Walk1": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 1.3669999837875366,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        6.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "BufferedActionType": "Idle",
+                    "EndEventTime": 1.3669999837875366,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent2": {
+                    "BufferedActionType": "MoveSideToPlayer",
+                    "EndEventTime": 1.3669999837875366,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": null,
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

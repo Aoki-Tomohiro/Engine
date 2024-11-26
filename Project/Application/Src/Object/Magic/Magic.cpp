@@ -41,6 +41,9 @@ void Magic::Update()
 
 void Magic::OnCollision(GameObject* gameObject)
 {
+	//基底クラスの呼び出し
+	GameObject::OnCollision(gameObject);
+
 	//魔法を削除
 	DeleteMagic();
 }
@@ -88,17 +91,17 @@ void Magic::CreateMoveEmitter()
 	std::string particleEffectName = magicType_ == MagicType::kNormal ? "MagicTrail" : "ChargeMagicTrail";
 
 	//移動パーティクルを生成
-	particleEffectManager_->CreateParticles(particleEffectName, { 0.0f,0.0f,0.0f }, transformComponent_->worldTransform_.quaternion_);
+	particleEffectEditor_->CreateParticles(particleEffectName, { 0.0f,0.0f,0.0f }, transformComponent_->worldTransform_.quaternion_);
 
 	//エミッターを取得して名前を変更
-	emitter_ = particleEffectManager_->GetEmitter("Normal", "MagicTrail");
+	emitter_ = particleEffectEditor_->GetEmitter("Normal", "MagicTrail");
 	emitter_->SetName("MagicTrail" + std::to_string(id_));
 }
 
 void Magic::UpdateMoveEmitter()
 {
 	//エミッターが存在しなければ生成する
-	if (!particleEffectManager_->GetEmitter("Normal", "MagicTrail" + std::to_string(id_)))
+	if (!particleEffectEditor_->GetEmitter("Normal", "MagicTrail" + std::to_string(id_)))
 	{
 		CreateMoveEmitter();
 	}
@@ -128,7 +131,7 @@ void Magic::DeleteMagic()
 	SetIsDestroy(true);
 
 	//破壊パーティクルを出す
-	particleEffectManager_->CreateParticles("MagicDissipation", transformComponent_->worldTransform_.translation_, transformComponent_->worldTransform_.quaternion_);
+	particleEffectEditor_->CreateParticles("MagicDissipation", transformComponent_->worldTransform_.translation_, transformComponent_->worldTransform_.quaternion_);
 
 	//エミッターを削除
 	emitter_->SetIsDead(true);

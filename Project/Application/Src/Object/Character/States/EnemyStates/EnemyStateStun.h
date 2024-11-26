@@ -1,32 +1,15 @@
 #pragma once
-#include "IEnemyState.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
+#include "Application/Src/Object/Character/States/CharacterStateStun.h"
 
-class EnemyStateStun : public IEnemyState
+/// <summary>
+/// スタン状態
+/// </summary>
+class EnemyStateStun : public CharacterStateStun
 {
-public:
-	void Initialize() override;
-
-	void Update() override;
-
-	void OnCollision(GameObject* other) override;
-
 private:
-	void PlayReactionAnimation(ReactionType reactionType, float speed);
-
-	void AdjustEnemyPosition();
-
-	void RecoverFromStun();
-
-	void ApplyDamageAndKnockback(const float damage, const KnockbackSettings& knockbackSettings, const bool applyKnockback);
-
-	void ApplyKnockbackAndPlayStunAnimation(const KnockbackSettings& knockbackSettings);
-
-private:
-	//現在のリアクションのタイプ
-	ReactionType currentReactionType_ = ReactionType::Flinch;
-
-	//スタンが終了したかどうか
-	bool isStunFinished_ = false;
+	/// <summary>
+	/// デフォルトの状態遷移処理
+	/// </summary>
+	void HandleStateTransitionInternal() override;
 };
 

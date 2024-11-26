@@ -17,6 +17,7 @@ Global
 		Debug|x64 = Debug|x64
 		Profile|x64 = Profile|x64
 		Release|x64 = Release|x64
+		ReleaseImGui|x64 = ReleaseImGui|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.Debug|x64.ActiveCfg = Debug|x64
@@ -25,12 +26,16 @@ Global
 		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.Profile|x64.Build.0 = Debug|x64
 		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.Release|x64.ActiveCfg = Release|x64
 		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.Release|x64.Build.0 = Release|x64
+		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.ReleaseImGui|x64.ActiveCfg = ReleaseImGui|x64
+		{9BF4CF43-50FE-475F-85F9-19F44310CFE1}.ReleaseImGui|x64.Build.0 = ReleaseImGui|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.ActiveCfg = Debug|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.Build.0 = Debug|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Profile|x64.ActiveCfg = Profile|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Profile|x64.Build.0 = Profile|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.ActiveCfg = Release|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.Build.0 = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.ReleaseImGui|x64.ActiveCfg = ReleaseImGui|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.ReleaseImGui|x64.Build.0 = ReleaseImGui|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

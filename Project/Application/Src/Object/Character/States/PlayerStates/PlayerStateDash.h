@@ -1,73 +1,49 @@
 #pragma once
 #include "IPlayerState.h"
-#include "Engine/Components/Input/Input.h"
-#include "Engine/Components/Audio/Audio.h"
-#include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Math/MathFunction.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
 
+/// <summary>
+/// ダッシュ状態
+/// </summary>
 class PlayerStateDash : public IPlayerState
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 衝突処理
+	/// </summary>
+	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject* other) override;
 
 private:
-	//ダッシュの状態
-	enum DashState
-	{
-		kCharge,
-		kDash,
-		kRecovery,
-	};
+	/// <summary>
+	/// 速度移動イベントを実行
+	/// </summary>
+	/// <param name="velocityMovementEvent">速度移動イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
+	void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
 
-	void HandleLockon();
+	/// <summary>
+	/// ダッシュアニメーション終了の確認と遷移
+	/// </summary>
+	void CheckTransitionToDashEndAnimation();
 
-	void HandleNonLockon();
-
-	void UpdateAnimationPhase();
-
-	void DashUpdate();
-
-	void RecoveryUpdate();
-
-	void UpdateEmitterPosition();
-
-	void HandlePhaseChange();
-
-	void ResetDashFlags();
-
-	void HandleAnimationFinish();
+	/// <summary>
+	/// ダッシュ終了処理
+	/// </summary>
+	void FinalizeDash();
 
 private:
-	//インプット
-	Input* input_ = nullptr;
-
-	//オーディオ
-	Audio* audio_ = nullptr;
-
-	//速度
-	Vector3 velocity_{};
-
-	//アニメーションの状態
-	CombatAnimationState animationState_{};
-
-	//前のアニメーションのフェーズ
-	uint32_t prePhaseIndex_ = 0;
-
-	//現在のアニメーションのフェーズ
-	uint32_t currentPhaseIndex_ = 0;
-
-	//アニメーションタイマー
-	float animationTime_ = 0.0f;
-
-	//ダッシュのオーディオハンドル
-	uint32_t dashAudioHandle_ = 0;
-
-	//煙のパーティクルのオフセット値
-	Vector3 dashParticleOffset_ = { 0.0f,0.0f,-2.0f };
+	//現在のアニメーションの名前
+	std::string currentAnimation_ = "DashStart";
 };
 

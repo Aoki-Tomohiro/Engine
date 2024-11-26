@@ -29,10 +29,6 @@ void GamePlayScene::Initialize()
 	//衝突マネージャーの生成
 	collisionManager_ = std::make_unique<CollisionManager>();
 
-	//コンバットアニメーションエディターの初期化
-	combatAnimationEditor_ = std::make_unique<CombatAnimationEditor>();
-	combatAnimationEditor_->Initialize();
-
 	//ヒットストップの生成
 	hitStop_ = std::make_unique<HitStop>();
 
@@ -44,53 +40,37 @@ void GamePlayScene::Initialize()
 	transition_ = std::make_unique<Transition>();
 	transition_->Initialize();
 
-	//パーティクルエフェクトマネージャーの生成
-	particleEffectManager_ = std::make_unique<ParticleEffectManager>();
-	particleEffectManager_->Initialize(camera_);
-
-	//プレイヤーの初期化
-	player_ = gameObjectManager_->GetGameObject<Player>("Player");
-	//カメラ、ロックオン、コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
-	player_->SetCamera(camera_);
-	player_->SetLockon(lockon_.get());
-	player_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-	player_->SetParticleEffectManager(particleEffectManager_.get());
-
-	//プレイヤーの武器の初期化
-	Weapon* playerWeapon = gameObjectManager_->CreateGameObject<Weapon>("PlayerWeapon");
-	//ヒットストップ、パーティクルエフェクトマネージャーを設定
-	playerWeapon->SetParticleEffectManager(particleEffectManager_.get());
-	playerWeapon->SetHitStop(hitStop_.get());
-	//プレイヤーの右手に親子付け
-	TransformComponent* playerWeaponTransform = playerWeapon->GetComponent<TransformComponent>();
-	playerWeaponTransform->worldTransform_.SetParent(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
-
-	//敵の初期化
-	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
-	//コンバットアニメーションエディター、パーティクルエフェクトマネージャーを設定
-	enemy_->SetCombatAnimationEditor(combatAnimationEditor_.get());
-	enemy_->SetParticleEffectManager(particleEffectManager_.get());
-
-	//敵の武器の初期化
-	Weapon* enemyWeapon = gameObjectManager_->CreateGameObject<Weapon>("EnemyWeapon");
-	//ヒットストップ、パーティクルエフェクトマネージャーを設定
-	enemyWeapon->SetParticleEffectManager(particleEffectManager_.get());
-	enemyWeapon->SetHitStop(hitStop_.get());
-	//敵の右手に親子付け
-	TransformComponent* enemyWeaponTransform = enemyWeapon->GetComponent<TransformComponent>();
-	enemyWeaponTransform->worldTransform_.SetParent(&enemy_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
-
-	//カメラパスマネージャーの初期化
-	cameraPathManager_ = std::make_unique<CameraPathManager>();
-	cameraPathManager_->Initialize();
+	//エディターマネージャーの作成
+	editorManager_ = std::make_unique<EditorManager>();
+	editorManager_->Initialize();
 
 	//カメラコントローラーの初期化
 	cameraController_ = std::make_unique<CameraController>();
 	cameraController_->Initialize();
-	//カメラパスマネージャー、ロックオン、ロックオンターゲットを設定
-	cameraController_->SetCameraPathManager(cameraPathManager_.get());
+	//カメラアニメーションエディター、ロックオン、ロックオンターゲットを設定
+	cameraController_->SetCameraAnimationEditor(editorManager_->GetCameraAnimationEditor());
 	cameraController_->SetLockon(lockon_.get());
-	cameraController_->SetTarget(&player_->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:Hips"));
+
+	//プレイヤーの初期化
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
+	//カメラコントローラー、ロックオン、ヒットストップ、エディターマネージャーを設定
+	player_->SetCameraController(cameraController_.get());
+	player_->SetLockon(lockon_.get());
+	player_->SetHitStop(hitStop_.get());
+	player_->SetEditorManager(editorManager_.get());
+	//コンバットアニメーションエディターにプレイヤーを設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
+	//カメラコントローラーに追従対象を設定
+	cameraController_->SetTarget(player_->GetComponent<TransformComponent>());
+
+	//敵の初期化
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	//カメラコントローラー、エディターマネージャー、ヒットストップを設定
+	enemy_->SetCameraController(cameraController_.get());
+	enemy_->SetEditorManager(editorManager_.get());
+	enemy_->SetHitStop(hitStop_.get());
+	//コンバットアニメーションエディターに敵を設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
 
 	//ゲームオーバーのスプライトの生成
 	TextureManager::Load("GameOver.png");
@@ -112,26 +92,20 @@ void GamePlayScene::Finalize()
 
 void GamePlayScene::Update()
 {
+	//エディターマネージャーの更新
+	editorManager_->Update();
+
 	//ゲームオブジェクトマネージャーの更新
 	gameObjectManager_->Update();
 
 	//コライダーをクリアし、必要なオブジェクトを追加
 	UpdateColliders();
 
-	//カメラシェイクの処理
-	HandleCameraShake();
-
 	//カメラとロックオンの更新
 	UpdateCameraAndLockOn();
 
 	//ヒットストップの更新
 	hitStop_->Update();
-
-	//CombatAnimationEditorの更新
-	combatAnimationEditor_->Update();
-
-	//パーティクルエフェクトマネージャーの更新
-	particleEffectManager_->Update();
 
 	//トランジションの更新
 	transition_->Update();
@@ -269,23 +243,10 @@ void GamePlayScene::UpdateColliders()
 	collisionManager_->CheckAllCollisions();
 }
 
-void GamePlayScene::HandleCameraShake()
-{
-	//プレイヤーの武器がヒットした場合、カメラシェイクを開始
-	Weapon* weapon = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon");
-	if (weapon->GetIsHit())
-	{
-		cameraController_->StartCameraShake(weapon->GetEffectSettings().cameraShakeIntensity, weapon->GetEffectSettings().cameraShakeDuration);
-	}
-}
-
 void GamePlayScene::UpdateCameraAndLockOn()
 {
 	//ロックオンの更新
 	lockon_->Update(camera_);
-
-	//カメラパスマネージャーの更新
-	cameraPathManager_->Update();
 
 	//カメラコントローラーの更新
 	cameraController_->Update();
@@ -301,25 +262,6 @@ void GamePlayScene::UpdateCameraAndLockOn()
 
 void GamePlayScene::HandleTransition()
 {
-	//FadeInしていないとき
-	if (transition_->GetFadeState() != transition_->FadeState::In)
-	{
-		//クリアアニメーションが終了していたらゲームクリアのフラグを立てる
-		if (cameraController_->GetIsClearAnimationFinished())
-		{
-			isGameClear_ = true;
-			player_->SetIsGameFinished(true);
-			enemy_->SetIsGameFinished(true);
-		}
-		//プレイヤーが死亡状態かつアニメーションが終了していた場合ゲームオーバーのフラグを立てる
-		else if (player_->GetIsDead())
-		{
-			isGameOver_ = true;
-			player_->SetIsGameFinished(true);
-			enemy_->SetIsGameFinished(true);
-		}
-	}
-
 	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
 	if (isGameClear_ || isGameOver_)
 	{
@@ -334,5 +276,24 @@ void GamePlayScene::HandleTransition()
 	{
 		audio_->StopAudio(audioHandle_);
 		sceneManager_->ChangeScene("GameTitleScene");
+	}
+
+	//FadeInしていないとき
+	if (transition_->GetFadeState() != transition_->FadeState::In)
+	{
+		if (isGameClear_ || isGameOver_) return;
+
+		//敵が死亡状態の場合ゲームクリアのフラグを立てる
+		if (enemy_->GetIsGameFinished())
+		{
+			isGameClear_ = true;
+			player_->SetIsGameFinished(true);
+		}
+		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
+		else if (player_->GetIsGameFinished())
+		{
+			isGameOver_ = true;
+			enemy_->SetIsGameFinished(true);
+		}
 	}
 }

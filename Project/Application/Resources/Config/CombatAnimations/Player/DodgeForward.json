@@ -1,0 +1,40 @@
+{
+    "Player": {
+        "DodgeForward": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 1.1200000047683716,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        30.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "CancelType": "Move",
+                    "EndEventTime": 1.6670000553131104,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.1200000047683716
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 1.6670000553131104
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

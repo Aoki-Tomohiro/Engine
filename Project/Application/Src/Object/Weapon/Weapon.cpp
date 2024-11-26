@@ -7,9 +7,6 @@ void Weapon::Initialize()
 	//基底クラスの初期化
 	GameObject::Initialize();
 
-	//オーディオのインスタンスを取得
-	audio_ = Audio::GetInstance();
-
 	//トランスフォームの初期化
 	InitializeTransform();
 
@@ -24,9 +21,6 @@ void Weapon::Initialize()
 
 	//軌跡の初期化
 	InitializeTrail();
-
-	//音声データの初期化
-	InitializeHitAudio();
 }
 
 void Weapon::Update()
@@ -43,11 +37,11 @@ void Weapon::Update()
 	//軌跡の更新
 	UpdateTrail();
 
-	//環境変数の適用
-	ApplyGlobalVariables();
-
 	//ImGuiの更新
 	UpdateImGui();
+
+	//環境変数の適用
+	ApplyGlobalVariables();
 }
 
 void Weapon::Draw(const Camera& camera)
@@ -56,23 +50,10 @@ void Weapon::Draw(const Camera& camera)
 	GameObject::Draw(camera);
 }
 
-void Weapon::OnCollision(GameObject* gameObject)
+void Weapon::OnCollision(GameObject*)
 {
 	//ヒットフラグを立てる
 	isHit_ = true;
-
-	//プレイヤーの武器の場合は各エフェクトを発生させる
-	if (name_ == "PlayerWeapon")
-	{
-		HandlePlayerWeaponCollision();
-	}
-}
-
-void Weapon::SetHitbox(const Hitbox& hitbox)
-{
-	//ヒットボックスのサイズと中心を設定
-	hitbox_.center = hitbox.center;
-	hitbox_.size = hitbox.size;
 }
 
 void Weapon::InitializeTransform()
@@ -128,18 +109,10 @@ void Weapon::InitializeTrail()
 	trail_->SetTexture("Trail2.png");
 }
 
-void Weapon::InitializeHitAudio()
-{
-	//ヒット時の音声データを初期化
-	hitAudioHandle_ = audio_->LoadAudioFile("Hit.mp3");
-}
-
 void Weapon::UpdateCollider()
 {
 	//親オブジェクトを取得してコライダーを更新
-	GameObject* parentGameObject = (name_ == "PlayerWeapon") ?
-		gameObjectManager_->GetGameObject<GameObject>("Player") :
-		gameObjectManager_->GetGameObject<GameObject>("Enemy");
+	GameObject* parentGameObject = (name_ == "PlayerWeapon") ? gameObjectManager_->GetGameObject<GameObject>("Player") : gameObjectManager_->GetGameObject<GameObject>("Enemy");
 
 	//コライダーの有効状態を設定
 	collider_->SetCollisionEnabled(isAttack_);
@@ -158,14 +131,14 @@ void Weapon::SetColliderTransform(GameObject* gameObject)
 	Vector3 hipWorldPosition = { hipWorldTransform.matWorld_.m[3][0], hipWorldTransform.matWorld_.m[3][1], hipWorldTransform.matWorld_.m[3][2] };
 
 	//コライダーの中心と向き、サイズを設定
-	Vector3 colliderCenter = Mathf::RotateVector(hitbox_.center, parentTransform->worldTransform_.quaternion_);
+	Vector3 colliderCenter = Mathf::RotateVector(hitboxParameters_.center, parentTransform->worldTransform_.quaternion_);
 	collider_->SetWorldCenter(hipWorldPosition + colliderCenter);
 	collider_->SetOrientations(
 		{ parentTransform->worldTransform_.matWorld_.m[0][0], parentTransform->worldTransform_.matWorld_.m[0][1], parentTransform->worldTransform_.matWorld_.m[0][2] },
 		{ parentTransform->worldTransform_.matWorld_.m[1][0], parentTransform->worldTransform_.matWorld_.m[1][1], parentTransform->worldTransform_.matWorld_.m[1][2] },
 		{ parentTransform->worldTransform_.matWorld_.m[2][0], parentTransform->worldTransform_.matWorld_.m[2][1], parentTransform->worldTransform_.matWorld_.m[2][2] }
 	);
-	collider_->SetSize(hitbox_.size);
+	collider_->SetSize(hitboxParameters_.size);
 
 	//デバッグ表示の設定
 	collider_->SetDebugDrawEnabled(isDebug_);
@@ -220,26 +193,9 @@ void Weapon::UpdateImGui()
 	ImGui::Begin(name_.c_str());
 	ImGui::Checkbox("IsDebug", &isDebug_);
 	ImGui::Checkbox("IsAttack", &isAttack_);
-	ImGui::DragFloat3("Translation", &transform_->worldTransform_.translation_.x, 0.01f);
-	ImGui::DragFloat3("Rotation", &transform_->worldTransform_.rotation_.x, 0.01f);
-	ImGui::DragFloat3("Scale", &transform_->worldTransform_.scale_.x, 0.01f);
-	ImGui::DragFloat3("HitboxCenter", &hitbox_.center.x, 0.01f);
-	ImGui::DragFloat3("HitboxSize", &hitbox_.size.x, 0.01f);
 	ImGui::DragFloat3("HeadOffset", &headOffset_.x);
 	ImGui::DragFloat3("FrontOffset", &frontOffset_.x);
 	ImGui::ColorEdit4("TrailStartColor", &trailStartColor_.x);
 	ImGui::ColorEdit4("TrailEndColor", &trailEndColor_.x);
 	ImGui::End();
-}
-
-void Weapon::HandlePlayerWeaponCollision()
-{
-	//ヒットストップを開始
-	hitStop_->Start(effectSettings_.hitStopDuration);
-
-	//ヒット音を再生
-	audio_->PlayAudio(hitAudioHandle_, false, 0.2f);
-
-	//ヒットエフェクトを生成
-	particleEffectManager_->CreateParticles("Hit", transform_->GetWorldPosition(), Mathf::IdentityQuaternion());
 }

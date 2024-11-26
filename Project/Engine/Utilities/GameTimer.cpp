@@ -3,7 +3,6 @@
 
 float GameTimer::currentTime_ = 0.0f;
 float GameTimer::deltaTime_ = 0.0f;
-float GameTimer::lastFrameTime_ = 0.0f;
 float GameTimer::timeScale_ = 1.0f;
 
 void GameTimer::Update()
@@ -14,11 +13,8 @@ void GameTimer::Update()
     currentTime_ = std::chrono::duration<float>(now - start).count();
 
     //DeltaTimeを計算
-    deltaTime_ = currentTime_ - lastFrameTime_;
+    deltaTime_ = 1.0f / 60.0f;
 
     //DeltaTimeにスケールを適用
     deltaTime_ *= timeScale_;
-
-    //前のフレームの時間を更新
-    lastFrameTime_ = currentTime_;
 }

@@ -1,8 +1,9 @@
 #include "SkillCooldownManager.h"
 
-void SkillCooldownManager::AddSkill(const Skill& skill, const SkillParameters* skillParameters)
+void SkillCooldownManager::AddSkill(const std::string& name, const float cooldownDuration)
 {
-	skillParameters_[skill] = skillParameters;
+	skillParameters_[name] = cooldownDuration;
+	cooldownTimers_[name] = 0.0f;
 }
 
 void SkillCooldownManager::Update()
@@ -22,12 +23,12 @@ void SkillCooldownManager::Update()
 	}
 }
 
-void SkillCooldownManager::ResetCooldown(const Skill& skill)
+void SkillCooldownManager::ResetCooldown(const std::string& name)
 {
-	auto it = skillParameters_.find(skill);
+	auto it = skillParameters_.find(name);
 	if (it != skillParameters_.end())
 	{
-		cooldownTimers_[skill] = it->second->cooldownDuration;
+		cooldownTimers_[name] = it->second;
 	}
 }
 
@@ -39,19 +40,21 @@ void SkillCooldownManager::ClearAllCooldowns()
 	}
 }
 
-const bool SkillCooldownManager::IsCooldownComplete(const Skill& skill) const
+const bool SkillCooldownManager::IsCooldownComplete(const std::string& name) const
 {
-	auto it = cooldownTimers_.find(skill);
-	if (it != cooldownTimers_.end()) {
+	auto it = cooldownTimers_.find(name);
+	if (it != cooldownTimers_.end()) 
+	{
 		return it->second <= 0.0f;
 	}
 	return true;
 }
 
-const float SkillCooldownManager::GetCooldownTime(const Skill& skill) const
+const float SkillCooldownManager::GetCooldownTime(const std::string& name) const
 {
-	auto it = cooldownTimers_.find(skill);
-	if (it != cooldownTimers_.end()) {
+	auto it = cooldownTimers_.find(name);
+	if (it != cooldownTimers_.end()) 
+	{
 		return it->second;
 	}
 	return 0.0f;

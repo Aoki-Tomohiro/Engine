@@ -1,0 +1,46 @@
+{
+    "Player": {
+        "Falling": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 1.100000023841858,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "CancelType": "Move",
+                    "EndEventTime": 1.100000023841858,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.3199999928474426
+                },
+                "AnimationEvent2": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 0.4000000059604645,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.0,
+                    "Duration": 1.100000023841858
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

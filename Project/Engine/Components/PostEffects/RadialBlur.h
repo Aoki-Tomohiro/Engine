@@ -48,6 +48,6 @@ private:
 
 	Vector2 center_ = { 0.5f,0.5f };
 
-	float blurWidth_ = 0.01f;
+	float blurWidth_ = 0.04f;
 };
 

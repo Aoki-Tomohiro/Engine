@@ -48,7 +48,7 @@ void Animation::UpdateAnimationTime()
     }
 }
 
-void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform)
+void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform, const Vector3& inPlaceAxis)
 {
     //アニメーションデータを取得
     const AnimationData* animationData = GetAnimationData();
@@ -62,10 +62,10 @@ void Animation::ApplyAnimation(Model* model, WorldTransform& worldTransform)
     ApplyNodeAnimation(model, worldTransform, *animationData);
 
     //スケルトンレベルのアニメーションを適用する
-    ApplySkeletonAnimation(model, *animationData);
+    ApplySkeletonAnimation(model, *animationData, inPlaceAxis);
 }
 
-void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* blendAnimation, const float blendFactor)
+void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform, Animation* blendAnimation, const float blendFactor, const Vector3& inPlaceAxis)
 {
     //現在のアニメーションデータを取得
     const AnimationData* currentAnimationData = GetAnimationData();
@@ -81,7 +81,7 @@ void Animation::ApplyBlendAnimation(Model* model, WorldTransform& worldTransform
     ApplyBlendedNodeAnimation(model, worldTransform, *currentAnimationData, blendAnimation, blendFactor);
 
     //スケルトンのブレンドアニメーションを適用する
-    ApplyBlendedSkeletonAnimation(model, *currentAnimationData, blendAnimation, blendFactor);
+    ApplyBlendedSkeletonAnimation(model, *currentAnimationData, blendAnimation, blendFactor, inPlaceAxis);
 }
 
 void Animation::PlayAnimation(const std::string& animationName, float speed, bool loop)
@@ -219,7 +219,7 @@ void Animation::ApplyNodeAnimation(Model* model, WorldTransform& worldTransform,
     }
 }
 
-void Animation::ApplySkeletonAnimation(Model* model, const AnimationData& animationData)
+void Animation::ApplySkeletonAnimation(Model* model, const AnimationData& animationData, const Vector3& inPlaceAxis)
 {
     //スケルトンを取得
     Model::Skeleton& skeleton = model->GetSkeleton();
@@ -236,6 +236,16 @@ void Animation::ApplySkeletonAnimation(Model* model, const AnimationData& animat
             joint.translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime_);
             joint.rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime_);
             joint.scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime_);
+
+            //階層のトップジョイントの場合は位置成分をリセット
+            if (joint.name.find("Root") != std::string::npos || joint.name.find("Hips") != std::string::npos)
+            {
+                joint.translate = {
+                    inPlaceAxis.x != 0.0f ? joint.translate.x : 0.0f,
+                    inPlaceAxis.y != 0.0f ? joint.translate.y : 0.0f,
+                    inPlaceAxis.z != 0.0f ? joint.translate.z : 0.0f
+                };
+            }
         }
     }
 }
@@ -286,7 +296,7 @@ void Animation::ApplyBlendedNodeAnimation(Model* model, WorldTransform& worldTra
     }
 }
 
-void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor)
+void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData& currentAnimationData, const Animation* blendAnimation, const float blendFactor, const Vector3& inPlaceAxis)
 {
     //スケルトンを取得
     Model::Skeleton& skeleton = model->GetSkeleton();
@@ -334,6 +344,16 @@ void Animation::ApplyBlendedSkeletonAnimation(Model* model, const AnimationData&
             joint.translate = currentTranslate;
             joint.rotate = currentRotate;
             joint.scale = currentScale;
+
+            //階層のトップジョイントの場合は位置成分をリセット
+            if (joint.name.find("Root") != std::string::npos || joint.name.find("Hips") != std::string::npos)
+            {
+                joint.translate = {
+                    inPlaceAxis.x != 0.0f ? joint.translate.x : 0.0f,
+                    inPlaceAxis.y != 0.0f ? joint.translate.y : 0.0f,
+                    inPlaceAxis.z != 0.0f ? joint.translate.z : 0.0f
+                };
+            }
         }
     }
 }

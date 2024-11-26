@@ -1,8 +1,7 @@
 #include "CameraController.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
-#include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
-#include "Application/Src/Object/Camera/States/CameraStateClear.h"
+#include "Application/Src/Object/Camera/States/CameraStateAnimation.h"
 
 void CameraController::Initialize()
 {
@@ -19,51 +18,17 @@ void CameraController::Initialize()
 
 void CameraController::Update()
 {
-	//追従対象が存在する場合追従座標を補間する
+	//追従座標を更新
 	UpdateInterTargetPosition();
 
-	//追従対象からのオフセットを計算しカメラ座標を設定
+	//カメラの座標を更新
 	UpdateCameraPosition();
 
-	//編集モードやアニメーション再生の状態に応じて処理を分岐
-	if (!cameraPathManager_->GetIsEditModeEnabled() && !cameraPathManager_->GetIsPlayAnimation())
-	{
-		//状態の更新
-		state_->Update();
-	}
-	else
-	{
-		//アニメーションが再生されている場合
-		if (cameraPathManager_->GetIsPlayAnimation())
-		{
-			UpdateAnimation();
-		}
-		//編集モードでない場合アニメーションの更新
-		else
-		{
-			UpdateEditing();
-		}
-	}
+	//状態の更新
+	state_->Update();
 
-	//補間速度の更新
-	UpdateInterpolationSpeed();
-
-	//オフセット値を更新
-	UpdateCameraOffset();
-
-	//回転処理
+	//カメラの回転を更新
 	UpdateCameraRotation();
-
-	//クリアアニメーション状態に遷移するかを確認
-	if (!isClearAnimationActive_)
-	{
-		const Enemy* enemy = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy");
-		if (enemy->GetIsDead())
-		{
-			isClearAnimationActive_ = true;
-			ChangeState(new CameraStateClear());
-		}
-	}
 
 	//カメラシェイクの処理
 	cameraShake_->Update();
@@ -77,12 +42,16 @@ void CameraController::ChangeState(ICameraState* state)
 {
 	//新しいカメラの状態を設定
 	state->SetCameraController(this);
-
 	//新しいカメラの状態を初期化
 	state->Initialize();
-
 	//現在のカメラ状態を新しい状態に置き換える
 	state_.reset(state);
+}
+
+void CameraController::PlayAnimation(const std::string& animationName, const float animationSpeed, const bool syncWithCharacterAnimation)
+{
+	//アニメーションの状態に遷移
+	ChangeState(new CameraStateAnimation(animationName, animationSpeed, syncWithCharacterAnimation));
 }
 
 void CameraController::StartCameraShake(const Vector3& intensity, const float duration)
@@ -91,10 +60,32 @@ void CameraController::StartCameraShake(const Vector3& intensity, const float du
 	cameraShake_->Start(intensity, duration);
 }
 
-void CameraController::StartInterpolationSpeedIncrease()
+void CameraController::UpdateInterTargetPosition()
 {
-	isInterpolationSpeedIncreasing_ = true;
-	interpolationSpeedTimer_ = 0.0f;
+	//追従対象が存在する場合は追従座標を補間する
+	if (target_)
+	{
+		Vector3 targetPosition = target_->GetWorldPosition() + targetOffset_;
+		interTarget_ = Mathf::Lerp(interTarget_, targetPosition, targetInterpolationSpeed_);
+	}
+}
+
+void CameraController::UpdateCameraPosition()
+{
+	//追従対象からオフセットを計算
+	Vector3 offset = CalculateOffset();
+	//カメラの目標座標（通常位置）
+	Vector3 desiredPosition = interTarget_ + offset;
+	//地面と衝突している場合は交差点を座標に代入
+	camera_.translation_ = CheckRayIntersectsGround(interTarget_, desiredPosition - interTarget_, Mathf::Length(offset_)) ? intersectionPoint_ : desiredPosition;
+}
+
+void CameraController::UpdateCameraRotation()
+{
+	//目標クォータニオンを正規化
+	destinationQuaternion_ = Mathf::Normalize(destinationQuaternion_);
+	//現在のクォータニオン補間
+	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
 }
 
 const Vector3 CameraController::CalculateOffset() const
@@ -107,119 +98,32 @@ const Vector3 CameraController::CalculateOffset() const
 	return offset;
 }
 
-void CameraController::UpdateInterTargetPosition()
+const bool CameraController::CheckRayIntersectsGround(const Vector3& rayOrigin, const Vector3& rayDirection, float maxDistance)
 {
-	//追従対象が存在する場合、追従座標を補間する
-	if (target_)
+	//地面の点
+	const Vector3 planePoint = { 0.0f, 0.0f, 0.0f };
+	//平面の法線
+	const Vector3 planeNormal = { 0.0f, 1.0f, 0.0f };
+
+	//Rayの方向と平面の法線ベクトルの内積を計算
+	float denominator = Mathf::Dot(planeNormal, Mathf::Normalize(rayDirection));
+
+	//Rayが平面と平行である場合は交差しない
+	if (std::fabs(denominator) < std::numeric_limits<float>::epsilon())
 	{
-		Vector3 targetPosition = {
-			target_->matWorld_.m[3][0],
-			target_->matWorld_.m[3][1],
-			target_->matWorld_.m[3][2],
-		};
-		interTarget_ = Mathf::Lerp(interTarget_, targetPosition, targetInterpolationSpeed_);
+		return false;
 	}
-}
 
-void CameraController::UpdateAnimation()
-{
-	//ターゲットが存在する場合
-	if (target_)
+	//平面上の任意の点とRayの始点とのベクトルを計算
+	Vector3 originToPlane = planePoint - rayOrigin;
+	float t = Mathf::Dot(originToPlane, planeNormal) / denominator;
+
+	//衝突距離が正でかつmaxDistance以内の場合に衝突と判定
+	if (t >= 0 && t <= maxDistance)
 	{
-		//現在のアニメーションのキーフレームを取得
-		CameraKeyFrame cameraKeyFrame = cameraPathManager_->GetCurrentKeyFrame();
-
-		//キーフレームから目標オフセットを設定
-		destinationOffset_ = cameraKeyFrame.position;
-
-		//キーフレームの回転情報とFOVを使用してカメラの変換を更新
-		UpdateCameraTransform(cameraKeyFrame.rotation, cameraKeyFrame.fov);
+		intersectionPoint_ = rayOrigin + Mathf::Normalize(rayDirection) * t;
+		return true;
 	}
-}
 
-void CameraController::UpdateEditing()
-{
-	//ターゲットが存在する場合
-	if (target_)
-	{
-		//編集中の新しいキーフレームを取得
-		CameraKeyFrame cameraKeyFrame = cameraPathManager_->GetNewKeyFrame();
-
-		//キーフレームから目標オフセットを設定
-		destinationOffset_ = cameraKeyFrame.position;
-
-		//キーフレームの回転情報とFOVを使用してカメラの変換を更新
-		UpdateCameraTransform(cameraKeyFrame.rotation, cameraKeyFrame.fov);
-	}
-}
-
-void CameraController::UpdateCameraTransform(const Quaternion& rotation, float fovDegrees)
-{
-	//プレイヤーの情報を取得
-	const Player* player = GameObjectManager::GetInstance()->GetGameObject<Player>("Player");
-
-	//プレイヤーのクォータニオンと指定された回転を合成してカメラの目標クォータニオンを設定
-	destinationQuaternion_ = player->GetDestinationQuaternion() * rotation;
-
-	//FOVを設定
-	camera_.fov_ = fovDegrees * std::numbers::pi_v<float> / 180.0f;
-}
-
-void CameraController::UpdateInterpolationSpeed()
-{
-	//補間速度を増加させるフラグが立っている場合
-	if (isInterpolationSpeedIncreasing_)
-	{
-		//タイマーを経過時間で更新
-		interpolationSpeedTimer_ += GameTimer::GetDeltaTime();
-
-		//タイマーを範囲内に制限
-		interpolationSpeedTimer_ = std::clamp(interpolationSpeedTimer_, 0.0f, remainingInterpolationTime_);
-
-		//イージングパラメータを計算
-		float easingParameter = interpolationSpeedTimer_ / remainingInterpolationTime_;
-
-		//補間速度を更新
-		offsetInterpolationSpeed_ = Mathf::Lerp(0.02f, 0.1f, easingParameter);
-		quaternionInterpolationSpeed_ = Mathf::Lerp(0.02f, 0.2f, easingParameter);
-
-		//タイマーが最大値に達した場合
-		if (interpolationSpeedTimer_ >= remainingInterpolationTime_)
-		{
-			//補間速度の増加フラグを折る
-			isInterpolationSpeedIncreasing_ = false;
-
-			//タイマーをリセット
-			interpolationSpeedTimer_ = 0.0f;
-		}
-	}
-}
-
-void CameraController::UpdateCameraPosition()
-{
-	//追従対象からのオフセットを計算
-	Vector3 offset = CalculateOffset();
-
-	//追従対象の位置と計算したオフセットを加算してカメラの位置を設定
-	Vector3 newPosition = GetInterTarget() + offset;
-	if (newPosition.y <= 0.0f)
-	{
-		newPosition.y = 0.0f;
-	}
-	SetPosition(newPosition);
-}
-
-void CameraController::UpdateCameraOffset()
-{
-	//現在のオフセット値を補間
-	offset_ = Mathf::Lerp(offset_, destinationOffset_, offsetInterpolationSpeed_);
-}
-
-void CameraController::UpdateCameraRotation()
-{
-	//目標クォータニオンを正規化
-	destinationQuaternion_ = Mathf::Normalize(destinationQuaternion_);
-
-	//現在のクォータニオン補間
-	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+	return false;
 }

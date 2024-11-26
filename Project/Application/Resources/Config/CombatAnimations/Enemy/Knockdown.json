@@ -1,0 +1,18 @@
+{
+    "Enemy": {
+        "Knockdown": {
+            "AnimationEvents": null,
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.0,
+                    "Duration": 1.9919999837875366
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

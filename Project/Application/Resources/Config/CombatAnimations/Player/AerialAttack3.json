@@ -1,0 +1,127 @@
+{
+    "Player": {
+        "AerialAttack3": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 0.800000011920929,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        50.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "Damage": 1.0,
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "Attack",
+                    "HitInterval": 0.0,
+                    "HitboxCenter": [
+                        0.0,
+                        0.0,
+                        3.0
+                    ],
+                    "HitboxSize": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "KnockbackAcceleration": [
+                        0.0,
+                        0.0,
+                        -50.0
+                    ],
+                    "KnockbackVelocity": [
+                        0.0,
+                        -50.0,
+                        50.0
+                    ],
+                    "MaxHitCount": 1,
+                    "ReactionType": "Knockback",
+                    "StartEventTime": 0.800000011920929
+                },
+                "AnimationEvent10": {
+                    "BufferedActionType": "FallingAttack",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent2": {
+                    "CameraShakeDuration": 0.14000000059604645,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.399999976158142,
+                        0.0
+                    ],
+                    "EndEventTime": 1.2799999713897705,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.14000000059604645,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 0.800000011920929
+                },
+                "AnimationEvent3": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent4": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent5": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent6": {
+                    "CancelType": "FallingAttack",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent7": {
+                    "BufferedActionType": "Ability",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent8": {
+                    "BufferedActionType": "Magic",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent9": {
+                    "BufferedActionType": "ChargeMagic",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 3.200000047683716,
+                    "Duration": 2.5329999923706055
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

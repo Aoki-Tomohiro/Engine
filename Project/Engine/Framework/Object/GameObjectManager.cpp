@@ -114,13 +114,16 @@ void GameObjectManager::RemoveDestroyedGameObjects()
 
 void GameObjectManager::ProcessPendingGameObjects()
 {
+	//保留中のゲームオブジェクトを一時的に移動して初期化
+	std::vector<std::unique_ptr<GameObject>> currentPending = std::move(pendingGameObjects_);
+	pendingGameObjects_.clear();
+
 	//保留中のゲームオブジェクトをすべて初期化
-	for (const auto& pendingGameObject : pendingGameObjects_)
+	for (const auto& pendingGameObject : currentPending)
 	{
 		pendingGameObject->Initialize();
 	}
+
 	//保留中のゲームオブジェクトをゲームオブジェクトリストに追加
-	gameObjects_.insert(gameObjects_.end(), std::make_move_iterator(pendingGameObjects_.begin()), std::make_move_iterator(pendingGameObjects_.end()));
-	//保留中のゲームオブジェクトのリストをクリア
-	pendingGameObjects_.clear();
+	gameObjects_.insert(gameObjects_.end(), std::make_move_iterator(currentPending.begin()), std::make_move_iterator(currentPending.end()));
 }

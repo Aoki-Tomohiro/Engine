@@ -19,12 +19,12 @@
                             1.0
                         ],
                         "Count": 100,
-                        "EmitIn360Degrees": false,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,
                         "EnableRotationOverLifeTime": false,
                         "EnableSizeOverLifeTime": false,
+                        "FollowEnabled": false,
                         "Frequency": 0.5,
                         "IsBillboard": true,
                         "LifeTimeMax": 1.0,

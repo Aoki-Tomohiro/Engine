@@ -3,18 +3,13 @@
 #include "Engine/Base/TextureManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Primitive/TrailRenderer.h"
-#include "Engine/Components/Audio/Audio.h"
-#include "Engine/Components/Particle/ParticleManager.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Components/Collision/OBBCollider.h"
 #include "Engine/Components/Collision/CollisionAttributeManager.h"
 #include "Engine/Math/MathFunction.h"
-#include "Engine/Utilities/RandomGenerator.h"
 #include "Engine/Utilities/GlobalVariables.h"
-#include "Application/Src/Object/CombatAnimationEditor/CombatAnimationEditor.h"
-#include "Application/Src/Object/ParticleEffectManager/ParticleEffectManager.h"
-#include "Application/Src/Object/HitStop/HitStop.h"
+#include "Application/Src/Object/Editors/CombatAnimationEditor/AnimationEvents.h"
 
 /// <summary>
 /// 武器
@@ -42,7 +37,7 @@ public:
 	/// 衝突しているときの処理
 	/// </summary>
 	/// <param name="gameObject">衝突相手</param>
-	void OnCollision(GameObject* gameObject) override;
+	void OnCollision(GameObject*) override;
 
 	/// <summary>
 	/// 軌跡エフェクトの有効化を設定
@@ -50,33 +45,25 @@ public:
 	/// <param name="isTrailActive">軌跡エフェクトの有効フラグ</param>
 	void SetIsTrailActive(const bool isTrailActive) { isTrailActive_ = isTrailActive; };
 
-	//ヒットフラグを取得
+	//ヒットフラグを取得・設定
 	const bool GetIsHit() const { return isHit_; };
-
-	//エフェクトの設定の取得・設定
-	const EffectSettings& GetEffectSettings() const { return effectSettings_; };
-	void SetEffectSettings(const EffectSettings& effectSettings) { effectSettings_ = effectSettings; };
-
-	//ノックバックの設定を取得・設定
-	const KnockbackSettings& GetKnockbackSettings() const { return knockbackSettings_; };
-	void SetKnockbackSettings(const KnockbackSettings& knockbackSettings) { knockbackSettings_ = knockbackSettings; };
+	void SetIsHit(const bool isHit) { isHit_ = isHit; };
 
 	//ダメージを取得・設定
 	const float GetDamage() const { return damage_; };
 	void SetDamage(const float damage) { damage_ = damage; };
 
+	//ヒットボックスのパラメーターを取得・設定
+	const HitboxParameters& GetHitboxParameters() const { return hitboxParameters_; };
+	void SetHitboxParameters(const HitboxParameters& hitboxParameters) { hitboxParameters_ = hitboxParameters; };
+
+	//ノックバックのパラメーターを取得・設定
+	const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
+	void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
+
 	//攻撃フラグの取得・設定
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
-
-	//パーティクルエフェクトマネージャーを設定
-	void SetParticleEffectManager(ParticleEffectManager* particleEffectManager) { particleEffectManager_ = particleEffectManager; };
-
-	//ヒットストップを設定
-	void SetHitStop(HitStop* hitStop) { hitStop_ = hitStop; };
-
-	//ヒットボックスを設定
-	void SetHitbox(const Hitbox& hitbox);
 
 private:
 	/// <summary>
@@ -105,11 +92,6 @@ private:
 	void InitializeTrail();
 
 	/// <summary>
-	/// ヒットSEの初期化
-	/// </summary>
-	void InitializeHitAudio();
-
-	/// <summary>
 	/// コライダーの更新
 	/// </summary>
 	void UpdateCollider();
@@ -135,15 +117,7 @@ private:
 	/// </summary>
 	void UpdateImGui();
 
-	/// <summary>
-	/// プレイヤーの武器が衝突した時の処理
-	/// </summary>
-	void HandlePlayerWeaponCollision();
-
 private:
-	//オーディオ
-	Audio* audio_ = nullptr;
-
 	//トランスフォーム
 	TransformComponent* transform_ = nullptr;
 
@@ -153,29 +127,20 @@ private:
 	//コライダー
 	OBBCollider* collider_ = nullptr;
 
-	//パーティクルエフェクトマネージャー
-	ParticleEffectManager* particleEffectManager_ = nullptr;
-
-	//ヒットストップ
-	HitStop* hitStop_ = nullptr;
-
 	//Colliderのオフセット
 	Vector3 defaultColliderOffset_{ 0.0f, 0.0f, 3.0f };
 
 	//Colliderのサイズ
 	Vector3 defaultColliderSize_{ 2.0f, 2.0f, 2.0f };
 
-	//エフェクトの設定
-	EffectSettings effectSettings_{};
-
-	//ノックバックの設定
-	KnockbackSettings knockbackSettings_{};
-
-	//ヒットボックス
-	Hitbox hitbox_{};
-
 	//ダメージ
 	float damage_ = 0.0f;
+
+	//ヒットボックスのパラメーター
+	HitboxParameters hitboxParameters_{};
+
+	//ノックバックのパラメーター
+	KnockbackParameters knockbackParameters_{};
 
 	//攻撃フラグ
 	bool isAttack_ = false;
@@ -185,9 +150,6 @@ private:
 
 	//デバッグフラグ
 	bool isDebug_ = false;
-
-	//オーディオハンドル
-	uint32_t hitAudioHandle_ = 0;
 
 	//軌跡
 	Trail* trail_ = nullptr;
@@ -202,8 +164,8 @@ private:
 	float trailVertexInterval_ = 0.01f;
 
 	//軌跡の色
-	Vector4 trailStartColor_ = { 1.0f, 0.147f, 0.0f, 0.0f };
-	Vector4 trailEndColor_ = { 1.0f, 0.147f, 0.0f, 1.0f };
+	Vector4 trailStartColor_ = { 1.0f, 1.0f, 1.0f, 0.0f };
+	Vector4 trailEndColor_ = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	//軌跡のオフセット値
 	Vector3 headOffset_ = { 0.0f, 0.0f, -130.0f };

@@ -36,8 +36,8 @@ void SphereCollider::Draw(const Camera& camera)
             float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;//θ
             //経度の方向に分割しながら線を描く
             for (lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
-                uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
-                float lon = lonIndex * kLonEvery;//φ
+                //φ
+                float lon = lonIndex * kLonEvery;
                 //基準点a
                 Vector3 pointA = {
                     worldCenter_.x + radius_ * std::cos(lat) * std::cos(lon),

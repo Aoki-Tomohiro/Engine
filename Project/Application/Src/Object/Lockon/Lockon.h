@@ -4,8 +4,8 @@
 #include "Engine/Base/Application.h"
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Components/Input/Input.h"
+#include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
-#include "Application/Src/Object/Character/Enemy/Enemy.h"
 
 /// <summary>
 /// ロックオン
@@ -69,6 +69,9 @@ private:
 	std::unique_ptr<Sprite> lockonMark_ = nullptr;
 
 	//ロックオンターゲット
-	Enemy* target_ = nullptr;
+	const TransformComponent* target_ = nullptr;
+
+	//オフセット
+	Vector3 targetOffset_ = { 0.0f,2.0f,0.0f };
 };
 

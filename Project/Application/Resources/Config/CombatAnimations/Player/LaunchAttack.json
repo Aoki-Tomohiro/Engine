@@ -1,0 +1,146 @@
+{
+    "Player": {
+        "LaunchAttack": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "Damage": 1.2000000476837158,
+                    "EndEventTime": 1.100000023841858,
+                    "EventType": "Attack",
+                    "HitInterval": 0.0,
+                    "HitboxCenter": [
+                        0.0,
+                        0.0,
+                        3.0
+                    ],
+                    "HitboxSize": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "KnockbackAcceleration": [
+                        0.0,
+                        0.0,
+                        -4.0
+                    ],
+                    "KnockbackVelocity": [
+                        0.0,
+                        18.0,
+                        4.0
+                    ],
+                    "MaxHitCount": 1,
+                    "ReactionType": "Knockback",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent1": {
+                    "Damage": 0.6000000238418579,
+                    "EndEventTime": 1.399999976158142,
+                    "EventType": "Attack",
+                    "HitInterval": 0.009999999776482582,
+                    "HitboxCenter": [
+                        0.0,
+                        0.0,
+                        3.0
+                    ],
+                    "HitboxSize": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "KnockbackAcceleration": [
+                        0.0,
+                        0.0,
+                        -4.0
+                    ],
+                    "KnockbackVelocity": [
+                        0.0,
+                        18.0,
+                        4.0
+                    ],
+                    "MaxHitCount": 4,
+                    "ReactionType": "Knockback",
+                    "StartEventTime": 1.100000023841858
+                },
+                "AnimationEvent2": {
+                    "CameraShakeDuration": 0.10000000149011612,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.100000023841858,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.6000000238418579,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent3": {
+                    "CameraShakeDuration": 0.10000000149011612,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.399999976158142,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.05999999865889549,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 1.100000023841858
+                },
+                "AnimationEvent4": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.399999976158142,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "LaunchAttack",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "None",
+                    "StartEventTime": 1.100000023841858
+                },
+                "AnimationEvent5": {
+                    "AnimationName": "LaunchAttack",
+                    "AnimationSpeed": 2.0,
+                    "EndEventTime": 1.100000023841858,
+                    "EventTrigger": "Impact",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.0,
+                    "SyncWithCharacterAnimation": true
+                },
+                "AnimationEvent6": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 3.200000047683716,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.600000023841858
+                },
+                "AnimationEvent7": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 1.600000023841858,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.10000000149011612
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.0,
+                    "Duration": 3.200000047683716
+                }
+            },
+            "InPlaceAxis": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    }
+}

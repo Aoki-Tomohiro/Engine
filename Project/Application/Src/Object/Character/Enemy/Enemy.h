@@ -1,7 +1,6 @@
 #pragma once
 #include "Engine/3D/Model/AnimationManager.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
-#include "Application/Src/Object/Character/States/EnemyStates/IEnemyState.h"
 
 /// <summary>
 /// 敵
@@ -9,96 +8,60 @@
 class Enemy : public BaseCharacter
 {
 public:
-	//攻撃タイプ
+	//攻撃カテゴリ
+	enum class AttackCategory
+	{
+		CloseRange,  //近接攻撃
+		Ranged,      //遠距離攻撃
+		Count        //カテゴリの総数
+	};
+
+	//距離を詰めるタイプ
+	enum class ApproachType
+	{
+		DashForward,      //突進
+		RunTowardsPlayer, //プレイヤーに向かって走る
+		MaxTypes          //アプローチタイプの最大値
+	};
+
+	//近距離攻撃タイプ
 	enum class AttackType
 	{
-		kCloseRange,
-		kRanged,
-		kMaxAttackTypes,
+		VerticalSlash, //垂直斬り
+		ComboSlash,    //連続斬り
+		SpinSlash,     //回転斬り
+		MaxTypes       //タイプの最大値
 	};
 
-	//距離を詰めるアクション
-	enum class ApproachAction
+	//アクションフラグ
+	enum class ActionFlag
 	{
-		kDashForward,
-		kRunTowardsPlayer,
-		kMaxApproachActions
-	};
-
-	//近距離攻撃
-	enum class CloseRangeAttack
-	{
-		kTackle,
-		kJumpAttack,
-		kComboAttack,
-		kMaxCloseRangeAttacks
-	};
-
-	//遠距離攻撃
-	enum class RangedAttack
-	{
-		kEarthSpike,
-		kLaserBeam,
-		kMaxRangedAttacks
+		kCanAttack, //攻撃できる状態かどうか
+		kCanDodge,  //回避できる状態かどうか
 	};
 
 	//通常状態のパラメーター
 	struct RootParameters
 	{
-		float moveSpeed = 5.0f;                 // 移動速度
-		float minActionInterval = 1.0f;         // 攻撃までの最小時間
-		float maxActionInterval = 2.0f;         // 攻撃までの最大時間
-		float approachDistance = 10.0f;         // 近づいてくる距離
-		float minWaitTimeBeforeMovement = 1.0f; // 接近前の最小待機時間
-		float maxWaitTimeBeforeMovement = 2.0f; // 接近前の最大待機時間
-		float stopDistance = 4.0f;              // 動きを止める距離
-		float closeRangeDistance = 20.0f;       // 遠距離の行動をする距離
+		float dodgeStartTime = 0.6f;            //攻撃をよける行動をとり始める時間
+		float minActionInterval = 1.4f;         //攻撃までの最小時間
+		float maxActionInterval = 2.0f;         //攻撃までの最大時間
+		float minWaitTimeBeforeMovement = 1.0f; //接近前の最小待機時間
+		float maxWaitTimeBeforeMovement = 2.0f; //接近前の最大待機時間
+		float closeRangeAttackDistance = 6.0f;  //近接攻撃する距離
+		float approachDistance = 10.0f;         //前進する距離
+		float rangedAttackDistance = 14.0f;     //遠距離攻撃する距離
 	};
 
-	//走り状態のパラメーター
-	struct RunTowardsPlayerParameters
-	{
-		float runSpeed = 20.0f; // 走り移動速度
-	};
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize() override;
 
-	//ダッシュ状態のパラメーター
-	struct DashParameters
-	{
-		float dashDistance = 30.0f; // ダッシュの距離
-	};
-
-	//ジャンプ攻撃のパラメーター
-	struct JumpAttackParameters
-	{
-		float heightOffset_ = 6.0f;
-	};
-
-	//レーザー攻撃のパラメーター
-	struct LaserBeamParameters
-	{
-		Vector3 laserOffset = { 0.0f, 1.5f, 3.0f }; // レーザーのオフセット値
-		float laserRange = 50.0f;                   // レーザーの長さ
-		float easingSpeed = 10.0f;                  // イージングの速度
-		float damage = 4.0f;                        // ダメージ
-	};
-
-	//柱攻撃のパラメーター
-	struct EarthSpikeAttackParameters
-	{
-		int32_t maxPillarCount = 20;                    // 柱の数
-		Vector3 pillarScale{ 2.0f, 2.0f, 2.0f };        // 柱の大きさ
-		float nextPillarDelay = 0.01f;                  // 次の柱をまでの遅延時間
-	};
-
-    /// <summary>
-    /// 初期化
-    /// </summary>
-    void Initialize() override;
-
-    /// <summary>
-    /// 更新
-    /// </summary>
-    void Update() override;
+	/// <summary>
+	/// 更新
+	/// </summary>
+	void Update() override;
 
 	/// <summary>
 	/// 衝突処理
@@ -107,85 +70,82 @@ public:
 	void OnCollision(GameObject* gameObject) override;
 
 	/// <summary>
-	/// 状態遷移
+	/// プレイヤーの方向に敵を向かせる処理
 	/// </summary>
-	/// <param name="newState">新しい状態</param>
-	void ChangeState(IEnemyState* newState);
+	void LookAtPlayer();
+
+	/// <summary>
+	/// 攻撃状態のリセット
+	/// </summary>
+	void ResetAttackState();
+
+	/// <summary>
+	/// プレイヤーと敵の座標を取得して距離を計算する関数
+	/// </summary>
+	/// <returns>プレイヤーとの距離</returns>
+	float CalculateDistanceToPlayer() const;
 
 	//HPの取得・設定
 	const float GetHP() const { return hp_; };
 	void SetHP(const float hp) { hp_ = hp; };
 
-	//タイムスケールの取得・設定
-	const float GetTimeScale() const { return timeScale_; };
-	void SetTimeScale(const float timeScale) { timeScale_ = timeScale; };
+	//アクションフラグの取得・設定
+	const bool GetActionFlag(const ActionFlag& actionFlag) const { auto it = actionFlags_.find(actionFlag); return it != actionFlags_.end() && it->second; };
+	void SetActionFlag(const ActionFlag& actionFlag, bool value) { actionFlags_[actionFlag] = value; };
 
-	//スタンから復帰した状態かどうかの取得・設定
-	const bool GetIsStunRecovered() const { return isStunRecovered_; };
-	void SetIsStunRecovered(const bool isStunRecovered) { isStunRecovered_ = isStunRecovered; };
+	//前回の攻撃の取得・設定
+	const AttackType& GetPreviousAttack() const { return previousCloseRangeAttack_; };
+	void SetPreviousAttack(const AttackType& previousCloseRangeAttack) { previousCloseRangeAttack_ = previousCloseRangeAttack; };
 
-	//前回の近接攻撃の取得・設定
-	const CloseRangeAttack& GetPreviousCloseRangeAttack() const { return previousCloseRangeAttack_; };
-	void SetPreviousCloseRangeAttack(const CloseRangeAttack& previousCloseRangeAttack) { previousCloseRangeAttack_ = previousCloseRangeAttack; };
-
-	//前回の遠距離攻撃の取得・設定
-	const RangedAttack& GetPreviousRangedAttack() const { return previousRangedAttack_; };
-	void SetPreviousRangedAttack(const RangedAttack& previousRangedAttack) { previousRangedAttack_ = previousRangedAttack; };
-
-	//デバッグフラグの取得
-	const bool GetIsDebug() const { return isDebug_; };
+	//プレイヤーとの距離を取得
+	const float GetDistanceToPlayer() const { return distanceToPlayer_; };
 
 	//各パラメータの取得
 	const RootParameters& GetRootParameters() const { return rootParameters_; };
-	const RunTowardsPlayerParameters& GetRunTowardsPlayerParameters() const { return runTowardsPlayerParameters_; };
-	const DashParameters& GetDashParameters() const { return dashParameters_; };
-	const JumpAttackParameters& GetJumpAttackParameters() const { return jumpAttackParameters_; };
-	const LaserBeamParameters& GetLaserBeamParameters() const { return laserBeamParameters_; };
-	const EarthSpikeAttackParameters& GetEarthSpikeAttackParameters() const { return earthSpikeAttackParameters_; };
 
 private:
+	/// <summary>
+	/// アクションマップの初期化
+	/// </summary>
+	void InitializeActionMap() override;
+
+	/// <summary>
+	/// オーディオの初期化
+	/// </summary>
+	void InitializeAudio() override;
+
     /// <summary>
     /// アニメーターの初期化
     /// </summary>
     void InitializeAnimator() override;
 
-    /// <summary>
-    /// UIのスプライトの初期化
-    /// </summary>
-    void InitializeUISprites() override;
+	/// <summary>
+	/// UIのスプライトの初期化
+	/// </summary>
+	void InitializeUISprites() override;
 
 	/// <summary>
-	/// スタン状態への遷移処理
+	/// 攻撃タイマーの更新
 	/// </summary>
-	void TransitionToStunState() override;
-
-	/// <summary>
-	/// 死亡状態への遷移処理
-	/// </summary>
-	void TransitionToDeathState() override;
+	void UpdateAttackTimer();
 
 private:
-	//状態
-	std::unique_ptr<IEnemyState> state_ = nullptr;
+	//現在の攻撃間隔
+	float attackInterval_ = 0.0f;
+
+	//攻撃間隔のタイマー
+	float elapsedAttackTime_ = 0.0f;
+
+	//プレイヤーとの距離
+	float distanceToPlayer_ = 0.0f;
 
 	//前の近接攻撃
-	CloseRangeAttack previousCloseRangeAttack_ = CloseRangeAttack::kMaxCloseRangeAttacks;
+	AttackType previousCloseRangeAttack_ = AttackType::MaxTypes;
 
-	//前の遠距離攻撃
-	RangedAttack previousRangedAttack_ = RangedAttack::kMaxRangedAttacks;
-
-	//タイムスケール
-	float timeScale_ = 1.0f;
-
-	//スタンから復帰した状態かどうか
-	bool isStunRecovered_ = false;
+	//アクションフラグ
+	std::unordered_map<ActionFlag, bool> actionFlags_{};
 
 	//各種パラメーター
 	RootParameters rootParameters_{};
-	RunTowardsPlayerParameters runTowardsPlayerParameters_{};
-	DashParameters dashParameters_{};
-	JumpAttackParameters jumpAttackParameters_{};
-	LaserBeamParameters laserBeamParameters_{};
-	EarthSpikeAttackParameters earthSpikeAttackParameters_{};
 };
 

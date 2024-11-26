@@ -1,46 +1,41 @@
 #include "PlayerStateRoot.h"
 #include "Application/Src/Object/Character/Player/Player.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateJump.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDodge.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateDash.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateMagicAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateChargeMagicAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateLaunchAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateSpinAttack.h"
-#include "Application/Src/Object/Character/States/PlayerStates/PlayerStateStun.h"
 
 void PlayerStateRoot::Initialize()
 {
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
-	//アニメーションブレンドを有効化する
-	player_->GetAnimator()->SetIsBlending(true);
+	//アニメーションブレンドを有効にする
+	character_->GetAnimator()->SetIsBlending(true);
+
+	//アニメーションブレンドの時間を設定
+	character_->GetAnimator()->SetBlendDuration(0.2f);
+
+	//ロックオン中の場合は敵の方向に回転させる
+	if (GetPlayer()->GetLockon()->ExistTarget())
+	{
+		GetPlayer()->LookAtEnemy();
+	}
 }
 
 void PlayerStateRoot::Update()
 {
-	//ゲームが終了していたら処理を飛ばす
-	if (player_->GetIsGameFinished())
+	//ゲームが終了していた場合は処理を飛ばす
+	if (character_->GetIsGameFinished())
 	{
-		//現在のアニメーションがIdleではない場合再生する
 		SetIdleAnimationIfNotPlaying();
 		return;
 	}
 
 	//スティックの入力を取得
-	Vector3 inputValue = {
-		input_->GetLeftStickX(),
-		0.0f,
-		input_->GetLeftStickY(),
-	};
+	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
 
 	//入力ベクトルの長さを計算
 	float inputLength = Mathf::Length(inputValue);
 
 	//入力値が歩行の閾値を超えている場合
-	if (inputLength > player_->GetRootParameters().walkThreshold)
+	if (inputLength > GetPlayer()->GetRootParameters().walkThreshold)
 	{
 		//移動処理
 		Move(inputValue, inputLength);
@@ -51,14 +46,32 @@ void PlayerStateRoot::Update()
 		SetIdleAnimationIfNotPlaying();
 	}
 
-	//入力に基づいて状態を遷移
-	ProcessStateTransition();
+	//状態遷移処理
+	HandleStateTransition();
 }
 
-void PlayerStateRoot::OnCollision(GameObject* gameObject)
+void PlayerStateRoot::OnCollision(GameObject* other)
 {
 	//衝突処理
-	player_->ProcessCollisionImpact(gameObject, true);
+	GetCharacter()->ProcessCollisionImpact(other, true);
+}
+
+void PlayerStateRoot::HandleStateTransitionInternal()
+{
+	//遷移可能なアクション一覧
+	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability" };
+
+	//アクションリストをループし、ボタン入力をチェック
+	for (const auto& action : actions)
+	{
+		//対応するボタンが押されていた場合
+		if (GetPlayer()->GetActionCondition(action))
+		{
+			//対応する状態に遷移
+			character_->ChangeState(action);
+			return;
+		}
+	}
 }
 
 void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
@@ -69,30 +82,33 @@ void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
 		//現在のアニメーションを通常状態に変更
 		currentAnimationName_ = "Idle";
 		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		player_->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true);
+		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
 	}
 }
 
 void PlayerStateRoot::Move(const Vector3& inputValue, const float inputLength)
 {
+	//プレイヤーを取得
+	Player* player = GetPlayer();
+
 	//入力値が走りの閾値を超えているかチェック
-	bool isRunning = inputLength > player_->GetRootParameters().runThreshold;
+	bool isRunning = inputLength > player->GetRootParameters().runThreshold;
 
 	//アニメーションの更新
 	UpdateAnimation(inputValue, isRunning);
 
 	//移動速度を設定
-	float moveSpeed = isRunning ? player_->GetRootParameters().runSpeed : player_->GetRootParameters().walkSpeed;
+	float moveSpeed = isRunning ? player->GetRootParameters().runSpeed : player->GetRootParameters().walkSpeed;
 	//入力ベクトルを正規化し速度を掛ける
 	Vector3 velocity = Mathf::Normalize(inputValue) * moveSpeed;
 
 	//移動ベクトルにカメラの回転を適用
-	velocity = Mathf::RotateVector(velocity, player_->GetCamera()->quaternion_);
+	velocity = Mathf::RotateVector(velocity, player->GetCameraController()->GetCamera().quaternion_);
 	//水平方向に移動させるのでY成分を0にする
 	velocity.y = 0.0f;
 
 	//プレイヤーを移動させる
-	player_->Move(velocity);
+	player->Move(velocity);
 
 	//プレイヤーの回転を更新
 	UpdateRotation(velocity);
@@ -104,7 +120,7 @@ void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 	std::string animationName;
 
 	//ロックオン中のアニメーション決定
-	if (player_->GetLockon()->ExistTarget())
+	if (GetPlayer()->GetLockon()->ExistTarget())
 	{
 		//ロックオン中で、プレイヤーが走っているかどうかでアニメーションを決定
 		if (isRunning)
@@ -129,7 +145,7 @@ void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 	{
 		//現在のアニメーションを更新
 		currentAnimationName_ = animationName;
-		player_->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true);
+		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
 	}
 }
 
@@ -165,82 +181,17 @@ const std::string PlayerStateRoot::DetermineRunningAnimation(const Vector3& inpu
 
 void PlayerStateRoot::UpdateRotation(const Vector3& velocity)
 {
+	//プレイヤーを取得
+	Player* player = GetPlayer();
+
 	//ロックオン中の場合は敵の方向に向かせる
-	if (player_->GetLockon()->ExistTarget())
+	if (player->GetLockon()->ExistTarget())
 	{
-		player_->LookAtEnemy();
+		player->LookAtEnemy();
 	}
 	//ロックオンしていない場合は速度ベクトルの方向に回転
 	else
 	{
-		player_->Rotate(Mathf::Normalize(velocity));
-	}
-}
-
-void PlayerStateRoot::ProcessStateTransition()
-{
-	//RTの入力の閾値
-	const float kRightTriggerThreshold = 0.7f;
-
-	//Aボタンを押したとき
-	if (player_->IsTriggered(Player::ButtonType::A))
-	{
-		//ジャンプ状態に遷移
-		player_->ChangeState(new PlayerStateJump());
-		return;
-	}
-	//RBを押したとき
-	else if (player_->IsTriggered(Player::ButtonType::RB))
-	{
-		//回避状態に遷移
-		player_->ChangeState(new PlayerStateDodge());
-		return;
-	}
-	//Bボタンを押したとき
-	if (player_->IsTriggered(Player::ButtonType::B))
-	{
-		//ダッシュ状態に遷移
-		player_->ChangeState(new PlayerStateDash());
-		return;
-	}
-
-	//RTが押されていない場合
-	if (input_->GetRightTriggerValue() < kRightTriggerThreshold)
-	{
-		//Xボタンを押したとき
-		if (player_->IsTriggered(Player::ButtonType::X))
-		{
-			//攻撃状態に遷移
-			player_->ChangeState(new PlayerStateAttack());
-		}
-		//Yボタンを離した時
-		else if (player_->IsReleased(Player::ButtonType::Y))
-		{
-			//魔法攻撃状態に遷移
-			if (player_->GetActionFlag(Player::ActionFlag::kMagicAttackEnabled))
-			{
-				player_->ChangeState(new PlayerStateMagicAttack());
-			}
-			//溜め魔法攻撃状態に遷移
-			else if (player_->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
-			{
-				player_->ChangeState(new PlayerStateChargeMagicAttack());
-			}
-		}
-	}
-	else
-	{
-		//Xボタンを押したとき
-		if (player_->IsTriggered(Player::ButtonType::X) && player_->GetIsCooldownComplete(Skill::kLaunchAttack) && player_->GetPosition().y == 0.0f)
-		{
-			//打ち上げ攻撃状態に遷移
-			player_->ChangeState(new PlayerStateLaunchAttack());
-		}
-		//Yボタンを押したとき
-		else if (player_->IsTriggered(Player::ButtonType::Y) && player_->GetIsCooldownComplete(Skill::kSpinAttack))
-		{
-			//回転攻撃状態に遷移
-			player_->ChangeState(new PlayerStateSpinAttack());
-		}
+		player->Rotate(Mathf::Normalize(velocity));
 	}
 }

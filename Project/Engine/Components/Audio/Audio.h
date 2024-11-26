@@ -91,7 +91,7 @@ private:
 
 	std::set<Voice*> sourceVoices_{};
 
-	uint32_t audioHandle_ = -1;
+	int32_t audioHandle_ = -1;
 
-	uint32_t voiceHandle_ = -1;
+	int32_t voiceHandle_ = -1;
 };

@@ -33,6 +33,12 @@ EmitterBuilder& EmitterBuilder::SetEmitterLifeTime(const float emitterLifeTime)
 	return *this;
 }
 
+EmitterBuilder& EmitterBuilder::SetFollowTarget(const Vector3* followTarget)
+{
+	particleEmitter_->followTarget_ = followTarget;
+	return *this;
+}
+
 EmitterBuilder& EmitterBuilder::SetTranslation(const Vector3& translate)
 {
 	particleEmitter_->translate_ = translate;

@@ -1,14 +1,15 @@
 #pragma once
-#include "IPlayerState.h"
-#include "Engine/Math/Vector4.h"
+#include "Application/Src/Object/Character/States/CharacterStateStun.h"
 
-class PlayerStateStun : public IPlayerState
+/// <summary>
+/// スタン状態
+/// </summary>
+class PlayerStateStun : public CharacterStateStun
 {
-public:
-	void Initialize() override;
-
-	void Update() override;
-
-	void OnCollision(GameObject* other) override {};
+private:
+	/// <summary>
+	/// デフォルトの状態遷移処理
+	/// </summary>
+	void HandleStateTransitionInternal() override;
 };
 

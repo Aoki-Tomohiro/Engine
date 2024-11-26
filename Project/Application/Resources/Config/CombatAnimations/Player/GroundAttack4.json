@@ -1,0 +1,129 @@
+{
+    "Player": {
+        "GroundAttack4": {
+            "AnimationEvents": {
+                "AnimationEvent0": {
+                    "EndEventTime": 1.5,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": true,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        50.0
+                    ]
+                },
+                "AnimationEvent1": {
+                    "Damage": 1.0,
+                    "EndEventTime": 1.5,
+                    "EventType": "Attack",
+                    "HitInterval": 0.10000000149011612,
+                    "HitboxCenter": [
+                        0.0,
+                        0.0,
+                        3.0
+                    ],
+                    "HitboxSize": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ],
+                    "KnockbackAcceleration": [
+                        0.0,
+                        60.0,
+                        -50.0
+                    ],
+                    "KnockbackVelocity": [
+                        0.0,
+                        10.0,
+                        50.0
+                    ],
+                    "MaxHitCount": 1,
+                    "ReactionType": "Knockback",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent2": {
+                    "CameraShakeDuration": 0.14000000059604645,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        1.399999976158142,
+                        0.0
+                    ],
+                    "EndEventTime": 1.5,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.14000000059604645,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "NormalHit",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent3": {
+                    "CancelType": "Dodge",
+                    "EndEventTime": 2.4670000076293945,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent4": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 2.4670000076293945,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent5": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 2.4670000076293945,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent6": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 2.4670000076293945,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent7": {
+                    "BufferedActionType": "Ability",
+                    "EndEventTime": 1.5,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent8": {
+                    "BufferedActionType": "Magic",
+                    "EndEventTime": 1.5,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent9": {
+                    "BufferedActionType": "ChargeMagic",
+                    "EndEventTime": 1.5,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 2.5999999046325684,
+                    "Duration": 1.2999999523162842
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 4.0,
+                    "Duration": 1.5
+                },
+                "AnimationSpeedConfig2": {
+                    "AnimationSpeed": 1.2000000476837158,
+                    "Duration": 2.4670000076293945
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}
