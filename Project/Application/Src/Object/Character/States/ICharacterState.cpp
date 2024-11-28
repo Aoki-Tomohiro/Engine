@@ -113,12 +113,8 @@ bool ICharacterState::CheckAndTransitionBufferedAction(const std::string& action
 		//先行入力がない場合は飛ばす
 		if (processedBufferedActionDatas_[i].bufferedActionName.empty()) continue;
 
-		//名前の指定があった場合
-		if (!actionName.empty())
-		{
-			//一致する名前の先行入力でなければ飛ばす
-			if (processedBufferedActionDatas_[i].bufferedActionName != actionName) continue;
-		}
+		//名前の指定があった場合一致する名前の先行入力でなければ飛ばす
+		if (!actionName.empty() && processedBufferedActionDatas_[i].bufferedActionName != actionName) continue;
 
 		//先行入力が存在していた場合は次の状態に設定
 		nextStateName = processedBufferedActionDatas_[i].bufferedActionName;

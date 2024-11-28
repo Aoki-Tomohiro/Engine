@@ -29,7 +29,7 @@
                     "Velocity": [
                         0.0,
                         0.0,
-                        100.0
+                        160.0
                     ]
                 },
                 "AnimationEvent02": {
@@ -139,6 +139,22 @@
                     "StartEventTime": 1.600000023841858
                 },
                 "AnimationEvent07": {
+                    "CameraShakeDuration": 0.4000000059604645,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        3.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.899999976158142,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.4000000059604645,
+                    "ParticleEffectName": "Hit",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "",
+                    "StartEventTime": 1.8200000524520874
+                },
+                "AnimationEvent08": {
                     "AnimationName": "FallingAttack",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 3.700000047683716,

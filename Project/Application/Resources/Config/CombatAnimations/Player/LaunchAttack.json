@@ -132,7 +132,11 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 3.0,
+                    "Duration": 1.399999976158142
+                },
+                "AnimationSpeedConfig1": {
+                    "AnimationSpeed": 1.399999976158142,
                     "Duration": 3.200000047683716
                 }
             },

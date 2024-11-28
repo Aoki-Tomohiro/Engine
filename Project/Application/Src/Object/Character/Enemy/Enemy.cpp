@@ -12,9 +12,6 @@ void Enemy::Initialize()
 
 	//状態の初期化
 	ChangeState("Idle");
-
-	//デバッグのフラグを立てる
-	isDebug_ = true;
 }
 
 void Enemy::Update()

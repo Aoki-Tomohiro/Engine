@@ -7,8 +7,8 @@
         ],
         "DodgeStartTime": 4.0,
         "MaxActionInterval": 6.0,
-        "MaxWaitTimeBeforeMovement": 1.0,
+        "MaxWaitTimeBeforeMovement": 2.0,
         "MinActionInterval": 4.0,
-        "MinWaitTimeBeforeMovement": 2.0
+        "MinWaitTimeBeforeMovement": 1.0
     }
 }

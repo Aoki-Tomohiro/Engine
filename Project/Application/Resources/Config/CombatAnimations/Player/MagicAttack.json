@@ -2,7 +2,7 @@
     "Player": {
         "MagicAttack": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseOut",
                     "EndEventTime": 1.7999999523162842,
                     "EventType": "Movement",
@@ -13,12 +13,12 @@
                     "StartEventTime": 1.2999999523162842,
                     "TargetPosition": [
                         0.0,
-                        0.0,
+                        2.0,
                         -6.0
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "Damage": 0.800000011920929,
                     "EndEventTime": 1.340000033378601,
                     "EventType": "Attack",
@@ -47,7 +47,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 1.2999999523162842
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "CameraShakeDuration": 0.05999999865889549,
                     "CameraShakeIntensity": [
                         0.0,
@@ -63,31 +63,31 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 1.2999999523162842
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "CancelType": "None",
                     "EndEventTime": 2.7330000400543213,
                     "EventType": "Cancel",
                     "StartEventTime": 2.0
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "CancelType": "Dash",
                     "EndEventTime": 2.0,
                     "EventType": "Cancel",
                     "StartEventTime": 1.7000000476837158
                 },
-                "AnimationEvent5": {
+                "AnimationEvent05": {
                     "CancelType": "Attack",
                     "EndEventTime": 2.0,
                     "EventType": "Cancel",
                     "StartEventTime": 1.7000000476837158
                 },
-                "AnimationEvent6": {
+                "AnimationEvent06": {
                     "BufferedActionType": "Dash",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent7": {
+                "AnimationEvent07": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "BufferedAction",
@@ -101,7 +101,7 @@
                 },
                 "AnimationSpeedConfig1": {
                     "AnimationSpeed": 2.0,
-                    "Duration": 1.7000000476837158
+                    "Duration": 1.7999999523162842
                 },
                 "AnimationSpeedConfig2": {
                     "AnimationSpeed": 1.399999976158142,
