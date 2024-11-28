@@ -171,10 +171,8 @@ void Player::InitializeActionMap()
 		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
 		{"Dash", [this]() { return buttonStates_[Player::ButtonType::LB].isTriggered; }},
 		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
-		//{"Magic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }},
-		//{"ChargeMagic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }},
-		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isTriggered; }},
-		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isTriggered; }},
+		{"Magic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }},
+		{"ChargeMagic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }},
 		{"FallingAttack",[this]() {return CheckFallingAttack(); }},
 		{"Ability",[this]() {return CheckAndTriggerAbility(); }},
 	};
@@ -516,14 +514,14 @@ bool Player::CheckFallingAttack()
 bool Player::CheckAndTriggerAbility()
 {
 	//アビリティ1の条件を確認
-	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::RT))
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::Y))
 	{
 		SetActionFlag(ActionFlag::kAbility1Enabled, true);
 		return true;
 	}
 
 	//アビリティ2の条件を確認
-	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::X))
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::B))
 	{
 		SetActionFlag(ActionFlag::kAbility2Enabled, true);
 		return true;
@@ -541,21 +539,11 @@ bool Player::IsAbilityAvailable(const SkillParameters& skill, const Player::Butt
 		return false; 
 	}
 
-
-	if (button == Player::ButtonType::RT)
-	{
-		return input_->GetRightTriggerValue() > kTriggerThreshold;
+	//ボタンが押されているかをチェック
+	if (!buttonStates_[button].isPressed) 
+	{ 
+		return false; 
 	}
-	else
-	{
-		return input_->GetLeftTriggerValue() > kTriggerThreshold;
-	}
-
-	////ボタンが押されているかをチェック
-	//if (!buttonStates_[button].isPressed) 
-	//{ 
-	//	return false; 
-	//}
 
 	//地面でのみ使用可能なスキルの場合、空中であれば使用できない
 	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f)

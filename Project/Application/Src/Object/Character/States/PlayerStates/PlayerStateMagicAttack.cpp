@@ -51,14 +51,30 @@ void PlayerStateMagicAttack::InitializeAttackEvent(const AttackEvent* attackEven
 
 bool PlayerStateMagicAttack::InitializeMagicAttack(Player* player)
 {
-    //魔法の種類を設定
-    magicType_ = Magic::MagicType::kCharged;
-    //フラグをリセット
-    player->SetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled, false);
-    //溜め魔法攻撃アニメーションを設定
-    SetAnimationControllerAndPlayAnimation("MagicAttack");
-    //溜め魔法攻撃発生
-    return true;
+    //溜め魔法攻撃のフラグが有効な場合
+    if (player->GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled))
+    {
+        //魔法の種類を設定
+        magicType_ = Magic::MagicType::kCharged;
+        //フラグをリセット
+        player->SetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled, false);
+        //溜め魔法攻撃アニメーションを設定
+        SetAnimationControllerAndPlayAnimation("MagicAttack");
+        //溜め魔法攻撃発生
+        return true;
+    }
+    //通常魔法攻撃のフラグが有効な場合
+    else
+    {
+        //魔法の種類を設定
+        magicType_ = Magic::MagicType::kNormal;
+        //フラグをリセットし
+        player->SetActionFlag(Player::ActionFlag::kMagicAttackEnabled, false);
+        //通常魔法アニメーションを設定
+        SetAnimationControllerAndPlayAnimation("Casting");
+        //溜め魔法攻撃不発生
+        return false;
+    }
 }
 
 Magic* PlayerStateMagicAttack::CreateMagicObject(const AttackEvent* attackEvent)
