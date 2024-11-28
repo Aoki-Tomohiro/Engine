@@ -227,8 +227,11 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 			break;
 		}
 
+		//IDを決める
+		std::string id = i < 10 ? "0" + std::to_string(i) : std::to_string(i);
+
 		//コンバットアニメーションのjsonオブジェクトにアニメーションイベントを追加
-		animationEventsJson["AnimationEvent" + std::to_string(i)] = eventJson;
+		animationEventsJson["AnimationEvent" + id] = eventJson;
 	}
 }
 

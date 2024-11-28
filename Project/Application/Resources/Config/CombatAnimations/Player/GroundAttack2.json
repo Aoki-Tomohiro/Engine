@@ -2,7 +2,7 @@
     "Player": {
         "GroundAttack2": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 0.6000000238418579,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
@@ -17,7 +17,7 @@
                         30.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.0,
                     "EventType": "Attack",
@@ -46,13 +46,7 @@
                     "ReactionType": "Flinch",
                     "StartEventTime": 0.6000000238418579
                 },
-                "AnimationEvent10": {
-                    "BufferedActionType": "Attack",
-                    "EndEventTime": 1.7000000476837158,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "CameraShakeDuration": 0.10000000149011612,
                     "CameraShakeIntensity": [
                         0.0,
@@ -68,45 +62,69 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 0.6000000238418579
                 },
-                "AnimationEvent3": {
-                    "CancelType": "Dodge",
-                    "EndEventTime": 1.7000000476837158,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.0
-                },
-                "AnimationEvent4": {
+                "AnimationEvent03": {
                     "CancelType": "Ability",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.0
+                    "StartEventTime": 0.6000000238418579
                 },
-                "AnimationEvent5": {
-                    "CancelType": "Magic",
+                "AnimationEvent04": {
+                    "CancelType": "Dash",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent6": {
+                "AnimationEvent05": {
                     "CancelType": "ChargeMagic",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent7": {
-                    "BufferedActionType": "Ability",
+                "AnimationEvent06": {
+                    "CancelType": "Magic",
                     "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent07": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent08": {
+                    "CancelType": "Dodge",
+                    "EndEventTime": 1.7000000476837158,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.0
+                },
+                "AnimationEvent09": {
+                    "BufferedActionType": "Attack",
+                    "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent8": {
+                "AnimationEvent10": {
                     "BufferedActionType": "Magic",
-                    "EndEventTime": 1.7000000476837158,
+                    "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent9": {
+                "AnimationEvent11": {
                     "BufferedActionType": "ChargeMagic",
-                    "EndEventTime": 1.7000000476837158,
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent12": {
+                    "BufferedActionType": "Dash",
+                    "EndEventTime": 1.0,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent13": {
+                    "BufferedActionType": "Ability",
+                    "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 }

@@ -2,7 +2,7 @@
     "Player": {
         "AerialAttack3": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
@@ -17,7 +17,7 @@
                         50.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "Damage": 1.0,
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "Attack",
@@ -46,13 +46,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent10": {
-                    "BufferedActionType": "FallingAttack",
-                    "EndEventTime": 1.2799999713897705,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "CameraShakeDuration": 0.14000000059604645,
                     "CameraShakeIntensity": [
                         0.0,
@@ -68,44 +62,50 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent3": {
-                    "CancelType": "Ability",
-                    "EndEventTime": 2.5329999923706055,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
-                },
-                "AnimationEvent4": {
-                    "CancelType": "Magic",
-                    "EndEventTime": 2.5329999923706055,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
-                },
-                "AnimationEvent5": {
-                    "CancelType": "ChargeMagic",
-                    "EndEventTime": 2.5329999923706055,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
-                },
-                "AnimationEvent6": {
+                "AnimationEvent03": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
                     "StartEventTime": 1.2799999713897705
                 },
-                "AnimationEvent7": {
-                    "BufferedActionType": "Ability",
-                    "EndEventTime": 1.2799999713897705,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
+                "AnimationEvent04": {
+                    "CancelType": "Ability",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent8": {
+                "AnimationEvent05": {
+                    "CancelType": "ChargeMagic",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent06": {
+                    "CancelType": "Magic",
+                    "EndEventTime": 2.5329999923706055,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.2799999713897705
+                },
+                "AnimationEvent07": {
                     "BufferedActionType": "Magic",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent9": {
+                "AnimationEvent08": {
                     "BufferedActionType": "ChargeMagic",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent09": {
+                    "BufferedActionType": "Ability",
+                    "EndEventTime": 1.2799999713897705,
+                    "EventType": "BufferedAction",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent10": {
+                    "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0

@@ -2,7 +2,7 @@
     "Player": {
         "Casting": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "Damage": 0.4000000059604645,
                     "EndEventTime": 0.3199999928474426,
                     "EventType": "Attack",

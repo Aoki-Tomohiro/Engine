@@ -2,7 +2,7 @@
     "Player": {
         "LaunchAttack": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "Damage": 1.2000000476837158,
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Attack",
@@ -31,7 +31,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",
@@ -60,7 +60,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 1.100000023841858
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "CameraShakeDuration": 0.10000000149011612,
                     "CameraShakeIntensity": [
                         0.0,
@@ -76,7 +76,7 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "CameraShakeDuration": 0.10000000149011612,
                     "CameraShakeIntensity": [
                         0.0,
@@ -92,7 +92,7 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 1.100000023841858
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "CameraShakeDuration": 0.0,
                     "CameraShakeIntensity": [
                         0.0,
@@ -108,7 +108,7 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 1.100000023841858
                 },
-                "AnimationEvent5": {
+                "AnimationEvent05": {
                     "AnimationName": "LaunchAttack",
                     "AnimationSpeed": 2.0,
                     "EndEventTime": 1.100000023841858,
@@ -117,17 +117,17 @@
                     "StartEventTime": 0.0,
                     "SyncWithCharacterAnimation": true
                 },
-                "AnimationEvent6": {
+                "AnimationEvent06": {
                     "CancelType": "Attack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 1.600000023841858
                 },
-                "AnimationEvent7": {
+                "AnimationEvent07": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 1.600000023841858,
                     "EventType": "BufferedAction",
-                    "StartEventTime": 0.10000000149011612
+                    "StartEventTime": 0.0
                 }
             },
             "AnimationSpeedConfigs": {

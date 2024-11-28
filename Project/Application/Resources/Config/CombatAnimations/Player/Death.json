@@ -2,7 +2,7 @@
     "Player": {
         "Death": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "AnimationName": "GameOver",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 2.3329999446868896,

@@ -16,6 +16,12 @@ void ICharacterState::SetAnimationControllerAndPlayAnimation(const std::string& 
 	//アニメーション速度設定のインデックスをリセット
 	speedConfigIndex_ = -1;
 
+	//武器のトレイルをなくす
+	character_->GetWeapon()->SetIsTrailActive(false);
+
+	//武器の判定をなくす
+	character_->GetWeapon()->SetIsAttack(false);
+
 	//各パラメーターを初期化
 	InitializeProcessedData();
 }
@@ -93,22 +99,43 @@ bool ICharacterState::HasStateTransitioned(const std::string& actionName) const
 	return false;
 }
 
-bool ICharacterState::CheckAndTransitionBufferedAction()
+bool ICharacterState::CheckAndTransitionBufferedAction(const std::string& actionName)
 {
+	//次の状態の名前
+	std::string nextStateName{};
+
+	//先行入力のインデックス
+	int32_t actionIndex = 0;
+
 	//先行入力があるかを確認
-	for (ProcessedBufferedActionData& bufferedActionData : processedBufferedActionDatas_)
+	for (int32_t i = 0; i < processedBufferedActionDatas_.size(); ++i)
 	{
 		//先行入力がない場合は飛ばす
-		if (bufferedActionData.bufferedActionName.empty()) continue;
+		if (processedBufferedActionDatas_[i].bufferedActionName.empty()) continue;
 
-		//フラグを立てて状態遷移させる
-		if (character_->ChangeState(bufferedActionData.bufferedActionName))
+		//名前の指定があった場合
+		if (!actionName.empty())
 		{
-			//状態遷移が行われた
-			bufferedActionData.isTransitioned = true;
-			return true;
+			//一致する名前の先行入力でなければ飛ばす
+			if (processedBufferedActionDatas_[i].bufferedActionName != actionName) continue;
 		}
+
+		//先行入力が存在していた場合は次の状態に設定
+		nextStateName = processedBufferedActionDatas_[i].bufferedActionName;
+
+		//インデックスを保存
+		actionIndex = i;
 	}
+
+	//先行入力が存在していて入力されていたらフラグを立てて状態遷移させる
+	if (!nextStateName.empty() && character_->ChangeState(nextStateName))
+	{
+		//状態遷移が行われた
+		processedBufferedActionDatas_[actionIndex].isTransitioned = true;
+		return true;
+	}
+
+	//遷移が行われていなければfalseを返す
 	return false;
 }
 
@@ -162,6 +189,8 @@ void ICharacterState::InitializeCancelEvent(const CancelEvent* cancelEvent, cons
 	processedCancelDatas_[animationEventIndex].isActive = true;
 	//キャンセルアクションの名前を設定
 	processedCancelDatas_[animationEventIndex].cancelActionName = cancelEvent->cancelType;
+	//先行入力がないかどうかを調べる
+	processedCancelDatas_[animationEventIndex].isCanceled = CheckAndTransitionBufferedAction(processedCancelDatas_[animationEventIndex].cancelActionName);
 }
 
 void ICharacterState::InitializeBufferedActionEvent(const int32_t animationEventIndex)
@@ -436,9 +465,6 @@ void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const i
 		InitializeCancelEvent(cancelEvent, animationEventIndex);
 	}
 
-	//先行入力があった場合その状態に遷移
-	CheckAndTransitionBufferedAction();
-
 	//キャンセルアクションを処理
 	HandleCancelAction(cancelEvent, animationEventIndex);
 }
@@ -478,8 +504,8 @@ void ICharacterState::ProcessBufferedActionEvent(const BufferedActionEvent* buff
 
 void ICharacterState::HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
 {
-	//全ての先行入力が一度も設定されていない場合かつ、キャンセルアクションのボタンが押された場合に先行入力を設定する
-	if (std::all_of(processedBufferedActionDatas_.begin(), processedBufferedActionDatas_.end(), [](const auto& data) { return !data.isBufferedInputActive; }) && character_->GetActionCondition(bufferedActionEvent->bufferedActionType))
+	//先行入力が一度も設定されていない場合かつ、キャンセルアクションのボタンが押された場合に先行入力を設定する
+	if (!processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive && character_->GetActionCondition(bufferedActionEvent->bufferedActionType))
 	{
 		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
 		processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive = true;

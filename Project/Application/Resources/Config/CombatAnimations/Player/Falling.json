@@ -2,7 +2,7 @@
     "Player": {
         "Falling": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
@@ -17,13 +17,13 @@
                         0.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "CancelType": "Move",
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Cancel",
                     "StartEventTime": 0.3199999928474426
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 0.4000000059604645,
                     "EventType": "Cancel",

@@ -2,7 +2,7 @@
     "Player": {
         "DodgeBackward": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 0.9300000071525574,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,

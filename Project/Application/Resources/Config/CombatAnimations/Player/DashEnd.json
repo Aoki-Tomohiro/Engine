@@ -2,7 +2,7 @@
     "Player": {
         "DashEnd": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "CancelType": "Attack",
                     "EndEventTime": 0.9330000281333923,
                     "EventType": "Cancel",

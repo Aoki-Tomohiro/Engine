@@ -129,8 +129,9 @@ protected:
 	/// <summary>
 	/// 先行入力があるか確認し、状態を遷移させる
 	/// </summary>
+	/// <param name="actionName">確認するアクションの名前</param>
 	/// <returns>状態遷移したかどうか</returns>
-	bool CheckAndTransitionBufferedAction();
+	bool CheckAndTransitionBufferedAction(const std::string& actionName = "");
 
 	//イベント初期化関連メソッド群
 	virtual void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) = 0;

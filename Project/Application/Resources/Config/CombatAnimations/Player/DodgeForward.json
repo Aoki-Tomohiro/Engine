@@ -2,7 +2,7 @@
     "Player": {
         "DodgeForward": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 1.1200000047683716,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
@@ -17,7 +17,7 @@
                         30.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "CancelType": "Move",
                     "EndEventTime": 1.6670000553131104,
                     "EventType": "Cancel",

@@ -2,7 +2,7 @@
     "Player": {
         "DashStart": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 0.06700000166893005,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
@@ -17,7 +17,7 @@
                         80.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "CameraShakeDuration": 0.0,
                     "CameraShakeIntensity": [
                         0.0,
@@ -33,7 +33,7 @@
                     "SoundEffectType": "Dash",
                     "StartEventTime": 0.029999999329447746
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "AnimationName": "Dash",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 0.06700000166893005,
@@ -42,7 +42,7 @@
                     "StartEventTime": 0.029999999329447746,
                     "SyncWithCharacterAnimation": true
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 0.06700000166893005,
                     "EventType": "BufferedAction",
@@ -56,8 +56,8 @@
                 }
             },
             "InPlaceAxis": [
-                1.0,
-                1.0,
+                0.0,
+                0.0,
                 1.0
             ]
         }

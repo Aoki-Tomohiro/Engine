@@ -2,7 +2,7 @@
     "Player": {
         "FallingAttack": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 1.7999999523162842,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
@@ -17,7 +17,22 @@
                         0.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
+                    "EndEventTime": 1.7999999523162842,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": true,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 1.600000023841858,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        100.0
+                    ]
+                },
+                "AnimationEvent02": {
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.7999999523162842,
                     "EventType": "Attack",
@@ -46,7 +61,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 1.600000023841858
                 },
-                "AnimationEvent2": {
+                "AnimationEvent03": {
                     "Damage": 1.2000000476837158,
                     "EndEventTime": 1.899999976158142,
                     "EventType": "Attack",
@@ -75,7 +90,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 1.8200000524520874
                 },
-                "AnimationEvent3": {
+                "AnimationEvent04": {
                     "CameraShakeDuration": 0.30000001192092896,
                     "CameraShakeIntensity": [
                         0.0,
@@ -91,7 +106,7 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 1.7999999523162842
                 },
-                "AnimationEvent4": {
+                "AnimationEvent05": {
                     "CameraShakeDuration": 0.0,
                     "CameraShakeIntensity": [
                         0.0,
@@ -107,7 +122,7 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 1.600000023841858
                 },
-                "AnimationEvent5": {
+                "AnimationEvent06": {
                     "CameraShakeDuration": 0.03999999910593033,
                     "CameraShakeIntensity": [
                         0.0,
@@ -123,7 +138,7 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 1.600000023841858
                 },
-                "AnimationEvent6": {
+                "AnimationEvent07": {
                     "AnimationName": "FallingAttack",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 3.700000047683716,
