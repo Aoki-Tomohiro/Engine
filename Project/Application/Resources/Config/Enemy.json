@@ -4,6 +4,11 @@
             0.0,
             0.4000000059604645,
             -0.20000000298023224
-        ]
+        ],
+        "DodgeStartTime": 4.0,
+        "MaxActionInterval": 6.0,
+        "MaxWaitTimeBeforeMovement": 1.0,
+        "MinActionInterval": 4.0,
+        "MinWaitTimeBeforeMovement": 2.0
     }
 }

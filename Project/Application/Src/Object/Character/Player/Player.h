@@ -114,7 +114,7 @@ public:
     //魔法攻撃用のパラメーター
     struct MagicAttackParameters
     {
-        float chargeTimeThreshold = 1.0f;   //溜め魔法のため時間
+        float chargeTimeThreshold = 0.8f;   //溜め魔法のため時間
         float cooldownTime = 0.6f;          //通常魔法のクールタイム
         float magicProjectileSpeed = 96.0f; //魔法の速度
     };
@@ -369,8 +369,8 @@ private:
     //ストンプ可能な距離
     const float kStompRange_ = 6.0f;
 
-    //右トリガーの入力閾値
-    const float kRightTriggerThreshold = 0.7f;
+    //トリガーの入力閾値
+    const float kTriggerThreshold = 0.7f;
 
     //各種パラメーター
     RootParameters rootParameters_{};

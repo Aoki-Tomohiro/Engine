@@ -9,6 +9,12 @@ void CharacterStateStun::Initialize()
 	//現在のリアクションタイプを取得
 	currentReactionType_ = character_->GetPosition().y == 0.0f ? character_->GetKnockbackParameters().reactionType : ReactionType::kKnockback;
 
+	//武器のトレイルをなくす
+	character_->GetWeapon()->SetIsTrailActive(false);
+	
+	//武器の判定をなくす
+	character_->GetWeapon()->SetIsAttack(false);
+
 	//アニメーションの再生とアニメーションコントローラーを取得
 	PlayReactionAnimation(currentReactionType_);
 }

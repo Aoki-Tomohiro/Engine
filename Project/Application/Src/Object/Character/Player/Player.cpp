@@ -52,7 +52,7 @@ void Player::Update()
 void Player::DrawUI()
 {
 	//右トリガーの値が閾値を超えているかをチェック
-	bool shouldDrawSkillUI = input_->GetRightTriggerValue() > kRightTriggerThreshold;
+	bool shouldDrawSkillUI = input_->GetLeftTriggerValue() > kTriggerThreshold;
 
 	//ボタン数だけループ
 	for (int32_t i = 0; i < kMaxButtons; ++i)
@@ -167,12 +167,14 @@ void Player::InitializeActionMap()
 	actionMap_ = {
 		{"None", [this]() {return true; }},
 		{"Move", [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }},
-		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}, 
+		{"Jump", [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }},
 		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
-		{"Dash", [this]() { return buttonStates_[Player::ButtonType::B].isTriggered; }},
-		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
-		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isReleased && GetActionFlag(Player::ActionFlag::kChargeMagicAttackEnabled) && input_->GetRightTriggerValue() <= kRightTriggerThreshold; }},
+		{"Dash", [this]() { return buttonStates_[Player::ButtonType::LB].isTriggered; }},
+		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
+		//{"Magic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }},
+		//{"ChargeMagic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }},
+		{"Magic", [this]() { return buttonStates_[Player::ButtonType::Y].isTriggered; }},
+		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::Y].isTriggered; }},
 		{"FallingAttack",[this]() {return CheckFallingAttack(); }},
 		{"Ability",[this]() {return CheckAndTriggerAbility(); }},
 	};
@@ -384,7 +386,7 @@ void Player::UpdateMagicAttack()
 	UpdateCooldownTimer();
 
 	//Yボタン押している場合
-	if (input_->IsPressButton(XINPUT_GAMEPAD_Y))
+	if (input_->GetLeftTriggerValue() > kTriggerThreshold)
 	{
 		HandleMagicCharge();
 	}
@@ -514,14 +516,14 @@ bool Player::CheckFallingAttack()
 bool Player::CheckAndTriggerAbility()
 {
 	//アビリティ1の条件を確認
-	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::X))
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].first, Player::ButtonType::RT))
 	{
 		SetActionFlag(ActionFlag::kAbility1Enabled, true);
 		return true;
 	}
 
 	//アビリティ2の条件を確認
-	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::Y))
+	if (IsAbilityAvailable(skillPairSets_[activeSkillSetIndex_].second, Player::ButtonType::X))
 	{
 		SetActionFlag(ActionFlag::kAbility2Enabled, true);
 		return true;
@@ -539,17 +541,21 @@ bool Player::IsAbilityAvailable(const SkillParameters& skill, const Player::Butt
 		return false; 
 	}
 
-	//ボタンが押されているかをチェック
-	if (!buttonStates_[button].isPressed) 
-	{ 
-		return false; 
+
+	if (button == Player::ButtonType::RT)
+	{
+		return input_->GetRightTriggerValue() > kTriggerThreshold;
+	}
+	else
+	{
+		return input_->GetLeftTriggerValue() > kTriggerThreshold;
 	}
 
-	//右トリガーが適切な値であるかをチェック
-	if (input_->GetRightTriggerValue() <= kRightTriggerThreshold)
-	{ 
-		return false;
-	}
+	////ボタンが押されているかをチェック
+	//if (!buttonStates_[button].isPressed) 
+	//{ 
+	//	return false; 
+	//}
 
 	//地面でのみ使用可能なスキルの場合、空中であれば使用できない
 	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f)

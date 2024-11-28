@@ -32,6 +32,8 @@ void PlayerStateDash::OnCollision(GameObject* other)
 {
 	//衝突処理
 	character_->ProcessCollisionImpact(other, true);
+	//ダッシュ終了処理
+	FinalizeDash();
 }
 
 void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
@@ -69,4 +71,6 @@ void PlayerStateDash::FinalizeDash()
 	character_->SetIsVisible(true);
 	//武器を表示
 	character_->GetWeapon()->SetIsVisible(true);
+	//ポストエフェクトを無効化する
+	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
 }

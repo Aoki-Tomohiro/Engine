@@ -12,6 +12,9 @@ void Enemy::Initialize()
 
 	//状態の初期化
 	ChangeState("Idle");
+
+	//デバッグのフラグを立てる
+	isDebug_ = true;
 }
 
 void Enemy::Update()
@@ -176,4 +179,31 @@ void Enemy::UpdateAttackTimer()
 	{
 		actionFlags_[ActionFlag::kCanAttack] = true;
 	}
+}
+
+void Enemy::InitializeGlobalVariables()
+{
+	//基底クラスの呼び出し
+	BaseCharacter::InitializeGlobalVariables();
+	//環境変数のインスタンスを取得
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	globalVariables->CreateGroup(name_);
+	globalVariables->AddItem(name_, "DodgeStartTime", rootParameters_.dodgeStartTime);
+	globalVariables->AddItem(name_, "MinActionInterval", rootParameters_.minActionInterval);
+	globalVariables->AddItem(name_, "MaxActionInterval", rootParameters_.maxActionInterval);
+	globalVariables->AddItem(name_, "MinWaitTimeBeforeMovement", rootParameters_.minWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "MaxWaitTimeBeforeMovement", rootParameters_.maxWaitTimeBeforeMovement);
+}
+
+void Enemy::ApplyGlobalVariables()
+{
+	//基底クラスの呼び出し
+	BaseCharacter::ApplyGlobalVariables();
+	//環境変数のインスタンスを取得
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	rootParameters_.dodgeStartTime = globalVariables->GetFloatValue(name_, "DodgeStartTime");
+	rootParameters_.minActionInterval = globalVariables->GetFloatValue(name_, "MinActionInterval");
+	rootParameters_.maxActionInterval = globalVariables->GetFloatValue(name_, "MaxActionInterval");
+	rootParameters_.minWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "MinWaitTimeBeforeMovement");
+	rootParameters_.maxWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "MaxWaitTimeBeforeMovement");
 }

@@ -129,6 +129,16 @@ private:
 	/// </summary>
 	void UpdateAttackTimer();
 
+	/// <summary>
+	/// 環境変数の初期化
+	/// </summary>
+	void InitializeGlobalVariables() override;
+
+	/// <summary>
+	/// 環境変数の適用
+	/// </summary>
+	void ApplyGlobalVariables() override;
+
 private:
 	//現在の攻撃間隔
 	float attackInterval_ = 0.0f;
