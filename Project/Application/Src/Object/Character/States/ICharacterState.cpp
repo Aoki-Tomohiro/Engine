@@ -307,9 +307,10 @@ void ICharacterState::ProcessVelocityMovementEvent(const VelocityMovementEvent* 
 		InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
 	}
 
-	//敵と近距離で速度をゼロに設定
+	//敵と接近した場合
 	if (velocityMovementEvent->isProximityStopEnabled && IsOpponentInProximity())
 	{
+		//速度をゼロに設定
 		processedVelocityDatas_[animationEventIndex].velocity = { 0.0f, 0.0f, 0.0f };
 	}
 

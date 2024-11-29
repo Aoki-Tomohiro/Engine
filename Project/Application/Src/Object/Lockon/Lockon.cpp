@@ -46,8 +46,21 @@ const Vector3 Lockon::GetTargetPosition() const
 
 void Lockon::UpdateTargeting()
 {
-	//ターゲットを設定
-	target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetComponent<TransformComponent>();
+	//LBを押したとき
+	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_LEFT_THUMB))
+	{
+		//ターゲットがいる場合
+		if (target_)
+		{
+			//ターゲットを解除
+			target_ = nullptr;
+		}
+		else
+		{
+			//ターゲットを設定
+			target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetComponent<TransformComponent>();
+		}
+	}
 }
 
 const Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const Camera* camera) const

@@ -1,6 +1,8 @@
 {
     "SpinAttack": {
+        "InterpolationSpeedGraduallyEasingType": "EaseOut",
         "KeyFrame0": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
@@ -16,126 +18,135 @@
             "Time": 0.0
         },
         "KeyFrame1": {
+            "EasingType": "Linear",
             "Fov": 50.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20000000298023224,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.9797959327697754
             ],
             "Time": 0.10000000149011612
         },
         "KeyFrame2": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 0.20000000298023224
         },
         "KeyFrame3": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 0.6000000238418579
         },
         "KeyFrame4": {
+            "EasingType": "Linear",
             "Fov": 50.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 0.699999988079071
         },
         "KeyFrame5": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 0.800000011920929
         },
         "KeyFrame6": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 1.0
         },
         "KeyFrame7": {
+            "EasingType": "Linear",
             "Fov": 50.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20021110773086548,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.979752779006958
             ],
             "Time": 1.100000023841858
         },
         "KeyFrame8": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
                 1.0,
-                -10.0
+                -12.0
             ],
             "Rotation": [
+                -0.20000000298023224,
                 0.0,
                 0.0,
-                0.0,
-                1.0
+                0.9797959327697754
             ],
             "Time": 1.2000000476837158
         },
         "KeyFrame9": {
+            "EasingType": "Linear",
             "Fov": 45.0,
             "Position": [
                 0.0,
@@ -149,6 +160,7 @@
                 1.0
             ],
             "Time": 1.399999976158142
-        }
+        },
+        "ResetInterpolationSpeedGraduallyTime": 1.0
     }
 }

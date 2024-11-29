@@ -32,6 +32,13 @@ protected:
 	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param> 
 	void InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex) override;
 
+	/// <summary>
+	/// 攻撃イベントの初期化
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex) override;
+
 private:
 	/// <summary>
 	/// デフォルトの状態遷移処理

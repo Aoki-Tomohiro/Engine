@@ -28,7 +28,7 @@ public:
 	const std::map<std::string, CameraPath>& GetCameraPaths() const { return cameraPaths_; };
 
 	//現在のキーフレームを取得
-	const CameraKeyFrame& GetNewKeyFrame() const { return newKeyFrame_; };
+	const CameraPath::CameraKeyFrame& GetNewKeyFrame() const { return newKeyFrame_; };
 
 	//デバッグのフラグを取得
 	const bool GetIsDebug() const { return isDebug_; };
@@ -103,7 +103,7 @@ private:
 	std::map<std::string, CameraPath> cameraPaths_{};
 
 	//新しいカメラパス
-	CameraKeyFrame newKeyFrame_{};
+	CameraPath::CameraKeyFrame newKeyFrame_{};
 
 	//デバッグ中かどうか
 	bool isDebug_ = false;

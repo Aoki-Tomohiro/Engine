@@ -35,8 +35,18 @@ private:
 	/// </summary>
 	void SetRandomAttack();
 
+	/// <summary>
+	/// 攻撃イベントの実行
+	/// </summary>
+	/// <param name="attackEvent">攻撃イベント</param>
+	/// <param name="animationEventIndex">アニメーションイベントのインデックス</param>
+	void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex) override;
+
 protected:
 	//アニメーションの名前
 	std::string animationName_{};
+
+	//ジャスト回避タイマー
+	float justDodgeTimer_ = 0.0f;
 };
 

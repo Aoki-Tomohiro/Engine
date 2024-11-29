@@ -1,5 +1,5 @@
 {
-    "Dash": {
+    "GroundAttack4": {
         "InterpolationSpeedGraduallyEasingType": "EaseOut",
         "KeyFrame0": {
             "EasingType": "Linear",
@@ -19,52 +19,36 @@
         },
         "KeyFrame1": {
             "EasingType": "Linear",
-            "Fov": 70.0,
+            "Fov": 60.0,
             "Position": [
+                2.0,
                 0.0,
-                1.0,
-                -20.0
+                -6.0
             ],
             "Rotation": [
                 0.0,
+                -0.23000000417232513,
                 0.0,
-                0.0,
-                1.0
+                0.9731906652450562
             ],
-            "Time": 0.04600000008940697
+            "Time": 0.009999999776482582
         },
         "KeyFrame2": {
             "EasingType": "Linear",
-            "Fov": 70.0,
+            "Fov": 60.0,
             "Position": [
+                2.0,
                 0.0,
-                1.0,
-                -20.0
+                -6.0
             ],
             "Rotation": [
                 0.0,
+                -0.22969494760036469,
                 0.0,
-                0.0,
-                1.0
+                0.9732626676559448
             ],
-            "Time": 0.05999999865889549
+            "Time": 1.7999999523162842
         },
-        "KeyFrame3": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.06599999964237213
-        },
-        "ResetInterpolationSpeedGraduallyTime": 1.0
+        "ResetInterpolationSpeedGraduallyTime": 0.6000000238418579
     }
 }

@@ -59,3 +59,18 @@ void EnemyStateAttack::SetRandomAttack()
         break;
     }
 }
+
+void EnemyStateAttack::ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
+{
+    //基底クラスの呼び出し
+    ICharacterState::ProcessAttackEvent(attackEvent, animationEventIndex);
+
+    //ジャスト回避可能の時間を進める
+    justDodgeTimer_ += GameTimer::GetDeltaTime();
+
+    //ジャスト回避の時間が一定値を超えていたらジャスト回避受付終了
+    if (justDodgeTimer_ > GetEnemy()->GetAttackParameters().justDodgeTime)
+    {
+        GetEnemy()->SetActionFlag(Enemy::ActionFlag::kIsAttacking, false);
+    }
+}

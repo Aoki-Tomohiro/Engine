@@ -5,10 +5,20 @@
             0.4000000059604645,
             -0.20000000298023224
         ],
-        "DodgeStartTime": 4.0,
-        "MaxActionInterval": 6.0,
-        "MaxWaitTimeBeforeMovement": 2.0,
-        "MinActionInterval": 4.0,
-        "MinWaitTimeBeforeMovement": 1.0
+        "EasyDodgeStartTime": 4.0,
+        "EasyMaxActionInterval": 6.0,
+        "EasyMaxWaitTimeBeforeMovement": 2.0,
+        "EasyMinActionInterval": 4.0,
+        "EasyMinWaitTimeBeforeMovement": 1.0,
+        "HardDodgeStartTime": 0.6000000238418579,
+        "HardMaxActionInterval": 2.0,
+        "HardMaxWaitTimeBeforeMovement": 2.0,
+        "HardMinActionInterval": 1.399999976158142,
+        "HardMinWaitTimeBeforeMovement": 1.0,
+        "NormalDodgeStartTime": 2.0,
+        "NormalMaxActionInterval": 4.0,
+        "NormalMaxWaitTimeBeforeMovement": 2.0,
+        "NormalMinActionInterval": 2.0,
+        "NormalMinWaitTimeBeforeMovement": 1.0
     }
 }

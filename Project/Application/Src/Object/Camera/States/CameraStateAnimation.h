@@ -38,7 +38,7 @@ private:
 	/// カメラのトランスフォームの更新
 	/// </summary>
 	/// <param name="keyFrame">キーフレーム</param>
-	void UpdateCameraTransform(const CameraKeyFrame& keyFrame);
+	void UpdateCameraTransform(const CameraPath::CameraKeyFrame& keyFrame);
 
 private:
 	//カメラパス

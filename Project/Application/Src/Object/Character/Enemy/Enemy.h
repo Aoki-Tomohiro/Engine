@@ -8,6 +8,15 @@
 class Enemy : public BaseCharacter
 {
 public:
+	//レベル
+	enum Level
+	{
+		Easy,
+		Normal,
+		Hard,
+		Count
+	};
+
 	//攻撃カテゴリ
 	enum class AttackCategory
 	{
@@ -36,8 +45,9 @@ public:
 	//アクションフラグ
 	enum class ActionFlag
 	{
-		kCanAttack, //攻撃できる状態かどうか
-		kCanDodge,  //回避できる状態かどうか
+		kCanAttack,   //攻撃できる状態かどうか
+		kCanDodge,    //回避できる状態かどうか
+		kIsAttacking, //攻撃したかどうか
 	};
 
 	//通常状態のパラメーター
@@ -51,6 +61,12 @@ public:
 		float closeRangeAttackDistance = 6.0f;  //近接攻撃する距離
 		float approachDistance = 10.0f;         //前進する距離
 		float rangedAttackDistance = 14.0f;     //遠距離攻撃する距離
+	};
+
+	//攻撃状態のパラメーター
+	struct AttackParameters
+	{
+		float justDodgeTime = 0.2f;
 	};
 
 	/// <summary>
@@ -97,11 +113,16 @@ public:
 	const AttackType& GetPreviousAttack() const { return previousCloseRangeAttack_; };
 	void SetPreviousAttack(const AttackType& previousCloseRangeAttack) { previousCloseRangeAttack_ = previousCloseRangeAttack; };
 
+	//難易度の取得・設定
+	const Level GetLevel() const { return currentLevel_; };
+	void SetLevel(const Enemy::Level level) { currentLevel_ = level; };
+
 	//プレイヤーとの距離を取得
 	const float GetDistanceToPlayer() const { return distanceToPlayer_; };
 
 	//各パラメータの取得
-	const RootParameters& GetRootParameters() const { return rootParameters_; };
+	const RootParameters& GetRootParameters() const { return rootParameters_[currentLevel_]; };
+	const AttackParameters& GetAttackParameters() const { return attackParameters_[currentLevel_]; };
 
 private:
 	/// <summary>
@@ -114,10 +135,10 @@ private:
 	/// </summary>
 	void InitializeAudio() override;
 
-    /// <summary>
-    /// アニメーターの初期化
-    /// </summary>
-    void InitializeAnimator() override;
+	/// <summary>
+	/// アニメーターの初期化
+	/// </summary>
+	void InitializeAnimator() override;
 
 	/// <summary>
 	/// UIのスプライトの初期化
@@ -140,6 +161,9 @@ private:
 	void ApplyGlobalVariables() override;
 
 private:
+	//現在のレベル
+	static Level currentLevel_;
+
 	//現在の攻撃間隔
 	float attackInterval_ = 0.0f;
 
@@ -156,6 +180,13 @@ private:
 	std::unordered_map<ActionFlag, bool> actionFlags_{};
 
 	//各種パラメーター
-	RootParameters rootParameters_{};
+	std::array<RootParameters, Level::Count> rootParameters_ = { {
+		{4.0f, 4.0f, 6.0f, 1.0f, 2.0f, 6.0f, 10.0f, 14.0f },
+		{2.0f, 2.0f, 4.0f, 1.0f, 2.0f, 6.0f, 10.0f, 14.0f },
+		{0.6f, 1.4f, 2.0f, 1.0f, 2.0f, 6.0f, 10.0f, 14.0f },}
+	};
+	std::array<AttackParameters, Level::Count> attackParameters_ = { {
+		{ 0.3f }, { 0.2f }, { 0.1f } }
+	};
 };
 

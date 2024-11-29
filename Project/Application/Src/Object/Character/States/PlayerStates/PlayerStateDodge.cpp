@@ -1,5 +1,7 @@
 #include "PlayerStateDodge.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/Character/Enemy/Enemy.h"
 
 void PlayerStateDodge::Initialize()
 {
@@ -46,6 +48,12 @@ void PlayerStateDodge::Update()
 
 void PlayerStateDodge::ConfigureDodgeAnimationAndEvents(const float inputLength)
 {
+	//敵がジャスト回避受け付け中の場合
+	if (GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetActionFlag(Enemy::ActionFlag::kIsAttacking))
+	{
+
+	}
+
 	//プレイヤーを取得
 	Player* player = GetPlayer();
 

@@ -38,9 +38,9 @@ void GameTitleScene::Initialize()
 	player->SetIsInTitleScene(true);
 
 	//敵を取得
-	Enemy* enemy = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
 	//タイトルシーンのフラグを設定
-	enemy->SetIsInTitleScene(true);
+	enemy_->SetIsInTitleScene(true);
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -77,6 +77,20 @@ void GameTitleScene::Update()
 
 	//入力に基づいてフェードインをトリガーしフェードインが完了したらシーンを遷移させる
 	TriggerFadeInAndChangeScene();
+
+	//ImGui開始
+	ImGui::Begin("GameTitleScene");
+	//現在の敵のレベルを取得
+	int currentLevel = enemy_->GetLevel();
+	//敵のレベル一覧
+	const char* ENEMY_LEVEL[] = {"Easy", "Normal", "Hard"};
+	//列挙体を選択
+	if (ImGui::Combo("EnemyLevel", &currentLevel, ENEMY_LEVEL, IM_ARRAYSIZE(ENEMY_LEVEL)))
+	{
+		enemy_->SetLevel(static_cast<Enemy::Level>(currentLevel));
+	}
+	//ImGui終了
+	ImGui::End();
 }
 
 void GameTitleScene::Draw()

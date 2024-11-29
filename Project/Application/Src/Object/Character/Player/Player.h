@@ -316,7 +316,7 @@ private:
 
     //スキルのパラメーター
     const std::array<std::pair<SkillParameters, SkillParameters>, kMaxSkillCount / 2> skillPairSets_ = { {
-        {SkillParameters{"LaunchAttack", 6.0f, true}, SkillParameters{"SpinAttack", 4.0f, false}}}
+        {SkillParameters{"LaunchAttack", 2.0f, true}, SkillParameters{"SpinAttack", 1.0f, false}}}
     };
 
     //現在選択中のスキルセット

@@ -22,7 +22,7 @@ void CameraStateAnimation::Update()
 	UpdateAnimationTime();
 
 	//現在のアニメーション時間に基づいてカメラのキーフレームを取得
-	CameraKeyFrame cameraKeyFrame = cameraPath_.GetInterpolatedKeyFrame(animationTime_);
+	CameraPath::CameraKeyFrame cameraKeyFrame = cameraPath_.GetInterpolatedKeyFrame(animationTime_);
 
 	//キーフレームに基づいてカメラの位置と回転を更新
 	UpdateCameraTransform(cameraKeyFrame);
@@ -30,6 +30,9 @@ void CameraStateAnimation::Update()
 	//アニメーションが終了している場合、次の状態へ遷移
 	if (animationTime_ >= cameraPath_.GetDuration())
 	{
+		//カメラを通常状態に戻す
+		cameraController_->Reset(cameraPath_.GetInterpolationSpeedGraduallyEasingType(), cameraPath_.GetResetInterpolationSpeedGraduallyTime());
+
 		//デバッグのフラグが立っていた場合はデバッグ状態に遷移
 		if (cameraController_->GetCameraAnimationEditor()->GetIsDebug())
 		{
@@ -65,7 +68,7 @@ void CameraStateAnimation::UpdateAnimationTime()
 	animationTime_ = std::min<float>(animationTime_, cameraPath_.GetDuration());
 }
 
-void CameraStateAnimation::UpdateCameraTransform(const CameraKeyFrame& keyFrame)
+void CameraStateAnimation::UpdateCameraTransform(const CameraPath::CameraKeyFrame& keyFrame)
 {
 	//キーフレームの情報を基にカメラの位置オフセットを設定
 	cameraController_->SetOffset(keyFrame.position);

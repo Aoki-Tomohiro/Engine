@@ -35,76 +35,85 @@
                     "KnockbackAcceleration": [
                         0.0,
                         0.0,
-                        -30.0
+                        -50.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
                         -50.0,
-                        30.0
+                        50.0
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent02": {
-                    "CameraShakeDuration": 0.14000000059604645,
+                    "CameraShakeDuration": 0.30000001192092896,
                     "CameraShakeIntensity": [
                         0.0,
-                        1.399999976158142,
+                        2.0,
                         0.0
                     ],
                     "EndEventTime": 1.2799999713897705,
                     "EventTrigger": "Impact",
                     "EventType": "Effect",
-                    "HitStopDuration": 0.14000000059604645,
+                    "HitStopDuration": 0.4000000059604645,
                     "ParticleEffectName": "Hit",
                     "PostEffectType": "None",
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent03": {
+                    "AnimationName": "AerialAttack3",
+                    "AnimationSpeed": 1.0,
+                    "EndEventTime": 1.2799999713897705,
+                    "EventTrigger": "Impact",
+                    "EventType": "CameraAnimation",
+                    "StartEventTime": 0.800000011920929,
+                    "SyncWithCharacterAnimation": true
+                },
+                "AnimationEvent04": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
                     "StartEventTime": 1.2799999713897705
                 },
-                "AnimationEvent04": {
+                "AnimationEvent05": {
                     "CancelType": "Ability",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
                     "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent05": {
+                "AnimationEvent06": {
                     "CancelType": "ChargeMagic",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
                     "StartEventTime": 1.2799999713897705
                 },
-                "AnimationEvent06": {
+                "AnimationEvent07": {
                     "CancelType": "Magic",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
                     "StartEventTime": 1.2799999713897705
                 },
-                "AnimationEvent07": {
+                "AnimationEvent08": {
                     "BufferedActionType": "Magic",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent08": {
+                "AnimationEvent09": {
                     "BufferedActionType": "ChargeMagic",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent09": {
+                "AnimationEvent10": {
                     "BufferedActionType": "Ability",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent10": {
+                "AnimationEvent11": {
                     "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.2799999713897705,
                     "EventType": "BufferedAction",

@@ -143,6 +143,22 @@ protected:
 	virtual void InitializeCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
 	virtual void InitializeBufferedActionEvent(const int32_t animationEventIndex);
 
+	//イベント処理関連メソッド群
+	virtual void ProcessAnimationEvents(const float currentAnimationTime);
+	virtual void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime, const int32_t animationEventIndex);
+	virtual void ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime, const int32_t animationEventIndex);
+	virtual void ProcessVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex);
+	virtual void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime, const int32_t animationEventIndex);
+	virtual void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
+	virtual void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
+	virtual void ProcessEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex);
+	virtual void ApplyEffect(const EffectEvent* effectEvent, const Vector3& emitterPosition);
+	virtual void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
+	virtual void ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
+	virtual void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
+	virtual void ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);
+	virtual void HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);
+
 private:
 	/// <summary>
 	/// アニメーションの時間を更新
@@ -159,22 +175,6 @@ private:
 	/// <param name="animationTime">アニメーションの時間</param>
 	/// <returns>イージング係数</returns>
 	const float GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const;
-
-	//イベント処理関連メソッド群
-	void ProcessAnimationEvents(const float currentAnimationTime);
-	void ProcessAnimationEvent(const AnimationEvent* animationEvent, const float animationTime, const int32_t animationEventIndex);
-	void ProcessMovementEvent(const MovementEvent* movementEvent, const float animationTime, const int32_t animationEventIndex);
-	void ProcessVelocityMovementEvent(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex);
-	void ProcessEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const float animationTime, const int32_t animationEventIndex);
-	void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
-	void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
-	void ProcessEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex);
-	void ApplyEffect(const EffectEvent* effectEvent, const Vector3& emitterPosition);
-	void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
-	void ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
-	void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
-	void ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);
-	void HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);
 
 	//データリセット関連メソッド群
 	void InitializeProcessedData();

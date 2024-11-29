@@ -69,6 +69,15 @@ void IEnemyState::InitializeEasingMovementEvent(const EasingMovementEvent* easin
 	}
 }
 
+void IEnemyState::InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
+{
+	//基底クラスの呼び出し
+	ICharacterState::InitializeAttackEvent(attackEvent, animationEventIndex);
+
+	//攻撃フラグを立てる
+	GetEnemy()->SetActionFlag(Enemy::ActionFlag::kIsAttacking, true);
+}
+
 void IEnemyState::HandleStateTransitionInternal()
 {
 	//遷移可能なアクション一覧

@@ -61,6 +61,14 @@ public:
 	/// <param name="duration">カメラシェイクの持続時間</param>
 	void StartCameraShake(const Vector3& intensity, const float duration);
 
+
+	/// <summary>
+	/// リセット
+	/// </summary>
+	/// <param name="easingType">イージングの種類</param>
+	/// <param name="resetInterpolationSpeedGraduallyTime">補間を戻す時間</param>
+	void Reset(const CameraPath::EasingType easingType, const float resetInterpolationSpeedGraduallyTime);
+
 	//カメラ座標を取得・設定
 	const Vector3& GetCameraPosition() const { return camera_.translation_; };
 	void SetCameraPosition(const Vector3& position) { camera_.translation_ = position; };
@@ -70,8 +78,8 @@ public:
 	void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
 	//追従対象からのオフセットを取得・設定
-	const Vector3& GetOffset() const { return offset_; };
-	void SetOffset(const Vector3& offset) { offset_ = offset; };
+	const Vector3& GetOffset() const { return destinationOffset_; };
+	void SetOffset(const Vector3& offset) { destinationOffset_ = offset; };
 
 	//Fovを取得・設定
 	const float GetFov() const { return camera_.fov_; };
@@ -149,6 +157,12 @@ private:
 	//追従対象からのオフセット
 	Vector3 offset_{};
 
+	//補間用のオフセット
+	Vector3 destinationOffset_{};
+
+	//オフセットの補間速度
+	float offsetInterpolationSpeed_ = 0.6f;
+
 	//追従対象の残像座標
 	Vector3 interTarget_{};
 
@@ -169,6 +183,21 @@ private:
 
 	//カメラアニメーションエディター
 	CameraAnimationEditor* cameraAnimationEditor_ = nullptr;
+
+	//リセットのフラグ
+	bool resetInterpolationSpeedGradually_ = false;
+
+	//タイマー
+	float resetInterpolationSpeedGraduallyTimer_ = 0.0f;
+
+	//補間速度を戻し終わる時間
+	float resetInterpolationSpeedGraduallyTime_ = 1.0f;
+
+	//現在のFov
+	float currentFov_ = 45.0f * 3.141592654f / 180.0f;
+
+	//補間速度を戻す際のイージングタイプ
+	CameraPath::EasingType easingType_ = CameraPath::EasingType::kLinear;
 
 	//各パラメーター
 	FollowCameraParameters followCameraParameters_{};

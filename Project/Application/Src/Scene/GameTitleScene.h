@@ -49,6 +49,9 @@ private:
 	//パーティクルマネージャー
 	ParticleManager* particleManager_ = nullptr;
 
+	//敵
+	Enemy* enemy_ = nullptr;
+
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
 

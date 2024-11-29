@@ -11,7 +11,7 @@ void CameraStateDebug::Update()
 	CameraAnimationEditor* cameraAnimationEditor = cameraController_->GetCameraAnimationEditor();
 
 	//現在のキーフレームを取得
-	const CameraKeyFrame& keyFrame = cameraAnimationEditor->GetNewKeyFrame();
+	const CameraPath::CameraKeyFrame& keyFrame = cameraAnimationEditor->GetNewKeyFrame();
 
 	//キーフレームの情報を基にカメラの位置オフセットを設定
 	cameraController_->SetOffset(keyFrame.position);

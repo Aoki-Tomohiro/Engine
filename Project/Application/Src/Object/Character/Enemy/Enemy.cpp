@@ -2,6 +2,8 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 
+Enemy::Level Enemy::currentLevel_ = Level::Easy;
+
 void Enemy::Initialize()
 {
 	//基底クラスの初期化
@@ -65,15 +67,15 @@ void Enemy::ResetAttackState()
 
 	//攻撃タイマーをリセットし、攻撃間隔をランダムで決める
 	elapsedAttackTime_ = 0.0f;
-	attackInterval_ = RandomGenerator::GetRandomFloat(rootParameters_.minActionInterval, rootParameters_.maxActionInterval);
+	attackInterval_ = RandomGenerator::GetRandomFloat(rootParameters_[currentLevel_].minActionInterval, rootParameters_[currentLevel_].maxActionInterval);
 }
 
 void Enemy::InitializeActionMap()
 {
 	//距離を比較するための共通関数を作成
-	auto withinCloseRangeAttackRange = [this]() { return distanceToPlayer_ <= rootParameters_.closeRangeAttackDistance; };
-	auto withinApproachRange = [this]() { return distanceToPlayer_ <= rootParameters_.approachDistance; };
-	auto withinRangedAttackRange = [this]() { return distanceToPlayer_ <= rootParameters_.rangedAttackDistance; };
+	auto withinCloseRangeAttackRange = [this]() { return distanceToPlayer_ <= rootParameters_[currentLevel_].closeRangeAttackDistance; };
+	auto withinApproachRange = [this]() { return distanceToPlayer_ <= rootParameters_[currentLevel_].approachDistance; };
+	auto withinRangedAttackRange = [this]() { return distanceToPlayer_ <= rootParameters_[currentLevel_].rangedAttackDistance; };
 
 	//アクションマップの初期化
 	actionMap_ = {
@@ -166,7 +168,7 @@ void Enemy::UpdateAttackTimer()
 	elapsedAttackTime_ += GameTimer::GetDeltaTime() * timeScale_;
 
 	//回避可能な時間に達した場合、回避フラグを立てる
-	if (elapsedAttackTime_ > rootParameters_.dodgeStartTime)
+	if (elapsedAttackTime_ > rootParameters_[currentLevel_].dodgeStartTime)
 	{
 		actionFlags_[ActionFlag::kCanDodge] = true;
 	}
@@ -185,11 +187,21 @@ void Enemy::InitializeGlobalVariables()
 	//環境変数のインスタンスを取得
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	globalVariables->CreateGroup(name_);
-	globalVariables->AddItem(name_, "DodgeStartTime", rootParameters_.dodgeStartTime);
-	globalVariables->AddItem(name_, "MinActionInterval", rootParameters_.minActionInterval);
-	globalVariables->AddItem(name_, "MaxActionInterval", rootParameters_.maxActionInterval);
-	globalVariables->AddItem(name_, "MinWaitTimeBeforeMovement", rootParameters_.minWaitTimeBeforeMovement);
-	globalVariables->AddItem(name_, "MaxWaitTimeBeforeMovement", rootParameters_.maxWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "EasyDodgeStartTime", rootParameters_[Easy].dodgeStartTime);
+	globalVariables->AddItem(name_, "EasyMinActionInterval", rootParameters_[Easy].minActionInterval);
+	globalVariables->AddItem(name_, "EasyMaxActionInterval", rootParameters_[Easy].maxActionInterval);
+	globalVariables->AddItem(name_, "EasyMinWaitTimeBeforeMovement", rootParameters_[Easy].minWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "EasyMaxWaitTimeBeforeMovement", rootParameters_[Easy].maxWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "NormalDodgeStartTime", rootParameters_[Normal].dodgeStartTime);
+	globalVariables->AddItem(name_, "NormalMinActionInterval", rootParameters_[Normal].minActionInterval);
+	globalVariables->AddItem(name_, "NormalMaxActionInterval", rootParameters_[Normal].maxActionInterval);
+	globalVariables->AddItem(name_, "NormalMinWaitTimeBeforeMovement", rootParameters_[Normal].minWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "NormalMaxWaitTimeBeforeMovement", rootParameters_[Normal].maxWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "HardDodgeStartTime", rootParameters_[Hard].dodgeStartTime);
+	globalVariables->AddItem(name_, "HardMinActionInterval", rootParameters_[Hard].minActionInterval);
+	globalVariables->AddItem(name_, "HardMaxActionInterval", rootParameters_[Hard].maxActionInterval);
+	globalVariables->AddItem(name_, "HardMinWaitTimeBeforeMovement", rootParameters_[Hard].minWaitTimeBeforeMovement);
+	globalVariables->AddItem(name_, "HardMaxWaitTimeBeforeMovement", rootParameters_[Hard].maxWaitTimeBeforeMovement);
 }
 
 void Enemy::ApplyGlobalVariables()
@@ -198,9 +210,19 @@ void Enemy::ApplyGlobalVariables()
 	BaseCharacter::ApplyGlobalVariables();
 	//環境変数のインスタンスを取得
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
-	rootParameters_.dodgeStartTime = globalVariables->GetFloatValue(name_, "DodgeStartTime");
-	rootParameters_.minActionInterval = globalVariables->GetFloatValue(name_, "MinActionInterval");
-	rootParameters_.maxActionInterval = globalVariables->GetFloatValue(name_, "MaxActionInterval");
-	rootParameters_.minWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "MinWaitTimeBeforeMovement");
-	rootParameters_.maxWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "MaxWaitTimeBeforeMovement");
+	rootParameters_[Easy].dodgeStartTime = globalVariables->GetFloatValue(name_, "EasyDodgeStartTime");
+	rootParameters_[Easy].minActionInterval = globalVariables->GetFloatValue(name_, "EasyMinActionInterval");
+	rootParameters_[Easy].maxActionInterval = globalVariables->GetFloatValue(name_, "EasyMaxActionInterval");
+	rootParameters_[Easy].minWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "EasyMinWaitTimeBeforeMovement");
+	rootParameters_[Easy].maxWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "EasyMaxWaitTimeBeforeMovement");
+	rootParameters_[Normal].dodgeStartTime = globalVariables->GetFloatValue(name_, "NormalDodgeStartTime");
+	rootParameters_[Normal].minActionInterval = globalVariables->GetFloatValue(name_, "NormalMinActionInterval");
+	rootParameters_[Normal].maxActionInterval = globalVariables->GetFloatValue(name_, "NormalMaxActionInterval");
+	rootParameters_[Normal].minWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "NormalMinWaitTimeBeforeMovement");
+	rootParameters_[Normal].maxWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "NormalMaxWaitTimeBeforeMovement");
+	rootParameters_[Hard].dodgeStartTime = globalVariables->GetFloatValue(name_, "HardDodgeStartTime");
+	rootParameters_[Hard].minActionInterval = globalVariables->GetFloatValue(name_, "HardMinActionInterval");
+	rootParameters_[Hard].maxActionInterval = globalVariables->GetFloatValue(name_, "HardMaxActionInterval");
+	rootParameters_[Hard].minWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "HardMinWaitTimeBeforeMovement");
+	rootParameters_[Hard].maxWaitTimeBeforeMovement = globalVariables->GetFloatValue(name_, "HardMaxWaitTimeBeforeMovement");
 }
