@@ -6,6 +6,7 @@
 #include "Application/Src/Object/Camera/CameraShake.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
 #include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
+#include <numbers>
 
 /// <summary>
 /// カメラ制御クラス
@@ -16,11 +17,11 @@ public:
 	//通常カメラ時のパラメーター
 	struct FollowCameraParameters
 	{
-		Vector3 offset = { 0.0f, 1.0f, -10.0f }; // オフセット値
-		float rotationRangeMin = 1.0f;           // 最小回転角度
-		float rotationRangeMax = 2.4f;           // 最大回転角度
-		float rotationSpeedX = 0.04f;            // X軸の回転速度
-		float rotationSpeedY = 0.08f;            // Y軸の回転速度
+		Vector3 offset = { 0.0f, 1.0f, -10.0f }; //オフセット値
+		float rotationRangeMin = 1.0f;           //最小回転角度
+		float rotationRangeMax = 2.4f;           //最大回転角度
+		float rotationSpeedX = 0.04f;            //X軸の回転速度
+		float rotationSpeedY = 0.08f;            //Y軸の回転速度
 	};
 
 	//ロックオンカメラ時のパラメーター
@@ -55,19 +56,23 @@ public:
 	void PlayAnimation(const std::string& animationName, const float animationSpeed, const bool syncWithCharacterAnimation);
 
 	/// <summary>
+	/// アニメーションを停止
+	/// </summary>
+	void StopAnimation();
+
+	/// <summary>
 	/// カメラシェイクの開始
 	/// </summary>
 	/// <param name="intensity">カメラシェイクの強さ</param>
 	/// <param name="duration">カメラシェイクの持続時間</param>
 	void StartCameraShake(const Vector3& intensity, const float duration);
 
-
 	/// <summary>
 	/// リセット
 	/// </summary>
 	/// <param name="easingType">イージングの種類</param>
-	/// <param name="resetInterpolationSpeedGraduallyTime">補間を戻す時間</param>
-	void Reset(const CameraPath::EasingType easingType, const float resetInterpolationSpeedGraduallyTime);
+	/// <param name="duration">補間速度リセットが完了するまでの時間</param>
+	void StartInterpolationReset(const CameraPath::EasingType easingType, const float duration);
 
 	//カメラ座標を取得・設定
 	const Vector3& GetCameraPosition() const { return camera_.translation_; };
@@ -82,8 +87,8 @@ public:
 	void SetOffset(const Vector3& offset) { destinationOffset_ = offset; };
 
 	//Fovを取得・設定
-	const float GetFov() const { return camera_.fov_; };
-	void SetFov(const float fov) { camera_.fov_ = fov; };
+	const float GetFov() const { return destinationFov_; };
+	void SetFov(const float fov) { destinationFov_ = fov; };
 
 	//ロックオンを取得・設定
 	const Lockon* GetLockon() const { return lockon_; };
@@ -108,6 +113,35 @@ public:
 	const LockonCameraParameters& GetLockonCameraParameters() const { return lockonCameraParameters_; };
 
 private:
+	//補間速度をリセットの構造体
+	struct InterpolationResetSettings
+	{
+		bool isResetting = false;                                             //補間速度をリセット中かどうか
+		float timer = 0.0f;                                                   //補間速度リセットの経過時間を計測するタイマー
+		float duration = 1.0f;                                                //補間速度リセットが完了するまでの時間
+		CameraPath::EasingType easingType = CameraPath::EasingType::kEaseOut; //補間速度リセット時のイージングタイプ
+	};
+
+	//補間速度
+	struct CameraInterpolationSpeeds
+	{
+		float offset = 0.6f;      //追従対象のオフセット補間速度
+		float target = 0.2f;      //追従対象の位置補間速度
+		float quaternion = 0.4f;  //クォータニオン（回転）の補間速度
+		float fov = 0.2f;         //FOVの補間速度
+	};
+
+	/// <summary>
+	/// 補間リセットの更新
+	/// </summary>
+	void UpdateInterpolationReset();
+
+	/// <summary>
+	/// 補間速度をリセット
+	/// </summary>
+	/// <param name="easingParameter">イージング係数</param>
+	void ResetInterpolationSpeeds(const float easingParameter);
+
 	/// <summary>
 	/// 残像座標の更新
 	/// </summary>
@@ -122,6 +156,20 @@ private:
 	/// カメラの回転を更新
 	/// </summary>
 	void UpdateCameraRotation();
+
+	/// <summary>
+	/// FOVを更新
+	/// </summary>
+	void UpdateCameraFov();
+
+	/// <summary>
+	/// イージング係数を計算
+	/// </summary>
+	/// <param name="timer">タイマー</param>
+	/// <param name="duration">持続時間</param>
+	/// <param name="easingType">イージングの種類</param>
+	/// <returns>イージング係数</returns>
+	float CalculateEasingParameter(const float timer, const float duration, const CameraPath::EasingType easingType);
 
 	/// <summary>
 	/// オフセット値を計算
@@ -160,44 +208,35 @@ private:
 	//補間用のオフセット
 	Vector3 destinationOffset_{};
 
-	//オフセットの補間速度
-	float offsetInterpolationSpeed_ = 0.6f;
-
 	//追従対象の残像座標
 	Vector3 interTarget_{};
 
 	//追従対象のオフセット
 	Vector3 targetOffset_ = { 0.0f,2.0f,0.0f };
 
-	//追従対象の補間速度
-	float targetInterpolationSpeed_ = 0.2f;
-
 	//クォータニオン
 	Quaternion destinationQuaternion_ = Mathf::IdentityQuaternion();
 
-	//クォータニオンの補間速度
-	float quaternionInterpolationSpeed_ = 0.4f;
+	//FOV
+	float destinationFov_ = 45.0f * (std::numbers::pi_v<float> / 180.0f);
 
 	//地面との交差点
 	Vector3 intersectionPoint_{};
 
+	//補間速度のデフォルト値
+	const CameraInterpolationSpeeds interpolationSpeedDefaults_{};
+
+	//現在の補間速度
+	CameraInterpolationSpeeds interpolationSpeeds_{};
+
+	//デフォルトのリセット用の構造体
+	const InterpolationResetSettings interpolationResetSettingDefaults_{};
+
+	//補間リセット用の構造体
+	InterpolationResetSettings interpolationResetSettings{};
+
 	//カメラアニメーションエディター
 	CameraAnimationEditor* cameraAnimationEditor_ = nullptr;
-
-	//リセットのフラグ
-	bool resetInterpolationSpeedGradually_ = false;
-
-	//タイマー
-	float resetInterpolationSpeedGraduallyTimer_ = 0.0f;
-
-	//補間速度を戻し終わる時間
-	float resetInterpolationSpeedGraduallyTime_ = 1.0f;
-
-	//現在のFov
-	float currentFov_ = 45.0f * 3.141592654f / 180.0f;
-
-	//補間速度を戻す際のイージングタイプ
-	CameraPath::EasingType easingType_ = CameraPath::EasingType::kLinear;
 
 	//各パラメーター
 	FollowCameraParameters followCameraParameters_{};

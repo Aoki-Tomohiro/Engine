@@ -3,24 +3,25 @@
         "DodgeBackward": {
             "AnimationEvents": {
                 "AnimationEvent00": {
+                    "EasingType": "EaseOut",
                     "EndEventTime": 0.9300000071525574,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
                     "MoveTowardsEnemy": false,
-                    "MovementType": "Velocity",
+                    "MovementType": "Easing",
                     "RotateTowardsMovement": false,
                     "StartEventTime": 0.2800000011920929,
-                    "UseStickInput": false,
-                    "Velocity": [
+                    "TargetPosition": [
                         0.0,
                         0.0,
-                        -30.0
-                    ]
+                        -10.0
+                    ],
+                    "UseStickInput": false
                 }
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.5999999046325684,
+                    "AnimationSpeed": 2.0,
                     "Duration": 1.0
                 }
             },

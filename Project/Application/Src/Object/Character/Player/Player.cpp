@@ -132,12 +132,18 @@ void Player::OnCollision(GameObject* gameObject)
 
 void Player::ApplyDamageAndKnockback(const KnockbackParameters& knockbackSettings, const float damage, const bool transitionToStun)
 {
-	//ダメージの音を再生
-	audio_->PlayAudio(audioHandles_["Damage"], false, 0.2f);
-
 	//ダメージエフェクトのタイマーと色を設定
 	damageEffect_.timer = 0.0f;
 	damageEffect_.color.w = 0.2f;
+
+	//ダメージの音を再生
+	audio_->PlayAudio(audioHandles_["Damage"], false, 0.2f);
+
+	//スタン状態に遷移する場合はカメラアニメーションを止める
+	if (transitionToStun)
+	{
+		cameraController_->StopAnimation();
+	}
 
 	//基底クラスの呼び出し
 	BaseCharacter::ApplyDamageAndKnockback(knockbackSettings, damage, transitionToStun);

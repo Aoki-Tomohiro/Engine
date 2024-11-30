@@ -1,8 +1,8 @@
 #include "CameraController.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
+#include "Application/Src/Object/Camera/States/CameraStateLockon.h"
 #include "Application/Src/Object/Camera/States/CameraStateAnimation.h"
-#include <numbers>
 
 void CameraController::Initialize()
 {
@@ -19,45 +19,8 @@ void CameraController::Initialize()
 
 void CameraController::Update()
 {
-	//リセットのフラグが立っていた場合
-	if (resetInterpolationSpeedGradually_)
-	{
-		//タイマーを進める
-		resetInterpolationSpeedGraduallyTimer_ += GameTimer::GetDeltaTime();
-
-		//イージング係数を計算
-		float easingParameter = resetInterpolationSpeedGraduallyTimer_ / resetInterpolationSpeedGraduallyTime_;
-
-		//イージングの種類に応じた処理
-		switch (easingType_)
-		{
-		case CameraPath::EasingType::kEaseIn:
-			easingParameter = Mathf::EaseInSine(easingParameter);
-			break;
-		case CameraPath::EasingType::kEaseOut:
-			easingParameter = Mathf::EaseOutSine(easingParameter);
-			break;
-		case CameraPath::EasingType::kEaseInOut:
-			easingParameter = Mathf::EaseInOutSine(easingParameter);
-			break;
-		}
-
-		//イージングが1.0を超えたない様にする
-		easingParameter = std::min<float>(1.0f, easingParameter);
-
-		//補間速度を徐々に戻す
-		offsetInterpolationSpeed_ = Mathf::Lerp(0.0f, 0.6f, easingParameter);
-		targetInterpolationSpeed_ = Mathf::Lerp(0.0f, 0.2f, easingParameter);
-		quaternionInterpolationSpeed_ = Mathf::Lerp(0.0f, 0.4f, easingParameter);
-		camera_.fov_ = Mathf::Lerp(currentFov_, 45.0f * (std::numbers::pi_v<float> / 180.0f), easingParameter);
-
-		//補間が終了していたらリセットのフラグをリセット
-		if (resetInterpolationSpeedGraduallyTimer_ >= resetInterpolationSpeedGraduallyTime_)
-		{
-			resetInterpolationSpeedGradually_ = false;
-			resetInterpolationSpeedGraduallyTimer_ = 0.0f;
-		}
-	}
+	//補間リセットの更新
+	UpdateInterpolationReset();
 
 	//追従座標を更新
 	UpdateInterTargetPosition();
@@ -70,6 +33,9 @@ void CameraController::Update()
 
 	//カメラの回転を更新
 	UpdateCameraRotation();
+
+	//FOVを更新
+	UpdateCameraFov();
 
 	//カメラシェイクの処理
 	cameraShake_->Update();
@@ -95,21 +61,71 @@ void CameraController::PlayAnimation(const std::string& animationName, const flo
 	ChangeState(new CameraStateAnimation(animationName, animationSpeed, syncWithCharacterAnimation));
 }
 
+void CameraController::StopAnimation()
+{
+	//補間リセット
+	StartInterpolationReset(interpolationResetSettingDefaults_.easingType, interpolationResetSettingDefaults_.duration);
+
+	//ロックオン中かどうかを判別して次の状態を決める
+	lockon_->ExistTarget() ? ChangeState(new CameraStateLockon()) : ChangeState(new CameraStateFollow());
+}
+
 void CameraController::StartCameraShake(const Vector3& intensity, const float duration)
 {
 	//カメラシェイクを開始
 	cameraShake_->Start(intensity, duration);
 }
 
-void CameraController::Reset(const CameraPath::EasingType easingType, const float resetInterpolationSpeedGraduallyTime)
+void CameraController::StartInterpolationReset(const CameraPath::EasingType easingType, const float duration)
 {
-	resetInterpolationSpeedGradually_ = true;
-	easingType_ = easingType;
-	resetInterpolationSpeedGraduallyTime_ = resetInterpolationSpeedGraduallyTime;
-	offsetInterpolationSpeed_ = 0.0f;
-	targetInterpolationSpeed_ = 0.0f;
-	quaternionInterpolationSpeed_ = 0.0f;
-	currentFov_ = camera_.fov_;
+	//補間リセットフラグを立てる
+	interpolationResetSettings.isResetting = true;
+	//イージングの種類を設定
+	interpolationResetSettings.easingType = easingType;
+	//補間速度リセットが完了するまでの時間
+	interpolationResetSettings.duration = duration;
+	//オフセットの補間速度を0にする
+	interpolationSpeeds_.offset = 0.0f;
+	//追従対象の補間速度を0にする
+	interpolationSpeeds_.target = 0.0f;
+	//回転の補間速度を0にする
+	interpolationSpeeds_.quaternion = 0.0f;
+	//FOVの補間速度を0にする
+	interpolationSpeeds_.fov = 0.0f;
+}
+
+void CameraController::UpdateInterpolationReset()
+{
+	//補間リセットが無効なら処理を終了
+	if (!interpolationResetSettings.isResetting) return;
+
+	//タイマーを進める
+	interpolationResetSettings.timer += GameTimer::GetDeltaTime();
+
+	//イージング係数を計算
+	float easingParameter = CalculateEasingParameter(interpolationResetSettings.timer, interpolationResetSettings.duration, interpolationResetSettings.easingType);
+
+	//補間速度をリセット
+	ResetInterpolationSpeeds(easingParameter);
+
+	//リセットが完了したら状態を初期化
+	if (interpolationResetSettings.timer >= interpolationResetSettings.duration)
+	{
+		interpolationResetSettings.isResetting = false;
+		interpolationResetSettings.timer = 0.0f;
+	}
+}
+
+void CameraController::ResetInterpolationSpeeds(const float easingParameter)
+{
+	//オフセットの補間速度をリセット
+	interpolationSpeeds_.offset = Mathf::Lerp(0.0f, interpolationSpeedDefaults_.offset, easingParameter);
+	//追従対象の補間速度をリセット
+	interpolationSpeeds_.target = Mathf::Lerp(0.0f, interpolationSpeedDefaults_.target, easingParameter);
+	//クォータニオンの補間速度をリセット
+	interpolationSpeeds_.quaternion = Mathf::Lerp(0.0f, interpolationSpeedDefaults_.quaternion, easingParameter);
+	//FOVの補間速度をリセット
+	interpolationSpeeds_.fov = Mathf::Lerp(0.0f, interpolationSpeedDefaults_.fov, easingParameter);
 }
 
 void CameraController::UpdateInterTargetPosition()
@@ -118,14 +134,14 @@ void CameraController::UpdateInterTargetPosition()
 	if (target_)
 	{
 		Vector3 targetPosition = target_->GetWorldPosition() + targetOffset_;
-		interTarget_ = Mathf::Lerp(interTarget_, targetPosition, targetInterpolationSpeed_);
+		interTarget_ = Mathf::Lerp(interTarget_, targetPosition, interpolationSpeeds_.target);
 	}
 }
 
 void CameraController::UpdateCameraPosition()
 {
 	//オフセットを補間
-	offset_ = Mathf::Lerp(offset_, destinationOffset_, offsetInterpolationSpeed_);
+	offset_ = Mathf::Lerp(offset_, destinationOffset_, interpolationSpeeds_.offset);
 	//追従対象からオフセットを計算
 	Vector3 offset = CalculateOffset();
 	//カメラの目標座標（通常位置）
@@ -139,7 +155,33 @@ void CameraController::UpdateCameraRotation()
 	//目標クォータニオンを正規化
 	destinationQuaternion_ = Mathf::Normalize(destinationQuaternion_);
 	//現在のクォータニオン補間
-	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, quaternionInterpolationSpeed_));
+	camera_.quaternion_ = Mathf::Normalize(Mathf::Slerp(camera_.quaternion_, destinationQuaternion_, interpolationSpeeds_.quaternion));
+}
+
+void CameraController::UpdateCameraFov()
+{
+	//FOVを補間
+	camera_.fov_ = Mathf::Lerp(camera_.fov_, destinationFov_, interpolationSpeeds_.fov);
+}
+
+float CameraController::CalculateEasingParameter(const float timer, const float duration, const CameraPath::EasingType easingType)
+{
+	//イージング係数を計算
+	float easingParameter = timer / duration;
+	easingParameter = std::clamp(easingParameter, 0.0f, 1.0f);
+
+	//イージングタイプに応じた係数を計算
+	switch (easingType)
+	{
+	case CameraPath::EasingType::kEaseIn:
+		return Mathf::EaseInSine(easingParameter);
+	case CameraPath::EasingType::kEaseOut:
+		return Mathf::EaseOutSine(easingParameter);
+	case CameraPath::EasingType::kEaseInOut:
+		return Mathf::EaseInOutSine(easingParameter);
+	default:
+		return easingParameter;
+	}
 }
 
 const Vector3 CameraController::CalculateOffset() const

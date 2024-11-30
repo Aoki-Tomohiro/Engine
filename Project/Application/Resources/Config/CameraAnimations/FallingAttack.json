@@ -1,86 +1,72 @@
 {
     "FallingAttack": {
-        "InterpolationSpeedGraduallyEasingType": "Linear",
-        "KeyFrame0": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.0
-        },
-        "KeyFrame1": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.5270000100135803,
-                0.0,
-                0.0,
-                0.8500000238418579
-            ],
-            "Time": 1.399999976158142
-        },
-        "KeyFrame2": {
-            "EasingType": "Linear",
-            "Fov": 70.0,
-            "Position": [
-                0.0,
-                1.0,
-                -20.0
-            ],
-            "Rotation": [
-                0.5266852974891663,
-                0.0,
-                0.0,
-                0.8500604033470154
-            ],
-            "Time": 1.5
-        },
-        "KeyFrame3": {
-            "EasingType": "Linear",
-            "Fov": 70.0,
-            "Position": [
-                0.0,
-                1.0,
-                -20.0
-            ],
-            "Rotation": [
-                0.5266852974891663,
-                0.0,
-                0.0,
-                0.8500604033470154
-            ],
-            "Time": 2.4000000953674316
-        },
-        "KeyFrame4": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 2.799999952316284
-        },
-        "ResetInterpolationSpeedGraduallyTime": 0.0
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.5270000100135803,
+                    0.0,
+                    0.0,
+                    0.8500000238418579
+                ],
+                "Time": 1.399999976158142
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 70.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -20.0
+                ],
+                "Rotation": [
+                    0.5266852974891663,
+                    0.0,
+                    0.0,
+                    0.8500604033470154
+                ],
+                "Time": 1.5
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 70.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -20.0
+                ],
+                "Rotation": [
+                    0.5266852974891663,
+                    0.0,
+                    0.0,
+                    0.8500604033470154
+                ],
+                "Time": 2.4000000953674316
+            }
+        ],
+        "ResetDuration": 0.4000000059604645,
+        "ResetEasingType": "EaseOut"
     }
 }

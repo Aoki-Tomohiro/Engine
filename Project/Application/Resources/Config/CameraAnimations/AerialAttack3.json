@@ -1,54 +1,56 @@
 {
     "AerialAttack3": {
-        "InterpolationSpeedGraduallyEasingType": "EaseOut",
-        "KeyFrame0": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.0
-        },
-        "KeyFrame1": {
-            "EasingType": "Linear",
-            "Fov": 60.0,
-            "Position": [
-                -2.002000093460083,
-                0.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.28184837102890015,
-                0.40012919902801514,
-                0.0,
-                0.8720425367355347
-            ],
-            "Time": 0.009999999776482582
-        },
-        "KeyFrame2": {
-            "EasingType": "Linear",
-            "Fov": 60.0,
-            "Position": [
-                -2.002000093460083,
-                0.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.28185319900512695,
-                0.40012919902801514,
-                0.0,
-                0.8720409274101257
-            ],
-            "Time": 2.0
-        },
-        "ResetInterpolationSpeedGraduallyTime": 0.6000000238418579
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 60.0,
+                "Position": [
+                    -2.002000093460083,
+                    0.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.28184837102890015,
+                    0.40012919902801514,
+                    0.0,
+                    0.8720425367355347
+                ],
+                "Time": 0.009999999776482582
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 60.0,
+                "Position": [
+                    -2.002000093460083,
+                    0.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.28185319900512695,
+                    0.40012919902801514,
+                    0.0,
+                    0.8720409274101257
+                ],
+                "Time": 2.0
+            }
+        ],
+        "ResetDuration": 0.6000000238418579,
+        "ResetEasingType": "EaseOut"
     }
 }

@@ -33,20 +33,9 @@ void CameraAnimationEditor::Update()
 	//選択したカメラパスのコントロールを表示
 	DisplayCameraPathControls(currentEditPathName_);
 
-	//補間方法を選択
-	ImGui::SeparatorText("アニメーション終了後の設定");
-	//選択中の列挙体のインデックス
-	int selectedIndex = static_cast<int>(effectIt->second.GetInterpolationSpeedGraduallyEasingType());
-	//列挙体を選択
-	if (ImGui::Combo("イージングの種類", &selectedIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
-	{
-		effectIt->second.SetInterpolationSpeedGraduallyEasingType(static_cast<CameraPath::EasingType>(selectedIndex));
-	}
-
-	//補間を戻し終わる時間
-	float resetInterpolationSpeedGraduallyTime = effectIt->second.GetResetInterpolationSpeedGraduallyTime();
-	ImGui::DragFloat("補間を戻し終わる時間", &resetInterpolationSpeedGraduallyTime, 0.01f);
-	effectIt->second.SetResetInterpolationSpeedGraduallyTime(resetInterpolationSpeedGraduallyTime);
+	//アニメーション終了後の補間リセット設定
+	ImGui::SeparatorText("アニメーション終了後の補間設定");
+	EditInterpolationSettings(effectIt->second);
 
 	//キーフレームを追加
 	ImGui::SeparatorText("キーフレームを追加");
@@ -121,40 +110,63 @@ void CameraAnimationEditor::DisplayCameraPathControls(const std::string& cameraP
 	}
 }
 
+void CameraAnimationEditor::EditInterpolationSettings(CameraPath& cameraPath)
+{
+	//現在選択されているイージングタイプのインデックスを取得
+	int selectedIndex = static_cast<int>(cameraPath.GetResetEasingType());
+
+	//列挙体から選択するためのGUI
+	if (ImGui::Combo("イージングの種類", &selectedIndex, EASING_TYPES, IM_ARRAYSIZE(EASING_TYPES)))
+	{
+		cameraPath.SetResetEasingType(static_cast<CameraPath::EasingType>(selectedIndex));
+	}
+
+	//補間速度リセットが完了するまでの時間を設定
+	float resetInterpolationSpeedGraduallyTime = cameraPath.GetResetDuration();
+	ImGui::DragFloat("リセット時間", &resetInterpolationSpeedGraduallyTime, 0.01f);
+	cameraPath.SetResetDuration(resetInterpolationSpeedGraduallyTime);
+}
+
 void CameraAnimationEditor::SaveFile(const std::string& cameraPathName)
 {
 	//カメラパスを取得
 	CameraPath& cameraPath = cameraPaths_[cameraPathName];
 
-	//rootのjsonオブジェクトを作成
+	//ルートの JSON オブジェクトを作成
 	nlohmann::json root = nlohmann::json::object();
 
-	//カメラパスのjsonオブジェクトを作成
+	//カメラパスの JSON オブジェクトを作成
 	nlohmann::json cameraPathJson = nlohmann::json::object();
+
+	//キーフレームの配列を作成
+	nlohmann::json keyFramesJson = nlohmann::json::array();
 
 	//全てのキーフレームを保存する
 	for (int32_t i = 0; i < cameraPath.GetKeyFrameCount(); ++i)
 	{
-		//キーフレームのjsonオブジェクトを作成
+		//キーフレームの JSON オブジェクトを作成
 		nlohmann::json keyFrameJson = nlohmann::json::object();
 
-		//キーフレームを取得
+		// ーフレームを取得
 		const CameraPath::CameraKeyFrame& keyFrame = cameraPath.GetCameraKeyFrame(i);
 
 		//キーフレームの情報を書き込む
 		keyFrameJson["Time"] = keyFrame.time;
-		keyFrameJson["Position"] = nlohmann::json::array({ keyFrame.position.x,keyFrame.position.y,keyFrame.position.z });
-		keyFrameJson["Rotation"] = nlohmann::json::array({ keyFrame.rotation.x,keyFrame.rotation.y,keyFrame.rotation.z,keyFrame.rotation.w });
+		keyFrameJson["Position"] = { keyFrame.position.x, keyFrame.position.y, keyFrame.position.z };
+		keyFrameJson["Rotation"] = { keyFrame.rotation.x, keyFrame.rotation.y, keyFrame.rotation.z, keyFrame.rotation.w };
 		keyFrameJson["Fov"] = keyFrame.fov;
-		keyFrameJson["EasingType"] = EASING_TYPES[static_cast<int>(keyFrame.easingType)];
-		cameraPathJson["KeyFrame" + std::to_string(i)] = keyFrameJson;
+		keyFrameJson["EasingType"] = EasingTypeToString(keyFrame.easingType); // EasingType の文字列に変換
+
+		//キーフレームを配列に追加
+		keyFramesJson.push_back(keyFrameJson);
 	}
 
-	//補間を戻す際のイージングの種類を保存
-	cameraPathJson["InterpolationSpeedGraduallyEasingType"] = EASING_TYPES[static_cast<int>(cameraPath.GetInterpolationSpeedGraduallyEasingType())];
-
-	//補間を戻す時間を保存
-	cameraPathJson["ResetInterpolationSpeedGraduallyTime"] = cameraPath.GetResetInterpolationSpeedGraduallyTime();
+	//キーフレーム配列を追加
+	cameraPathJson["KeyFrames"] = keyFramesJson; 
+	//補間速度リセットのイージングタイプ
+	cameraPathJson["ResetEasingType"] = EasingTypeToString(cameraPath.GetResetEasingType()); 
+	//補間リセット時間
+	cameraPathJson["ResetDuration"] = cameraPath.GetResetDuration(); 
 
 	//ルートにカメラパスを追加
 	root[cameraPathName] = cameraPathJson;
@@ -185,6 +197,19 @@ void CameraAnimationEditor::SaveFile(const std::string& cameraPathName)
 	ofs << std::setw(4) << root << std::endl;
 	//ファイルを閉じる
 	ofs.close();
+}
+
+std::string CameraAnimationEditor::EasingTypeToString(CameraPath::EasingType easingType) const
+{
+	//イージングタイプを文字列に変換
+	switch (easingType)
+	{
+	case CameraPath::EasingType::kEaseIn: return "EaseIn";
+	case CameraPath::EasingType::kEaseOut: return "EaseOut";
+	case CameraPath::EasingType::kEaseInOut: return "EaseInOut";
+	case CameraPath::EasingType::kLinear: return "Linear";
+	default: return "Unknown";
+	}
 }
 
 void CameraAnimationEditor::LoadFiles()
@@ -246,23 +271,23 @@ void CameraAnimationEditor::LoadFile(const std::string& cameraPathName)
 	//カメラパスのデータを取得
 	nlohmann::json cameraPathJson = root[cameraPathName];
 
+	//キーフレーム配列を取得
+	nlohmann::json keyFramesJson = cameraPathJson["KeyFrames"];
+
 	//カメラパスの設定を取得
 	CameraPath& cameraPath = cameraPaths_[cameraPathName];
 	cameraPath.ClearKeyFrames();
 
 	//全てのキーフレームを取得
-	for (nlohmann::json::iterator keyFrameItem = cameraPathJson.begin(); keyFrameItem != cameraPathJson.end(); ++keyFrameItem)
+	for (nlohmann::json::iterator keyFrameItem = keyFramesJson.begin(); keyFrameItem != keyFramesJson.end(); ++keyFrameItem)
 	{
-		//アニメーション後の設定だった場合は処理を飛ばす
-		if (keyFrameItem.key() == "InterpolationSpeedGraduallyEasingType" || keyFrameItem.key() == "ResetInterpolationSpeedGraduallyTime") continue;
-
 		//キーフレームのデータを読み込む
 		nlohmann::json keyFrameJson = keyFrameItem.value();
 		//追加するキーフレーム
 		CameraPath::CameraKeyFrame cameraKeyFrame{};
 		cameraKeyFrame.time = keyFrameJson["Time"];
-		cameraKeyFrame.position = { keyFrameJson["Position"][0].get<float>(), keyFrameJson["Position"][1].get<float>(),keyFrameJson["Position"][2].get<float>() };
-		cameraKeyFrame.rotation = { keyFrameJson["Rotation"][0].get<float>(), keyFrameJson["Rotation"][1].get<float>(),keyFrameJson["Rotation"][2].get<float>(),keyFrameJson["Rotation"][3].get<float>() };
+		cameraKeyFrame.position = { keyFrameJson["Position"][0].get<float>(), keyFrameJson["Position"][1].get<float>(), keyFrameJson["Position"][2].get<float>() };
+		cameraKeyFrame.rotation = { keyFrameJson["Rotation"][0].get<float>(), keyFrameJson["Rotation"][1].get<float>(), keyFrameJson["Rotation"][2].get<float>(), keyFrameJson["Rotation"][3].get<float>() };
 		cameraKeyFrame.fov = keyFrameJson["Fov"];
 		//配列の各要素を走査
 		for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
@@ -275,36 +300,23 @@ void CameraAnimationEditor::LoadFile(const std::string& cameraPathName)
 				break;
 			}
 		}
+		//キーフレームを追加
 		cameraPath.AddKeyFrame(cameraKeyFrame);
 	}
 
-	//配列の各要素を走査
+	//補間速度リセット時のイージングタイプを取得
 	for (int32_t i = 0; i < IM_ARRAYSIZE(EASING_TYPES); ++i)
 	{
-		//JSONの値が配列内の文字列と一致する場合
-		if (cameraPathJson["InterpolationSpeedGraduallyEasingType"] == EASING_TYPES[i])
+		if (cameraPathJson["ResetEasingType"] == EASING_TYPES[i])
 		{
-			switch (static_cast<CameraPath::EasingType>(i))
-			{
-			case CameraPath::EasingType::kLinear:
-				cameraPath.SetInterpolationSpeedGraduallyEasingType(CameraPath::EasingType::kLinear);
-				break;
-			case CameraPath::EasingType::kEaseIn:
-				cameraPath.SetInterpolationSpeedGraduallyEasingType(CameraPath::EasingType::kEaseIn);
-				break;
-			case CameraPath::EasingType::kEaseOut:
-				cameraPath.SetInterpolationSpeedGraduallyEasingType(CameraPath::EasingType::kEaseOut);
-				break;
-			case CameraPath::EasingType::kEaseInOut:
-				cameraPath.SetInterpolationSpeedGraduallyEasingType(CameraPath::EasingType::kEaseInOut);
-				break;
-			}
+			cameraPath.SetResetEasingType(static_cast<CameraPath::EasingType>(i));
 			break;
 		}
 	}
 
-	//補間を戻し終わるまでの時間を取得
-	cameraPath.SetResetInterpolationSpeedGraduallyTime(cameraPathJson["ResetInterpolationSpeedGraduallyTime"]);
+	//補間速度リセットが完了するまでの時間を取得
+	float resetDuration = cameraPathJson["ResetDuration"];
+	cameraPath.SetResetDuration(resetDuration);
 }
 
 void CameraAnimationEditor::AddKeyFrame(CameraPath& cameraPath)

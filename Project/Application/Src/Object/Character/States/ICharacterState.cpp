@@ -307,8 +307,8 @@ void ICharacterState::ProcessVelocityMovementEvent(const VelocityMovementEvent* 
 		InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
 	}
 
-	//敵と接近した場合
-	if (velocityMovementEvent->isProximityStopEnabled && IsOpponentInProximity())
+	//接近補正が有効で、敵が接近した場合
+	if (velocityMovementEvent->isProximityStopEnabled && ApplyProximityCorrection())
 	{
 		//速度をゼロに設定
 		processedVelocityDatas_[animationEventIndex].velocity = { 0.0f, 0.0f, 0.0f };
@@ -327,9 +327,10 @@ void ICharacterState::ProcessEasingMovementEvent(const EasingMovementEvent* easi
 		InitializeEasingMovementEvent(easingMovementEvent, animationEventIndex);
 	}
 
-	//敵と近距離でイージング終了
-	if (easingMovementEvent->isProximityStopEnabled && IsOpponentInProximity())
+	//接近補正が有効で、敵が接近した場合
+	if (easingMovementEvent->isProximityStopEnabled && ApplyProximityCorrection())
 	{
+		//現在の位置をイージングの開始位置、ターゲット位置として設定
 		processedEasingDatas_[animationEventIndex].startPosition = character_->GetPosition();
 		processedEasingDatas_[animationEventIndex].targetPosition = character_->GetPosition();
 	}
@@ -507,6 +508,40 @@ void ICharacterState::HandleBufferedAction(const BufferedActionEvent* bufferedAc
 		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
 		processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive = true;
 	}
+}
+
+const bool ICharacterState::ApplyProximityCorrection() const
+{
+	//接近していない場合は補正しない
+	if (!IsOpponentInProximity()) return false;
+
+	//ゲームオブジェクトマネージャーを取得
+	GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
+
+	//自分の座標を取得
+	Vector3 myPosition = character_->GetJointWorldPosition("mixamorig:Hips");
+
+	//相手の座標を取得
+	Vector3 otherPosition = (character_->GetName() == "Player") ? gameObjectManager->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips") :
+		gameObjectManager->GetGameObject<Player>("Player")->GetJointWorldPosition("mixamorig:Hips");
+
+	//自分と相手の差分ベクトルを計算
+	Vector3 diff = otherPosition - myPosition;
+
+	//水平方向の距離を求めるのでY軸を0にする
+	diff.y = 0.0f;
+
+	//現在の距離と接近距離との差を求める
+	float sub = kProximityDistance - Mathf::Length(diff);
+
+	//差分距離に基づいて補正移動ベクトルを計算
+	Vector3 correctionVelocity = Mathf::Normalize(diff) * sub;
+
+	//補正移動をキャラクターに適用
+	character_->Move(correctionVelocity);
+
+	//接近補正が適用された
+	return true;
 }
 
 void ICharacterState::InitializeProcessedData()

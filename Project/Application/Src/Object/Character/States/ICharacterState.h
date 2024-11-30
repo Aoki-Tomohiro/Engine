@@ -176,6 +176,12 @@ private:
 	/// <returns>イージング係数</returns>
 	const float GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const;
 
+	/// <summary>
+	/// 敵との接近を確認し、接近しすぎている場合にはキャラクターを適切に補正する関数
+	/// </summary>
+	/// <returns>接近補正が適用されたかどうか</returns>
+	const bool ApplyProximityCorrection() const;
+
 	//データリセット関連メソッド群
 	void InitializeProcessedData();
 	void ResetProcessedData(const EventType eventType, const int32_t animationEventIndex);

@@ -7,6 +7,9 @@ void CameraStateLockon::Initialize()
 {
 	//オフセット値の初期化
 	cameraController_->SetOffset(cameraController_->GetLockonCameraParameters().offset);
+
+	//FOVの初期化
+	cameraController_->SetFov(45.0f * (std::numbers::pi_v<float> / 180.0f));
 }
 
 void CameraStateLockon::Update()

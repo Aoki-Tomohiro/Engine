@@ -10,7 +10,7 @@
                     "MoveTowardsEnemy": false,
                     "MovementType": "Easing",
                     "RotateTowardsMovement": false,
-                    "StartEventTime": 0.0,
+                    "StartEventTime": 0.20000000298023224,
                     "TargetPosition": [
                         0.0,
                         10.0,
@@ -28,7 +28,7 @@
                         1.0,
                         0.0
                     ],
-                    "StartEventTime": 0.0
+                    "StartEventTime": 0.20000000298023224
                 },
                 "AnimationEvent02": {
                     "Damage": 1.2000000476837158,

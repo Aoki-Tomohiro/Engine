@@ -1,86 +1,88 @@
 {
     "GameClear": {
-        "InterpolationSpeedGraduallyEasingType": "EaseOut",
-        "KeyFrame0": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.0
-        },
-        "KeyFrame1": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.8999993205070496,
-                0.0,
-                0.43589136004447937
-            ],
-            "Time": 0.11999999731779099
-        },
-        "KeyFrame2": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.8995574116706848,
-                0.0,
-                0.4368026852607727
-            ],
-            "Time": 0.2800000011920929
-        },
-        "KeyFrame3": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                0.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.8995574116706848,
-                0.0,
-                0.4368026852607727
-            ],
-            "Time": 0.3199999928474426
-        },
-        "KeyFrame4": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                0.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.8995574116706848,
-                0.0,
-                0.4368026852607727
-            ],
-            "Time": 0.47999998927116394
-        },
-        "ResetInterpolationSpeedGraduallyTime": 1.0
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.8999993205070496,
+                    0.0,
+                    0.43589136004447937
+                ],
+                "Time": 0.11999999731779099
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.8995574116706848,
+                    0.0,
+                    0.4368026852607727
+                ],
+                "Time": 0.2800000011920929
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    0.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.8995574116706848,
+                    0.0,
+                    0.4368026852607727
+                ],
+                "Time": 0.3199999928474426
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    0.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.8995574116706848,
+                    0.0,
+                    0.4368026852607727
+                ],
+                "Time": 0.47999998927116394
+            }
+        ],
+        "ResetDuration": 1.0,
+        "ResetEasingType": "EaseOut"
     }
 }

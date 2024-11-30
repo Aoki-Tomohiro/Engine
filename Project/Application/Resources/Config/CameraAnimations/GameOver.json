@@ -1,70 +1,72 @@
 {
     "GameOver": {
-        "InterpolationSpeedGraduallyEasingType": "EaseOut",
-        "KeyFrame0": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.0
-        },
-        "KeyFrame1": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                -1.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.0,
-                -1.0,
-                0.0,
-                0.0
-            ],
-            "Time": 1.0
-        },
-        "KeyFrame2": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                -1.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.0,
-                0.9800000190734863,
-                0.0,
-                0.19900000095367432
-            ],
-            "Time": 1.2000000476837158
-        },
-        "KeyFrame3": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                -1.0,
-                -6.0
-            ],
-            "Rotation": [
-                0.0,
-                0.979920506477356,
-                0.0,
-                0.1993888020515442
-            ],
-            "Time": 2.3329999446868896
-        },
-        "ResetInterpolationSpeedGraduallyTime": 1.0
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    -1.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -1.0,
+                    0.0,
+                    0.0
+                ],
+                "Time": 1.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    -1.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.9800000190734863,
+                    0.0,
+                    0.19900000095367432
+                ],
+                "Time": 1.2000000476837158
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    -1.0,
+                    -6.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.979920506477356,
+                    0.0,
+                    0.1993888020515442
+                ],
+                "Time": 2.3329999446868896
+            }
+        ],
+        "ResetDuration": 1.0,
+        "ResetEasingType": "EaseOut"
     }
 }

@@ -71,12 +71,12 @@ public:
 	const size_t GetKeyFrameCount() const { return keyFrames_.size(); };
 
 	//補間を戻す際のイージングタイプを取得・設定
-	const EasingType GetInterpolationSpeedGraduallyEasingType() const { return interpolationSpeedGraduallyEasingType_; };
-	void SetInterpolationSpeedGraduallyEasingType(const EasingType easingType) { interpolationSpeedGraduallyEasingType_ = easingType; };
+	const EasingType GetResetEasingType() const { return resetEasingType_; };
+	void SetResetEasingType(const EasingType easingType) { resetEasingType_ = easingType; };
 
 	//補間を戻す時間を取得・設定
-	const float GetResetInterpolationSpeedGraduallyTime() const { return resetInterpolationSpeedGraduallyTime_; };
-	void SetResetInterpolationSpeedGraduallyTime(const float resetInterpolationSpeedGraduallyTime) { resetInterpolationSpeedGraduallyTime_ = resetInterpolationSpeedGraduallyTime; };
+	const float GetResetDuration() const { return resetDuration_; };
+	void SetResetDuration(const float resetDuration) { resetDuration_ = resetDuration; };
 
 private:
 	/// <summary>
@@ -91,10 +91,10 @@ private:
 	//キーフレーム
 	std::vector<CameraKeyFrame> keyFrames_{};
 
-	//補間を戻すときのイージング
-	EasingType interpolationSpeedGraduallyEasingType_ = EasingType::kLinear;
+	//補間速度リセット時のイージングタイプ
+	EasingType resetEasingType_ = EasingType::kLinear;
 
-	//補間を戻し終わる時間
-	float resetInterpolationSpeedGraduallyTime_ = 1.0f;
+	//補間速度リセットが完了するまでの時間
+	float resetDuration_ = 1.0f;
 };
 

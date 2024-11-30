@@ -60,10 +60,23 @@ private:
 	void DisplayCameraPathControls(const std::string& cameraPathName);
 
 	/// <summary>
+	/// 補間リセット設定のコントロールを表示
+	/// </summary>
+	/// <param name="cameraPath">カメラパス</param>
+	void EditInterpolationSettings(CameraPath& cameraPath);
+
+	/// <summary>
 	/// ファイルに保存
 	/// </summary>
 	/// <param name="cameraPathName">カメラパスの名前</param>
 	void SaveFile(const std::string& cameraPathName);
+
+	/// <summary>
+	/// イージングの種類を文字列に変換
+	/// </summary>
+	/// <param name="easingType">イージングの種類</param>
+	/// <returns>イージングの種類の文字列</returns>
+	std::string EasingTypeToString(CameraPath::EasingType easingType) const;
 
 	/// <summary>
 	/// 全てのファイルの読み込み

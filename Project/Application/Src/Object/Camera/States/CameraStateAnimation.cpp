@@ -31,7 +31,7 @@ void CameraStateAnimation::Update()
 	if (animationTime_ >= cameraPath_.GetDuration())
 	{
 		//カメラを通常状態に戻す
-		cameraController_->Reset(cameraPath_.GetInterpolationSpeedGraduallyEasingType(), cameraPath_.GetResetInterpolationSpeedGraduallyTime());
+		cameraController_->StartInterpolationReset(cameraPath_.GetResetEasingType(), cameraPath_.GetResetDuration());
 
 		//デバッグのフラグが立っていた場合はデバッグ状態に遷移
 		if (cameraController_->GetCameraAnimationEditor()->GetIsDebug())

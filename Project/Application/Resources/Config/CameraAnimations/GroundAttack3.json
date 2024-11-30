@@ -1,54 +1,56 @@
 {
     "GroundAttack3": {
-        "InterpolationSpeedGraduallyEasingType": "EaseOut",
-        "KeyFrame0": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                0.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-            ],
-            "Time": 0.0
-        },
-        "KeyFrame1": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                2.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.600324809551239,
-                0.0,
-                0.7997562885284424
-            ],
-            "Time": 0.009999999776482582
-        },
-        "KeyFrame2": {
-            "EasingType": "Linear",
-            "Fov": 45.0,
-            "Position": [
-                2.0,
-                1.0,
-                -10.0
-            ],
-            "Rotation": [
-                0.0,
-                -0.6003559827804565,
-                0.0,
-                0.7997328639030457
-            ],
-            "Time": 1.3329999446868896
-        },
-        "ResetInterpolationSpeedGraduallyTime": 1.0
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    2.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.600324809551239,
+                    0.0,
+                    0.7997562885284424
+                ],
+                "Time": 0.009999999776482582
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    2.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    -0.6003559827804565,
+                    0.0,
+                    0.7997328639030457
+                ],
+                "Time": 1.3329999446868896
+            }
+        ],
+        "ResetDuration": 1.0,
+        "ResetEasingType": "EaseOut"
     }
 }
