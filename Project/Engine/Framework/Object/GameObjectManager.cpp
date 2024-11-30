@@ -70,7 +70,7 @@ void GameObjectManager::DrawUI()
 	//ゲームオブジェクトのUIを描画
 	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_)
 	{
-		if (gameObject->GetIsVisible())
+		if (gameObject->GetIsUiVisible())
 		{
 			gameObject->DrawUI();
 		}

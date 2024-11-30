@@ -30,6 +30,8 @@ namespace Mathf
 
 	float Norm(const Quaternion& quaternion);
 
+	Vector2 Lerp(const Vector2& v1, const Vector2& v2, float t);
+
 	Vector3 Normalize(const Vector3& v);
 
 	Vector3 Cross(const Vector3& v1, const Vector3& v2);

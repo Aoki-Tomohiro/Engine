@@ -88,6 +88,15 @@ namespace Mathf
 	}
 
 
+	Vector2 Lerp(const Vector2& v1, const Vector2& v2, float t)
+	{
+		Vector2 result{};
+		result.x = v1.x + t * (v2.x - v1.x);
+		result.y = v1.y + t * (v2.y - v1.y);
+		return result;
+	}
+
+
 	Vector3 Normalize(const Vector3& v)
 	{
 		Vector3 result{};

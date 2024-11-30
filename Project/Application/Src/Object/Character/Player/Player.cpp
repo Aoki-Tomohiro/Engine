@@ -45,30 +45,30 @@ void Player::Update()
 	//ダメージエフェクトの更新
 	UpdateDamageEffect();
 
+	//UIの更新
+	UpdateUI();
+
+	//UIの編集
+	EditUI();
+
 	//基底クラスの更新
 	BaseCharacter::Update();
 }
 
 void Player::DrawUI()
 {
-	//右トリガーの値が閾値を超えているかをチェック
-	bool shouldDrawSkillUI = input_->GetLeftTriggerValue() > kTriggerThreshold;
-
-	//ボタン数だけループ
-	for (int32_t i = 0; i < kMaxButtons; ++i)
+	//UIの数だけループ
+	for (int32_t i = 0; i < kMaxActionCount; ++i)
 	{
-		//右トリガーの値が閾値を超えていて、かつボタンがXまたはYの場合
-		if (shouldDrawSkillUI && (i == X || i == Y))
-		{
-			//XまたはYボタンに対応するスキルUIを描画
-			int skillIndex = (i == X) ? 0 : 1;
-			DrawSkillUI(skillUISettings_[skillIndex]);
-		}
-		else
-		{
-			//通常のボタンUIを描画
-			DrawButtonUI(buttonUISettings_[i]);
-		}
+		//通常のボタンUIを描画
+		DrawButtonUI(buttonUISettings_[i]);
+	}
+
+	//スキルの数だけループ
+	for (int32_t i = 0; i < skillConfigs_.size(); ++i)
+	{
+		//スキルのUIを描画
+		DrawSkillUI(skillUISettings_[i]);
 	}
 
 	//基底クラスの描画
@@ -177,8 +177,8 @@ void Player::InitializeActionMap()
 		{"Dodge", [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }},
 		{"Dash", [this]() { return buttonStates_[Player::ButtonType::LB].isTriggered; }},
 		{"Attack", [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }},
-		{"Magic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }},
-		{"ChargeMagic", [this]() { return input_->GetLeftTriggerValue() < kTriggerThreshold && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }},
+		{"Magic", [this]() { return buttonStates_[Player::ButtonType::LT].isReleased && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }},
+		{"ChargeMagic", [this]() { return buttonStates_[Player::ButtonType::LT].isReleased && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }},
 		{"FallingAttack",[this]() {return CheckFallingAttack(); }},
 		{"Ability",[this]() {return CheckAndTriggerAbility(); }},
 	};
@@ -239,7 +239,7 @@ void Player::InitializeUISprites()
 	};
 
 	//ボタンのUIの設定
-	for (int32_t i = 0; i < kMaxButtons; ++i)
+	for (int32_t i = 0; i < kMaxActionCount; ++i)
 	{
 		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
 	}
@@ -285,6 +285,7 @@ void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig&
 	uiSettings.buttonSprite.scale = config.buttonScale;
 	uiSettings.buttonSprite.sprite.reset(Sprite::Create(config.buttonTexture, config.buttonPosition));
 	uiSettings.buttonSprite.sprite->SetScale(config.buttonScale);
+	uiSettings.buttonSprite.sprite->SetAnchorPoint({ 0.5f,0.5f });
 
 	//フォントのスプライトの設定
 	uiSettings.fontSprite.position = config.fontPosition;
@@ -306,60 +307,91 @@ void Player::SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& co
 void Player::UpdateButtonStates()
 {
 	//全てのボタンの状態を更新
-	for (int32_t i = 0; i < kMaxButtons - 1; ++i)
+	for (int32_t i = 0; i < kMaxButtons; ++i)
 	{
-		//ボタンが押された瞬間の判定
-		if (input_->IsPressButtonEnter(buttonMappings_[i]))
-		{
-			//押されたフラグを立てる
-			buttonStates_[i].isPressed = true;
-			//押し始めた時間をリセット
-			buttonStates_[i].pressedFrame = 0;
-		}
+		UpdateButtonState(i);
+	}
+}
 
-		//ボタンが押されている場合の処理
-		if (buttonStates_[i].isPressed)
-		{
-			//押されたフレーム数を増やす
-			buttonStates_[i].pressedFrame++;
+void Player::UpdateButtonState(const int32_t buttonIndex)
+{
+	//ボタンの押下状態を判定
+	bool isPressButtonEnter = CheckButtonPress(buttonIndex);
 
-			//同時押しに対応するために少し余裕を持たせる
-			const int32_t kPressFrameThreshold = 3;
-			if (buttonStates_[i].pressedFrame >= kPressFrameThreshold)
-			{
-				//トリガーフラグを立てる
-				buttonStates_[i].isTriggered = true;
-				//押された状態をリセット
-				buttonStates_[i].isPressed = false;
-			}
-		}
-		else
-		{
-			//トリガーフラグをリセット
-			buttonStates_[i].isTriggered = false;
-		}
+	//ボタンが押された瞬間の判定
+	if (isPressButtonEnter)
+	{
+		//押されたフラグを立てる
+		buttonStates_[buttonIndex].isPressed = true;
+		//押し始めた時間をリセット
+		buttonStates_[buttonIndex].pressedFrame = 0;
+	}
 
-		//ボタンが離された瞬間の判定
-		if (input_->IsPressButtonExit(buttonMappings_[i]))
+	//ボタンが押されている場合の処理
+	if (buttonStates_[buttonIndex].isPressed)
+	{
+		//押されたフレーム数を増やす
+		buttonStates_[buttonIndex].pressedFrame++;
+
+		//同時押しに対応するために少し余裕を持たせる
+		const int32_t kPressFrameThreshold = 3;
+		if (buttonStates_[buttonIndex].pressedFrame >= kPressFrameThreshold)
 		{
-			//ボタンが押されているときに離されたらトリガーフラグを立てる
-			if (buttonStates_[i].isPressed)
-			{
-				buttonStates_[i].isTriggered = true;
-			}
-			//離されたフラグを立てる
-			buttonStates_[i].isReleased = true;
+			//トリガーフラグを立てる
+			buttonStates_[buttonIndex].isTriggered = true;
 			//押された状態をリセット
-			buttonStates_[i].isPressed = false;
-			//押し始めた時間をリセット
-			buttonStates_[i].pressedFrame = 0;
-		}
-		else
-		{
-			//離されたフラグをリセット
-			buttonStates_[i].isReleased = false;
+			buttonStates_[buttonIndex].isPressed = false;
 		}
 	}
+	else
+	{
+		//トリガーフラグをリセット
+		buttonStates_[buttonIndex].isTriggered = false;
+	}
+
+	//ボタンの離脱状態を判定
+	bool isPressButtonExit = CheckButtonRelease(buttonIndex);
+
+	//ボタンが離された瞬間の判定
+	if (isPressButtonExit)
+	{
+		//ボタンが押されているときに離されたらトリガーフラグを立てる
+		if (buttonStates_[buttonIndex].isPressed)
+		{
+			buttonStates_[buttonIndex].isTriggered = true;
+		}
+		//離されたフラグを立てる
+		buttonStates_[buttonIndex].isReleased = true;
+		//押された状態をリセット
+		buttonStates_[buttonIndex].isPressed = false;
+		//押し始めた時間をリセット
+		buttonStates_[buttonIndex].pressedFrame = 0;
+	}
+	else
+	{
+		//離されたフラグをリセット
+		buttonStates_[buttonIndex].isReleased = false;
+	}
+}
+
+bool Player::CheckButtonPress(const int32_t buttonIndex) const
+{
+	//ボタンの押下判定を返す
+	if (buttonIndex == ButtonType::LT)
+	{
+		return input_->GetLeftTriggerValue() > kTriggerThreshold;
+	}
+	return input_->IsPressButtonEnter(buttonMappings_[buttonIndex]);
+}
+
+bool Player::CheckButtonRelease(const int32_t buttonIndex) const
+{
+	//ボタンの離脱判定を返す
+	if (buttonIndex == ButtonType::LT)
+	{
+		return input_->GetLeftTriggerValue() <= kTriggerThreshold;
+	}
+	return input_->IsPressButtonExit(buttonMappings_[buttonIndex]);
 }
 
 void Player::UpdateCooldownTimer()
@@ -488,6 +520,93 @@ void Player::UpdateDamageEffect()
 
 	//ダメージのスプライトの色を設定
 	damageEffect_.sprite->SetColor(damageEffect_.color);
+}
+
+void Player::UpdateUI()
+{
+	//アクションボタンのUI更新
+	for (int32_t i = 0; i < kMaxActionCount; ++i)
+	{
+		UpdateButtonScale(buttonStates_[buttonConfigs_[i].buttonType], buttonConfigs_[i].buttonScale, buttonUISettings_[i].buttonSprite, buttonConfigs_[i].buttonType);
+	}
+
+	//スキルボタンのUI更新
+	for (int32_t i = 0; i < kMaxSkillCount; ++i)
+	{
+		UpdateButtonScale(buttonStates_[skillConfigs_[i].buttonConfig.buttonType], skillConfigs_[i].buttonConfig.buttonScale, skillUISettings_[i].buttonSettings.buttonSprite, buttonConfigs_[i].buttonType);
+	}
+}
+
+void Player::UpdateButtonScale(const ButtonState& buttonState, const Vector2& baseScale, SpriteSettings& spriteSetting, const ButtonType buttonType)
+{
+	//UIスケール拡大の倍率
+	const float kScaleMultiplier = 2.0f;
+	const float kTriggerScaleMultiplier = 1.3f;
+
+	//トリガーボタンの場合は特別なスケール倍率を適用
+	float scaleMultiplier = (buttonType == ButtonType::LT) ? kTriggerScaleMultiplier : kScaleMultiplier;
+
+	//スケール補間の目標値を設定
+	const Vector2 targetScale = (buttonState.isPressed || buttonState.isTriggered) ? baseScale * scaleMultiplier : baseScale;
+
+	//スケールを補間し適用
+	spriteSetting.scale = Mathf::Lerp(spriteSetting.scale, targetScale, 0.1f);
+	spriteSetting.sprite->SetScale(spriteSetting.scale);
+}
+
+void Player::EditUI()
+{
+	//UIのImGui開始
+	ImGui::Begin("UI");
+
+	//ボタンの編集
+	for (int32_t i = 0; i < kMaxActionCount; ++i)
+	{
+		EditButtonConfig(buttonConfigs_[i], buttonUISettings_[i]);
+	}
+
+	//スキルの編集
+	for (int32_t i = 0; i < kMaxSkillCount; ++i)
+	{
+		EditSkillConfig(skillConfigs_[i], skillUISettings_[i], i);
+	}
+
+	//UIのImGui終了
+	ImGui::End();
+}
+
+void Player::EditButtonConfig(ButtonConfig& config, ButtonUISettings& uiSettings)
+{
+	//区切り線
+	ImGui::Separator();
+
+	//ボタンの座標を編集
+	std::string buttonTextureButtonPositionName = config.buttonTexture + " Position";
+	ImGui::DragFloat2(buttonTextureButtonPositionName.c_str(), &config.buttonPosition.x, 0.1f);
+
+	//フォントの座標を編集
+	std::string buttonTextureFontPositionName = config.fontTexture + " Position";
+	ImGui::DragFloat2(buttonTextureFontPositionName.c_str(), &config.fontPosition.x, 0.1f);
+
+	//ボタンとフォントの設定を適用
+	uiSettings.buttonSprite.sprite->SetPosition(config.buttonPosition);
+	uiSettings.fontSprite.sprite->SetPosition(config.fontPosition);
+}
+
+void Player::EditSkillConfig(SkillConfig& config, SkillUISettings& uiSettings, const int32_t index)
+{
+	//区切り線
+	ImGui::Separator();
+
+	//ボタンの設定を編集
+	EditButtonConfig(config.buttonConfig, uiSettings.buttonSettings);
+
+	//スキルバーの座標を編集
+	std::string skillBarPositionName = "SkillBarPosition" + std::to_string(index);
+	ImGui::DragFloat2(skillBarPositionName.c_str(), &config.skillBarPosition.x, 0.1f);
+
+	//スキルバーの設定を適用
+	uiSettings.cooldownBarSprite->SetPosition(config.skillBarPosition);
 }
 
 void Player::DrawButtonUI(const ButtonUISettings& uiSettings)

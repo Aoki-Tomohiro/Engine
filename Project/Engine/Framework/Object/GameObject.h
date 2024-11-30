@@ -33,11 +33,15 @@ public:
 
 	const bool GetIsActive() const { return isActive_; };
 
+	void SetIsActive(bool isActive) { isActive_ = isActive; };
+
 	const bool GetIsVisible() const { return isVisible_; };
 
 	void SetIsVisible(bool isVisible) { isVisible_ = isVisible; };
 
-	void SetIsActive(bool isActive) { isActive_ = isActive; };
+	const bool GetIsUiVisible() const { return isUiVisible_; };
+
+	void SetIsUiVisible(const bool isUiVisible) { isUiVisible_ = isUiVisible; };
 
 	const bool GetIsDestroy() const { return isDestroy_; };
 
@@ -66,6 +70,9 @@ protected:
 
 	//描画フラグ
 	bool isVisible_ = true;
+
+	//UIの描画フラグ
+	bool isUiVisible_ = true;
 
 	//アクティブフラグ
 	bool isActive_ = true;

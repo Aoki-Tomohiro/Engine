@@ -16,10 +16,13 @@ public:
     //スキルの最大数
     static const int32_t kMaxSkillCount = 2;
 
+    //アクションの最大数
+    static const int32_t kMaxActionCount = 5;
+
     //ボタンの種類を示す列挙体
     enum ButtonType
     {
-        A, B, X, Y, LB, RB, RT, kMaxButtons,
+        A, B, X, Y, LB, RB, LT, kMaxButtons,
     };
 
     //ボタンの入力状態
@@ -56,6 +59,7 @@ public:
     //ボタンのUI設定情報
     struct ButtonConfig
     {
+        ButtonType buttonType;                //対応するボタン
         std::string buttonTexture;            //ボタンのテクスチャファイル名
         std::string fontTexture;              //フォントのテクスチャファイル名
         Vector2 buttonPosition{ 0.0f, 0.0f }; //ボタンの位置
@@ -231,9 +235,29 @@ private:
     void SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config);
 
     /// <summary>
-    /// ボタンの入力状態の更新
+    /// 全てのボタンの入力状態の更新
     /// </summary>
     void UpdateButtonStates();
+
+    /// <summary>
+    /// ボタン入力状態の更新
+    /// </summary>
+    /// <param name="buttonIndex">ボタンのインデックス</param>
+    void UpdateButtonState(const int32_t buttonIndex);
+
+    /// <summary>
+    /// ボタンが押されているかを確認
+    /// </summary>
+    /// <param name="buttonIndex">ボタンのインデックス</param>
+    /// <returns>ボタンが押されているか</returns>
+    bool CheckButtonPress(const int32_t buttonIndex) const;
+         
+    /// <summary>
+    /// ボタンが離されているかを確認
+    /// </summary>
+    /// <param name="buttonIndex">ボタンのインデックス</param>
+    /// <returns>ボタンが離されているか</returns>
+    bool CheckButtonRelease(const int32_t buttonIndex) const;
 
     /// <summary>
     /// クールダウンタイマーの更新
@@ -274,6 +298,40 @@ private:
     /// ダメージエフェクトの更新
     /// </summary>
     void UpdateDamageEffect();
+
+    /// <summary>
+    /// UIの更新
+    /// </summary>
+    void UpdateUI();
+
+    /// <summary>
+    /// ボタンのスケールの更新
+    /// </summary>
+    /// <param name="buttonState">ボタン入力の状態</param>
+    /// <param name="baseScale">基本のスケール</param>
+    /// <param name="spriteSetting">スプライトの設定</param>
+    /// <param name="buttonType">ボタンの種類</param>
+    void UpdateButtonScale(const ButtonState& buttonState, const Vector2& baseScale, SpriteSettings& spriteSetting, const ButtonType buttonType);
+
+    /// <summary>
+    /// UIの編集
+    /// </summary>
+    void EditUI();
+
+    /// <summary>
+    /// ボタンの設定を編集
+    /// </summary>
+    /// <param name="config">ボタンの設定</param>
+    /// <param name="uiSettings">UIの設定</param>
+    void EditButtonConfig(ButtonConfig& config, ButtonUISettings& uiSettings);
+
+    /// <summary>
+    /// スキルの設定を編集
+    /// </summary>
+    /// <param name="config">スキルの設定</param>
+    /// <param name="uiSettings">スキルのUI設定</param>
+    /// <param name="index">スキルのインデックス</param>
+    void EditSkillConfig(SkillConfig& config, SkillUISettings& uiSettings, const int32_t index);
 
     /// <summary>
     /// ボタンのUIの描画
@@ -335,26 +393,24 @@ private:
     };
 
     //ボタンのUIの設定
-    std::array<ButtonUISettings, kMaxButtons> buttonUISettings_{};
+    std::array<ButtonUISettings, kMaxActionCount> buttonUISettings_{};
 
     //ボタンのUIの構成
-    const std::array<ButtonConfig, kMaxButtons> buttonConfigs_{ {
-        { "xbox_button_a_outline.png", "Jump.png", {1000.0f, 630.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_b_outline.png", "Dash.png", {1048.0f, 582.0f}, {1108.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_x_outline.png", "Attack.png", {952.0f, 582.0f}, {880.0f, 596.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_button_y_outline.png", "Fire.png", {1000.0f, 534.0f}, {904.0f, 544.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_lb_outline.png", "Lockon.png", {1070.0f, 429.0f}, {1139.0f, 439.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_rb_outline.png", "Dodge.png", {1070.0f, 484.0f}, {1139.0f, 496.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { "xbox_rt_outline.png", "Change.png", {1070.0f, 370.0f}, {1139.0f, 382.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
+    std::array<ButtonConfig, kMaxActionCount> buttonConfigs_{ {
+        { ButtonType::A, "xbox_button_a_outline.png", "Jump.png", {1032.0f, 662.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::X, "xbox_button_x_outline.png", "Attack.png", {974.0f, 604.0f}, {870.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::LB, "xbox_lb_outline.png", "Dash.png", {1142.0f, 451.0f}, {1172.0f, 429.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::RB, "xbox_rb_outline.png", "Dodge.png", {1142.0f, 506.0f}, {1182.0f, 486.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::LT, "xbox_rt_outline.png", "Fire.png", {1142.0f, 390.0f}, {1172.0f, 372.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
     };
 
     //スキルのUIの設定
     std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
 
     //スキルのUIの構成
-    const std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
-        { "xbox_button_x_outline.png", "LaunchAttack.png", { 952.0f, 582.0f }, { 790.0f,596.0f }, {1.0f, 1.0f}, {0.3f, 0.3f}, { 955.0f, 580.0f }, { 28.0f,4.0f }},
-        { "xbox_button_y_outline.png", "SpinAttack.png", { 1000.0f,534.0f }, { 880.0f,544.0f }, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1004.0f,530.0f }, { 28.0f,4.0f }},}
+    std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
+        { ButtonType::Y, "xbox_button_y_outline.png", "LaunchAttack.png", {1032.0f, 546.0f}, {840.0f, 524.0f}, {1.0f, 1.0f}, {0.3f, 0.3f}, { 1004.0f, 500.0f }, { 28.0f,4.0f }},
+        { ButtonType::B, "xbox_button_b_outline.png", "SpinAttack.png", {1090.0f, 604.0f}, {1118.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1062.0f, 558.0f }, { 28.0f,4.0f }},}
     };
 
     //魔法攻撃用ワーク
