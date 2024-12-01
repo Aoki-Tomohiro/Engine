@@ -42,7 +42,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent05": {
-                    "CancelType": "Ability",
+                    "CancelType": "Ability2",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0

@@ -14,6 +14,11 @@ public:
 	void Start(const float duration);
 
 	/// <summary>
+	/// ヒットストップを停止
+	/// </summary>
+	void Stop();
+
+	/// <summary>
 	/// 更新
 	/// </summary>
 	void Update();

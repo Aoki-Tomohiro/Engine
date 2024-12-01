@@ -20,6 +20,15 @@ void PlayerStateDash::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
+	//状態遷移していた場合
+	if (HasStateTransitioned())
+	{
+		//ダッシュ攻撃のフラグを立てる
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kDashAttackEnabled, true);
+		//ダッシュ終了処理
+		FinalizeDash();
+	}
+
 	//現在のアニメーションがダッシュ終了かつアニメーションが終了していた場合
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{	

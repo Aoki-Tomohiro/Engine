@@ -14,7 +14,7 @@
                     "TargetPosition": [
                         0.0,
                         0.0,
-                        12.0
+                        10.0
                     ],
                     "UseStickInput": true
                 },
@@ -27,7 +27,7 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 2.4000000953674316,
                     "Duration": 1.6670000553131104
                 }
             },

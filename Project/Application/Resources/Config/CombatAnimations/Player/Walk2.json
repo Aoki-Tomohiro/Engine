@@ -1,7 +1,17 @@
 {
     "Player": {
         "Walk2": {
-            "AnimationEvents": null,
+            "AnimationEvents": {
+                "AnimationEvent00": {
+                    "EndEventTime": 1.2999999523162842,
+                    "EventTrigger": "EnemyJustDodgeWindow",
+                    "EventType": "QTE",
+                    "QteType": "Dodge",
+                    "RequiredTime": 2.0,
+                    "StartEventTime": 0.0,
+                    "TimeScale": 0.009999999776482582
+                }
+            },
             "AnimationSpeedConfigs": null,
             "InPlaceAxis": [
                 0.0,

@@ -10,7 +10,7 @@ class Trail
 {
 public:
 	//軌跡の最大数
-	static const uint32_t kMaxTrails = 1024;
+	static const uint32_t kMaxTrails = 2048;
 
 	//軌跡データ
 	struct TrailData

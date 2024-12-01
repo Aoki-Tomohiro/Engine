@@ -219,6 +219,9 @@ void CombatAnimationEditor::SaveAnimationEvents(const std::vector<std::shared_pt
 		case EventType::kCameraAnimation:
 			SaveCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()), eventJson);
 			break;
+		case EventType::kQTE:
+			SaveQTE(dynamic_cast<QTE*>(animationEvents[i].get()), eventJson);
+			break;
 		case EventType::kCancel:
 			SaveCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()), eventJson);
 			break;
@@ -299,6 +302,13 @@ void CombatAnimationEditor::SaveCameraAnimationEvent(const CameraAnimationEvent*
 		{"EventTrigger", EVENT_TRIGGERS[static_cast<int>(cameraAnimationEvent->trigger)]} });
 }
 
+void CombatAnimationEditor::SaveQTE(const QTE* qte, nlohmann::json& eventJson)
+{
+	//パラメーターを保存
+	eventJson.update({ {"EventType", "QTE"},{"StartEventTime", qte->startEventTime},{"EndEventTime", qte->endEventTime}, {"RequiredTime", qte->requiredTime},
+		{"QteType", qte->qteType}, {"TimeScale",qte->timeScale}, {"EventTrigger", EVENT_TRIGGERS[static_cast<int>(qte->trigger)]} });
+}
+
 void CombatAnimationEditor::SaveCancelEvent(const CancelEvent* cancelEvent, nlohmann::json& eventJson)
 {
 	//パラメーターを保存
@@ -310,7 +320,6 @@ void CombatAnimationEditor::SaveBufferedActionEvent(const BufferedActionEvent* b
 	//パラメーターを保存
 	eventJson.update({ {"EventType", "BufferedAction"},{"StartEventTime", bufferedActionEvent->startEventTime},{"EndEventTime", bufferedActionEvent->endEventTime},{"BufferedActionType", bufferedActionEvent->bufferedActionType} });
 }
-
 
 void CombatAnimationEditor::LoadFiles()
 {
@@ -427,6 +436,11 @@ void CombatAnimationEditor::LoadAnimationEvents(std::vector<std::shared_ptr<Anim
 		else if (eventType == "CameraAnimation")
 		{
 			animationEvent = LoadCameraAnimationEvent(eventItem);
+		}
+		//QTEを読み込む
+		else if (eventType == "QTE")
+		{
+			animationEvent = LoadQTE(eventItem);
 		}
 		//キャンセルイベントを読み込む
 		else if (eventType == "Cancel")
@@ -612,6 +626,28 @@ std::shared_ptr<CameraAnimationEvent> CombatAnimationEditor::LoadCameraAnimation
 	return cameraAnimationEvent;
 }
 
+std::shared_ptr<QTE> CombatAnimationEditor::LoadQTE(const nlohmann::json& eventJson)
+{
+	//QTEを生成
+	std::shared_ptr<QTE> qte = std::make_shared<QTE>();
+	//イベントタイプを設定
+	qte->eventType = EventType::kQTE;
+	//アニメーションイベントの開始時間を設定
+	qte->startEventTime = eventJson["StartEventTime"];
+	//アニメーションイベントの終了時間を設定
+	qte->endEventTime = eventJson["EndEventTime"];
+	//QTEの受付時間を設定
+	qte->requiredTime = eventJson["RequiredTime"];
+	//QTEの種類を設定
+	qte->qteType = eventJson["QteType"];
+	//タイムスケールを設定
+	qte->timeScale = eventJson["TimeScale"];
+	//イベントのトリガー条件を設定
+	SetEnumFromJson(eventJson["EventTrigger"], qte->trigger, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS));
+	//生成したQTEを返す
+	return qte;
+}
+
 std::shared_ptr<CancelEvent> CombatAnimationEditor::LoadCancelEvent(const nlohmann::json& eventJson)
 {
 	//キャンセルイベントを生成
@@ -763,6 +799,10 @@ void CombatAnimationEditor::AddAnimationEvent(std::vector<std::shared_ptr<Animat
 		//カメラアニメーションイベントの追加
 		AddCameraAnimationEvent(animationEvents);
 		break;
+	case EventType::kQTE:
+		//QTEの追加
+		AddQTE(animationEvents);
+		break;
 	case EventType::kCancel:
 		//キャンセルイベントの追加
 		AddCancelEvent(animationEvents);
@@ -833,6 +873,15 @@ void CombatAnimationEditor::AddCameraAnimationEvent(std::vector<std::shared_ptr<
 	}
 }
 
+void CombatAnimationEditor::AddQTE(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
+{
+	//QTEを追加
+	if (ImGui::Button("QTEを追加"))
+	{
+		animationEvents.push_back(std::make_shared<QTE>());
+	}
+}
+
 void CombatAnimationEditor::AddCancelEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents)
 {
 	//キャンセルイベントを追加
@@ -855,7 +904,7 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 {
 	//アニメーションイベントの名前
 	static const std::unordered_map<EventType, std::string> eventNames = { { EventType::kMovement, "移動イベント " }, { EventType::kRotation, "回転イベント "}, { EventType::kAttack, "攻撃イベント " },
-		{ EventType::kEffect, "エフェクトイベント "},{ EventType::kCameraAnimation, "カメラアニメーションイベント "},{ EventType::kCancel, "キャンセルイベント " },{ EventType::kBufferedAction, "先行入力イベント " },
+		{ EventType::kEffect, "エフェクトイベント "},{ EventType::kCameraAnimation, "カメラアニメーションイベント "}, { EventType::kQTE, "QTE "}, { EventType::kCancel, "キャンセルイベント " }, { EventType::kBufferedAction, "先行入力イベント " }
 	};
 
 	//アニメーションイベントのインデックス
@@ -893,6 +942,9 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 				break;
 			case EventType::kCameraAnimation:
 				EditCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()));
+				break;
+			case EventType::kQTE:
+				EditQTE(dynamic_cast<QTE*>(animationEvents[i].get()), character->GetActionKeys());
 				break;
 			case EventType::kCancel:
 				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()), character->GetActionKeys());
@@ -1084,6 +1136,24 @@ void CombatAnimationEditor::EditBufferedActionEvent(BufferedActionEvent* buffere
 
 	//先行入力の種類を選択
 	EditCombo("先行入力の種類", bufferedActionEvent->bufferedActionType, actions);
+}
+
+void CombatAnimationEditor::EditQTE(QTE* qte, const std::vector<std::string>& actions)
+{
+	//アニメーションイベントの時間を編集
+	EditEventTime(qte);
+
+	//QTEの種類を選択
+	EditCombo("QTEの種類", qte->qteType, actions);
+
+	//QTE受付時間を編集
+	ImGui::DragFloat("QTEの受付時間", &qte->requiredTime, 0.01f);
+
+	//タイムスケールを編集
+	ImGui::DragFloat("タイムスケール", &qte->timeScale, 0.001f);
+
+	//イベントのトリガー条件を選択
+	SelectFromEnum("イベントの発生条件", qte->trigger, EVENT_TRIGGERS, IM_ARRAYSIZE(EVENT_TRIGGERS));
 }
 
 void CombatAnimationEditor::EditCombo(const char* label, std::string& selectedName, const std::vector<std::string>& items)

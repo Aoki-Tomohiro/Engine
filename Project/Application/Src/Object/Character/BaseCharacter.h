@@ -124,11 +124,25 @@ public:
     Vector3 GetJointLocalPosition(const std::string& jointName) const;
 
     /// <summary>
-    /// アクションが実行可能かどうかを返す
+    /// アクションが実行可能かどうかを返す（状態条件とトリガー条件の両方）
     /// </summary>
     /// <param name="actionName">アクション名</param>
-    /// <returns>アクションが実行可能かどうか</returns>
-    const bool GetActionCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName)() : false; };
+    /// <returns>アクションが実行可能かどうか（状態条件とトリガー条件の両方）</returns>
+    const bool IsActionExecutable(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName).stateCondition() && actionMap_.at(actionName).triggerCondition() : false; };
+
+    /// <summary>
+    /// アクションが実行可能かどうかを返す（状態条件のみ）
+    /// </summary>
+    /// <param name="actionName">アクション名</param>
+    /// <returns>アクションが実行可能かどうか（状態条件のみ）</returns>
+    const bool GetActionStateCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName).stateCondition() : false; };
+
+    /// <summary>
+    /// アクションが実行可能かどうかを返す（トリガー条件のみ）
+    /// </summary>
+    /// <param name="actionName">アクション名</param>
+    /// <returns>アクションが実行可能かどうか（トリガー条件のみ）</returns>
+    const bool GetActionTriggerCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName).triggerCondition() : false; };
 
     //座標を設定・取得
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
@@ -145,6 +159,14 @@ public:
     //ノックバックのパラメーターを取得・設定
     const KnockbackParameters& GetKnockbackParameters() const { return knockbackParameters_; };
     void SetKnockbackParameters(const KnockbackParameters& knockbackParameters) { knockbackParameters_ = knockbackParameters; };
+
+    //ジャスト回避が可能かどうかを取得・設定
+    const bool GetIsVulnerableToPerfectDodge() const { return isVulnerableToPerfectDodge_; };
+    void SetIsVulnerableToPerfectDodge(const bool isVulnerableToPerfectDodge) { isVulnerableToPerfectDodge_ = isVulnerableToPerfectDodge; };
+
+    //スタン状態に遷移したかどうかを取得・設定
+    const bool GetIsStunTriggered() const { return isStunTriggered_; };
+    void SetIsStunTriggered(const bool isStunTriggered) { isStunTriggered_ = isStunTriggered; };
 
     //ゲームの終了状態の取得・設定
     const bool GetIsGameFinished() const { return isGameFinished_; };
@@ -198,6 +220,13 @@ public:
     AABBCollider* GetCollider() const { return collider_; };
 
 protected:
+    //アクションの実行条件を格納する構造体
+    struct ActionCondition
+    {
+        std::function<bool()> stateCondition;   //ゲームの状態やキャラクターの状況に基づく追加条件
+        std::function<bool()> triggerCondition; //アクションをトリガーするための条件（ボタン入力やその他の条件）
+    };
+
     //モデルシェイク用の構造体
     struct ModelShake
     {
@@ -383,7 +412,7 @@ protected:
     ModelShake modelShake_{};
 
     //アクションに対応する条件式を保持するマップ
-    std::map<std::string, std::function<bool()>> actionMap_{};
+    std::map<std::string, ActionCondition> actionMap_{};
 
     //オーディオハンドル
     std::map<std::string, uint32_t> audioHandles_{};
@@ -405,6 +434,12 @@ protected:
 
     //体力のスプライトサイズ
     Vector2 hpBarSegmentTextureSize_ = { 480.0f,18.0f };
+
+    //ジャスト回避が可能かどうか
+    bool isVulnerableToPerfectDodge_ = false;
+
+    //スタン状態に遷移したかどうか
+    bool isStunTriggered_ = false;
 
     //タイトルシーンにいるかどうか
     bool isInTitleScene_ = false;

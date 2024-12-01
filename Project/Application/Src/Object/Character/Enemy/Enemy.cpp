@@ -82,18 +82,18 @@ void Enemy::InitializeActionMap()
 
 	//アクションマップの初期化
 	actionMap_ = {
-		{"None", [this]() { return true; }},
-		{"Idle", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"MoveTowardPlayer", [this, withinApproachRange]() { return !withinApproachRange(); }},
-		{"MoveAwayFromPlayer", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"MoveSideToPlayer", [this, withinApproachRange, withinCloseRangeAttackRange]() {return withinApproachRange() && !withinCloseRangeAttackRange(); }},
-		{"Dodge", [this, withinRangedAttackRange]() {return withinRangedAttackRange(); }},
-		{"Approach", [this, withinApproachRange, withinRangedAttackRange]() {return !withinApproachRange(); }},
-		{"Attack", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"VerticalSlash", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"SpinSlash", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"ComboSlash1", [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }},
-		{"ComboSlash2", [this, withinApproachRange]() { return withinApproachRange(); }},
+		{"None", ActionCondition{[this]() {return true; }, [this]() { return true; }}},
+		{"Idle", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"MoveTowardPlayer", ActionCondition{[this]() {return true; }, [this, withinApproachRange]() { return !withinApproachRange(); }}},
+		{"MoveAwayFromPlayer", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"MoveSideToPlayer", ActionCondition{[this]() {return true; }, [this, withinApproachRange, withinCloseRangeAttackRange]() {return withinApproachRange() && !withinCloseRangeAttackRange(); }}},
+		{"Dodge", ActionCondition{[this]() {return true; }, [this, withinRangedAttackRange]() {return withinRangedAttackRange(); }}},
+		{"Approach", ActionCondition{[this]() {return true; }, [this, withinApproachRange, withinRangedAttackRange]() {return !withinApproachRange(); }}},
+		{"Attack", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"VerticalSlash", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"SpinSlash", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"ComboSlash1", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
+		{"ComboSlash2", ActionCondition{[this]() {return true; }, [this, withinApproachRange]() { return withinApproachRange(); }}},
 	};
 }
 

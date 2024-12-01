@@ -48,14 +48,14 @@ void BaseCharacter::Update()
     //モデルシェイクの更新
     UpdateModelShake();
 
+    //新しい状態に遷移
+    TransitionToNextState();
+
     //状態の更新
     if (currentState_)
     {
         currentState_->Update();
     }
-
-    //新しい状態に遷移
-    TransitionToNextState();
 
     //回転処理
     UpdateRotation();
@@ -108,6 +108,9 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
     //スタン状態に遷移するかどうかをチェック
     if (transitionToStun)
     {
+        //スタン状態のフラグを立てる
+        isStunTriggered_ = true;
+        //スタン状態に遷移
         ChangeState("Stun");
     }
 }

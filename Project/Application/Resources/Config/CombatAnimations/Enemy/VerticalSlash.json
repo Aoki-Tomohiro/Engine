@@ -2,7 +2,7 @@
     "Enemy": {
         "VerticalSlash": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 0.6000000238418579,
                     "EventType": "Movement",
@@ -18,7 +18,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 1.0,
                     "EventType": "Movement",
@@ -34,7 +34,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 1.600000023841858,
                     "EventType": "Movement",
@@ -50,9 +50,9 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "Damage": 6.0,
-                    "EndEventTime": 1.600000023841858,
+                    "EndEventTime": 1.5,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
                     "HitboxCenter": [
@@ -77,9 +77,9 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 1.0
+                    "StartEventTime": 1.399999976158142
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "CameraShakeDuration": 0.20000000298023224,
                     "CameraShakeIntensity": [
                         0.0,

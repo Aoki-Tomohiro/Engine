@@ -181,6 +181,13 @@ private:
 	void SaveCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, nlohmann::json& eventJson);
 
 	/// <summary>
+	/// QTEを保存
+	/// </summary>
+	/// <param name="qte">QTE</param>
+	/// <param name="eventJson">イベントのjsonobject</param>
+	void SaveQTE(const QTE* qte, nlohmann::json& eventJson);
+
+	/// <summary>
 	/// キャンセルイベントを保存
 	/// </summary>
 	/// <param name="cancelEvent">キャンセルイベント</param>
@@ -277,6 +284,13 @@ private:
 	std::shared_ptr<CameraAnimationEvent> LoadCameraAnimationEvent(const nlohmann::json& eventJson);
 
 	/// <summary>
+	/// QTEを生成して返す
+	/// </summary>
+	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
+	/// <returns>QTE</returns>
+	std::shared_ptr<QTE> LoadQTE(const nlohmann::json& eventJson);
+
+	/// <summary>
 	/// キャンセルイベントを生成して返す
 	/// </summary>
 	/// <param name="eventJson">アニメーションイベントのjsonオブジェクト</param>
@@ -352,6 +366,12 @@ private:
 	void AddCameraAnimationEvent(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
 
 	/// <summary>
+	/// QTEを追加
+	/// </summary>
+	/// <param name="animationEvents">アニメーションイベントの配列</param>
+	void AddQTE(std::vector<std::shared_ptr<AnimationEvent>>& animationEvents);
+
+	/// <summary>
 	/// キャンセルイベントを追加
 	/// </summary>
 	/// <param name="animationEvents">アニメーションイベントの配列</param>
@@ -400,6 +420,13 @@ private:
 	/// </summary>
 	/// <param name="cameraAnimationEvent">カメラアニメーションイベント</param>
 	void EditCameraAnimationEvent(CameraAnimationEvent* cameraAnimationEvent);
+
+	/// <summary>
+	/// QTEを編集
+	/// </summary>
+	/// <param name="qte">QTE</param>
+	/// <param name="actions">アクションの名前一覧</param>
+	void EditQTE(QTE* qte, const std::vector<std::string>& actions);
 
 	/// <summary>
 	/// キャンセルイベントを編集

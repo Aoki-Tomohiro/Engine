@@ -85,9 +85,10 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 		return new PlayerStateMagicAttack();
 	}
 	//アビリティ状態に遷移
-	else if (stateName == "Ability")
+	else if (stateName == "Ability1" || stateName == "Ability2")
 	{
-		return new PlayerStateAbility();
+		size_t pos = stateName.find_first_of("0123456789");
+		return new PlayerStateAbility(std::stoi(stateName.substr(pos)));
 	}
 	//スタン状態に遷移
 	else if (stateName == "Stun")

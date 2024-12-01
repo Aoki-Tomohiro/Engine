@@ -150,7 +150,8 @@ void Weapon::UpdateTrail()
 	if (isTrailActive_)
 	{
 		//タイマーを進める
-		addVertexTimer_ += GameTimer::GetDeltaTime();
+		const float kDeltaTime = 1.0f / 60.0f;
+		addVertexTimer_ += kDeltaTime;
 
 		//タイマーが一定値を超えていた場合
 		if (addVertexTimer_ > trailVertexInterval_)

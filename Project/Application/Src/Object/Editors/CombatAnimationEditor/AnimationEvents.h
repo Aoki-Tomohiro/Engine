@@ -12,6 +12,7 @@ enum class EventType
     kAttack,          //攻撃イベント
     kEffect,          //エフェクトイベント
     kCameraAnimation, //カメラアニメーションイベント
+    kQTE,             //QTE
     kCancel,          //キャンセルイベント
     kBufferedAction,  //先行入力イベント
     kMaxEvent,        //イベントの最大数
@@ -146,8 +147,10 @@ struct AttackEvent : public AnimationEvent
 //イベントのトリガー条件
 enum class EventTrigger
 {
-    kActionStart, //アクション開始時
-    kImpact,      //攻撃ヒット時
+    kActionStart,          //アクション開始時
+    kImpact,               //攻撃ヒット時
+    kEnemyJustDodgeWindow, //敵が攻撃を開始した瞬間
+    kEnemyStunned,         //敵がスタンした瞬間
 };
 
 //ポストエフェクトの種類
@@ -188,6 +191,21 @@ struct CameraAnimationEvent : public AnimationEvent
 
 #pragma endregion
 
+#pragma region QTE
+
+//QTE
+struct QTE : public AnimationEvent
+{
+    QTE() : AnimationEvent(EventType::kQTE) {};
+
+    std::string qteType{};      //QTEアクションタイプ
+    float requiredTime = 0.0f;  //入力受付時間
+    float timeScale = 0.01f;    //タイムスケール
+    EventTrigger trigger{};     //イベントのトリガー条件
+};
+
+#pragma endregion
+
 #pragma region キャンセルイベント
 
 //キャンセルイベント
@@ -217,12 +235,12 @@ struct BufferedActionEvent : public AnimationEvent
 //イベントタイプに対応する文字列配列
 namespace
 {
-    const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "Effect", "CameraAnimation", "Cancel", "Buffered Action"}; //イベントタイプ
-    const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                   //移動イベントタイプ
-    const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                               //イージングタイプ
-    const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" };                                                                //イベントのトリガー条件
-    const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                                                  //リアクションタイプ
-    const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };                                                                //ポストエフェクトのタイプ
+    const char* EVENT_TYPES[] = { "Movement", "Rotation", "Attack", "Effect", "CameraAnimation", "QTE", "Cancel", "Buffered Action",}; //イベントタイプ
+    const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                           //移動イベントタイプ
+    const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                                       //イージングタイプ
+    const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" , "EnemyJustDodgeWindow", "EnemyStunned" };                               //イベントのトリガー条件
+    const char* REACTION_TYPES[] = { "Flinch", "Knockback" };                                                                          //リアクションタイプ
+    const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };                                                                        //ポストエフェクトのタイプ
 }
 
 #pragma endregion

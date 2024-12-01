@@ -2,7 +2,7 @@
     "Enemy": {
         "SpinSlash": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseInOut",
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Movement",
@@ -18,7 +18,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Movement",
@@ -34,7 +34,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Rotation",
@@ -46,9 +46,9 @@
                     ],
                     "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "Damage": 4.0,
-                    "EndEventTime": 1.100000023841858,
+                    "EndEventTime": 1.2000000476837158,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
                     "HitboxCenter": [
@@ -73,9 +73,9 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinch",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 1.100000023841858
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "Damage": 6.0,
                     "EndEventTime": 1.2999999523162842,
                     "EventType": "Attack",
@@ -102,9 +102,9 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 1.100000023841858
+                    "StartEventTime": 1.2000000476837158
                 },
-                "AnimationEvent5": {
+                "AnimationEvent05": {
                     "CameraShakeDuration": 0.05999999865889549,
                     "CameraShakeIntensity": [
                         0.0,

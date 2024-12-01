@@ -3,6 +3,9 @@
 
 void CharacterStateStun::Initialize()
 {
+	//スタン状態のフラグを解除
+	character_->SetIsStunTriggered(false);
+
 	//アニメーションブレンドを無効にする
 	character_->GetAnimator()->SetIsBlending(false);
 

@@ -77,7 +77,7 @@ bool EnemyStateMove::DecideAttackAction()
 	for (const auto& action : actions)
 	{
 		//遷移条件が満たされていた場合
-		if (character_->GetActionCondition(action))
+		if (character_->IsActionExecutable(action))
 		{
 			//対応する状態に遷移
 			character_->ChangeState(action);
@@ -95,7 +95,7 @@ bool EnemyStateMove::TryTransitionToDodgeState()
 	if (GetEnemy()->GetActionFlag(Enemy::ActionFlag::kCanDodge))
 	{
 		//回避条件が満たされていない場合は処理を飛ばす
-		if (!character_->GetActionCondition("Dodge")) return false;
+		if (!character_->IsActionExecutable("Dodge")) return false;
 
 		//プレイヤーが攻撃中でなければ処理を飛ばす
 		if (!GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetActionFlag(Player::ActionFlag::kIsAttacking)) return false;

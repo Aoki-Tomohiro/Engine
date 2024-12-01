@@ -28,6 +28,18 @@ void PlayerStateRoot::Update()
 		return;
 	}
 
+	//アニメーションイベントを実行
+	if (!currentAnimationName_.empty())
+	{
+		UpdateAnimationState();
+	}
+
+	//QTEが受付中の場合はスキップ
+	for (const ProcessedQTEData& qteData : processedQTEDatas_)
+	{
+		if (qteData.isQTEActive) return;
+	}
+
 	//スティックの入力を取得
 	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
 
@@ -59,13 +71,13 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 void PlayerStateRoot::HandleStateTransitionInternal()
 {
 	//遷移可能なアクション一覧
-	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability" };
+	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability1", "Ability2" };
 
 	//アクションリストをループし、ボタン入力をチェック
 	for (const auto& action : actions)
 	{
 		//対応するボタンが押されていた場合
-		if (GetPlayer()->GetActionCondition(action))
+		if (GetPlayer()->IsActionExecutable(action))
 		{
 			//対応する状態に遷移
 			character_->ChangeState(action);
@@ -82,7 +94,7 @@ void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
 		//現在のアニメーションを通常状態に変更
 		currentAnimationName_ = "Idle";
 		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
+		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true);
 	}
 }
 
@@ -145,7 +157,8 @@ void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 	{
 		//現在のアニメーションを更新
 		currentAnimationName_ = animationName;
-		GetCharacter()->GetAnimator()->PlayAnimation(currentAnimationName_, 1.0f, true, { 0.0f, 0.0f, 1.0f });
+		//歩きの閾値を超えていない場合は待機アニメーションを設定
+		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true);
 	}
 }
 

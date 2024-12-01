@@ -47,21 +47,8 @@ void PlayerStateAbility::OnCollision(GameObject* other)
 
 const std::string PlayerStateAbility::GetAbilityNameAndResetFlag() const
 {
-	//プレイヤーを取得
-	Player* player = GetPlayer();
-
-	//1番目または2番目のアビリティをフラグに基づいて取得
-	if (player->GetActionFlag(Player::ActionFlag::kAbility1Enabled))
-	{
-		//1番目のアビリティ
-		player->SetActionFlag(Player::ActionFlag::kAbility1Enabled, false);
-		return player->GetAbilityName(false);
-	}
-	else if (player->GetActionFlag(Player::ActionFlag::kAbility2Enabled))
-	{
-		//2番目のアビリティ
-		player->SetActionFlag(Player::ActionFlag::kAbility2Enabled, false);
-		return player->GetAbilityName(true);
-	}
-	return ""; //フラグが立っていない場合は空文字
+	//最初のアビリティかどうかを判別
+	bool isSecond = abilityIndex_ != 1;
+	//アビリティの名前を返す
+	return GetPlayer()->GetAbilityName(isSecond);
 }

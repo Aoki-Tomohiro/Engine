@@ -14,6 +14,16 @@ void HitStop::Start(const float duration)
     }
 }
 
+void HitStop::Stop()
+{
+    //アクティブフラグをリセット
+    isActive_ = false;
+    //残り時間をリセット
+    remainingTime_ = 0.0f;
+    //ゲームタイムスケールを通常に戻してゲームの進行を再開
+    GameTimer::SetTimeScale(1.0f);
+}
+
 void HitStop::Update()
 {
     //ヒットストップが有効の場合のみ処理

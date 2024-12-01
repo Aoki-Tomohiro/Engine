@@ -17,12 +17,12 @@ public:
     static const int32_t kMaxSkillCount = 2;
 
     //アクションの最大数
-    static const int32_t kMaxActionCount = 5;
+    static const int32_t kMaxActionCount = 6;
 
     //ボタンの種類を示す列挙体
     enum ButtonType
     {
-        A, B, X, Y, LB, RB, LT, kMaxButtons,
+        A, B, X, Y, LB, RB, LT, XA, kMaxButtons,
     };
 
     //ボタンの入力状態
@@ -56,6 +56,14 @@ public:
         std::unique_ptr<Sprite> cooldownBarSprite{}; //スキルクールダウンバーのスプライト
     };
 
+    //QTEのUI設定
+    struct QTEButtonUI
+    {
+        bool isVisible = false;                 //描画フラグ
+        ButtonUISettings buttonSettings{};      //ボタンのスプライト設定
+        SpriteSettings qteBarSettings{};        //QTEの受付時間のスプライト
+    };
+
     //ボタンのUI設定情報
     struct ButtonConfig
     {
@@ -74,6 +82,17 @@ public:
         ButtonConfig buttonConfig{};            //スキルボタンの設定
         Vector2 skillBarPosition{ 0.0f, 0.0f }; //スキルバーの位置
         Vector2 skillBarScale{ 1.0f, 1.0f };    //スキルバーのスケール
+    };
+
+    //QTEのUI設定情報
+    struct QTEUIConfig
+    {
+        Vector2 buttonPosition{ 0.0f, 0.0f }; //ボタンの位置
+        Vector2 buttonScale{ 1.0f, 1.0f };    //フォントのスケール
+        Vector2 fontPosition{ 0.0f, 0.0f };   //ボタンの位置
+        Vector2 fontScale{ 1.0f, 1.0f };      //フォントのスケール
+        Vector2 qteBarPosition{ 0.0f, 0.0f }; //QTEのバーの座標
+        Vector2 qteBarScale{ 1.0f, 1.0f };    //QTEのバーのスケール
     };
 
     //アクションフラグ
@@ -334,6 +353,19 @@ private:
     void EditSkillConfig(SkillConfig& config, SkillUISettings& uiSettings, const int32_t index);
 
     /// <summary>
+    /// QTEの設定を編集
+    /// </summary>
+    /// <param name="config">QTEの設定</param>
+    /// <param name="uiSettings">QTEのUI設定</param>
+    /// <param name="actionName">アクションの名前</param>
+    void EditQTEConfig(QTEUIConfig& config, QTEButtonUI& uiSettings, const std::string& actionName);
+
+    /// <summary>
+    /// QTEの要素の更新
+    /// </summary>
+    void UpdateQTEElements();
+
+    /// <summary>
     /// ボタンのUIの描画
     /// </summary>
     /// <param name="uiSettings">UIの設定</param>
@@ -346,24 +378,23 @@ private:
     void DrawSkillUI(const SkillUISettings& uiSettings);
 
     /// <summary>
+    /// QTEのUIの描画
+    /// </summary>
+    /// <param name="uiSettings">QTEのUIの設定</param>
+    void DrawQTEUI(const QTEButtonUI& uiSettings);
+
+    /// <summary>
     /// 落下攻撃の条件を確認して発動
     /// </summary>
     /// <returns>発動したかどうか</returns>
     bool CheckFallingAttack();
 
     /// <summary>
-    /// アビリティの条件を確認して発動
+    /// 指定されたスキルが使用可能な状態かどうかを判別
     /// </summary>
-    /// <returns>発動したかどうか</returns>
-    bool CheckAndTriggerAbility();
-
-    /// <summary>
-    /// アビリティが使用可能かを確認
-    /// </summary>
-    /// <param name="skill">スキル</param>
-    /// <param name="button">ボタン</param>
-    /// <returns>アビリティを使用できるかどうか</returns>
-    bool IsAbilityAvailable(const SkillParameters& skill, const Player::ButtonType button);
+    /// <param name="skill">スキルのパラメーター</param>
+    /// <returns>スキルが使用可能かどうか</returns>
+    bool IsAbilityUsable(const SkillParameters& skill) const;
 
 private:
     //インプット
@@ -399,9 +430,10 @@ private:
     std::array<ButtonConfig, kMaxActionCount> buttonConfigs_{ {
         { ButtonType::A, "xbox_button_a_outline.png", "Jump.png", {1032.0f, 662.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
         { ButtonType::X, "xbox_button_x_outline.png", "Attack.png", {974.0f, 604.0f}, {870.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::LB, "xbox_lb_outline.png", "Dash.png", {1142.0f, 451.0f}, {1172.0f, 429.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::RB, "xbox_rb_outline.png", "Dodge.png", {1142.0f, 506.0f}, {1182.0f, 486.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::LT, "xbox_rt_outline.png", "Fire.png", {1142.0f, 390.0f}, {1172.0f, 372.0f}, {0.5f, 0.5f}, {0.3f, 0.3f} }}
+        { ButtonType::LB, "xbox_lb_outline.png", "Dash.png", {1132.0f, 451.0f}, {1172.0f, 429.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::RB, "xbox_rb_outline.png", "Dodge.png", {1132.0f, 506.0f}, {1182.0f, 486.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
+        { ButtonType::LT, "xbox_lt_outline.png", "Fire.png", {1132.0f, 390.0f}, {1172.0f, 372.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} }, 
+        { ButtonType::XA, "xa.png", "FallingAttack.png", {1116.0f, 324.0f}, {1170.0f, 308.0f}, {1.0f, 1.0f}, {0.25f, 0.25f} }, },
     };
 
     //スキルのUIの設定
@@ -412,6 +444,15 @@ private:
         { ButtonType::Y, "xbox_button_y_outline.png", "LaunchAttack.png", {1032.0f, 546.0f}, {840.0f, 524.0f}, {1.0f, 1.0f}, {0.3f, 0.3f}, { 1004.0f, 500.0f }, { 28.0f,4.0f }},
         { ButtonType::B, "xbox_button_b_outline.png", "SpinAttack.png", {1090.0f, 604.0f}, {1118.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1062.0f, 558.0f }, { 28.0f,4.0f }},}
     };
+
+    //QTEのUIの設定
+    std::map<std::string, QTEButtonUI> qteButtonUISettings_{};
+
+    //QTEのUIの構成
+    std::map<std::string, QTEUIConfig> qteConfigs_{};
+
+    //QTEのUiの距離
+    float qteUiDistance_ = 160.0f;
 
     //魔法攻撃用ワーク
     MagicAttackWork magicAttackWork_{};

@@ -22,6 +22,9 @@ void ICharacterState::SetAnimationControllerAndPlayAnimation(const std::string& 
 	//武器の判定をなくす
 	character_->GetWeapon()->SetIsAttack(false);
 
+	//ジャスト回避ウィンドウをリセット
+	character_->SetIsVulnerableToPerfectDodge(false);
+
 	//各パラメーターを初期化
 	InitializeProcessedData();
 }
@@ -96,6 +99,16 @@ bool ICharacterState::HasStateTransitioned(const std::string& actionName) const
 		if (bufferedActionData.isTransitioned) return true;
 	}
 
+	//全てのQTEを確認
+	for (const ProcessedQTEData& qteData : processedQTEDatas_)
+	{
+		//指定されたアクション名と一致しない場合はスキップ
+		if (!actionName.empty() && actionName != qteData.qteActionName) continue;
+
+		//QTEが成功した場合
+		if (qteData.isSuccess) return true;
+	}
+
 	return false;
 }
 
@@ -149,6 +162,8 @@ void ICharacterState::InitializeAttackEvent(const AttackEvent* attackEvent, cons
 	character_->GetWeapon()->SetIsTrailActive(true);
 	//攻撃パラメータを武器に適用
 	character_->ApplyParametersToWeapon(attackEvent);
+	//ジャスト回避ウィンドウをリセット
+	character_->SetIsVulnerableToPerfectDodge(false);
 }
 
 void ICharacterState::InitializeEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex)
@@ -176,6 +191,23 @@ void ICharacterState::InitializeCameraAnimationEvent(const CameraAnimationEvent*
 	{
 		processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
 		character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
+	}
+}
+
+void ICharacterState::InitializeQTE(const QTE* qte, const int32_t animationEventIndex)
+{
+	//アクティブ状態にする
+	processedQTEDatas_[animationEventIndex].isActive = true;
+	//アクションが実行可能な状態でなければQTEを設定しない
+	if (!character_->GetActionStateCondition(qte->qteType)) return;
+	//QTEの名前を設定
+	processedQTEDatas_[animationEventIndex].qteActionName = qte->qteType;
+	//QTEの受付時間を設定
+	processedQTEDatas_[animationEventIndex].duration = qte->requiredTime;
+	//アクション開始時にトリガーする状態の場合はQTEを発動
+	if (qte->trigger == EventTrigger::kActionStart)
+	{
+		StartQTE(qte, animationEventIndex);
 	}
 }
 
@@ -210,6 +242,16 @@ void ICharacterState::UpdateAnimationSpeed(const float currentAnimationTime, Ani
 	}
 }
 
+void ICharacterState::CheckPerfectDodgeWindow(const std::shared_ptr<AnimationEvent>& animationEvent, const float currentAnimationTime)
+{
+	//既に回避ウィンドウが有効の場合は処理を飛ばす
+	if (character_->GetIsVulnerableToPerfectDodge()) return;
+
+	//攻撃開始時間を基準に回避ウィンドウを設定する
+	bool isInDodgeWindow = animationEvent->startEventTime - kPerfectDodgeWindowTime <= currentAnimationTime && animationEvent->startEventTime >= currentAnimationTime;
+	character_->SetIsVulnerableToPerfectDodge(isInDodgeWindow);
+}
+
 const float ICharacterState::GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const
 {
 	//イージング係数を計算
@@ -238,6 +280,13 @@ void ICharacterState::ProcessAnimationEvents(const float currentAnimationTime)
 	//全てのアニメーションイベントを処理
 	for (const std::shared_ptr<AnimationEvent>& animationEvent : animationController_->animationEvents)
 	{
+		//攻撃イベントの場合
+		if (animationEvent->eventType == EventType::kAttack)
+		{
+			//ジャスト回避を受け付けるかを確認
+			CheckPerfectDodgeWindow(animationEvent, currentAnimationTime);
+		}
+
 		//現在のアニメーション時間にイベントが発生しているか確認
 		if (animationEvent->startEventTime <= currentAnimationTime && animationEvent->endEventTime >= currentAnimationTime)
 		{
@@ -274,6 +323,9 @@ void ICharacterState::ProcessAnimationEvent(const AnimationEvent* animationEvent
 		break;
 	case EventType::kCameraAnimation:
 		ProcessCameraAnimationEvent(static_cast<const CameraAnimationEvent*>(animationEvent), animationEventIndex);
+		break;
+	case EventType::kQTE:
+		ProcessQTE(static_cast<const QTE*>(animationEvent), animationEventIndex);
 		break;
 	case EventType::kCancel:
 		ProcessCancelEvent(static_cast<const CancelEvent*>(animationEvent), animationEventIndex);
@@ -411,7 +463,7 @@ void ICharacterState::ProcessEffectEvent(const EffectEvent* effectEvent, const i
 	}
 
 	//攻撃が敵に当たったらエフェクトを適用する
-	if (effectEvent->trigger == EventTrigger::kImpact && character_->GetWeapon()->GetIsHit())
+	if (ShouldTriggerEvent(effectEvent->trigger))
 	{ 
 		ApplyEffect(effectEvent, character_->GetWeapon()->GetComponent<TransformComponent>()->GetWorldPosition());
 	}
@@ -444,14 +496,84 @@ void ICharacterState::ProcessCameraAnimationEvent(const CameraAnimationEvent* ca
 		InitializeCameraAnimationEvent(cameraAnimationEvent, animationEventIndex);
 	}
 
-	//攻撃が敵に当たった場合アニメーションを再生する
-	if (!processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted && cameraAnimationEvent->trigger == EventTrigger::kImpact)
+	//トリガー条件が満たされた場合アニメーションを再生する
+	if (!processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted && ShouldTriggerEvent(cameraAnimationEvent->trigger))
 	{
-		if (character_->GetWeapon()->GetIsHit())
+		processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
+		character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
+	}
+}
+
+void ICharacterState::ProcessQTE(const QTE* qte, const int32_t animationEventIndex)
+{
+	//QTEがまだアクティブ状態でない場合の初期化処理
+	if (!processedQTEDatas_[animationEventIndex].isActive)
+	{
+		InitializeQTE(qte, animationEventIndex);
+	}
+
+	//QTEを開始可能な条件を満たしていた場合はQTEを開始する
+	if (!processedQTEDatas_[animationEventIndex].isQTEActive && !processedQTEDatas_[animationEventIndex].isQTECompleted && !processedQTEDatas_[animationEventIndex].isSuccess && ShouldTriggerEvent(qte->trigger))
+	{
+		StartQTE(qte, animationEventIndex);
+	}
+
+	//QTEが進行中の場合は進捗を更新
+	if (processedQTEDatas_[animationEventIndex].isQTEActive)
+	{
+		UpdateQTEProgress(qte, animationEventIndex);
+	}
+}
+
+void ICharacterState::StartQTE(const QTE* qte, const int32_t animationEventIndex)
+{
+	//QTE受付開始
+	processedQTEDatas_[animationEventIndex].isQTEActive = true;
+	//ヒットストップを無効化する
+	character_->GetHitStop()->Stop();
+	//DOFを有効にする
+	PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
+	//タイムスケールを設定
+	GameTimer::SetTimeScale(qte->timeScale);
+}
+
+void ICharacterState::UpdateQTEProgress(const QTE* qte, const int32_t animationEventIndex)
+{
+	//タイマーを進行
+	const float kDeltaTime = 1.0f / 60.0f;
+	processedQTEDatas_[animationEventIndex].elapsedTime += kDeltaTime;
+
+	//キャラクターが指定のQTEアクションを実行した場合
+	if (character_->GetActionTriggerCondition(processedQTEDatas_[animationEventIndex].qteActionName))
+	{
+		//タイムスケールをリセット
+		GameTimer::SetTimeScale(1.0f);
+		//QTE受付終了
+		processedQTEDatas_[animationEventIndex].isQTEActive = false;
+		//QTE成功のフラグを立てる
+		processedQTEDatas_[animationEventIndex].isSuccess = true;
+		//DOFを無効にする
+		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
+		//状態遷移
+		character_->ChangeState(processedQTEDatas_[animationEventIndex].qteActionName);
+		//全てのQTEを終了させる
+		for (auto& processedQteData : processedQTEDatas_)
 		{
-			processedCameraAnimationDatas_[animationEventIndex].isAnimationStarted = true;
-			character_->GetCameraController()->PlayAnimation(cameraAnimationEvent->animationName, cameraAnimationEvent->animationSpeed, cameraAnimationEvent->syncWithCharacterAnimation);
+			processedQteData.isQTEActive = false;
+			processedQteData.isQTECompleted = true;
 		}
+	}
+	//タイマーが上限を超えた場合
+	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime)
+	{
+		//タイムスケールをリセット
+		GameTimer::SetTimeScale(1.0f);
+		//QTE受付終了
+		processedQTEDatas_[animationEventIndex].isQTEActive = false;
+		//QTE完了
+		processedQTEDatas_[animationEventIndex].isQTECompleted = true;
+		//DOFを無効にする
+		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
 	}
 }
 
@@ -470,7 +592,7 @@ void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const i
 void ICharacterState::HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex)
 {
 	//キャンセルアクションのボタンが押されていたら遷移
-	if (character_->GetActionCondition(cancelEvent->cancelType))
+	if (character_->IsActionExecutable(cancelEvent->cancelType))
 	{
 		//キャンセルの条件が設定されていない場合
 		if (cancelEvent->cancelType == "None")
@@ -503,7 +625,7 @@ void ICharacterState::ProcessBufferedActionEvent(const BufferedActionEvent* buff
 void ICharacterState::HandleBufferedAction(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex)
 {
 	//先行入力が一度も設定されていない場合かつ、キャンセルアクションのボタンが押された場合に先行入力を設定する
-	if (!processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive && character_->GetActionCondition(bufferedActionEvent->bufferedActionType))
+	if (!processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive && character_->IsActionExecutable(bufferedActionEvent->bufferedActionType))
 	{
 		processedBufferedActionDatas_[animationEventIndex].bufferedActionName = bufferedActionEvent->bufferedActionType;
 		processedBufferedActionDatas_[animationEventIndex].isBufferedInputActive = true;
@@ -544,6 +666,44 @@ const bool ICharacterState::ApplyProximityCorrection() const
 	return true;
 }
 
+const bool ICharacterState::ShouldTriggerEvent(const EventTrigger trigger) const
+{
+	//イベントトリガーの種類によって処理を分岐
+	switch (trigger)
+	{
+	case EventTrigger::kImpact:
+		//攻撃がヒットした場合にイベントをトリガー
+		return character_->GetWeapon()->GetIsHit();
+	case EventTrigger::kEnemyJustDodgeWindow:
+		//敵がジャスト回避ウィンドウにいるかつジャスト回避されていない場合にイベントをトリガー
+		return IsEnemyInDodgeWindow();
+	case EventTrigger::kEnemyStunned:
+		//敵がスタン状態の場合にイベントをトリガー
+		return IsEnemyStunned();
+	default:
+		//デフォルトではイベントをトリガーしない
+		return false;
+	}
+}
+
+const bool ICharacterState::IsEnemyInDodgeWindow() const
+{
+	//ゲームオブジェクトマネージャーを取得
+	GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
+	//ジャスト回避される状態かどうかを返す
+	return (character_->GetName() == "Player") ? gameObjectManager->GetGameObject<Enemy>("Enemy")->GetIsVulnerableToPerfectDodge() :
+		gameObjectManager->GetGameObject<Player>("Player")->GetIsVulnerableToPerfectDodge();
+}
+
+const bool ICharacterState::IsEnemyStunned() const
+{
+	//ゲームオブジェクトマネージャーを取得
+	GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
+	//スタン状態かどうかを返す
+	return (character_->GetName() == "Player") ? gameObjectManager->GetGameObject<Enemy>("Enemy")->GetIsStunTriggered() :
+		gameObjectManager->GetGameObject<Player>("Player")->GetIsStunTriggered();
+}
+
 void ICharacterState::InitializeProcessedData()
 {
 	//各イベントタイプに対する処理データを初期化
@@ -555,6 +715,7 @@ void ICharacterState::InitializeProcessedData()
 	processedCameraAnimationDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCameraAnimation));
 	processedCancelDatas_.resize(animationController_->GetAnimationEventCount(EventType::kCancel));
 	processedBufferedActionDatas_.resize(animationController_->GetAnimationEventCount(EventType::kBufferedAction));
+	processedQTEDatas_.resize(animationController_->GetAnimationEventCount(EventType::kQTE));
 }
 
 void ICharacterState::ResetProcessedData(const EventType eventType, const int32_t animationEventIndex)
@@ -582,6 +743,9 @@ void ICharacterState::ResetProcessedData(const EventType eventType, const int32_
 		break;
 	case EventType::kBufferedAction:
 		ResetBufferedActionData(animationEventIndex);
+		break;
+	case EventType::kQTE:
+		ResetQTEData(animationEventIndex);
 		break;
 	}
 }
@@ -649,6 +813,17 @@ void ICharacterState::ResetCameraAnimationData(const int32_t animationEventIndex
 	if (processedCameraAnimationDatas_[animationEventIndex].isActive)
 	{
 		processedCameraAnimationDatas_[animationEventIndex].isActive = false;
+	}
+}
+
+void ICharacterState::ResetQTEData(const int32_t animationEventIndex)
+{
+	//QTEが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	if (processedQTEDatas_[animationEventIndex].isActive)
+	{
+		GameTimer::SetTimeScale(1.0f);
+		processedQTEDatas_[animationEventIndex].isActive = false;
+		processedQTEDatas_[animationEventIndex].isQTEActive = false;
 	}
 }
 

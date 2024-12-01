@@ -8,6 +8,11 @@ class PlayerStateAbility : public IPlayerState
 {
 public:
 	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	PlayerStateAbility(const int32_t abilityIndex) : abilityIndex_(abilityIndex) {};
+
+	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize() override;
@@ -32,5 +37,8 @@ private:
 private:
 	//アビリティの名前
 	std::string abilityName_{};
+
+	//アビリティのインデックス
+	int32_t abilityIndex_ = 0;
 };
 

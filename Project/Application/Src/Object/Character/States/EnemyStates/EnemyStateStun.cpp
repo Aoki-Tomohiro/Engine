@@ -10,7 +10,7 @@ void EnemyStateStun::HandleStateTransitionInternal()
 	for (const auto& action : actions)
 	{
 		//遷移条件が満たされていた場合
-		if (character_->GetActionCondition(action))
+		if (character_->IsActionExecutable(action))
 		{
 			//対応する状態に遷移
 			character_->ChangeState(action);

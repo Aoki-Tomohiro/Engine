@@ -1,9 +1,9 @@
 {
     "Player": {
-        "Walk1": {
+        "Run4": {
             "AnimationEvents": {
                 "AnimationEvent00": {
-                    "EndEventTime": 1.1330000162124634,
+                    "EndEventTime": 0.7329999804496765,
                     "EventTrigger": "EnemyJustDodgeWindow",
                     "EventType": "QTE",
                     "QteType": "Dodge",

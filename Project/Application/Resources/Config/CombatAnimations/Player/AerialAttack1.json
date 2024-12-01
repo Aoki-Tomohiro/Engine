@@ -69,7 +69,7 @@
                     "StartEventTime": 1.0800000429153442
                 },
                 "AnimationEvent04": {
-                    "CancelType": "Ability",
+                    "CancelType": "Ability2",
                     "EndEventTime": 2.433000087738037,
                     "EventType": "Cancel",
                     "StartEventTime": 0.7799999713897705
@@ -123,7 +123,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent13": {
-                    "BufferedActionType": "Ability",
+                    "BufferedActionType": "Ability2",
                     "EndEventTime": 1.0800000429153442,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
