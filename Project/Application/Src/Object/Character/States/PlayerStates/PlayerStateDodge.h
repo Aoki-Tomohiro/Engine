@@ -26,6 +26,11 @@ public:
 
 private:
 	/// <summary>
+	/// ジャスト回避の演出を更新
+	/// </summary>
+	void UpdateJustDodgeEffect();
+
+	/// <summary>
 	/// 回避時のアニメーションとアニメーションイベントの設定
 	/// </summary>
 	/// <param name="inputLength">入力の強さ</param>
@@ -34,5 +39,8 @@ private:
 private:
 	//アニメーションの名前
 	std::string animationName_{};
+
+	//ジャスト回避演出用のタイマー
+	float justDodgeTimer_ = 0.0f;
 };
 

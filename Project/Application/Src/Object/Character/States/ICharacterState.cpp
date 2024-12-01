@@ -690,9 +690,15 @@ const bool ICharacterState::IsEnemyInDodgeWindow() const
 {
 	//ゲームオブジェクトマネージャーを取得
 	GameObjectManager* gameObjectManager = GameObjectManager::GetInstance();
-	//ジャスト回避される状態かどうかを返す
-	return (character_->GetName() == "Player") ? gameObjectManager->GetGameObject<Enemy>("Enemy")->GetIsVulnerableToPerfectDodge() :
-		gameObjectManager->GetGameObject<Player>("Player")->GetIsVulnerableToPerfectDodge();
+
+	//ジャスト回避される状態でなければ処理を飛ばす
+	if ((character_->GetName() == "Player") ? !gameObjectManager->GetGameObject<Enemy>("Enemy")->GetIsVulnerableToPerfectDodge() : !gameObjectManager->GetGameObject<Player>("Player")->GetIsVulnerableToPerfectDodge()) return false;
+
+	//敵との距離が遠ければ処理を飛ばす
+	if (!IsOpponentInProximity()) return false;
+
+	//ジャスト回避成功
+	return true;
 }
 
 const bool ICharacterState::IsEnemyStunned() const

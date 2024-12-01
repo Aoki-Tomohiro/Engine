@@ -47,7 +47,6 @@ public:
 	{
 		kCanAttack,   //攻撃できる状態かどうか
 		kCanDodge,    //回避できる状態かどうか
-		kIsAttacking, //攻撃したかどうか
 	};
 
 	//通常状態のパラメーター

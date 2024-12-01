@@ -106,6 +106,7 @@ public:
         kAbility1Enabled,          //アビリティ1が有効かどうか
         kAbility2Enabled,          //アビリティ2が有効かどうか
         kIsAttacking,              //攻撃したかどうか
+        kJustDodge,                //ジャスト回避したかどうか
     };
 
     //ダメージエフェクトの構造体
