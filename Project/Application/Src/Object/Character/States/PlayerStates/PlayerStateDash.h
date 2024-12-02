@@ -33,6 +33,11 @@ private:
 	void InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex) override;
 
 	/// <summary>
+	/// RadialBlurの更新
+	/// </summary>
+	void UpdateRadialBlur();
+
+	/// <summary>
 	/// ダッシュアニメーション終了の確認と遷移
 	/// </summary>
 	void CheckTransitionToDashEndAnimation();
@@ -45,5 +50,8 @@ private:
 private:
 	//現在のアニメーションの名前
 	std::string currentAnimation_ = "DashStart";
+
+	//RadialBlurの調整項目
+	float blurWidthDefault_ = 0.04f;
 };
 

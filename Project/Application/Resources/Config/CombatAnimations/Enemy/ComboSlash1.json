@@ -2,7 +2,7 @@
     "Enemy": {
         "ComboSlash1": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 2.0,
                     "EventType": "Movement",
@@ -18,7 +18,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 2.9000000953674316,
                     "EventType": "Movement",
@@ -34,7 +34,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "Damage": 4.0,
                     "EndEventTime": 2.259999990463257,
                     "EventType": "Attack",
@@ -63,7 +63,7 @@
                     "ReactionType": "Flinch",
                     "StartEventTime": 1.9600000381469727
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "Damage": 6.0,
                     "EndEventTime": 3.1600000858306885,
                     "EventType": "Attack",
@@ -92,7 +92,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 2.859999895095825
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "CameraShakeDuration": 0.05999999865889549,
                     "CameraShakeIntensity": [
                         0.0,
@@ -108,7 +108,7 @@
                     "SoundEffectType": "",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent5": {
+                "AnimationEvent05": {
                     "CancelType": "ComboSlash2",
                     "EndEventTime": 3.5,
                     "EventType": "Cancel",

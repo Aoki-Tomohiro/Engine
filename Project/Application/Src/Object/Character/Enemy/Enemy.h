@@ -45,8 +45,8 @@ public:
 	//アクションフラグ
 	enum class ActionFlag
 	{
-		kCanAttack,   //攻撃できる状態かどうか
-		kCanDodge,    //回避できる状態かどうか
+		kCanAttack,     //攻撃できる状態かどうか
+		kCanDodge,      //回避できる状態かどうか
 	};
 
 	//通常状態のパラメーター

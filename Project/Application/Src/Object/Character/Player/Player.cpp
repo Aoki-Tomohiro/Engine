@@ -222,7 +222,8 @@ void Player::InitializeAnimator()
 		{"GroundAttack3", "Player/Animations/GroundAttack3.gltf"}, {"GroundAttack4", "Player/Animations/GroundAttack4.gltf"}, {"AerialAttack1", "Player/Animations/AerialAttack1.gltf"},
 		{"AerialAttack2", "Player/Animations/AerialAttack2.gltf"}, {"AerialAttack3", "Player/Animations/AerialAttack3.gltf"}, {"LaunchAttack", "Player/Animations/LaunchAttack.gltf"},
 		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}, 
-		{"HitStun", "Player/Animations/HitStun.gltf"}, {"Knockdown", "Player/Animations/Knockdown.gltf"}, {"StandUp", "Player/Animations/StandUp.gltf"},{"Death", "Player/Animations/Death.gltf"}
+		{"HitStun", "Player/Animations/HitStun.gltf"}, {"Knockdown", "Player/Animations/Knockdown.gltf"}, {"StandUp", "Player/Animations/StandUp.gltf"},{"Death", "Player/Animations/Death.gltf"},
+		{"JustDodge", "Player/Animations/JustDodge.gltf"}, {"Counter", "Player/Animations/Counter.gltf"},
 	};
 
 	//アニメーションを追加

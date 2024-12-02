@@ -68,7 +68,7 @@
                     "EventTrigger": "EnemyStunned",
                     "EventType": "QTE",
                     "QteType": "Dash",
-                    "RequiredTime": 4.0,
+                    "RequiredTime": 2.0,
                     "StartEventTime": 1.2999999523162842,
                     "TimeScale": 0.009999999776482582
                 },

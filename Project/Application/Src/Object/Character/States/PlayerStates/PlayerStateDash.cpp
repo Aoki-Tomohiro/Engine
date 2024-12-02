@@ -20,6 +20,9 @@ void PlayerStateDash::Update()
 	//アニメーションイベントを実行
 	UpdateAnimationState();
 
+	//RadialBlurの更新
+	UpdateRadialBlur();
+
 	//状態遷移していた場合
 	if (HasStateTransitioned())
 	{
@@ -55,6 +58,30 @@ void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* ve
 	character_->GetWeapon()->SetIsVisible(false);
 }
 
+void PlayerStateDash::UpdateRadialBlur()
+{
+	//移動イベントが有効の場合
+	if (processedVelocityDatas_[0].isActive)
+	{
+		//アニメーターを取得
+		AnimatorComponent* animator = character_->GetAnimator();
+
+		//現在のアニメーション時間を取得
+		float currentAnimationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
+
+		//全てのアニメーションイベントを処理
+		for (const std::shared_ptr<AnimationEvent>& animationEvent : animationController_->animationEvents)
+		{
+			//移動イベントの場合
+			if (animationEvent->eventType == EventType::kMovement)
+			{
+				float easingParameter = std::min<float>(1.0f, (currentAnimationTime - animationEvent->startEventTime) / (animationEvent->endEventTime - animationEvent->startEventTime));
+				PostEffects::GetInstance()->GetRadialBlur()->SetBlurWidth(Mathf::Lerp(blurWidthDefault_, 0.0f, easingParameter));
+			}
+		}
+	}
+}
+
 void PlayerStateDash::CheckTransitionToDashEndAnimation()
 {
 	//ダッシュ終了処理
@@ -82,4 +109,5 @@ void PlayerStateDash::FinalizeDash()
 	character_->GetWeapon()->SetIsVisible(true);
 	//ポストエフェクトを無効化する
 	PostEffects::GetInstance()->GetRadialBlur()->SetIsEnable(false);
+	PostEffects::GetInstance()->GetRadialBlur()->SetBlurWidth(blurWidthDefault_);
 }

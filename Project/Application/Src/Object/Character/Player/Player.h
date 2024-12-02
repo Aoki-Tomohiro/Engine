@@ -103,10 +103,9 @@ public:
         kMagicAttackEnabled,       //魔法攻撃が有効かどうか
         kChargeMagicAttackEnabled, //溜め魔法攻撃が有効かどうか
         kFallingAttackEnabled,     //落下攻撃が有効かどうか
-        kAbility1Enabled,          //アビリティ1が有効かどうか
-        kAbility2Enabled,          //アビリティ2が有効かどうか
         kIsAttacking,              //攻撃したかどうか
         kJustDodge,                //ジャスト回避したかどうか
+        kCounterAttack,            //カウンター攻撃したかどうか
     };
 
     //ダメージエフェクトの構造体
@@ -211,7 +210,7 @@ public:
 
     //各パラメーターの取得
     const RootParameters& GetRootParameters() const { return rootParameters_; };
-    const MagicAttackParameters& GetMagicAttackParameters() const { return magicAttackParameters_; };
+    const MagicAttackParameters& GetMagicAttackParameters() const { return magicAttackParameters_; }
 
 private:
     /// <summary>

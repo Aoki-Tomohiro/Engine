@@ -2,7 +2,8 @@
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 
-Enemy::Level Enemy::currentLevel_ = Level::Easy;
+//敵のレベル
+Enemy::Level Enemy::currentLevel_ = Level::Normal;
 
 void Enemy::Initialize()
 {
@@ -14,9 +15,6 @@ void Enemy::Initialize()
 
 	//状態の初期化
 	ChangeState("Idle");
-
-	//デバッグのフラグを立てる
-	isDebug_ = true;
 }
 
 void Enemy::Update()

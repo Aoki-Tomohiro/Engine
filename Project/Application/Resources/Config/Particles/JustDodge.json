@@ -1,0 +1,90 @@
+{
+    "JustDodge": {
+        "ParticleSystems": {
+            "Spark": {
+                "AccelerationFields": {},
+                "Emitters": {
+                    "Spark": {
+                        "AlignToDirection": true,
+                        "ColorMax": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "ColorMin": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Count": 100,
+                        "EmitterLifeTime": 0.0,
+                        "EnableAlphaOverLifeTime": true,
+                        "EnableColorOverLifeTime": false,
+                        "EnableRotationOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
+                        "FollowEnabled": false,
+                        "Frequency": 0.5,
+                        "IsBillboard": false,
+                        "LifeTimeMax": 1.0,
+                        "LifeTimeMin": 0.6000000238418579,
+                        "Radius": 0.0,
+                        "RotSpeed": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMax": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "RotateMin": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "ScaleMax": [
+                            0.009999999776482582,
+                            0.009999999776482582,
+                            1.0
+                        ],
+                        "ScaleMin": [
+                            0.009999999776482582,
+                            0.009999999776482582,
+                            0.6000000238418579
+                        ],
+                        "TargetAlpha": 0.0,
+                        "TargetColor": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "TargetScale": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Translation": [
+                            0.0,
+                            2.0,
+                            0.0
+                        ],
+                        "VelocityMax": [
+                            0.20000000298023224,
+                            0.20000000298023224,
+                            0.20000000298023224
+                        ],
+                        "VelocityMin": [
+                            -0.20000000298023224,
+                            -0.20000000298023224,
+                            -0.20000000298023224
+                        ]
+                    }
+                },
+                "GravityFields": {}
+            }
+        }
+    }
+}

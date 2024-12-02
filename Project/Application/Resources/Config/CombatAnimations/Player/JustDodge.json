@@ -1,0 +1,50 @@
+{
+    "Player": {
+        "JustDodge": {
+            "AnimationEvents": {
+                "AnimationEvent00": {
+                    "EasingType": "EaseIn",
+                    "EndEventTime": 2.299999952316284,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": false,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Easing",
+                    "RotateTowardsMovement": true,
+                    "StartEventTime": 1.399999976158142,
+                    "TargetPosition": [
+                        0.0,
+                        0.0,
+                        -14.0
+                    ],
+                    "UseStickInput": true
+                },
+                "AnimationEvent01": {
+                    "EndEventTime": 3.700000047683716,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "QTE",
+                    "QteType": "Attack",
+                    "RequiredTime": 2.0,
+                    "StartEventTime": 2.4000000953674316,
+                    "TimeScale": 0.009999999776482582
+                },
+                "AnimationEvent02": {
+                    "CancelType": "Move",
+                    "EndEventTime": 3.700000047683716,
+                    "EventType": "Cancel",
+                    "StartEventTime": 3.0
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.399999976158142,
+                    "Duration": 3.700000047683716
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

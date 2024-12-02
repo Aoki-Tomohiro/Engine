@@ -1,17 +1,7 @@
 {
     "Player": {
         "Run4": {
-            "AnimationEvents": {
-                "AnimationEvent00": {
-                    "EndEventTime": 0.7329999804496765,
-                    "EventTrigger": "EnemyJustDodgeWindow",
-                    "EventType": "QTE",
-                    "QteType": "Dodge",
-                    "RequiredTime": 2.0,
-                    "StartEventTime": 0.0,
-                    "TimeScale": 0.009999999776482582
-                }
-            },
+            "AnimationEvents": null,
             "AnimationSpeedConfigs": null,
             "InPlaceAxis": [
                 0.0,

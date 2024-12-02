@@ -14,6 +14,7 @@ void Lockon::Initialize()
 	const std::string texturePath = "Reticle.png";
 	TextureManager::Load(texturePath);
 	lockonMark_.reset(Sprite::Create(texturePath, { 0.0f,0.0f }));
+	lockonMark_->SetScale({ 0.4f,0.4f });
 	lockonMark_->SetAnchorPoint({ 0.5f,0.5f });
 }
 

@@ -9,7 +9,7 @@ void PlayerStateAttack::Initialize()
 	input_ = Input::GetInstance();
 
 	//空中か地上かによってアニメーション名を決定
-	animationName_ = DetermineAnimationName();
+	animationName_ = GetPlayer()->GetActionFlag(Player::ActionFlag::kCounterAttack) ? "Counter" : DetermineAnimationName();
 
 	//アニメーションブレンドを無効にする
 	character_->GetAnimator()->SetIsBlending(false);
@@ -37,6 +37,8 @@ void PlayerStateAttack::Update()
 	{
 		//攻撃フラグをリセット
 		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+		//カウンター攻撃のフラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, false);
 		//コンボをリセット
 		comboIndex = 0;
 		//デフォルトの状態に遷移
@@ -50,6 +52,10 @@ void PlayerStateAttack::OnCollision(GameObject* other)
 	character_->ProcessCollisionImpact(other, true);
 	//コンボをリセット
 	comboIndex = 0;
+	//攻撃フラグをリセット
+	GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+	//カウンター攻撃のフラグをリセット
+	GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, false);
 }
 
 std::string PlayerStateAttack::DetermineAnimationName() const
@@ -97,6 +103,8 @@ void PlayerStateAttack::UpdateComboIndex()
 	{
 		//攻撃フラグをリセット
 		GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, false);
+		//カウンター攻撃のフラグをリセット
+		GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, false);
 		//コンボをリセット
 		comboIndex = 0;
 	}

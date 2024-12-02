@@ -1,5 +1,7 @@
 #include "EnemyStateAttack.h"
+#include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
+#include "Application/Src/Object/Character/Player/Player.h"
 
 void EnemyStateAttack::Initialize()
 {
@@ -28,7 +30,7 @@ void EnemyStateAttack::Update()
 void EnemyStateAttack::OnCollision(GameObject* other)
 {
 	//衝突処理
-	character_->ProcessCollisionImpact(other, false);
+    character_->ProcessCollisionImpact(other, GameObjectManager::GetInstance()->GetGameObject<Player>("Player")->GetActionFlag(Player::ActionFlag::kCounterAttack));
 }
 
 void EnemyStateAttack::SetRandomAttack()

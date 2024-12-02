@@ -25,6 +25,9 @@ void ICharacterState::SetAnimationControllerAndPlayAnimation(const std::string& 
 	//ジャスト回避ウィンドウをリセット
 	character_->SetIsVulnerableToPerfectDodge(false);
 
+	//DOFを無効にする
+	PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
+
 	//各パラメーターを初期化
 	InitializeProcessedData();
 }

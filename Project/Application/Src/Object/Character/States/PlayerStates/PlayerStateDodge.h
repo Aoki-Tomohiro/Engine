@@ -21,7 +21,7 @@ public:
 	/// <summary>
 	/// 衝突処理
 	/// </summary>
-	/// <param name="">衝突相手</param>
+	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject*) override {};
 
 private:
@@ -42,5 +42,8 @@ private:
 
 	//ジャスト回避演出用のタイマー
 	float justDodgeTimer_ = 0.0f;
+
+	//ジャスト回避アニメーション開始時間
+	float justDodgeStartTime_ = 1.4f;
 };
 
