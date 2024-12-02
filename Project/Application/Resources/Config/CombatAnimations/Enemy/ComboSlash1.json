@@ -105,10 +105,42 @@
                     "HitStopDuration": 0.05999999865889549,
                     "ParticleEffectName": "Hit",
                     "PostEffectType": "None",
-                    "SoundEffectType": "",
+                    "SoundEffectType": "Hit",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent05": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 2.259999990463257,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 1.9600000381469727
+                },
+                "AnimationEvent06": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 3.1600000858306885,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 2.859999895095825
+                },
+                "AnimationEvent07": {
                     "CancelType": "ComboSlash2",
                     "EndEventTime": 3.5,
                     "EventType": "Cancel",

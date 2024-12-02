@@ -63,6 +63,22 @@
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent03": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.2799999713897705,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 0.800000011920929
+                },
+                "AnimationEvent04": {
                     "AnimationName": "AerialAttack3",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 1.2799999713897705,
@@ -71,51 +87,21 @@
                     "StartEventTime": 0.800000011920929,
                     "SyncWithCharacterAnimation": true
                 },
-                "AnimationEvent04": {
+                "AnimationEvent05": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 2.5329999923706055,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
-                },
-                "AnimationEvent05": {
-                    "CancelType": "Ability2",
-                    "EndEventTime": 2.5329999923706055,
-                    "EventType": "Cancel",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 2.0
                 },
                 "AnimationEvent06": {
-                    "CancelType": "ChargeMagic",
-                    "EndEventTime": 2.5329999923706055,
+                    "CancelType": "Ability2",
+                    "EndEventTime": 0.800000011920929,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
+                    "StartEventTime": 0.0
                 },
                 "AnimationEvent07": {
-                    "CancelType": "Magic",
-                    "EndEventTime": 2.5329999923706055,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.2799999713897705
-                },
-                "AnimationEvent08": {
-                    "BufferedActionType": "Magic",
-                    "EndEventTime": 1.2799999713897705,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent09": {
-                    "BufferedActionType": "ChargeMagic",
-                    "EndEventTime": 1.2799999713897705,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent10": {
-                    "BufferedActionType": "Ability2",
-                    "EndEventTime": 1.2799999713897705,
-                    "EventType": "BufferedAction",
-                    "StartEventTime": 0.0
-                },
-                "AnimationEvent11": {
                     "BufferedActionType": "FallingAttack",
-                    "EndEventTime": 1.2799999713897705,
+                    "EndEventTime": 2.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 }

@@ -60,11 +60,11 @@
                     "HitStopDuration": 0.0,
                     "ParticleEffectName": "ChargeMagic",
                     "PostEffectType": "None",
-                    "SoundEffectType": "None",
+                    "SoundEffectType": "Fire",
                     "StartEventTime": 1.2999999523162842
                 },
                 "AnimationEvent03": {
-                    "EndEventTime": 2.7330000400543213,
+                    "EndEventTime": 1.7000000476837158,
                     "EventTrigger": "EnemyStunned",
                     "EventType": "QTE",
                     "QteType": "Dash",

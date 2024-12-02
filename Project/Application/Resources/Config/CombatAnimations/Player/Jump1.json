@@ -18,42 +18,58 @@
                     ]
                 },
                 "AnimationEvent01": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.0,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "Jump",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent02": {
                     "CancelType": "Dash",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent02": {
+                "AnimationEvent03": {
                     "CancelType": "Attack",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent03": {
+                "AnimationEvent04": {
                     "CancelType": "Jump",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent04": {
+                "AnimationEvent05": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent05": {
+                "AnimationEvent06": {
                     "CancelType": "Ability2",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent06": {
+                "AnimationEvent07": {
                     "CancelType": "Magic",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent07": {
+                "AnimationEvent08": {
                     "CancelType": "ChargeMagic",
                     "EndEventTime": 1.0,
                     "EventType": "Cancel",

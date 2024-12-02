@@ -30,6 +30,22 @@
                     "MaxHitCount": 0,
                     "ReactionType": "Flinch",
                     "StartEventTime": 0.30000001192092896
+                },
+                "AnimationEvent01": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 0.3199999928474426,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "Fire",
+                    "StartEventTime": 0.30000001192092896
                 }
             },
             "AnimationSpeedConfigs": {

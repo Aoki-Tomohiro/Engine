@@ -92,8 +92,40 @@
                     "HitStopDuration": 0.0,
                     "ParticleEffectName": "VerticalSlash",
                     "PostEffectType": "None",
-                    "SoundEffectType": "",
+                    "SoundEffectType": "RockSplit",
                     "StartEventTime": 1.600000023841858
+                },
+                "AnimationEvent05": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 0.6000000238418579,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "Jump",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent06": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.5,
+                    "EventTrigger": "Impact",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "Hit",
+                    "StartEventTime": 1.399999976158142
                 }
             },
             "AnimationSpeedConfigs": {

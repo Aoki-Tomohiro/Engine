@@ -86,7 +86,7 @@ void Enemy::InitializeActionMap()
 		{"MoveAwayFromPlayer", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
 		{"MoveSideToPlayer", ActionCondition{[this]() {return true; }, [this, withinApproachRange, withinCloseRangeAttackRange]() {return withinApproachRange() && !withinCloseRangeAttackRange(); }}},
 		{"Dodge", ActionCondition{[this]() {return true; }, [this, withinRangedAttackRange]() {return withinRangedAttackRange(); }}},
-		{"Approach", ActionCondition{[this]() {return true; }, [this, withinApproachRange, withinRangedAttackRange]() {return !withinApproachRange(); }}},
+		{"Approach", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() {return !withinCloseRangeAttackRange(); }}},
 		{"Attack", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
 		{"VerticalSlash", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
 		{"SpinSlash", ActionCondition{[this]() {return true; }, [this, withinCloseRangeAttackRange]() { return withinCloseRangeAttackRange(); }}},
@@ -99,6 +99,15 @@ void Enemy::InitializeAudio()
 {
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeAudio();
+
+	//音声データの読み込み
+	audioHandles_["Hit"] = audio_->LoadAudioFile("Damage.mp3");
+	audioHandles_["Jump"] = audio_->LoadAudioFile("Jump.mp3");
+	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
+	audioHandles_["RockSplit"] = audio_->LoadAudioFile("RockSplit.mp3");
+	audioHandles_["BuildingCrumble"] = audio_->LoadAudioFile("BuildingCrumble.mp3");
+	audioHandles_["WindSwish"] = audio_->LoadAudioFile("WindSwish.mp3");
+	audioHandles_["SwordSwing"] = audio_->LoadAudioFile("SwordSwing.mp3");
 }
 
 void Enemy::InitializeAnimator()

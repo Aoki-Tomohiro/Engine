@@ -2,7 +2,7 @@
     "Enemy": {
         "ComboSlash2": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Movement",
@@ -18,7 +18,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 1.5,
                     "EventType": "Movement",
@@ -34,7 +34,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 2.5,
                     "EventType": "Movement",
@@ -50,7 +50,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent3": {
+                "AnimationEvent03": {
                     "Damage": 4.0,
                     "EndEventTime": 1.2999999523162842,
                     "EventType": "Attack",
@@ -79,7 +79,7 @@
                     "ReactionType": "Flinch",
                     "StartEventTime": 0.800000011920929
                 },
-                "AnimationEvent4": {
+                "AnimationEvent04": {
                     "Damage": 4.0,
                     "EndEventTime": 2.0,
                     "EventType": "Attack",
@@ -108,7 +108,7 @@
                     "ReactionType": "Flinch",
                     "StartEventTime": 1.5
                 },
-                "AnimationEvent5": {
+                "AnimationEvent05": {
                     "Damage": 6.0,
                     "EndEventTime": 2.9000000953674316,
                     "EventType": "Attack",
@@ -137,7 +137,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 2.5
                 },
-                "AnimationEvent6": {
+                "AnimationEvent06": {
                     "CameraShakeDuration": 0.05999999865889549,
                     "CameraShakeIntensity": [
                         0.0,
@@ -150,8 +150,56 @@
                     "HitStopDuration": 0.05999999865889549,
                     "ParticleEffectName": "Hit",
                     "PostEffectType": "None",
-                    "SoundEffectType": "",
+                    "SoundEffectType": "Hit",
                     "StartEventTime": 0.0
+                },
+                "AnimationEvent07": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.2999999523162842,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 0.800000011920929
+                },
+                "AnimationEvent08": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 2.0,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 1.5
+                },
+                "AnimationEvent09": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 2.9000000953674316,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "SwordSwing",
+                    "StartEventTime": 2.5
                 }
             },
             "AnimationSpeedConfigs": {

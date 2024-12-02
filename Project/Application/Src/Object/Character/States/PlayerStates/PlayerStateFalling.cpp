@@ -95,7 +95,4 @@ void PlayerStateFalling::ProcessLanding(const Vector3& landingPosition)
 
 	//キャラクターの位置を地面に合わせる
 	character_->SetPosition({ landingPosition.x, 0.0f, landingPosition.z });
-
-	//着地パーティクルを生成
-	character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", landingPosition, character_->GetQuaternion());
 }

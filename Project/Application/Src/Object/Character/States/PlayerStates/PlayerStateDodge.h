@@ -22,7 +22,7 @@ public:
 	/// 衝突処理
 	/// </summary>
 	/// <param name="other">衝突相手</param>
-	void OnCollision(GameObject*) override {};
+	void OnCollision(GameObject* other) override;
 
 private:
 	/// <summary>
@@ -37,9 +37,6 @@ private:
 	void ConfigureDodgeAnimationAndEvents(const float inputLength);
 
 private:
-	//アニメーションの名前
-	std::string animationName_{};
-
 	//ジャスト回避演出用のタイマー
 	float justDodgeTimer_ = 0.0f;
 

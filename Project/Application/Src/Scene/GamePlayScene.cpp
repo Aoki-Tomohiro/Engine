@@ -82,7 +82,7 @@ void GamePlayScene::Initialize()
 
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
-	audio_->PlayAudio(audioHandle_, true, 0.2f);
+	audio_->PlayAudio(audioHandle_, true, 0.1f);
 }
 
 void GamePlayScene::Finalize()

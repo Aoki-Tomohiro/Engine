@@ -14,9 +14,6 @@ void PlayerStateDodge::Initialize()
 	//アニメーションブレンドの時間を設定
 	character_->GetAnimator()->SetBlendDuration(0.2f);
 
-	//コライダーを無効化する
-	character_->GetCollider()->SetCollisionEnabled(false);
-
 	//スティックの入力の強さを計算
 	float inputLength = Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() });
 
@@ -32,17 +29,13 @@ void PlayerStateDodge::Update()
 	//ジャスト回避演出の更新
 	UpdateJustDodgeEffect();
 
+	//アニメーションキャンセル中はコライダーを有効化する
+	character_->GetCollider()->SetCollisionEnabled(!processedCancelDatas_.empty() ? processedCancelDatas_[0].isActive : false);
+
 	//攻撃状態に遷移されていたらカウンター攻撃状態にする
 	if (HasStateTransitioned("Attack"))
 	{
 		GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, true);
-	}
-
-	//状態遷移されていた場合はコライダーを有効化する
-	if (HasStateTransitioned())
-	{
-		//コライダーを有効化する
-		character_->GetCollider()->SetCollisionEnabled(true);
 	}
 
 	//アニメーションが終了していた場合
@@ -53,6 +46,12 @@ void PlayerStateDodge::Update()
 		//デフォルトの状態に遷移
 		HandleStateTransition();
 	}
+}
+
+void PlayerStateDodge::OnCollision(GameObject* other)
+{
+	//衝突処理
+	character_->ProcessCollisionImpact(other, !processedEasingDatas_[0].isActive);
 }
 
 void PlayerStateDodge::UpdateJustDodgeEffect()
@@ -68,8 +67,9 @@ void PlayerStateDodge::UpdateJustDodgeEffect()
 		const float kJustDodgeEffectDuration = 0.4f;
 		if (justDodgeTimer_ > kJustDodgeEffectDuration)
 		{
-			//フラグをリセットして、タイムスケールを元に戻す
+			//フラグをリセット
 			GetPlayer()->SetActionFlag(Player::ActionFlag::kJustDodge, false);
+			//タイムスケールを元に戻す
 			GameTimer::SetTimeScale(1.0f);
 		}
 	}
@@ -82,23 +82,16 @@ void PlayerStateDodge::ConfigureDodgeAnimationAndEvents(const float inputLength)
 	{
 		//ジャスト回避成功のフラグを立てる
 		GetPlayer()->SetActionFlag(Player::ActionFlag::kJustDodge, true);
-		//パーティクルを出す
-		character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("JustDodge", character_->GetPosition(), character_->GetQuaternion());
 		//タイムスケールを調整
 		GameTimer::SetTimeScale(0.4f);
-		//ジャスト回避のアニメーションを設定
-		animationName_ = "JustDodge";
 		//回避アニメーションの再生とアニメーションコントローラーを取得
-		SetAnimationControllerAndPlayAnimation(animationName_);
+		SetAnimationControllerAndPlayAnimation("JustDodge");
 		//アニメーションの時間を設定
 		character_->GetAnimator()->SetNextAnimationTime(justDodgeStartTime_);
 		//処理を飛ばす
 		return;
 	}
 
-	//スティック入力の状態に応じてアニメーションとイベントを選択
-	animationName_ = (inputLength > GetPlayer()->GetRootParameters().walkThreshold) ? "DodgeForward" : "DodgeBackward";
-
 	//回避アニメーションの再生とアニメーションコントローラーを取得
-	SetAnimationControllerAndPlayAnimation(animationName_);
+	SetAnimationControllerAndPlayAnimation((inputLength > GetPlayer()->GetRootParameters().walkThreshold) ? "DodgeForward" : "DodgeBackward");
 }

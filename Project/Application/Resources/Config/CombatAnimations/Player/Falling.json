@@ -18,14 +18,30 @@
                     ]
                 },
                 "AnimationEvent01": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 1.100000023841858,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "Landing",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "",
+                    "StartEventTime": 0.3199999928474426
+                },
+                "AnimationEvent02": {
                     "CancelType": "Move",
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Cancel",
                     "StartEventTime": 0.3199999928474426
                 },
-                "AnimationEvent02": {
+                "AnimationEvent03": {
                     "CancelType": "FallingAttack",
-                    "EndEventTime": 0.4000000059604645,
+                    "EndEventTime": 0.3199999928474426,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 }

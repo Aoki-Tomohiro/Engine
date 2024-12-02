@@ -146,9 +146,6 @@ void Player::ApplyDamageAndKnockback(const KnockbackParameters& knockbackSetting
 	damageEffect_.timer = 0.0f;
 	damageEffect_.color.w = 0.2f;
 
-	//ダメージの音を再生
-	audio_->PlayAudio(audioHandles_["Damage"], false, 0.2f);
-
 	//スタン状態に遷移する場合はカメラアニメーションを止める
 	if (transitionToStun)
 	{
@@ -187,8 +184,8 @@ void Player::InitializeActionMap()
 		{"Dodge", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }}},
 		{"Dash", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LB].isTriggered; }}},
 		{"Attack", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }}},
-		{"Magic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isReleased && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }}},
-		{"ChargeMagic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isReleased && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }}},
+		{"Magic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isTriggered && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }}},
+		{"ChargeMagic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isTriggered && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }}},
 		{"FallingAttack", ActionCondition{[this]() {return true; }, [this]() {return CheckFallingAttack(); }}},
 		{"Ability1", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[activeSkillSetIndex_].first); }, [this]() {return buttonStates_[Player::ButtonType::Y].isTriggered; }}},
 		{"Ability2", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[activeSkillSetIndex_].second); }, [this]() {return buttonStates_[Player::ButtonType::B].isTriggered; }}},
@@ -202,7 +199,13 @@ void Player::InitializeAudio()
 
 	//音声データの読み込み
 	audioHandles_["NormalHit"] = audio_->LoadAudioFile("Hit.mp3");
+	audioHandles_["Jump"] = audio_->LoadAudioFile("Jump.mp3");
 	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
+	audioHandles_["Fire"] = audio_->LoadAudioFile("Fire.mp3");
+	audioHandles_["RockSplit"] = audio_->LoadAudioFile("RockSplit.mp3");
+	audioHandles_["BuildingCrumble"] = audio_->LoadAudioFile("BuildingCrumble.mp3");
+	audioHandles_["WindSwish"] = audio_->LoadAudioFile("WindSwish.mp3");
+	audioHandles_["SwordSwing"] = audio_->LoadAudioFile("SwordSwing.mp3");
 	audioHandles_["Damage"] = audio_->LoadAudioFile("Damage.mp3");
 }
 

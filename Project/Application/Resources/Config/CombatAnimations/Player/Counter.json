@@ -4,7 +4,7 @@
             "AnimationEvents": {
                 "AnimationEvent00": {
                     "EasingType": "EaseInOut",
-                    "EndEventTime": 1.0,
+                    "EndEventTime": 0.699999988079071,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
@@ -14,15 +14,15 @@
                     "TargetPosition": [
                         0.0,
                         0.0,
-                        14.0
+                        20.0
                     ],
                     "UseStickInput": false
                 },
                 "AnimationEvent01": {
-                    "Damage": 1.0,
-                    "EndEventTime": 0.6000000238418579,
+                    "Damage": 0.6000000238418579,
+                    "EndEventTime": 0.699999988079071,
                     "EventType": "Attack",
-                    "HitInterval": 0.03999999910593033,
+                    "HitInterval": 0.029999999329447746,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -48,7 +48,7 @@
                     "StartEventTime": 0.4000000059604645
                 },
                 "AnimationEvent02": {
-                    "Damage": 4.0,
+                    "Damage": 2.0,
                     "EndEventTime": 1.0,
                     "EventType": "Attack",
                     "HitInterval": 0.0,
@@ -74,7 +74,7 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent03": {
                     "CameraShakeDuration": 0.20000000298023224,
@@ -83,7 +83,7 @@
                         1.0,
                         0.0
                     ],
-                    "EndEventTime": 0.6000000238418579,
+                    "EndEventTime": 0.699999988079071,
                     "EventTrigger": "Impact",
                     "EventType": "Effect",
                     "HitStopDuration": 0.05999999865889549,
@@ -106,7 +106,7 @@
                     "ParticleEffectName": "CounterAttack",
                     "PostEffectType": "None",
                     "SoundEffectType": "NormalHit",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent05": {
                     "AnimationName": "Counter",
@@ -123,7 +123,7 @@
                     "EventType": "QTE",
                     "QteType": "Dash",
                     "RequiredTime": 2.0,
-                    "StartEventTime": 0.800000011920929,
+                    "StartEventTime": 0.699999988079071,
                     "TimeScale": 0.009999999776482582
                 },
                 "AnimationEvent07": {

@@ -19,6 +19,22 @@
                     "UseStickInput": true
                 },
                 "AnimationEvent01": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 3.700000047683716,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "JustDodge",
+                    "PostEffectType": "None",
+                    "SoundEffectType": "WindSwish",
+                    "StartEventTime": 0.0
+                },
+                "AnimationEvent02": {
                     "EndEventTime": 3.700000047683716,
                     "EventTrigger": "ActionStart",
                     "EventType": "QTE",
@@ -27,7 +43,7 @@
                     "StartEventTime": 2.4000000953674316,
                     "TimeScale": 0.009999999776482582
                 },
-                "AnimationEvent02": {
+                "AnimationEvent03": {
                     "CancelType": "Move",
                     "EndEventTime": 3.700000047683716,
                     "EventType": "Cancel",
@@ -36,7 +52,7 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 1.399999976158142,
+                    "AnimationSpeed": 1.2000000476837158,
                     "Duration": 3.700000047683716
                 }
             },
