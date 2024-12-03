@@ -35,7 +35,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent02": {
-                    "EndEventTime": 3.700000047683716,
+                    "EndEventTime": 3.0,
                     "EventTrigger": "ActionStart",
                     "EventType": "QTE",
                     "QteType": "Attack",

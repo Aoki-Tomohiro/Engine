@@ -33,9 +33,16 @@ void PlayerStateDodge::Update()
 	character_->GetCollider()->SetCollisionEnabled(!processedCancelDatas_.empty() ? processedCancelDatas_[0].isActive : false);
 
 	//攻撃状態に遷移されていたらカウンター攻撃状態にする
-	if (HasStateTransitioned("Attack"))
+	if (HasStateTransitioned())
 	{
-		GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, true);
+		//攻撃に遷移していた場合はカウンター攻撃のフラグを立てる
+		if (HasStateTransitioned("Attack"))
+		{
+			GetPlayer()->SetActionFlag(Player::ActionFlag::kCounterAttack, true);
+		}
+
+		//コライダーを有効化する
+		character_->GetCollider()->SetCollisionEnabled(true);
 	}
 
 	//アニメーションが終了していた場合

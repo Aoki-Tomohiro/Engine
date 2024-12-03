@@ -28,7 +28,7 @@ public:
 	struct LockonCameraParameters
 	{
 		Vector3 offset = { 0.0f, 1.0f, -10.0f }; //オフセット値
-		float maxDistance = 0.2f;                //追従対象とロックオン対象が近接していると判定する最大距離
+		float maxDistance = 0.3f;                //追従対象とロックオン対象が近接していると判定する最大距離
 	};
 
 	/// <summary>
