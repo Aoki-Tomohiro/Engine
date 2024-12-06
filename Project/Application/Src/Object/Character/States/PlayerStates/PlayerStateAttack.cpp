@@ -32,6 +32,9 @@ void PlayerStateAttack::Update()
 	//コンボインデックスの更新
 	UpdateComboIndex();
 
+	//カウンター攻撃のフラグが立っていたら当たり判定をなくす
+	character_->GetCollider()->SetCollisionEnabled(!GetPlayer()->GetActionFlag(Player::ActionFlag::kCounterAttack));
+
 	//アニメーションが終了していた場合
 	if (character_->GetAnimator()->GetIsAnimationFinished())
 	{

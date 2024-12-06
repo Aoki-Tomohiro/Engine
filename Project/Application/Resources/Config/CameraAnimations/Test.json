@@ -1,0 +1,56 @@
+{
+    "Test": {
+        "KeyFrames": [
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Time": 0.0
+            },
+            {
+                "EasingType": "EaseOut",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    1.0,
+                    0.0,
+                    1.546944258734584e-05
+                ],
+                "Time": 1.0
+            },
+            {
+                "EasingType": "Linear",
+                "Fov": 45.0,
+                "Position": [
+                    0.0,
+                    1.0,
+                    -10.0
+                ],
+                "Rotation": [
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.00011134985106764361
+                ],
+                "Time": 2.0
+            }
+        ],
+        "ResetDuration": 1.0,
+        "ResetEasingType": "Linear"
+    }
+}
