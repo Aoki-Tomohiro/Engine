@@ -25,9 +25,6 @@ void ICharacterState::SetAnimationControllerAndPlayAnimation(const std::string& 
 	//ジャスト回避ウィンドウをリセット
 	character_->SetIsVulnerableToPerfectDodge(false);
 
-	//DOFを無効にする
-	PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
-
 	//各パラメーターを初期化
 	InitializeProcessedData();
 }
@@ -534,8 +531,8 @@ void ICharacterState::StartQTE(const QTE* qte, const int32_t animationEventIndex
 	processedQTEDatas_[animationEventIndex].isQTEActive = true;
 	//ヒットストップを無効化する
 	character_->GetHitStop()->Stop();
-	//DOFを有効にする
-	PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(true);
+	//ポストエフェクトを有効化
+	EnableQTEPostEffects(true);
 	//タイムスケールを設定
 	GameTimer::SetTimeScale(qte->timeScale);
 }
@@ -549,14 +546,8 @@ void ICharacterState::UpdateQTEProgress(const QTE* qte, const int32_t animationE
 	//キャラクターが指定のQTEアクションを実行した場合
 	if (character_->GetActionTriggerCondition(processedQTEDatas_[animationEventIndex].qteActionName))
 	{
-		//タイムスケールをリセット
-		GameTimer::SetTimeScale(1.0f);
-		//QTE受付終了
-		processedQTEDatas_[animationEventIndex].isQTEActive = false;
-		//QTE成功のフラグを立てる
-		processedQTEDatas_[animationEventIndex].isSuccess = true;
-		//DOFを無効にする
-		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
+		//QTE終了処理
+		CompleteQTE(processedQTEDatas_[animationEventIndex], true);
 		//状態遷移
 		character_->ChangeState(processedQTEDatas_[animationEventIndex].qteActionName);
 		//全てのQTEを終了させる
@@ -569,15 +560,31 @@ void ICharacterState::UpdateQTEProgress(const QTE* qte, const int32_t animationE
 	//タイマーが上限を超えた場合
 	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime)
 	{
-		//タイムスケールをリセット
-		GameTimer::SetTimeScale(1.0f);
-		//QTE受付終了
-		processedQTEDatas_[animationEventIndex].isQTEActive = false;
-		//QTE完了
-		processedQTEDatas_[animationEventIndex].isQTECompleted = true;
-		//DOFを無効にする
-		PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(false);
+		//QTE終了処理
+		CompleteQTE(processedQTEDatas_[animationEventIndex], false);
 	}
+}
+
+void ICharacterState::CompleteQTE(ProcessedQTEData& qteData, const bool isSuccess)
+{
+	//タイムスケールをリセット
+	GameTimer::SetTimeScale(1.0f);
+	//QTE受付終了
+	qteData.isQTEActive = false;
+	//QTE成功
+	qteData.isSuccess = isSuccess;
+	//QTE完了
+	qteData.isQTECompleted = !isSuccess;
+	//ポストエフェクトを無効化
+	EnableQTEPostEffects(false);
+}
+
+void ICharacterState::EnableQTEPostEffects(const bool isEnable)
+{
+	//DOFを無効にする
+	PostEffects::GetInstance()->GetDepthOfField()->SetIsEnable(isEnable);
+	//Vignetteを無効にする
+	PostEffects::GetInstance()->GetVignette()->SetIsEnable(isEnable);
 }
 
 void ICharacterState::ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex)

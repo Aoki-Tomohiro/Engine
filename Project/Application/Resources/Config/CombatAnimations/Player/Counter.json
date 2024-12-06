@@ -4,7 +4,7 @@
             "AnimationEvents": {
                 "AnimationEvent00": {
                     "EasingType": "EaseInOut",
-                    "EndEventTime": 0.699999988079071,
+                    "EndEventTime": 0.6000000238418579,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
@@ -65,7 +65,7 @@
                     "KnockbackAcceleration": [
                         0.0,
                         60.0,
-                        -40.0
+                        -50.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
@@ -114,7 +114,7 @@
                     "EndEventTime": 1.0,
                     "EventTrigger": "Impact",
                     "EventType": "CameraAnimation",
-                    "StartEventTime": 0.20000000298023224,
+                    "StartEventTime": 0.4000000059604645,
                     "SyncWithCharacterAnimation": false
                 },
                 "AnimationEvent06": {
@@ -130,7 +130,7 @@
                     "CancelType": "None",
                     "EndEventTime": 2.367000102996826,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.0
+                    "StartEventTime": 1.600000023841858
                 }
             },
             "AnimationSpeedConfigs": {

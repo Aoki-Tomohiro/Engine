@@ -25,13 +25,25 @@ void GameManager::Initialize()
 
 	//ポストエフェクトの設定
 	postEffects_->SetIsEnable(true);
-	postEffects_->GetFog()->SetIsEnable(true);
-	postEffects_->GetBloom()->SetIsEnable(true);
-	postEffects_->GetBloom()->SetBlurCount(4);
-	postEffects_->GetBloom()->SetTextureWeight(1.0f);
-	postEffects_->GetBloom()->SetHighLumTextureWeight(0.1f);
-	postEffects_->GetBloom()->SetBlurTextureWeight(0, 0.1f);
-	postEffects_->GetBloom()->SetBlurTextureWeight(1, 0.1f);
-	postEffects_->GetBloom()->SetBlurTextureWeight(2, 0.2f);
-	postEffects_->GetBloom()->SetBlurTextureWeight(3, 0.4f);
+
+	//DoFの設定
+	DepthOfField* depthOfField = postEffects_->GetDepthOfField();
+	depthOfField->SetFocusDepth(9.6f);
+	depthOfField->SetNFocusWidth(1.0f);
+	depthOfField->SetFFocusWidth(10.0f);
+
+	//Fogの設定
+	Fog* fog = postEffects_->GetFog();
+	fog->SetIsEnable(true);
+
+	//Bloomの設定
+	Bloom* bloom = postEffects_->GetBloom();
+	bloom->SetIsEnable(true);
+	bloom->SetBlurCount(4);
+	bloom->SetTextureWeight(1.0f);
+	bloom->SetHighLumTextureWeight(0.1f);
+	bloom->SetBlurTextureWeight(0, 0.1f);
+	bloom->SetBlurTextureWeight(1, 0.1f);
+	bloom->SetBlurTextureWeight(2, 0.2f);
+	bloom->SetBlurTextureWeight(3, 0.4f);
 }

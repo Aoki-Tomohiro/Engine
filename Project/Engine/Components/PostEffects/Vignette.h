@@ -47,6 +47,6 @@ private:
 
 	float scale_ = 16.0f;
 
-	float intensity_ = 0.8f;
+	float intensity_ = 0.2f;
 };
 

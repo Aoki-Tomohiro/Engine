@@ -61,7 +61,7 @@ void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* ve
 void PlayerStateDash::UpdateRadialBlur()
 {
 	//移動イベントが有効の場合
-	if (processedVelocityDatas_[0].isActive)
+	if (!processedVelocityDatas_.empty() && processedVelocityDatas_[0].isActive)
 	{
 		//アニメーターを取得
 		AnimatorComponent* animator = character_->GetAnimator();

@@ -183,6 +183,8 @@ protected:
 	virtual void ProcessQTE(const QTE* qte, const int32_t animationEventIndex);
 	virtual void StartQTE(const QTE* qte, const int32_t animationEventIndex);
 	virtual void UpdateQTEProgress(const QTE* qte, const int32_t animationEventIndex);
+	virtual void CompleteQTE(ProcessedQTEData& qteData, const bool isSuccess);
+	virtual void EnableQTEPostEffects(const bool isEnable);
 	virtual void ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
 	virtual void HandleCancelAction(const CancelEvent* cancelEvent, const int32_t animationEventIndex);
 	virtual void ProcessBufferedActionEvent(const BufferedActionEvent* bufferedActionEvent, const int32_t animationEventIndex);

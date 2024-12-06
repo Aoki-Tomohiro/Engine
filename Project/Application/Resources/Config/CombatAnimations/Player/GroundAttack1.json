@@ -18,7 +18,7 @@
                     ]
                 },
                 "AnimationEvent01": {
-                    "Damage": 1000.0,
+                    "Damage": 0.6000000238418579,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
                     "HitInterval": 0.019999999552965164,

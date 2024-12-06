@@ -18,18 +18,18 @@
                             0.0,
                             1.0
                         ],
-                        "Count": 100,
+                        "Count": 40,
                         "EmitterLifeTime": 0.0,
                         "EnableAlphaOverLifeTime": true,
                         "EnableColorOverLifeTime": true,
                         "EnableRotationOverLifeTime": false,
-                        "EnableSizeOverLifeTime": false,
+                        "EnableSizeOverLifeTime": true,
                         "FollowEnabled": false,
                         "Frequency": 0.5,
                         "IsBillboard": true,
-                        "LifeTimeMax": 1.0,
+                        "LifeTimeMax": 1.2000000476837158,
                         "LifeTimeMin": 1.0,
-                        "Radius": 1.0,
+                        "Radius": 0.0,
                         "RotSpeed": [
                             0.0,
                             0.0,
@@ -38,12 +38,12 @@
                         "RotateMax": [
                             0.0,
                             0.0,
-                            3.140000104904175
+                            0.0
                         ],
                         "RotateMin": [
                             0.0,
                             0.0,
-                            -3.140000104904175
+                            0.0
                         ],
                         "ScaleMax": [
                             2.0,
@@ -55,7 +55,7 @@
                             1.0,
                             1.0
                         ],
-                        "TargetAlpha": 0.20000000298023224,
+                        "TargetAlpha": 0.0,
                         "TargetColor": [
                             0.0,
                             0.0,
@@ -72,14 +72,14 @@
                             0.0
                         ],
                         "VelocityMax": [
-                            0.03999999910593033,
-                            0.03999999910593033,
-                            0.03999999910593033
+                            0.009999999776482582,
+                            0.009999999776482582,
+                            0.009999999776482582
                         ],
                         "VelocityMin": [
-                            -0.03999999910593033,
-                            -0.03999999910593033,
-                            -0.03999999910593033
+                            -0.009999999776482582,
+                            -0.009999999776482582,
+                            -0.009999999776482582
                         ]
                     }
                 },

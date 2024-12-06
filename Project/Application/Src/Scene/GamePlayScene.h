@@ -92,7 +92,5 @@ private:
 
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;
-
-	float blurWidth_ = 0.04f;
 };
 
