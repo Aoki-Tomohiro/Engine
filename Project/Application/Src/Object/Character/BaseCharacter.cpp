@@ -118,7 +118,7 @@ void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockback
 bool BaseCharacter::ChangeState(const std::string& newStateName)
 {
     //新しい状態を生成して次の状態に設定
-    if (!nextState_)
+    if (newStateName == "Stun" || !nextState_)
     {
         nextState_ = std::unique_ptr<ICharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
         return true;

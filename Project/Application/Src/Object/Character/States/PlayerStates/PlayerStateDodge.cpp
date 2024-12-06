@@ -58,7 +58,7 @@ void PlayerStateDodge::Update()
 void PlayerStateDodge::OnCollision(GameObject* other)
 {
 	//衝突処理
-	character_->ProcessCollisionImpact(other, !processedEasingDatas_[0].isActive);
+	character_->ProcessCollisionImpact(other, !processedCancelDatas_.empty() ? processedCancelDatas_[0].isActive : false);
 }
 
 void PlayerStateDodge::UpdateJustDodgeEffect()

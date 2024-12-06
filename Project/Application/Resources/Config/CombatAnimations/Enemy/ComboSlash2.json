@@ -204,30 +204,26 @@
             },
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
-                    "Duration": 0.800000011920929
-                },
-                "AnimationSpeedConfig1": {
                     "AnimationSpeed": 1.600000023841858,
                     "Duration": 1.2999999523162842
                 },
-                "AnimationSpeedConfig2": {
+                "AnimationSpeedConfig1": {
                     "AnimationSpeed": 1.0,
                     "Duration": 1.5
                 },
-                "AnimationSpeedConfig3": {
+                "AnimationSpeedConfig2": {
                     "AnimationSpeed": 1.600000023841858,
                     "Duration": 2.0
                 },
-                "AnimationSpeedConfig4": {
+                "AnimationSpeedConfig3": {
                     "AnimationSpeed": 1.2000000476837158,
                     "Duration": 2.5
                 },
-                "AnimationSpeedConfig5": {
+                "AnimationSpeedConfig4": {
                     "AnimationSpeed": 1.600000023841858,
                     "Duration": 2.9000000953674316
                 },
-                "AnimationSpeedConfig6": {
+                "AnimationSpeedConfig5": {
                     "AnimationSpeed": 1.0,
                     "Duration": 4.232999801635742
                 }

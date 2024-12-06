@@ -44,7 +44,7 @@
                     "TimeScale": 0.009999999776482582
                 },
                 "AnimationEvent03": {
-                    "CancelType": "Move",
+                    "CancelType": "None",
                     "EndEventTime": 3.700000047683716,
                     "EventType": "Cancel",
                     "StartEventTime": 3.0

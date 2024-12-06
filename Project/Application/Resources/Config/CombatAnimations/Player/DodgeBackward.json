@@ -17,6 +17,12 @@
                         -8.0
                     ],
                     "UseStickInput": false
+                },
+                "AnimationEvent01": {
+                    "CancelType": "Move",
+                    "EndEventTime": 1.0,
+                    "EventType": "Cancel",
+                    "StartEventTime": 0.8999999761581421
                 }
             },
             "AnimationSpeedConfigs": {
