@@ -261,7 +261,7 @@
                             -1.2000000476837158,
                             0.0
                         ],
-                        "LifeTime": 1.0,
+                        "LifeTime": 2.4000000953674316,
                         "Max": [
                             50.0,
                             50.0,
@@ -274,7 +274,7 @@
                         ],
                         "Translation": [
                             0.0,
-                            0.0,
+                            50.0,
                             0.0
                         ]
                     }
@@ -296,7 +296,7 @@
                         ],
                         "Count": 50,
                         "EmitterLifeTime": 0.0,
-                        "EnableAlphaOverLifeTime": true,
+                        "EnableAlphaOverLifeTime": false,
                         "EnableColorOverLifeTime": false,
                         "EnableRotationOverLifeTime": true,
                         "EnableSizeOverLifeTime": true,
@@ -349,12 +349,12 @@
                         ],
                         "VelocityMax": [
                             0.10000000149011612,
-                            0.6000000238418579,
+                            0.4000000059604645,
                             0.10000000149011612
                         ],
                         "VelocityMin": [
                             -0.10000000149011612,
-                            0.4000000059604645,
+                            0.20000000298023224,
                             -0.10000000149011612
                         ]
                     }
