@@ -4,7 +4,7 @@
             "AnimationEvents": {
                 "AnimationEvent00": {
                     "EasingType": "EaseInOut",
-                    "EndEventTime": 0.6000000238418579,
+                    "EndEventTime": 0.4000000059604645,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
@@ -109,6 +109,22 @@
                     "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent05": {
+                    "CameraShakeDuration": 0.0,
+                    "CameraShakeIntensity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "EndEventTime": 0.699999988079071,
+                    "EventTrigger": "ActionStart",
+                    "EventType": "Effect",
+                    "HitStopDuration": 0.0,
+                    "ParticleEffectName": "",
+                    "PostEffectType": "RadialBlur",
+                    "SoundEffectType": "",
+                    "StartEventTime": 0.20000000298023224
+                },
+                "AnimationEvent06": {
                     "AnimationName": "Counter",
                     "AnimationSpeed": 2.0,
                     "EndEventTime": 1.0,
@@ -117,7 +133,7 @@
                     "StartEventTime": 0.4000000059604645,
                     "SyncWithCharacterAnimation": false
                 },
-                "AnimationEvent06": {
+                "AnimationEvent07": {
                     "EndEventTime": 1.0,
                     "EventTrigger": "EnemyStunned",
                     "EventType": "QTE",
@@ -126,7 +142,7 @@
                     "StartEventTime": 0.699999988079071,
                     "TimeScale": 0.009999999776482582
                 },
-                "AnimationEvent07": {
+                "AnimationEvent08": {
                     "CancelType": "None",
                     "EndEventTime": 2.367000102996826,
                     "EventType": "Cancel",

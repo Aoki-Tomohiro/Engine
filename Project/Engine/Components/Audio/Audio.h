@@ -72,9 +72,9 @@ public:
 
 	void SoundUnload(SoundData* soundData);
 
-	uint32_t PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
+	void PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
 
-	void StopAudio(uint32_t voiceHandle);
+	void StopAudio(uint32_t audioHandle);
 
 private:
 	Audio() = default;
@@ -92,6 +92,4 @@ private:
 	std::set<Voice*> sourceVoices_{};
 
 	int32_t audioHandle_ = -1;
-
-	int32_t voiceHandle_ = -1;
 };
