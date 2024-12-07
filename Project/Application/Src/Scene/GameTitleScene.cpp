@@ -56,7 +56,7 @@ void GameTitleScene::Initialize()
 
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
-	audio_->PlayAudio(audioHandle_, true, 0.1f);
+	voiceHandle_ = audio_->PlayAudio(audioHandle_, true, 0.1f);
 }
 
 void GameTitleScene::Finalize()
@@ -189,7 +189,7 @@ void GameTitleScene::TriggerFadeInAndChangeScene()
 	//シーン遷移
 	if (transition_->GetIsFadeInComplete())
 	{
-		audio_->StopAudio(audioHandle_);
+		audio_->StopAudio(voiceHandle_);
 		sceneManager_->ChangeScene("GamePlayScene");
 	}
 }

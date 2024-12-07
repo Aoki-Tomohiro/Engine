@@ -76,12 +76,12 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        60.0,
+                        30.0,
                         -2.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        20.0,
+                        30.0,
                         2.0
                     ],
                     "MaxHitCount": 5,
@@ -165,23 +165,23 @@
                     "CancelType": "Attack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.399999976158142
+                    "StartEventTime": 1.7999999523162842
                 },
                 "AnimationEvent10": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 3.200000047683716,
                     "EventType": "Cancel",
-                    "StartEventTime": 1.399999976158142
+                    "StartEventTime": 1.7999999523162842
                 },
                 "AnimationEvent11": {
                     "BufferedActionType": "Attack",
-                    "EndEventTime": 1.399999976158142,
+                    "EndEventTime": 1.7999999523162842,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent12": {
                     "BufferedActionType": "FallingAttack",
-                    "EndEventTime": 1.399999976158142,
+                    "EndEventTime": 1.7999999523162842,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 }
@@ -192,7 +192,7 @@
                     "Duration": 1.399999976158142
                 },
                 "AnimationSpeedConfig1": {
-                    "AnimationSpeed": 2.0,
+                    "AnimationSpeed": 1.7999999523162842,
                     "Duration": 3.200000047683716
                 }
             },

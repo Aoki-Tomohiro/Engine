@@ -12,15 +12,15 @@ Audio* Audio::GetInstance()
 
 void Audio::Finalize()
 {
-	//ボイスデータ開放
-	for (const Voice* voice : sourceVoices_)
-	{
-		if (voice->sourceVoice != nullptr)
-		{
-			voice->sourceVoice->DestroyVoice();
-		}
-		delete voice;
-	}
+	////ボイスデータ開放
+	//for (const Voice* voice : sourceVoices_)
+	//{
+	//	if (voice->sourceVoice != nullptr)
+	//	{
+	//		voice->sourceVoice->DestroyVoice();
+	//	}
+	//	delete voice;
+	//}
 
 	//XAudio2解放
 	xAudio2_.Reset();
@@ -52,9 +52,7 @@ uint32_t Audio::LoadAudioFile(const std::string& filename)
 		}
 	}
 
-	audioHandle_++;
-	//ファイル入力ストリームのインスタンス
-	std::ifstream file;
+	//ファイルパスの設定
 	std::string filePath = kBaseDirectory + "/" + filename;
 	if (filename.find("Application/Resources/Sounds") != std::string::npos)
 	{
@@ -105,10 +103,11 @@ uint32_t Audio::LoadAudioFile(const std::string& filename)
 		pMFSample->Release();
 	}
 
+	audioHandle_++;
 	soundDatas_[audioHandle_].wfex = *waveFormat;
 	soundDatas_[audioHandle_].pBuffer = mediaData;
 	soundDatas_[audioHandle_].bufferSize = mediaData.size();
-	soundDatas_[audioHandle_].name = filename;
+	soundDatas_[audioHandle_].name = filePath;
 	soundDatas_[audioHandle_].audioHandle = audioHandle_;
 	CoTaskMemFree(waveFormat);
 	pMFMediaType->Release();
@@ -125,22 +124,26 @@ void Audio::SoundUnload(SoundData* soundData)
 	soundData->wfex = {};
 }
 
-void Audio::PlayAudio(uint32_t audioHandle, bool loopFlag, float volume)
+uint32_t Audio::PlayAudio(uint32_t audioHandle, bool loopFlag, float volume)
 {
+	//voiceHandleをインクリメント
+	voiceHandle_++;
+
 	//波形フォーマットを元にSourceVoiceの作成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	HRESULT result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundDatas_[audioHandle].wfex);
+	HRESULT result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundDatas_[audioHandle].wfex, 0, 2.0f, &voiceCallback_);
 	assert(SUCCEEDED(result));
 
 	//コンテナに追加
 	Voice* voice = new Voice();
-	voice->handle = audioHandle;
+	voice->handle = voiceHandle_;
 	voice->sourceVoice = pSourceVoice;
 	sourceVoices_.insert(voice);
 
 	//再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
 	buf.pAudioData = soundDatas_[audioHandle].pBuffer.data();
+	buf.pContext = voice;
 	buf.AudioBytes = UINT32(soundDatas_[audioHandle].bufferSize);
 	buf.Flags = XAUDIO2_END_OF_STREAM;
 	if (loopFlag)
@@ -152,23 +155,47 @@ void Audio::PlayAudio(uint32_t audioHandle, bool loopFlag, float volume)
 	result = pSourceVoice->SubmitSourceBuffer(&buf);
 	pSourceVoice->SetVolume(volume);
 	result = pSourceVoice->Start();
+
+	return voiceHandle_;
 }
 
-void Audio::StopAudio(uint32_t audioHandle)
+void Audio::StopAudio(uint32_t voiceHandle)
 {
-	HRESULT result;
-	auto it = sourceVoices_.begin();
-	while (it != sourceVoices_.end())
+	//sourceVoices_からvoiceHandleに一致するVoiceを検索
+	for (auto it = sourceVoices_.begin(); it != sourceVoices_.end(); ++it)
 	{
-		if ((*it)->handle == audioHandle)
+		//現在のVoiceポインタを取得
+		Voice* voice = *it;
+
+		//Voiceのhandleが引数のvoiceHandleと一致するか確認
+		if (voice->handle == voiceHandle)
 		{
-			result = (*it)->sourceVoice->Stop();
-			delete (*it);
-			it = sourceVoices_.erase(it);
-		}
-		else
-		{
-			++it;
+			//一致した場合、音声を停止
+			if (voice->sourceVoice)
+			{
+				voice->sourceVoice->Stop();
+			}
+
+			//ソースボイスを削除
+			voice->sourceVoice->DestroyVoice();
+
+			//停止したVoiceをsourceVoices_から削除
+			sourceVoices_.erase(it);
+
+			//解放
+			delete voice;
+
+			//ループを抜ける
+			break;
 		}
 	}
+}
+
+STDMETHODIMP_(void __stdcall) Audio::XAudio2VoiceCallback::OnBufferEnd(void* pBufferContext)
+{
+	//Voiceポインタを取得
+	Voice* voice = static_cast<Voice*>(pBufferContext);
+
+	//オーディオのインスタンスを取得し音声を止める
+	Audio::GetInstance()->StopAudio(voice->handle);
 }

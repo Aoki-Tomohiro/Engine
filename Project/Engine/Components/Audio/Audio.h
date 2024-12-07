@@ -24,6 +24,29 @@ public:
 	//音声データの最大数
 	static const int kMaxSoundData = 256;
 
+	//オーディオコールバック
+	class XAudio2VoiceCallback : public IXAudio2VoiceCallback {
+	public:
+		//ボイス処理パスの開始時
+		STDMETHOD_(void, OnVoiceProcessingPassStart)
+			([[maybe_unused]] THIS_ UINT32 BytesRequired) {
+		};
+		//ボイス処理パスの終了時
+		STDMETHOD_(void, OnVoiceProcessingPassEnd)(THIS) {};
+		//バッファストリームの再生が終了した時
+		STDMETHOD_(void, OnStreamEnd)(THIS) {};
+		//バッファの使用開始時
+		STDMETHOD_(void, OnBufferStart)([[maybe_unused]] THIS_ void*) {};
+		//バッファの末尾に達した時
+		STDMETHOD_(void, OnBufferEnd)(THIS_ void* pBufferContext);
+		//再生がループ位置に達した時
+		STDMETHOD_(void, OnLoopEnd)([[maybe_unused]] THIS_ void*) {};
+		//ボイスの実行エラー時
+		STDMETHOD_(void, OnVoiceError)
+			([[maybe_unused]] THIS_ void*, [[maybe_unused]] HRESULT) {
+		};
+	};
+
 	//チャンクヘッダ
 	struct ChunkHeader {
 		char id[4];//チャンク毎のID
@@ -72,9 +95,9 @@ public:
 
 	void SoundUnload(SoundData* soundData);
 
-	void PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
+	uint32_t PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
 
-	void StopAudio(uint32_t audioHandle);
+	void StopAudio(uint32_t voiceHandle);
 
 private:
 	Audio() = default;
@@ -92,4 +115,9 @@ private:
 	std::set<Voice*> sourceVoices_{};
 
 	int32_t audioHandle_ = -1;
+
+	int32_t voiceHandle_ = -1;
+
+	XAudio2VoiceCallback voiceCallback_;
 };
+

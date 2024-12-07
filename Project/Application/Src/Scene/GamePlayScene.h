@@ -92,5 +92,8 @@ private:
 
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;
+
+	//ボイスハンドル
+	uint32_t voiceHandle_ = 0;
 };
 
