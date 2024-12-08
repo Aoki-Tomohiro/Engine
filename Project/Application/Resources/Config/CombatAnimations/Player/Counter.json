@@ -3,8 +3,8 @@
         "Counter": {
             "AnimationEvents": {
                 "AnimationEvent00": {
-                    "EasingType": "EaseInOut",
-                    "EndEventTime": 0.4000000059604645,
+                    "EasingType": "EaseOut",
+                    "EndEventTime": 0.5,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
@@ -14,7 +14,7 @@
                     "TargetPosition": [
                         0.0,
                         0.0,
-                        20.0
+                        16.0
                     ],
                     "UseStickInput": false
                 },
@@ -64,13 +64,13 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        24.0,
-                        -40.0
+                        40.0,
+                        -30.0
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        44.0,
-                        28.0
+                        40.0,
+                        30.0
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",

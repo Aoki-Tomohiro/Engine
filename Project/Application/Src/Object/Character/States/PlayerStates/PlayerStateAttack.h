@@ -63,9 +63,9 @@ private:
 	bool comboNext_ = false;
 
 	//地上攻撃のアニメーション開始時間
-	float groundAttackStartTime_ = 0.48f;
+	float groundAttackStartTime_ = 0.35f;
 
 	//空中攻撃のアニメーション開始時間
-	float aerialAttackStartTime_ = 0.78f;
+	float aerialAttackStartTime_ = 0.5f;
 };
 

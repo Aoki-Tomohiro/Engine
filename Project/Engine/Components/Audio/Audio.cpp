@@ -12,15 +12,16 @@ Audio* Audio::GetInstance()
 
 void Audio::Finalize()
 {
-	////ボイスデータ開放
-	//for (const Voice* voice : sourceVoices_)
-	//{
-	//	if (voice->sourceVoice != nullptr)
-	//	{
-	//		voice->sourceVoice->DestroyVoice();
-	//	}
-	//	delete voice;
-	//}
+	//ボイスデータ開放
+	for (const Voice* voice : sourceVoices_)
+	{
+		if (voice->sourceVoice != nullptr)
+		{
+			voice->sourceVoice->DestroyVoice();
+		}
+		delete voice;
+	}
+	sourceVoices_.clear();
 
 	//XAudio2解放
 	xAudio2_.Reset();
@@ -107,7 +108,7 @@ uint32_t Audio::LoadAudioFile(const std::string& filename)
 	soundDatas_[audioHandle_].wfex = *waveFormat;
 	soundDatas_[audioHandle_].pBuffer = mediaData;
 	soundDatas_[audioHandle_].bufferSize = mediaData.size();
-	soundDatas_[audioHandle_].name = filePath;
+	soundDatas_[audioHandle_].name = filename;
 	soundDatas_[audioHandle_].audioHandle = audioHandle_;
 	CoTaskMemFree(waveFormat);
 	pMFMediaType->Release();
@@ -131,7 +132,7 @@ uint32_t Audio::PlayAudio(uint32_t audioHandle, bool loopFlag, float volume)
 
 	//波形フォーマットを元にSourceVoiceの作成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	HRESULT result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundDatas_[audioHandle].wfex, 0, 2.0f, &voiceCallback_);
+	HRESULT result = xAudio2_->CreateSourceVoice(&pSourceVoice, &soundDatas_[audioHandle].wfex, 0, 1.0f, &voiceCallback_);
 	assert(SUCCEEDED(result));
 
 	//コンテナに追加

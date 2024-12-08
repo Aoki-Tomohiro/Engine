@@ -22,7 +22,7 @@
                     "EasingType": "EaseIn",
                     "EndEventTime": 2.9000000953674316,
                     "EventType": "Movement",
-                    "IsProximityStopEnabled": false,
+                    "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Easing",
                     "RotateTowardsMovement": true,

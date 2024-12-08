@@ -19,7 +19,7 @@
             },
             {
                 "EasingType": "Linear",
-                "Fov": 50.0,
+                "Fov": 60.0,
                 "Position": [
                     0.0,
                     1.0,
@@ -67,7 +67,7 @@
             },
             {
                 "EasingType": "Linear",
-                "Fov": 50.0,
+                "Fov": 60.0,
                 "Position": [
                     0.0,
                     1.0,
@@ -115,7 +115,7 @@
             },
             {
                 "EasingType": "Linear",
-                "Fov": 50.0,
+                "Fov": 60.0,
                 "Position": [
                     0.0,
                     1.0,
@@ -144,25 +144,9 @@
                     0.9797959327697754
                 ],
                 "Time": 1.2000000476837158
-            },
-            {
-                "EasingType": "Linear",
-                "Fov": 45.0,
-                "Position": [
-                    0.0,
-                    1.0,
-                    -10.0
-                ],
-                "Rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "Time": 1.399999976158142
             }
         ],
-        "ResetDuration": 1.0,
+        "ResetDuration": 0.6000000238418579,
         "ResetEasingType": "EaseOut"
     }
 }

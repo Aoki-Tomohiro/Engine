@@ -557,8 +557,8 @@ void ICharacterState::UpdateQTEProgress(const QTE* qte, const int32_t animationE
 			processedQteData.isQTECompleted = true;
 		}
 	}
-	//タイマーが上限を超えた場合
-	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime)
+	//タイマーが上限を超えていた場合、またはゲームが終了していた場合
+	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime || character_->GetIsGameFinished())
 	{
 		//QTE終了処理
 		CompleteQTE(processedQTEDatas_[animationEventIndex], false);

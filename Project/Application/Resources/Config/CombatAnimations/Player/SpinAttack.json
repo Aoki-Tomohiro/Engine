@@ -19,6 +19,21 @@
                     "UseStickInput": false
                 },
                 "AnimationEvent01": {
+                    "EndEventTime": 0.20000000298023224,
+                    "EventType": "Movement",
+                    "IsProximityStopEnabled": true,
+                    "MoveTowardsEnemy": false,
+                    "MovementType": "Velocity",
+                    "RotateTowardsMovement": false,
+                    "StartEventTime": 0.0,
+                    "UseStickInput": false,
+                    "Velocity": [
+                        0.0,
+                        0.0,
+                        20.0
+                    ]
+                },
+                "AnimationEvent02": {
                     "EasingType": "EaseOut",
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Rotation",
@@ -30,7 +45,7 @@
                     ],
                     "StartEventTime": 0.20000000298023224
                 },
-                "AnimationEvent02": {
+                "AnimationEvent03": {
                     "Damage": 1.2000000476837158,
                     "EndEventTime": 0.10000000149011612,
                     "EventType": "Attack",
@@ -59,7 +74,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent03": {
+                "AnimationEvent04": {
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",
@@ -76,7 +91,7 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        30.0,
+                        24.0,
                         -2.0
                     ],
                     "KnockbackVelocity": [
@@ -88,7 +103,7 @@
                     "ReactionType": "Knockback",
                     "StartEventTime": 0.10000000149011612
                 },
-                "AnimationEvent04": {
+                "AnimationEvent05": {
                     "CameraShakeDuration": 0.10000000149011612,
                     "CameraShakeIntensity": [
                         0.0,
@@ -104,7 +119,7 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent05": {
+                "AnimationEvent06": {
                     "CameraShakeDuration": 0.03999999910593033,
                     "CameraShakeIntensity": [
                         0.0,
@@ -120,7 +135,7 @@
                     "SoundEffectType": "NormalHit",
                     "StartEventTime": 0.20000000298023224
                 },
-                "AnimationEvent06": {
+                "AnimationEvent07": {
                     "CameraShakeDuration": 0.0,
                     "CameraShakeIntensity": [
                         0.0,
@@ -136,7 +151,7 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 0.6000000238418579
                 },
-                "AnimationEvent07": {
+                "AnimationEvent08": {
                     "CameraShakeDuration": 0.0,
                     "CameraShakeIntensity": [
                         0.0,
@@ -152,7 +167,7 @@
                     "SoundEffectType": "None",
                     "StartEventTime": 1.0
                 },
-                "AnimationEvent08": {
+                "AnimationEvent09": {
                     "AnimationName": "SpinAttack",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 0.10000000149011612,
@@ -161,12 +176,6 @@
                     "StartEventTime": 0.0,
                     "SyncWithCharacterAnimation": true
                 },
-                "AnimationEvent09": {
-                    "CancelType": "Attack",
-                    "EndEventTime": 3.200000047683716,
-                    "EventType": "Cancel",
-                    "StartEventTime": 1.7999999523162842
-                },
                 "AnimationEvent10": {
                     "CancelType": "FallingAttack",
                     "EndEventTime": 3.200000047683716,
@@ -174,12 +183,18 @@
                     "StartEventTime": 1.7999999523162842
                 },
                 "AnimationEvent11": {
+                    "CancelType": "Attack",
+                    "EndEventTime": 3.200000047683716,
+                    "EventType": "Cancel",
+                    "StartEventTime": 1.7999999523162842
+                },
+                "AnimationEvent12": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 1.7999999523162842,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent12": {
+                "AnimationEvent13": {
                     "BufferedActionType": "FallingAttack",
                     "EndEventTime": 1.7999999523162842,
                     "EventType": "BufferedAction",
