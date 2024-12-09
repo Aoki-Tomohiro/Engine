@@ -17,6 +17,13 @@ void SampleScene::Initialize()
 
 	//カメラを取得
 	camera_ = CameraManager::GetCamera("Camera");
+
+	//テクスチャの読み込み
+	TextureManager::Load("Test.dds");
+
+	//スプライトの生成
+	sprite_.reset(Sprite::Create("Test.dds", { 1280.0f / 2.0f, 720.0f / 2.0f }));
+	sprite_->SetAnchorPoint({ 0.5f,0.5f });
 }
 
 void SampleScene::Finalize()
@@ -73,6 +80,9 @@ void SampleScene::DrawUI()
 #pragma region 前景スプライト描画
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
+
+	//スプライトの描画
+	sprite_->Draw();
 
 	//前景スプライト描画後処理
 	renderer_->PostDrawSprites();

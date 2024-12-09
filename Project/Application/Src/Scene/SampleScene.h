@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
+#include "Engine/2D/Sprite.h"
 #include "Engine/3D/Camera/CameraManager.h"
+#include "Engine/Base/TextureManager.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
@@ -31,5 +33,8 @@ private:
 	Camera* camera_ = nullptr;
 
 	GameObjectManager* gameObjectManager_ = nullptr;
+
+	//スプライト
+	std::unique_ptr<Sprite> sprite_ = nullptr;
 };
 
