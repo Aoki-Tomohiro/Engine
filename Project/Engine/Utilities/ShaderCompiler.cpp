@@ -1,13 +1,20 @@
+/**
+ * @file ShaderCompiler.cpp
+ * @brief シェーダーをコンパイルするクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ShaderCompiler.h"
 #include <cassert>
 
-//実体定義
+ //実体定義
 const std::wstring& ShaderCompiler::kBaseDirectory = L"Application/Resources/Shaders/";
 Microsoft::WRL::ComPtr<IDxcUtils> ShaderCompiler::dxcUtils_ = nullptr;
 Microsoft::WRL::ComPtr<IDxcCompiler3> ShaderCompiler::dxcCompiler_ = nullptr;
 Microsoft::WRL::ComPtr<IDxcIncludeHandler> ShaderCompiler::includeHandler_ = nullptr;
 
-void ShaderCompiler::Initialize() 
+void ShaderCompiler::Initialize()
 {
 	//dxccompilerを初期化
 	HRESULT hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
@@ -38,7 +45,7 @@ Microsoft::WRL::ComPtr<IDxcBlob> ShaderCompiler::CompileShader(const std::wstrin
 	shaderSourceBuffer.Encoding = DXC_CP_UTF8;//UTF8の文字コードであることを通知
 
 
-	LPCWSTR arguments[] ={
+	LPCWSTR arguments[] = {
 		combinedPath.c_str(),//コンパイル対象のhlslファイル名
 		L"-E",L"main",//エントリーポイントの指定。基本的にmain以外にはしない
 		L"-T",profile,//ShaderProfileの設定

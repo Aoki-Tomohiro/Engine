@@ -1,3 +1,10 @@
+/**
+ * @file GameTimer.cpp
+ * @brief ゲーム時間を管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameTimer.h"
 #include <chrono>
 

@@ -1,8 +1,15 @@
+/**
+ * @file RandomGenerator.cpp
+ * @brief ランダムな値を生成するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "RandomGenerator.h"
 
 std::mt19937 RandomGenerator::randomEngine_;
 
-void RandomGenerator::Initialize() 
+void RandomGenerator::Initialize()
 {
 	//ランダムエンジンの初期化
 	std::random_device seedGenerator;
@@ -15,7 +22,7 @@ int RandomGenerator::GetRandomInt(int min, int max)
 	return distribution(randomEngine_);
 }
 
-float RandomGenerator::GetRandomFloat(float min, float max) 
+float RandomGenerator::GetRandomFloat(float min, float max)
 {
 	std::uniform_real_distribution<float> distribution(min, max);
 	return distribution(randomEngine_);

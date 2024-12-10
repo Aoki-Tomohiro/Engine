@@ -1,4 +1,12 @@
+/**
+ * @file Vector4.h
+ * @brief Vector4の構造体
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
+
 struct Vector4
 {
 	float x;

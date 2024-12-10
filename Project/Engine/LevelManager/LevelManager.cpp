@@ -1,3 +1,10 @@
+/**
+ * @file LevelManager.h
+ * @brief レベルデータを読み込み、そのデータを基にゲームオブジェクトを生成するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "LevelManager.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/3D/Camera/CameraManager.h"

@@ -1,3 +1,10 @@
+/**
+ * @file D3DResourceLeakChecker.h
+ * @brief メモリリークが起きているかを確認する構造体
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -7,7 +14,8 @@
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"dxguid.lib")
 
-struct D3DResourceLeakChecker {
+struct D3DResourceLeakChecker
+{
 	D3DResourceLeakChecker() {};
 	~D3DResourceLeakChecker() {
 		//リソースリークチェック

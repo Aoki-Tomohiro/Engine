@@ -1,10 +1,17 @@
+/**
+ * @file MathFunction.cpp
+ * @brief 数学関数群
+ * @author 青木智滉
+ * @date
+ */
+
 #include "MathFunction.h"
 #include <cassert>
 #include <numbers>
 
 namespace Mathf
 {
-	float Dot(const Vector3& v1, const Vector3& v2) 
+	float Dot(const Vector3& v1, const Vector3& v2)
 	{
 		float result{};
 		result = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
@@ -12,7 +19,7 @@ namespace Mathf
 	}
 
 
-	float Length(const Vector3& v) 
+	float Length(const Vector3& v)
 	{
 		float result{};
 		result = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -20,7 +27,7 @@ namespace Mathf
 	}
 
 
-	float Lerp(const float& v1, const float& v2, float t)
+	float Lerp(float v1, float v2, float t)
 	{
 		float result{};
 		result = v1 + t * (v2 - v1);
@@ -28,7 +35,7 @@ namespace Mathf
 	}
 
 
-	float LerpShortAngle(const float& a, const float& b, float t) 
+	float LerpShortAngle(float a, float b, float t)
 	{
 		//角度差分を求める
 		float diff = b - a;
@@ -55,32 +62,38 @@ namespace Mathf
 		return 1.0f - std::cos((x * std::numbers::pi_v<float>) / 2.0f);
 	}
 
+
 	float EaseInCubic(float x)
 	{
 		return x * x * x;
 	}
+
 
 	float EaseOutSine(float x)
 	{
 		return std::sin((x * std::numbers::pi_v<float>) / 2.0f);
 	}
 
+
 	float EaseOutCubic(float x)
 	{
 		return 1.0f - std::pow(1.0f - x, 3.0f);
 	}
+
 
 	float EaseInOutSine(float x)
 	{
 		return -(std::cos(std::numbers::pi_v<float> *x) - 1.0f) / 2.0f;
 	}
 
+
 	float EaseOutExpo(float x)
 	{
 		return x == 1 ? 1 : 1 - std::pow(2.0f, -10.0f * x);
 	}
 
-	float Norm(const Quaternion& quaternion) 
+
+	float Norm(const Quaternion& quaternion)
 	{
 		float result{};
 		result = sqrtf(quaternion.x * quaternion.x + quaternion.y * quaternion.y + quaternion.z * quaternion.z + quaternion.w * quaternion.w);
@@ -102,7 +115,7 @@ namespace Mathf
 		Vector3 result{};
 
 		float date = std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-		if (date != 0) 
+		if (date != 0)
 		{
 			result.x = v.x / date;
 			result.y = v.y / date;
@@ -112,7 +125,7 @@ namespace Mathf
 	}
 
 
-	Vector3 Cross(const Vector3& v1, const Vector3& v2) 
+	Vector3 Cross(const Vector3& v1, const Vector3& v2)
 	{
 		Vector3 result{};
 		result.x = (v1.y * v2.z) - (v1.z * v2.y);
@@ -162,12 +175,12 @@ namespace Mathf
 	}
 
 
-	Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t) 
+	Vector3 Slerp(const Vector3& v1, const Vector3& v2, float t)
 	{
 		float theta = std::acos(Dot(v1, v2));
 		float sinTheta = std::sin(theta);
 		Vector3 result{};
-		if (theta != 0.0f) 
+		if (theta != 0.0f)
 		{
 			result.x = (std::sin(theta * (1 - t)) * v1.x + std::sin(theta * t) * v2.x) / sinTheta;
 			result.y = (std::sin(theta * (1 - t)) * v1.y + std::sin(theta * t) * v2.y) / sinTheta;
@@ -207,7 +220,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 Inverse(const Matrix4x4& m) 
+	Matrix4x4 Inverse(const Matrix4x4& m)
 	{
 		Matrix4x4 result{};
 		float determinant = m.m[0][0] * m.m[1][1] * m.m[2][2] * m.m[3][3] +
@@ -268,7 +281,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 Transpose(const Matrix4x4& m) 
+	Matrix4x4 Transpose(const Matrix4x4& m)
 	{
 		Matrix4x4 result{};
 		result.m[0][0] = m.m[0][0];
@@ -295,7 +308,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeIdentity4x4() 
+	Matrix4x4 MakeIdentity4x4()
 	{
 		Matrix4x4 result{};
 		result.m[0][0] = 1.0f;
@@ -322,7 +335,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeScaleMatrix(const Vector3& scale) 
+	Matrix4x4 MakeScaleMatrix(const Vector3& scale)
 	{
 		Matrix4x4 result;
 		result.m[0][0] = scale.x;
@@ -349,7 +362,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeTranslateMatrix(const Vector3& translate) 
+	Matrix4x4 MakeTranslateMatrix(const Vector3& translate)
 	{
 		Matrix4x4 result;
 		result.m[0][0] = 1.0f;
@@ -402,7 +415,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeRotateYMatrix(float radian) 
+	Matrix4x4 MakeRotateYMatrix(float radian)
 	{
 		Matrix4x4 result{};
 		result.m[0][0] = std::cos(radian);
@@ -456,7 +469,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) 
+	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate)
 	{
 		Matrix4x4 result{};
 		Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
@@ -537,7 +550,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) 
+	Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth)
 	{
 		Matrix4x4 result{};
 		result.m[0][0] = width / 2;
@@ -567,7 +580,7 @@ namespace Mathf
 	{
 		Matrix4x4 result{};
 		Vector3 n{};
-		if (from.x == -to.x && from.y == -to.y && from.z == -to.z) 
+		if (from.x == -to.x && from.y == -to.y && from.z == -to.z)
 		{
 			if (from.x != 0.0f || from.y != 0.0f)
 			{
@@ -578,7 +591,7 @@ namespace Mathf
 				n = { from.z,0.0f,-from.x };
 			}
 		}
-		else 
+		else
 		{
 			n = Normalize(Cross(from, to));
 		}
@@ -627,7 +640,7 @@ namespace Mathf
 	}
 
 
-	Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) 
+	Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion)
 	{
 		Matrix4x4 result{};
 		result.m[0][0] = quaternion.w * quaternion.w + quaternion.x * quaternion.x - quaternion.y * quaternion.y - quaternion.z * quaternion.z;
@@ -650,7 +663,7 @@ namespace Mathf
 	}
 
 
-	Quaternion IdentityQuaternion() 
+	Quaternion IdentityQuaternion()
 	{
 		Quaternion result{};
 		result.x = 0.0f;
@@ -687,12 +700,12 @@ namespace Mathf
 	}
 
 
-	Quaternion Inverse(const Quaternion& quaternion) 
+	Quaternion Inverse(const Quaternion& quaternion)
 	{
 		Quaternion result{};
 		Quaternion conj = Conjugate(quaternion);
 		float norm = Norm(quaternion);
-		if (norm != 0.0f) 
+		if (norm != 0.0f)
 		{
 			float normSquared = norm * norm;
 			result.x = conj.x / normSquared;
@@ -704,7 +717,7 @@ namespace Mathf
 	}
 
 
-	Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) 
+	Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle)
 	{
 		Quaternion result{};
 		float halfAngle = angle / 2.0f;
@@ -843,13 +856,13 @@ namespace Mathf
 		return quaternion;
 	}
 
-	Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) 
+	Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t)
 	{
 		Quaternion result{};
 		Quaternion localQ0 = q0;
 		Quaternion localQ1 = q1;
 		float dot = localQ0.x * localQ1.x + localQ0.y * localQ1.y + localQ0.z * localQ1.z + localQ0.w * localQ1.w;
-		if (dot < 0.0f) 
+		if (dot < 0.0f)
 		{
 			localQ0 = { -localQ0.x,-localQ0.y,-localQ0.z,-localQ0.w };
 			dot = -dot;

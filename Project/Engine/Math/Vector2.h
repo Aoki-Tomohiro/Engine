@@ -1,5 +1,13 @@
+/**
+ * @file Vector2.h
+ * @brief Vector2の構造体
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
-struct Vector2 
+
+struct Vector2
 {
 	float x;
 	float y;

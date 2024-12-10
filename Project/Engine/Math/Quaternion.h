@@ -1,3 +1,10 @@
+/**
+ * @file Quaternion.h
+ * @brief Quaternionの構造体
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include <cmath>
 #include <limits>

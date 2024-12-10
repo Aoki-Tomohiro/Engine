@@ -1,8 +1,15 @@
+/**
+ * @file Log.cpp
+ * @brief ログ出力や文字列変換をサポートするユーティリティ関数群
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Log.h"
 
-namespace MyUtility 
+namespace MyUtility
 {
-    void Log(const std::string& message) 
+    void Log(const std::string& message)
     {
         OutputDebugStringA(message.c_str());
     }

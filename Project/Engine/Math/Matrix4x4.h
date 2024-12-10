@@ -1,3 +1,10 @@
+/**
+ * @file Matrix4x4.h
+ * @brief 4x4行列の構造体
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 
 struct Matrix4x4
