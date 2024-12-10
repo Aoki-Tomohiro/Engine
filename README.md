@@ -1,3 +1,5 @@
+[![DebugBuild](https://github.com/Aoki-Tomohiro/Engine/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/Aoki-Tomohiro/Engine/actions/workflows/DebugBuild.yml)
+
 # アプリケーション
 
 ## ゲームタイトル
