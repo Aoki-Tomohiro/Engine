@@ -1,3 +1,10 @@
+/**
+ * @file GameCore.cpp
+ * @brief ゲームの基底コアクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameCore.h"
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Engine/Utilities/RandomGenerator.h"

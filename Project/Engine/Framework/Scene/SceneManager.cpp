@@ -1,3 +1,10 @@
+/**
+ * @file SceneManager.cpp
+ * @brief シーンを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "SceneManager.h"
 #include <cassert>
 

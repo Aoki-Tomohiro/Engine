@@ -1,3 +1,10 @@
+/**
+ * @file Outline.cpp
+ * @brief アウトラインを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Outline.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/Renderer.h"

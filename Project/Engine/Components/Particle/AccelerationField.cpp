@@ -1,3 +1,10 @@
+/**
+ * @file AccelerationField.cpp
+ * @brief 加速フィールドを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "AccelerationField.h"
 #include "Engine/Utilities/GameTimer.h"
 

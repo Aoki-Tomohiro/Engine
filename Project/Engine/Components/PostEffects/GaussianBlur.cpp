@@ -1,3 +1,10 @@
+/**
+ * @file GaussianBlur.cpp
+ * @brief ガウシアンブラーを管理を行うクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GaussianBlur.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"

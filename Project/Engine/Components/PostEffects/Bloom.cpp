@@ -1,3 +1,10 @@
+/**
+ * @file Bloom.cpp
+ * @brief ブルームの管理を行うクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Bloom.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/Renderer.h"

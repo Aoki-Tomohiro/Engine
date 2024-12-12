@@ -1,3 +1,10 @@
+/**
+ * @file HSV.cpp
+ * @brief HSVフィルターを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "HSV.h"
 
 void HSV::Initialize()

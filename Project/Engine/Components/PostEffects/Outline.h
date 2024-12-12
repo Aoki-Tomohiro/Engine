@@ -1,3 +1,10 @@
+/**
+ * @file Outline.h
+ * @brief アウトラインを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/ColorBuffer.h"
@@ -7,29 +14,44 @@
 class Outline
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// アウトラインを適用
+	/// </summary>
+	/// <param name="srvHandle">Srvハンドル</param>
 	void Apply(const DescriptorHandle& srvHandle);
 
+	//有効にするかどうかを取得・設定
 	const bool GetIsEnable() const { return isEnable_; };
-
 	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };
 
+	//逆プロジェクション行列を取得・設定
 	const Matrix4x4& GetProjectionInverse() const { return projectionInverse_; };
-
 	void SetProjectionInverse(const Matrix4x4& projectionInverse) { projectionInverse_ = projectionInverse; };
 
+	//係数を取得・設定
 	const float GetCoefficient() const { return coefficient_; };
-
 	void SetCoefficient(const float coefficient) { coefficient_ = coefficient; };
 
+	//コンスタントバッファを取得
 	const UploadBuffer* GetConstBuffer() const { return constBuff_.get(); };
 
+	//デスクリプタハンドルを取得
 	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
 
 private:
+	/// <summary>
+	/// パイプラインステートを生成
+	/// </summary>
 	void CreatePipelineState();
 
 private:

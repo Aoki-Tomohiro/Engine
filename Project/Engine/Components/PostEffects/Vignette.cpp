@@ -1,3 +1,10 @@
+/**
+ * @file Vignette.cpp
+ * @brief ビネットを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Vignette.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"

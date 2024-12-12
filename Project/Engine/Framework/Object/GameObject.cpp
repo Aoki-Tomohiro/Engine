@@ -1,3 +1,10 @@
+/**
+ * @file GameObject.cpp
+ * @brief ゲームオブジェクト
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameObject.h"
 
 void GameObject::Update()

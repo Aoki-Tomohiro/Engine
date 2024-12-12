@@ -1,3 +1,10 @@
+/**
+ * @file GameCore.h
+ * @brief ゲームの基底コアクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/Application.h"
 #include "Engine/Base/GraphicsCore.h"
@@ -23,18 +30,40 @@
 class GameCore
 {
 public:
+	/// <summary>
+	/// デストラクタ
+	/// </summary>
 	virtual ~GameCore() = default;
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	virtual void Initialize();
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	virtual void Finalize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	virtual void Update();
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	virtual void Draw();
 
+	/// <summary>
+	/// ゲームの終了させるかどうか
+	/// </summary>
+	/// <returns>ゲームの終了させるかどうか</returns>
 	virtual bool IsEndRequest();
 
+	/// <summary>
+	/// メインループ
+	/// </summary>
 	void Run();
 
 protected:

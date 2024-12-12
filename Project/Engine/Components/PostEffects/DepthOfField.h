@@ -1,3 +1,10 @@
+/**
+ * @file DepthOfField.h
+ * @brief 被写界深度の管理を行うクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/GraphicsPSO.h"
 #include "Engine/Base/ColorBuffer.h"
@@ -7,31 +14,49 @@
 class DepthOfField
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// 被写界深度を適用
+	/// </summary>
+	/// <param name="srvHandle">Srvハンドル</param>
 	void Apply(const DescriptorHandle& srvHandle);
 
+	//有効にするかどうかを取得・設定
 	const bool GetIsEnable() const { return isEnable_; };
-
 	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };
 
-	const float GetFocusDepth() const { return focusDepth_; };
+	//逆プロジェクション行列を取得・設定
+	const Matrix4x4& GetProjectionInverse() const { return projectionInverse_; };
+	void SetProjectionInverse(const Matrix4x4& projectionInverse) { projectionInverse_ = projectionInverse; };
 
+	//注視する深度を取得・設定
+	const float GetFocusDepth() const { return focusDepth_; };
 	void SetFocusDepth(const float focusDepth) { focusDepth_ = focusDepth; };
 
+	//注視点から近い深度を取得・設定
 	const float GetNFocusWidth() const { return nFocusWidth_; };
-
 	void SetNFocusWidth(const float nFocusWidth) { nFocusWidth_ = nFocusWidth; };
 
+	//注視点から遠い深度を取得・設定
 	const float GetFFocusWidth() const { return fFocusWidth_; };
-
 	void SetFFocusWidth(const float fFocusWidth) { fFocusWidth_ = fFocusWidth; };
 
+	//デスクリプタハンドルを取得
 	const DescriptorHandle& GetDescriptorHandle() const { return colorBuffer_->GetSRVHandle(); };
 
 private:
+	/// <summary>
+	/// パイプラインステートを生成
+	/// </summary>
 	void CreatePipelineState();
 
 private:

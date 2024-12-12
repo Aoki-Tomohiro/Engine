@@ -1,3 +1,10 @@
+/**
+ * @file PostEffects.cpp
+ * @brief ポストエフェクトを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PostEffects.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/Renderer.h"

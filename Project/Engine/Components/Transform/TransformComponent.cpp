@@ -1,3 +1,10 @@
+/**
+ * @file TransformComponent.cpp
+ * @brief トランスフォームのコンポーネント
+ * @author 青木智滉
+ * @date
+ */
+
 #include "TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
 

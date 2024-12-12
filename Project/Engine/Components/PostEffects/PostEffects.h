@@ -1,3 +1,10 @@
+/**
+ * @file PostEffects.h
+ * @brief ポストエフェクトを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Bloom.h"
 #include "DepthOfField.h"
@@ -12,38 +19,66 @@
 class PostEffects
 {
 public:
+	/// <summary>
+	/// インスタンスを取得
+	/// </summary>
+	/// <returns>インスタンス</returns>
 	static PostEffects* GetInstance();
 
+	/// <summary>
+	/// 破棄処理
+	/// </summary>
 	static void Destroy();
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// ポストエフェクトを適用
+	/// </summary>
 	void Apply();
 
+	//裕子王にするかどうかを取得・設定
 	const bool GetIsEnable() const { return isEnable_; };
-
 	void SetIsEnable(const bool isEnable) { isEnable_ = isEnable; };
 
+	//被写界深度を取得
 	DepthOfField* GetDepthOfField() const { return depthOfField_.get(); };
 
+	//部ロームを取得
 	Bloom* GetBloom() const { return bloom_.get(); };
 
+	//フォグを取得
 	Fog* GetFog() const { return fog_.get(); };
 
+	//レンズディストーションを取得
 	LensDistortion* GetLensDistortion() const { return lensDistortion_.get(); };
 
+	//ビネットを取得
 	Vignette* GetVignette() const { return vignette_.get(); };
 
+	//グレースケールを取得
 	GrayScale* GetGrayScale() const { return grayScale_.get(); };
 
+	//アウトラインを取得
 	Outline* GetOutline() const { return outline_.get(); };
 
+	//ラジアルブラーを取得
 	RadialBlur* GetRadialBlur() const { return radialBlur_.get(); };
 
+	//HSVフィルターを取得
 	HSV* GetHSV() const { return hsv_.get(); };
 
 private:
@@ -52,8 +87,14 @@ private:
 	PostEffects(const PostEffects&) = delete;
 	PostEffects& operator=(const PostEffects&) = delete;
 
+	/// <summary>
+	/// 頂点バッファを作成
+	/// </summary>
 	void CreateVertexBuffer();
 
+	/// <summary>
+	/// パイプラインステートを生成
+	/// </summary>
 	void CreatePipelineState();
 
 private:

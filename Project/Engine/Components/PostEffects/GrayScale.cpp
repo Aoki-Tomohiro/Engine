@@ -1,3 +1,10 @@
+/**
+ * @file GrayScale.cpp
+ * @brief グレースケールを管理を行うクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GrayScale.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"

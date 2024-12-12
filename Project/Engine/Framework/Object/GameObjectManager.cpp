@@ -1,5 +1,11 @@
-#include "GameObjectManager.h"
+/**
+ * @file GameObjectManager.cpp
+ * @brief ゲームオブジェクトを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
 
+#include "GameObjectManager.h"
 #include <cassert>
 
 //実体定義

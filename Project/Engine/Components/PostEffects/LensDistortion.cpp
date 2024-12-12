@@ -1,3 +1,10 @@
+/**
+ * @file LensDistortion.cpp
+ * @brief レンズディストーションを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "LensDistortion.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"
