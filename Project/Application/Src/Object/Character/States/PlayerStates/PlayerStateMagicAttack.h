@@ -1,10 +1,14 @@
+/**
+ * @file PlayerStateMagicAttack.h
+ * @brief プレイヤーの魔法攻撃状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 #include "Application/Src/Object/Magic/Magic.h"
 
-/// <summary>
-/// 魔法攻撃状態に遷移
-/// </summary>
 class PlayerStateMagicAttack : public IPlayerState
 {
 public:

@@ -1,3 +1,10 @@
+/**
+ * @file Lockon.cpp
+ * @brief ロックオン処理を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Lockon.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
@@ -10,12 +17,15 @@ void Lockon::Initialize()
 	//ターゲットを設定
 	target_ = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetComponent<TransformComponent>();
 
+	//中心のアンカーポイント
+	const Vector2 centerAnchorPoint = { 0.5f,0.5f };
+
 	//スプライトの生成
 	const std::string texturePath = "Reticle.png";
 	TextureManager::Load(texturePath);
 	lockonMark_.reset(Sprite::Create(texturePath, { 0.0f,0.0f }));
-	lockonMark_->SetScale({ 0.4f,0.4f });
-	lockonMark_->SetAnchorPoint({ 0.5f,0.5f });
+	lockonMark_->SetScale(lockonSpriteScale_);
+	lockonMark_->SetAnchorPoint(centerAnchorPoint);
 }
 
 void Lockon::Update(const Camera* camera)

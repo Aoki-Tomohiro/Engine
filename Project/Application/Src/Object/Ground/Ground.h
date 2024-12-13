@@ -1,10 +1,14 @@
+/**
+ * @file Ground.h
+ * @brief 地面を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Model/ModelComponent.h"
 
-/// <summary>
-/// 地面
-/// </summary>
 class Ground : public GameObject
 {
 public:

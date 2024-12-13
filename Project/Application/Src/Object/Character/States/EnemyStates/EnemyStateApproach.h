@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateApproach.h
+ * @brief 敵の接近状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IEnemyState.h"
 
-/// <summary>
-/// 接近行動
-/// </summary>
 class EnemyStateApproach : public IEnemyState
 {
 public:

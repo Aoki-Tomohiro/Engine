@@ -1,11 +1,15 @@
+/**
+ * @file CameraShake.h
+ * @brief カメラシェイクを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"
 #include "Engine/Utilities/RandomGenerator.h"
 
-/// <summary>
-/// カメラシェイクをするクラス
-/// </summary>
 class CameraShake
 {
 public:

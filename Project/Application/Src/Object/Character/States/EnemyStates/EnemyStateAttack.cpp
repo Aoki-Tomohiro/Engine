@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateAttack.cpp
+ * @brief 敵の攻撃状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateAttack.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"

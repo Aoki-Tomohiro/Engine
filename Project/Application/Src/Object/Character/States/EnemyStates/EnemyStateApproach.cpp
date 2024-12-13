@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateApproach.cpp
+ * @brief 敵の接近状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateApproach.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

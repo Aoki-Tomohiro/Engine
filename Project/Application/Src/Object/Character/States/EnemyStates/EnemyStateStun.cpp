@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateStun.cpp
+ * @brief 敵のスタン状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateStun.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

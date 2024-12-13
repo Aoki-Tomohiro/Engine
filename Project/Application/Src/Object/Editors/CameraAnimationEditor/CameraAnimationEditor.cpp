@@ -1,3 +1,10 @@
+/**
+ * @file CameraAnimationEditor.cpp
+ * @brief カメラアニメーションを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraAnimationEditor.h"
 
 namespace

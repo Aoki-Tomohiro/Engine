@@ -1,9 +1,13 @@
+/**
+ * @file Transition.h
+ * @brief トランジションを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/2D/Sprite.h"
 
-/// <summary>
-/// トランジション
-/// </summary>
 class Transition
 {
 public:

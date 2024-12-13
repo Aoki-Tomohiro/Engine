@@ -1,11 +1,15 @@
+/**
+ * @file SkillCooldownManager.h
+ * @brief スキルのクールタイムを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Utilities/GameTimer.h"
 #include <unordered_map>
 #include <string>
 
-/// <summary>
-/// スキルのクールタイムを管理するクラス
-/// </summary>
 class SkillCooldownManager
 {
 public:

@@ -1,3 +1,10 @@
+/**
+ * @file GameObjectFactory.h
+ * @brief ゲームオブジェクトを生成するファクトリー
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Object/AbstractGameObjectFactory.h"
 #include "Application/Src/Object/Character/Player/Player.h"
@@ -10,6 +17,11 @@
 class GameObjectFactory : public AbstractGameObjectFactory
 {
 public:
+	/// <summary>
+	/// ゲームオブジェクトを生成
+	/// </summary>
+	/// <param name="objectName">オブジェクトの名前</param>
+	/// <returns>ゲームオブジェクト</returns>
 	GameObject* CreateGameObject(const std::string& objectName) override;
 };
 

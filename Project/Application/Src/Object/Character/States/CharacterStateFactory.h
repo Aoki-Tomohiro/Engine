@@ -1,9 +1,13 @@
+/**
+ * @file CharacterStateFactory.h
+ * @brief キャラクターの新しい状態を生成するファクトリー
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "ICharacterState.h"
 
-/// <summary>
-/// キャラクターの新しい状態を生成するクラス
-/// </summary>
 class CharacterStateFactory
 {
 public:

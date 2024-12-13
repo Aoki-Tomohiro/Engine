@@ -1,3 +1,10 @@
+/**
+ * @file CameraController.h
+ * @brief カメラを制御するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Camera/Camera.h"
 #include "Engine/3D/Transform/WorldTransform.h"
@@ -8,9 +15,6 @@
 #include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
 #include <numbers>
 
-/// <summary>
-/// カメラ制御クラス
-/// </summary>
 class CameraController
 {
 public:

@@ -1,8 +1,13 @@
+/**
+ * @file BaseCharacter.cpp
+ * @brief キャラクターの基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "BaseCharacter.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Magic/Magic.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Pillar/Pillar.h"
 
 void BaseCharacter::Initialize()
 {
@@ -192,18 +197,6 @@ void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool tr
     else if (Magic* magic = dynamic_cast<Magic*>(gameObject))
     {
         ApplyDamageAndKnockback(magic->GetKnockbackParameters(), magic->GetDamage(), transitionToStun ? magic->GetMagicType() == Magic::MagicType::kCharged : false);
-    }
-    //衝突相手がレーザーだった場合
-    else if (Laser* laser = dynamic_cast<Laser*>(gameObject))
-    {
-        //ダメージを食らった処理を実行
-        ApplyDamageAndKnockback(KnockbackParameters{}, laser->GetDamage(), transitionToStun);
-    }
-    //衝突相手が柱だった場合
-    else if (Pillar* pillar = dynamic_cast<Pillar*>(gameObject))
-    {
-        //ダメージを食らった処理を実行
-        ApplyDamageAndKnockback(KnockbackParameters{}, pillar->GetDamage(), transitionToStun);
     }
 }
 

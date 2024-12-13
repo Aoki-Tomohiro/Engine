@@ -1,3 +1,10 @@
+/**
+ * @file CombatAnimationEditor.cpp
+ * @brief キャラクターのモーションを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CombatAnimationEditor.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 

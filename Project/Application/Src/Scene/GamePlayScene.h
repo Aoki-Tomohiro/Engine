@@ -1,3 +1,10 @@
+/**
+ * @file GamePlayScene.h
+ * @brief ゲームプレイシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
@@ -11,8 +18,6 @@
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
-#include "Application/Src/Object/Laser/Laser.h"
-#include "Application/Src/Object/Pillar/Pillar.h"
 #include "Application/Src/Object/Magic/Magic.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
@@ -22,21 +27,45 @@
 class GamePlayScene : public IScene
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Finalize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw() override;
 
+	/// <summary>
+	/// UIの描画
+	/// </summary>
 	void DrawUI() override;
 
 private:
+	/// <summary>
+	/// コライダーの更新
+	/// </summary>
 	void UpdateColliders();
 
+	/// <summary>
+	/// カメラとロックオンの更新
+	/// </summary>
 	void UpdateCameraAndLockOn();
 
+	/// <summary>
+	/// トランジションの処理
+	/// </summary>
 	void HandleTransition();
 
 private:

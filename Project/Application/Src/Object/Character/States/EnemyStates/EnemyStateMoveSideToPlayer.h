@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateMoveSideToPlayer.h
+ * @brief 敵の左右移動状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "EnemyStateMove.h"
 
-/// <summary>
-/// 左右移動状態
-/// </summary>
 class EnemyStateMoveSideToPlayer : public EnemyStateMove
 {
 public:

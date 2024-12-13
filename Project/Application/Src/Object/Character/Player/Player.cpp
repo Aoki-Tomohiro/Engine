@@ -1,3 +1,10 @@
+/**
+ * @file Player.cpp
+ * @brief プレイヤーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
@@ -47,9 +54,6 @@ void Player::Update()
 
 	//UIの更新
 	UpdateUI();
-
-	//UIの編集
-	EditUI();
 
 	//基底クラスの更新
 	BaseCharacter::Update();
@@ -628,33 +632,6 @@ void Player::UpdateButtonScale(const ButtonState& buttonState, const Vector2& ba
 	//スケールを補間し適用
 	spriteSetting.scale = Mathf::Lerp(spriteSetting.scale, targetScale, 0.1f);
 	spriteSetting.sprite->SetScale(spriteSetting.scale);
-}
-
-void Player::EditUI()
-{
-	//UIのImGui開始
-	ImGui::Begin("UI");
-
-	//ボタンの編集
-	for (int32_t i = 0; i < kMaxActionCount; ++i)
-	{
-		EditButtonConfig(buttonConfigs_[i], buttonUISettings_[i]);
-	}
-
-	//スキルの編集
-	for (int32_t i = 0; i < kMaxSkillCount; ++i)
-	{
-		EditSkillConfig(skillConfigs_[i], skillUISettings_[i], i);
-	}
-
-	//QTEの編集
-	for (auto& qteConfig : qteConfigs_)
-	{
-		EditQTEConfig(qteConfig.second, qteButtonUISettings_[qteConfig.first], qteConfig.first);
-	}
-
-	//UIのImGui終了
-	ImGui::End();
 }
 
 void Player::EditButtonConfig(ButtonConfig& config, ButtonUISettings& uiSettings)

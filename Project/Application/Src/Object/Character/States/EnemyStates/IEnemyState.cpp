@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateStun.cpp
+ * @brief 敵の状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "IEnemyState.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"

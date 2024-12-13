@@ -1,3 +1,10 @@
+/**
+ * @file Mesh.cpp
+ * @brief メッシュを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Mesh.h"
 
 void Mesh::Initialize(const MeshData& meshData, const bool hasSkinCluster)

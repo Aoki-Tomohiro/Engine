@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateFalling.cpp
+ * @brief プレイヤーの落下状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateFalling.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 

@@ -1,3 +1,10 @@
+/**
+ * @file Lockon.h
+ * @brief ロックオン処理を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/2D/Sprite.h"
 #include "Engine/3D/Camera/Camera.h"
@@ -7,9 +14,6 @@
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
 
-/// <summary>
-/// ロックオン
-/// </summary>
 class Lockon
 {
 public:
@@ -73,5 +77,8 @@ private:
 
 	//オフセット
 	Vector3 targetOffset_ = { 0.0f,2.0f,0.0f };
+
+	//ロックオンスプライトのスケール
+	Vector2 lockonSpriteScale_ = { 0.4f,0.4f };
 };
 

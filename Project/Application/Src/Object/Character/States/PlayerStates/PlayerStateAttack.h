@@ -1,9 +1,13 @@
+/**
+ * @file PlayerStateAttack.h
+ * @brief プレイヤーの攻撃状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 
-/// <summary>
-/// 攻撃状態
-/// </summary>
 class PlayerStateAttack : public IPlayerState
 {
 public:

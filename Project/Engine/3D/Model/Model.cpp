@@ -1,3 +1,10 @@
+/**
+ * @file Model.cpp
+ * @brief モデルを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Model.h"
 #include "Engine/Math/MathFunction.h"
 #include <cassert>

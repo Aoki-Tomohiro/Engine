@@ -1,3 +1,10 @@
+/**
+ * @file CameraPath.cpp
+ * @brief カメラパスを制御するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraPath.h"
 
 const CameraPath::CameraKeyFrame CameraPath::GetInterpolatedKeyFrame(const float time) const

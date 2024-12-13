@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateAttack.h
+ * @brief 敵の攻撃状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IEnemyState.h"
 
-/// <summary>
-/// 攻撃状態
-/// </summary>
 class EnemyStateAttack : public IEnemyState
 {
 public:

@@ -1,3 +1,10 @@
+/**
+ * @file Sprite.cpp
+ * @brief スプライトを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Sprite.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/TextureManager.h"
@@ -57,11 +64,11 @@ void Sprite::CreateVertexBuffer()
 {
 	//頂点リソースを作る
 	vertexBuffer_ = std::make_unique<UploadBuffer>();
-	vertexBuffer_->Create(sizeof(VertexDataPosUV) * 6);
+	vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxVertices);
 	//リソースの先頭のアドレスから使う
 	vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
 	//使用するリソースのサイズは頂点6つ分のサイズ
-	vertexBufferView_.SizeInBytes = sizeof(VertexDataPosUV) * 6;
+	vertexBufferView_.SizeInBytes = sizeof(VertexDataPosUV) * kMaxVertices;
 	//頂点1つあたりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUV);
 	//リソースに書き込む

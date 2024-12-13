@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateMove.h
+ * @brief 敵の移動状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IEnemyState.h"
 
-/// <summary>
-/// 通常状態
-/// </summary>
 class EnemyStateMove : public IEnemyState
 {
 public:

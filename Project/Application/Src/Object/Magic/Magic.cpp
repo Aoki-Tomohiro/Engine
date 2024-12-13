@@ -1,3 +1,10 @@
+/**
+ * @file Magic.cpp
+ * @brief 魔法を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Magic.h"
 
 //初期化用カウンタの定義

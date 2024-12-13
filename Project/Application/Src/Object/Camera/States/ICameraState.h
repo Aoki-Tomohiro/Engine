@@ -1,3 +1,10 @@
+/**
+ * @file ICameraState.h
+ * @brief カメラの状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 
 class CameraController;

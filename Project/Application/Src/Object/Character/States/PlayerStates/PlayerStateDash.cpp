@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateDash.cpp
+ * @brief プレイヤーのダッシュ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateDash.h"
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Engine/Framework/Object/GameObjectManager.h"

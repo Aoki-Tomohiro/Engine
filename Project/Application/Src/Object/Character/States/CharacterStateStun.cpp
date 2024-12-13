@@ -1,3 +1,10 @@
+/**
+ * @file CharacterStateFactory.cpp
+ * @brief キャラクターのスタン状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CharacterStateStun.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 

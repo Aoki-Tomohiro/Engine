@@ -1,3 +1,10 @@
+/**
+ * @file ModelManager.cpp
+ * @brief モデルの読み込みと管理をするファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ModelManager.h"
 #include "Engine/Math/MathFunction.h"
 

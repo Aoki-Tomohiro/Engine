@@ -1,3 +1,10 @@
+/**
+ * @file Skydome.cpp
+ * @brief 天球を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Skydome.h"
 
 void Skydome::Initialize()

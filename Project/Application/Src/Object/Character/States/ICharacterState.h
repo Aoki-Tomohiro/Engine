@@ -1,10 +1,14 @@
+/**
+ * @file ICharacterState.h
+ * @brief キャラクターの状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/CombatAnimationEditor.h"
 
-/// <summary>
-/// キャラクターの状態
-/// </summary>
 class ICharacterState
 {
 public:

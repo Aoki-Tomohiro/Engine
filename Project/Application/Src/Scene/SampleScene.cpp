@@ -1,3 +1,10 @@
+/**
+ * @file SampleScene.cpp
+ * @brief サンプルシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "SampleScene.h"
 
 void SampleScene::Initialize()

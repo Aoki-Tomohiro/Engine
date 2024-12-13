@@ -1,3 +1,10 @@
+/**
+ * @file HitStop.cpp
+ * @brief ヒットストップ処理を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "HitStop.h"
 
 void HitStop::Start(const float duration)

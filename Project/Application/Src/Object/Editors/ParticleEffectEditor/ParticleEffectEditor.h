@@ -1,3 +1,10 @@
+/**
+ * @file EditorManager.h
+ * @brief パーティクルエフェクトを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Camera/CameraManager.h"
 #include "Engine/Base/TextureManager.h"
@@ -7,9 +14,6 @@
 #include <Engine/Externals/nlohmann/json.hpp>
 #include <fstream>
 
-/// <summary>
-/// パーティクルエフェクトを管理するクラス
-/// </summary>
 class ParticleEffectEditor
 {
 public:

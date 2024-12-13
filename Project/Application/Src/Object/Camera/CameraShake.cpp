@@ -1,3 +1,10 @@
+/**
+ * @file CameraShake.cpp
+ * @brief カメラシェイクを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraShake.h"
 
 void CameraShake::Start(const Vector3& intensity, const float duration)

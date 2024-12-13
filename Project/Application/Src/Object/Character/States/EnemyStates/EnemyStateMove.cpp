@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateMove.cpp
+ * @brief 敵の移動状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateMove.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"

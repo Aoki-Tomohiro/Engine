@@ -1,3 +1,10 @@
+/**
+ * @file Camera.h
+ * @brief カメラを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/Application.h"
 #include "Engine/Base/UploadBuffer.h"
@@ -7,18 +14,35 @@
 class Camera
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// ビュー行列の更新
+	/// </summary>
 	void UpdateViewMatrix();
 
+	/// <summary>
+	/// プロジェクション行列の更新
+	/// </summary>
 	void UpdateProjectionMatrix();
 
+	/// <summary>
+	/// 行列を更新
+	/// </summary>
 	void UpdateMatrix();
 
+	/// <summary>
+	/// 行列を書き込む
+	/// </summary>
 	void TransferMatrix();
 
+	//コンスタントバッファを取得
 	UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
+	//カメラをコピー
 	Camera& operator=(const Camera& rhs)
 	{
 		if (this != &rhs)

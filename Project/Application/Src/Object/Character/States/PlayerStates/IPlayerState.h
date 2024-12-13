@@ -1,12 +1,16 @@
+/**
+ * @file IPlayerState.h
+ * @brief プレイヤーの状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Application/Src/Object/Character/States/ICharacterState.h"
 #include "Engine/Components/Input/Input.h"
 
 class Player;
 
-/// <summary>
-/// プレイヤーの状態
-/// </summary>
 class IPlayerState : public ICharacterState
 {
 public:

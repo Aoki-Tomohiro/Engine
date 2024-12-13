@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateAttack.cpp
+ * @brief プレイヤーの攻撃状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateAttack.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 

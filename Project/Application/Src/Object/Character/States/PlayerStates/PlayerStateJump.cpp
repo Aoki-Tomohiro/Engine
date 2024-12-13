@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateJump.cpp
+ * @brief プレイヤーのジャンプ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateJump.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 

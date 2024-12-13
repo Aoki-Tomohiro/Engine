@@ -1,3 +1,10 @@
+/**
+ * @file DebugCamera.cpp
+ * @brief デバッグカメラを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "DebugCamera.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Math/MathFunction.h"

@@ -1,3 +1,9 @@
+/**
+ * @file LoadScene.cpp
+ * @brief ロードシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
 
 #include "LoadScene.h"
 

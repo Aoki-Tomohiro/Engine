@@ -1,3 +1,10 @@
+/**
+ * @file Enemy.cpp
+ * @brief 敵を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Enemy.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"

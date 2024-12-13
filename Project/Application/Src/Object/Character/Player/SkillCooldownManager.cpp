@@ -1,3 +1,10 @@
+/**
+ * @file SkillCooldownManager.cpp
+ * @brief スキルのクールタイムを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "SkillCooldownManager.h"
 
 void SkillCooldownManager::AddSkill(const std::string& name, const float cooldownDuration)

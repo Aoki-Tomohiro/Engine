@@ -1,9 +1,13 @@
+/**
+ * @file CharacterStateFactory.h
+ * @brief キャラクターのスタン状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "ICharacterState.h"
 
-/// <summary>
-/// スタン状態
-/// </summary>
 class CharacterStateStun : public ICharacterState
 {
 public:

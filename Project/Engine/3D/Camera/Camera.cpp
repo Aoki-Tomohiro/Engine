@@ -1,3 +1,10 @@
+/**
+ * @file Camera.cpp
+ * @brief カメラを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Camera.h"
 #include "Engine/Math/MathFunction.h"
 

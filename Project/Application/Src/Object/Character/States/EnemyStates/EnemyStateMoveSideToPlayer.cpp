@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateMoveSideToPlayer.cpp
+ * @brief 敵の左右移動状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateMoveSideToPlayer.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

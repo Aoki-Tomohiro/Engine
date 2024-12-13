@@ -1,10 +1,14 @@
+/**
+ * @file Skydome.h
+ * @brief 天球を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Model/ModelComponent.h"
 
-/// <summary>
-/// 天球
-/// </summary>
 class Skydome : public GameObject
 {
 public:

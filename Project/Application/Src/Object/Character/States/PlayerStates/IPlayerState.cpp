@@ -1,3 +1,10 @@
+/**
+ * @file IPlayerState.cpp
+ * @brief プレイヤーの状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "IPlayerState.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"

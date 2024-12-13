@@ -1,9 +1,13 @@
+/**
+ * @file PlayerStateAbility.h
+ * @brief プレイヤーのアビリティ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 
-/// <summary>
-/// アビリティ状態
-/// </summary>
 class PlayerStateAbility : public IPlayerState
 {
 public:

@@ -1,3 +1,10 @@
+/**
+ * @file CharacterStateDeath.cpp
+ * @brief キャラクターの死亡状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CharacterStateDeath.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 

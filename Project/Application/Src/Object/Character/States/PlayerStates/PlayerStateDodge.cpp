@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateDodge.cpp
+ * @brief プレイヤーの回避状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateDodge.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"

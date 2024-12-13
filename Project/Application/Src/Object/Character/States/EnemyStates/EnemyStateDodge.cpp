@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateDodge.cpp
+ * @brief 敵の回避状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateDodge.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

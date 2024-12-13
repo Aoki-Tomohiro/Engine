@@ -1,16 +1,32 @@
+/**
+ * @file DebugCamera.h
+ * @brief デバッグカメラを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/Components/Input/Input.h"
 #include "Camera.h"
 
-class DebugCamera {
+class DebugCamera 
+{
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	//カメラを取得
 	const Camera& GetCamera() { return camera_; };
 
+	//追従対象を設定
 	void SetTarget(const WorldTransform* target) { target_ = target; };
 
 private:

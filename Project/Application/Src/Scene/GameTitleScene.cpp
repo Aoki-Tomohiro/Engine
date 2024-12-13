@@ -1,3 +1,10 @@
+/**
+ * @file GameTitleScene.cpp
+ * @brief ゲームタイトルシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameTitleScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"

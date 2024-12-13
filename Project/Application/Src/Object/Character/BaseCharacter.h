@@ -1,3 +1,10 @@
+/**
+ * @file BaseCharacter.h
+ * @brief キャラクターの基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/2D/Sprite.h"
 #include "Engine/Components/Audio/Audio.h"
@@ -16,9 +23,6 @@
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
 #include "Application/Src/Object/Editors/EditorManager.h"
 
-/// <summary>
-/// キャラクターの基底クラス
-/// </summary>
 class BaseCharacter : public GameObject
 {
 public:

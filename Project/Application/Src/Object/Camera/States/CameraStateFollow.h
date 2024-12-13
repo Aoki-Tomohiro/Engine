@@ -1,11 +1,15 @@
+/**
+ * @file CameraStateFollow.h
+ * @brief 追従カメラの状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Math/MathFunction.h"
 #include "Application/Src/Object/Camera/States/ICameraState.h"
 
-/// <summary>
-/// 追従カメラの状態
-/// </summary>
 class CameraStateFollow : public ICameraState
 {
 public:

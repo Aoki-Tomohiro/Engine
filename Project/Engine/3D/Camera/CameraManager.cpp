@@ -1,3 +1,10 @@
+/**
+ * @file CameraManager.cpp
+ * @brief 全てのカメラを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraManager.h"
 
 //実体定義

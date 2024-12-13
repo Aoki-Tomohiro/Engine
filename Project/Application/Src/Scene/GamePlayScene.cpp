@@ -1,3 +1,10 @@
+/**
+ * @file GamePlayScene.cpp
+ * @brief ゲームプレイシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GamePlayScene.h"
 #include "Engine/Framework/Scene/SceneManager.h"
 
@@ -214,26 +221,6 @@ void GamePlayScene::UpdateColliders()
 	for (Magic* magicProjectile : magicProjectiles)
 	{
 		if (Collider* collider = magicProjectile->GetComponent<Collider>())
-		{
-			collisionManager_->SetColliderList(collider);
-		}
-	}
-
-	//レーザーを衝突マネージャーに追加
-	std::vector<Laser*> lasers = gameObjectManager_->GetGameObjects<Laser>("Laser");
-	for (Laser* laser : lasers)
-	{
-		if (Collider* collider = laser->GetComponent<Collider>())
-		{
-			collisionManager_->SetColliderList(collider);
-		}
-	}
-
-	//柱を衝突マネージャーに追加
-	std::vector<Pillar*> pillars = gameObjectManager_->GetGameObjects<Pillar>("Pillar");
-	for (Pillar* pillar : pillars)
-	{
-		if (Collider* collider = pillar->GetComponent<Collider>())
 		{
 			collisionManager_->SetColliderList(collider);
 		}

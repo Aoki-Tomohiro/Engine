@@ -1,3 +1,10 @@
+/**
+ * @file Weapon.cpp
+ * @brief 武器を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Weapon.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include <numbers>

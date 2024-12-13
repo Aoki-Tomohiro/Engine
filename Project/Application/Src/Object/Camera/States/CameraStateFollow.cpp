@@ -1,3 +1,10 @@
+/**
+ * @file CameraStateFollow.cpp
+ * @brief 追従カメラの状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraStateFollow.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"

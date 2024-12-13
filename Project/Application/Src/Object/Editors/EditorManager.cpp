@@ -1,3 +1,10 @@
+/**
+ * @file EditorManager.cpp
+ * @brief 全てのエディターを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EditorManager.h"
 
 void EditorManager::Initialize()

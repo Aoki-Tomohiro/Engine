@@ -1,9 +1,13 @@
+/**
+ * @file CharacterStateDeath.h
+ * @brief キャラクターの死亡状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "ICharacterState.h"
 
-/// <summary>
-/// 死亡状態
-/// </summary>
 class CharacterStateDeath : public ICharacterState
 {
 public:

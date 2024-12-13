@@ -1,3 +1,10 @@
+/**
+ * @file GameTitleScene.h
+ * @brief ゲームタイトルシーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
@@ -15,19 +22,40 @@
 class GameTitleScene : public IScene
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize() override;
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Finalize() override;
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
+	/// <summary>
+	/// 描画
+	/// </summary>
 	void Draw() override;
 
+	/// <summary>
+	/// UIの描画
+	/// </summary>
 	void DrawUI() override;
 
 private:
+	/// <summary>
+	/// カメラの更新
+	/// </summary>
 	void UpdateCamera();
 
+	/// <summary>
+	/// フェードを更新してシーンを変える
+	/// </summary>
 	void TriggerFadeInAndChangeScene();
 
 private:

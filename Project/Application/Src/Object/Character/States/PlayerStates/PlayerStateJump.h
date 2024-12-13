@@ -1,10 +1,14 @@
+/**
+ * @file PlayerStateJump.h
+ * @brief プレイヤーのジャンプ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Math/MathFunction.h"
 
-/// <summary>
-/// ジャンプ状態
-/// </summary>
 class PlayerStateJump : public IPlayerState
 {
 public:

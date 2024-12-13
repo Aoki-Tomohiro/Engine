@@ -1,10 +1,14 @@
+/**
+ * @file Enemy.h
+ * @brief 敵を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Model/AnimationManager.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 
-/// <summary>
-/// 敵
-/// </summary>
 class Enemy : public BaseCharacter
 {
 public:

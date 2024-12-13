@@ -1,3 +1,10 @@
+/**
+ * @file LightManager.h
+ * @brief 全てのライトを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -25,24 +32,41 @@ public:
 		std::array<ConstBuffDataSpotLight, kNumSpotLight> spotLights{};
 	};
 
+	/// <summary>
+	/// インスタンスを取得
+	/// </summary>
+	/// <returns>インスタンス</returns>
 	static LightManager* GetInstance();
 
+	/// <summary>
+	/// 破棄処理
+	/// </summary>
 	static void Destroy();
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	//映り込みのテクスチャを設定・取得
 	void SetEnvironmentTexture(const std::string& textureName);
-
 	const Texture* GetEnvironmentTexture() const { return environmentTexture_; };
 
+	//コンスタントバッファを取得
 	UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
+	//平行光源を取得
 	DirectionalLight& GetDirectionalLight(uint32_t index) { return directionalLights_[index]; };
 
+	//ポイントライトを取得
 	PointLight& GetPointLight(uint32_t index) { return pointLights_[index]; };
 
+	//スポットライトを取得
 	SpotLight& GetSpotLight(uint32_t index) { return spotLights_[index]; };
 
 private:

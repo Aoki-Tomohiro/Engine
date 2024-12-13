@@ -1,10 +1,14 @@
+/**
+ * @file PlayerStateDodge.h
+ * @brief プレイヤーの回避状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Math/MathFunction.h"
 
-/// <summary>
-/// 回避状態
-/// </summary>
 class PlayerStateDodge : public IPlayerState
 {
 public:

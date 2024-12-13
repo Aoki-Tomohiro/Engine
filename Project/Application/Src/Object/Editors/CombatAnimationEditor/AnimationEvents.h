@@ -1,3 +1,10 @@
+/**
+ * @file AnimationEvents.h
+ * @brief 全てのアニメーションイベントを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Math/Vector3.h"
 #include <string>

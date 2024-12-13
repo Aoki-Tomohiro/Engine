@@ -1,3 +1,10 @@
+/**
+ * @file GameObjectFactory.cpp
+ * @brief ゲームオブジェクトを生成するファクトリー
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameObjectFactory.h"
 
 GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)

@@ -1,11 +1,15 @@
+/**
+ * @file EditorManager.h
+ * @brief 全てのエディターを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Application/Src/Object/Editors/CombatAnimationEditor/CombatAnimationEditor.h"
 #include "Application/Src/Object/Editors/CameraAnimationEditor/CameraAnimationEditor.h"
 #include "Application/Src/Object/Editors/ParticleEffectEditor/ParticleEffectEditor.h"
 
-/// <summary>
-/// エディターを管理するクラス
-/// </summary>
 class EditorManager
 {
 public:

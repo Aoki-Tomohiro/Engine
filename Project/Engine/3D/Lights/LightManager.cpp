@@ -1,3 +1,10 @@
+/**
+ * @file LightManager.cpp
+ * @brief 全てのライトを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "LightManager.h"
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"

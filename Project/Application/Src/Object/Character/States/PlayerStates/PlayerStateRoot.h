@@ -1,10 +1,14 @@
+/**
+ * @file PlayerStateRoot.h
+ * @brief プレイヤーの通常状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IPlayerState.h"
 #include "Engine/Math/MathFunction.h"
 
-/// <summary>
-/// 通常状態の処理
-/// </summary>
 class PlayerStateRoot : public IPlayerState
 {
 public:

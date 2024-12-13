@@ -1,3 +1,10 @@
+/**
+ * @file ICharacterState.cpp
+ * @brief キャラクターの状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ICharacterState.h"
 #include "Engine/Components/Input/Input.h"
 #include "Engine/Framework/Object/GameObjectManager.h"

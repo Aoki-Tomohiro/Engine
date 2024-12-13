@@ -1,3 +1,10 @@
+/**
+ * @file PlayerStateAbility.cpp
+ * @brief プレイヤーのアビリティ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "PlayerStateAbility.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 

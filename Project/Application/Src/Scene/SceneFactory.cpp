@@ -1,3 +1,10 @@
+/**
+ * @file SceneFactory.cpp
+ * @brief シーンを生成するファクトリー
+ * @author 青木智滉
+ * @date
+ */
+
 #include "SceneFactory.h"
 
 IScene* SceneFactory::CreateScene(const std::string& sceneName) 

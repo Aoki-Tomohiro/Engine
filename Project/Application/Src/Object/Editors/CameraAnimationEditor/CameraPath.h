@@ -1,10 +1,14 @@
+/**
+ * @file CameraPath.h
+ * @brief カメラパスを制御するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Math/MathFunction.h"
 #include <vector>
 
-/// <summary>
-/// カメラパスを制御するクラス
-/// </summary>
 class CameraPath
 {
 public:

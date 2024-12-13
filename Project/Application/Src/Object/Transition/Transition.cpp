@@ -1,4 +1,12 @@
+/**
+ * @file Transition.cpp
+ * @brief トランジションを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Transition.h"
+#include "Engine/Base/Application.h"
 
 void Transition::Initialize()
 {
@@ -6,7 +14,7 @@ void Transition::Initialize()
 	sprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 
 	//スプライトのサイズを設定
-	sprite_->SetTextureSize({ 1280.0f,720.0f });
+	sprite_->SetTextureSize({ static_cast<float>(Application::kClientWidth), static_cast<float>(Application::kClientHeight) });
 }
 
 void Transition::Update()

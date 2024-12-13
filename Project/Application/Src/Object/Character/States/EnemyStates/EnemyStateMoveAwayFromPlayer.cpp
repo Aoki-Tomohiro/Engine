@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateMoveAwayFromPlayer.cpp
+ * @brief 敵の後退状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateMoveAwayFromPlayer.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

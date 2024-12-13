@@ -1,3 +1,10 @@
+/**
+ * @file EditorManager.cpp
+ * @brief パーティクルエフェクトを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ParticleEffectEditor.h"
 
 void ParticleEffectEditor::Initialize()

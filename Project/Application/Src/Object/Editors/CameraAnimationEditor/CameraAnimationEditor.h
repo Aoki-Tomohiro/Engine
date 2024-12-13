@@ -1,3 +1,10 @@
+/**
+ * @file CameraAnimationEditor.h
+ * @brief カメラアニメーションを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/ImGuiManager.h"
 #include "CameraPath.h"
@@ -5,9 +12,6 @@
 #include <fstream>
 #include <map>
 
-/// <summary>
-/// カメラアニメーションを管理するクラス
-/// </summary>
 class CameraAnimationEditor
 {
 public:

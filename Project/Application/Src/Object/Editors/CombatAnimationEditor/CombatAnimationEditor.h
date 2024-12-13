@@ -1,3 +1,10 @@
+/**
+ * @file CombatAnimationEditor.h
+ * @brief キャラクターのモーションを編集・管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Animator/AnimatorComponent.h"
@@ -27,9 +34,6 @@ struct AnimationController
 	const int32_t GetAnimationEventCount(const EventType eventType) const; //アニメーションイベントの数を取得
 };
 
-/// <summary>
-/// 戦闘のアニメーションを管理するクラス
-/// </summary>
 class CombatAnimationEditor
 {
 public:

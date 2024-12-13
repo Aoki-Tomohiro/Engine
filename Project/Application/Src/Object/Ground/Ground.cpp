@@ -1,3 +1,10 @@
+/**
+ * @file Ground.cpp
+ * @brief 地面を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Ground.h"
 
 void Ground::Initialize()

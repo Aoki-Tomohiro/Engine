@@ -1,3 +1,10 @@
+/**
+ * @file CharacterStateFactory.cpp
+ * @brief キャラクターの新しい状態を生成するファクトリー
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CharacterStateFactory.h"
 #include "Application/Src/Object/Character/States/CharacterStateDeath.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"

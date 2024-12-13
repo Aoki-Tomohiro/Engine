@@ -1,3 +1,10 @@
+/**
+ * @file Weapon.h
+ * @brief 武器を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Base/TextureManager.h"
@@ -11,9 +18,6 @@
 #include "Engine/Utilities/GlobalVariables.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/AnimationEvents.h"
 
-/// <summary>
-/// 武器
-/// </summary>
 class Weapon : public GameObject
 {
 public:

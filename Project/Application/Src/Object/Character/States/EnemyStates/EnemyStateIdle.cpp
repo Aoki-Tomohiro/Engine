@@ -1,3 +1,10 @@
+/**
+ * @file EnemyStateIdle.cpp
+ * @brief 敵の通常状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EnemyStateIdle.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 

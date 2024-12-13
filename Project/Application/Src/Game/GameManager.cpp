@@ -1,3 +1,10 @@
+/**
+ * @file GameManager.cpp
+ * @brief ゲーム全体を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GameManager.h"
 
 void GameManager::Initialize()

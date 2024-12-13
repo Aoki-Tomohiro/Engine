@@ -1,3 +1,10 @@
+/**
+ * @file Magic.h
+ * @brief 魔法を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/3D/Model/ModelManager.h"
@@ -10,9 +17,6 @@
 #include "Engine/Utilities/GameTimer.h"
 #include "Application/Src/Object/Editors/EditorManager.h"
 
-/// <summary>
-/// 魔法
-/// </summary>
 class Magic : public GameObject
 {
 public:

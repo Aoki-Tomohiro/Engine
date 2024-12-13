@@ -1,3 +1,10 @@
+/**
+ * @file CameraController.cpp
+ * @brief カメラを制御するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraController.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"

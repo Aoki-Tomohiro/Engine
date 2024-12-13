@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateDodge.h
+ * @brief 敵の回避状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "IEnemyState.h"
 
-/// <summary>
-/// 回避状態
-/// </summary>
 class EnemyStateDodge : public IEnemyState
 {
 public:

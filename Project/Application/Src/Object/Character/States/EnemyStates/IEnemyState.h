@@ -1,11 +1,15 @@
+/**
+ * @file EnemyStateStun.h
+ * @brief 敵の状態の基底クラスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Application/Src/Object/Character/States/ICharacterState.h"
 
 class Enemy;
 
-/// <summary>
-/// 敵の状態
-/// </summary>
 class IEnemyState : public ICharacterState
 {
 public:

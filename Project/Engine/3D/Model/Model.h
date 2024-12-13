@@ -1,3 +1,10 @@
+/**
+ * @file Model.h
+ * @brief モデルを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Mesh.h"
 #include "Material.h"
@@ -101,71 +108,148 @@ public:
 		Node rootNode;
 	};
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="modelData">モデルデータ</param>
+	/// <param name="drawPass">描画の種類</param>
 	void Initialize(const ModelData& modelData, const DrawPass drawPass);
 
+	/// <summary>
+	/// 更新
+	/// </summary>
+	/// <param name="worldTransform">ワールドトランスフォーム</param>
 	void Update(WorldTransform& worldTransform);
 
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="worldTransform">ワールドトランスフォーム</param>
+	/// <param name="camera">カメラ</param>
 	void Draw(const WorldTransform& worldTransform, const Camera& camera);
 
+	/// <summary>
+	/// 再利用処理
+	/// </summary>
 	void Acquire();
 
+	/// <summary>
+	/// 解放処理
+	/// </summary>
 	void Release();
 
+	/// <summary>
+	/// マテリアルの更新
+	/// </summary>
 	void UpdateMaterials();
 
+	//ボーンを描画するかどうかを取得・設定
 	const bool GetIsBoneVisible() const { return isBoneVisible_; };
-
 	void SetIsBoneVisible(const bool isBoneVisible) { isBoneVisible_ = isBoneVisible; };
 
+	//影を反映させるかどうかを取得・設定
 	const bool GetCastShadows() const { return castShadows_; };
-
 	void SetCastShadows(const bool castShadows) { castShadows_ = castShadows; };
 
+	//使用しているかどうかを取得・設定
 	const bool GetIsInUse() const { return isInUse_; };
-
 	void SetIsInUse(const bool isInUse) { isInUse_ = isInUse; };
 
+	//メッシュの数を取得
 	const size_t GetNumMeshes() { return meshes_.size(); };
 
+	//マテリアルの数を取得
 	const size_t GetNumMaterials() { return materials_.size(); };
 
+	//メッシュを取得
 	Mesh* GetMesh(size_t index) { return meshes_[index].get(); };
 
+	//マテリアルを取得
 	Material* GetMaterial(size_t index) { return materials_[index].get(); };
 
+	//スケルトンを取得
 	Skeleton& GetSkeleton() { return skeleton_; };
 
+	//Rootのノードを取得
 	const Node& GetRootNode() const { return modelData_.rootNode; };
 
+	//ジョイントのワールドトランスフォームを取得
 	const WorldTransform& GetJointWorldTransform(const std::string& name) const;
 
+	//ジョイントのワールドトランスフォームをまとめて取得
 	const std::vector<WorldTransform>& GetJointWorldTransforms() const { return jointWorldTransforms_; };
 
 private:
+	/// <summary>
+	/// スケルトンを作成
+	/// </summary>
 	void CreateSkeleton();
 
+	/// <summary>
+	/// ジョイントを作成
+	/// </summary>
+	/// <param name="node">ノード</param>
+	/// <param name="parent">親のインデックス</param>
+	/// <param name="joints">ジョイントの配列</param>
+	/// <returns>自分のインデックス</returns>
 	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 
+	/// <summary>
+	/// ジョイントのワールドトランスフォームを作成
+	/// </summary>
 	void CreateJointWorldTransforms();
 
+	/// <summary>
+	/// スキンクラスターを作成
+	/// </summary>
 	void CreateSkinClusters();
 
+	/// <summary>
+	/// メッシュを作成
+	/// </summary>
 	void CreateMeshes();
 
+	/// <summary>
+	/// マテリアルを作成
+	/// </summary>
 	void CreateMaterials();
 
+	/// <summary>
+	/// ボーンの作成
+	/// </summary>
 	void CreateBone();
 
+	/// <summary>
+	/// ボーンの頂点データを作成
+	/// </summary>
+	/// <param name="parentIndex"></param>
 	void CreateBoneVertices(int32_t parentIndex);
 
+	/// <summary>
+	/// ボーンの頂点バッファを更新
+	/// </summary>
 	void UpdateBoneVertexData();
 
+	/// <summary>
+	/// ボーンの頂点バッファを作成
+	/// </summary>
 	void CreateBoneVertexBuffer();
 
+	/// <summary>
+	/// スケルトンの更新
+	/// </summary>
+	/// <param name="worldTransform">ワールドトランスフォーム</param>
 	void UpdateSkeleton(const WorldTransform& worldTransform);
 
+	/// <summary>
+	/// スキンクラスターの更新
+	/// </summary>
 	void UpdateSkinClusters();
 
+	/// <summary>
+	/// ルートのトランスフォームを適用
+	/// </summary>
+	/// <param name="worldTransform"></param>
 	void ApplyRootTransform(WorldTransform& worldTransform);
 
 private:

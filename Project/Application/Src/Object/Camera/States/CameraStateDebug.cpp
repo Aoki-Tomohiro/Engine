@@ -1,3 +1,10 @@
+/**
+ * @file CameraStateDebug.cpp
+ * @brief カメラのデバッグ状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CameraStateDebug.h"
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"

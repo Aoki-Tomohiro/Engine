@@ -1,9 +1,13 @@
+/**
+ * @file EnemyStateMoveAwayFromPlayer.h
+ * @brief 敵の後退状態を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "EnemyStateMove.h"
 
-/// <summary>
-/// 後進行動
-/// </summary>
 class EnemyStateMoveAwayFromPlayer : public EnemyStateMove
 {
 public:

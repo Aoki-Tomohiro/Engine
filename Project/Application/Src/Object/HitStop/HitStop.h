@@ -1,9 +1,13 @@
+/**
+ * @file HitStop.h
+ * @brief ヒットストップ処理を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Utilities/GameTimer.h"
 
-/// <summary>
-/// ヒットストップ
-/// </summary>
 class HitStop
 {
 public:

@@ -1,3 +1,10 @@
+/**
+ * @file Player.h
+ * @brief プレイヤーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Components/Input/Input.h"
@@ -7,9 +14,6 @@
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include <numbers>
 
-/// <summary>
-/// プレイヤークラス
-/// </summary>
 class Player : public BaseCharacter
 {
 public:
@@ -333,11 +337,6 @@ private:
     void UpdateButtonScale(const ButtonState& buttonState, const Vector2& baseScale, SpriteSettings& spriteSetting, const ButtonType buttonType);
 
     /// <summary>
-    /// UIの編集
-    /// </summary>
-    void EditUI();
-
-    /// <summary>
     /// ボタンの設定を編集
     /// </summary>
     /// <param name="config">ボタンの設定</param>
@@ -427,7 +426,7 @@ private:
     std::array<ButtonUISettings, kMaxActionCount> buttonUISettings_{};
 
     //ボタンのUIの構成
-    std::array<ButtonConfig, kMaxActionCount> buttonConfigs_{ {
+    const std::array<ButtonConfig, kMaxActionCount> buttonConfigs_{ {
         { ButtonType::A, "xbox_button_a_outline.png", "Jump.png", {1032.0f, 662.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
         { ButtonType::X, "xbox_button_x_outline.png", "Attack.png", {974.0f, 604.0f}, {870.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
         { ButtonType::LB, "xbox_lb_outline.png", "Dash.png", {1132.0f, 451.0f}, {1172.0f, 429.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
@@ -440,7 +439,7 @@ private:
     std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
 
     //スキルのUIの構成
-    std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
+    const std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
         { ButtonType::Y, "xbox_button_y_outline.png", "LaunchAttack.png", {1032.0f, 546.0f}, {840.0f, 524.0f}, {1.0f, 1.0f}, {0.3f, 0.3f}, { 1004.0f, 500.0f }, { 28.0f,4.0f }},
         { ButtonType::B, "xbox_button_b_outline.png", "SpinAttack.png", {1090.0f, 604.0f}, {1118.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1062.0f, 558.0f }, { 28.0f,4.0f }},}
     };
