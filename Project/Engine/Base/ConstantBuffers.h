@@ -1,3 +1,10 @@
+/**
+ * @file ConstantBuffers.h
+ * @brief コンスタントバッファの構造体を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"

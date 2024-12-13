@@ -1,3 +1,10 @@
+/**
+ * @file WorldTransform.h
+ * @brief ワールドトランスフォームを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Base/UploadBuffer.h"
 #include "Engine/Base/ConstantBuffers.h"
@@ -7,25 +14,45 @@
 class WorldTransform
 {
 public:
-	void Initialize();
-
-	void TransferMatrix();
-
-	void UpdateMatrix();
-
-	void SetParent(const WorldTransform* parent);
-
-	void UnsetParent();
-
-	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
-
+	//コンストラクタ
 	WorldTransform() = default;
 
+	//コンストラクタ（代入できるように）
 	WorldTransform(const WorldTransform& rhs)
 	{
 		*this = rhs;
 	}
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize();
+
+	/// <summary>
+	/// 行列を書き込む
+	/// </summary>
+	void TransferMatrix();
+
+	/// <summary>
+	/// 行列の更新
+	/// </summary>
+	void UpdateMatrix();
+
+	/// <summary>
+	/// 親子付け
+	/// </summary>
+	/// <param name="parent">親</param>
+	void SetParent(const WorldTransform* parent);
+
+	/// <summary>
+	/// 親子付けを解除
+	/// </summary>
+	void UnsetParent();
+
+	//コンスタントバッファを取得
+	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
+
+	//ワールドトランスフォームをコピー
 	WorldTransform& operator=(const WorldTransform& rhs)
 	{
 		if (this != &rhs)

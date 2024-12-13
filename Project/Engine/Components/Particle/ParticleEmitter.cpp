@@ -1,3 +1,10 @@
+/**
+ * @file ParticleEmitter.cpp
+ * @brief エミッターを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ParticleEmitter.h"
 #include "Engine/Utilities/GameTimer.h"
 

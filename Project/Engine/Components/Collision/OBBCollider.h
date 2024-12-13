@@ -1,3 +1,10 @@
+/**
+ * @file OBBCollider.h
+ * @brief OBBコライダーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Collider.h"
 #include "Engine/Math/Vector3.h"
@@ -5,26 +12,38 @@
 class OBBCollider : public Collider
 {
 public:
-	void Initialize() override;
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	void Initialize() override {};
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update() override;
 
-    void Draw(const Camera& camera) override;
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="camera">カメラ</param>
+	void Draw(const Camera& camera) override;
 
-    const Vector3& GetWorldCenter() const { return worldCenter_; };
+	//ワールド座標系の中心点を取得・設定
+	const Vector3& GetWorldCenter() const { return worldCenter_; };
+	void SetWorldCenter(const Vector3& worldCenter)
+	{
+		worldCenter_ = worldCenter;
+		isWorldCenterSet_ = true;
+	};
 
-    void SetWorldCenter(const Vector3& worldCenter)
-    {
-        worldCenter_ = worldCenter;
-        isWorldCenterSet_ = true;
-    };
+	//ワールド座標系の中心点をクリア
+	void ClearWorldCenter() { isWorldCenterSet_ = false; };
 
-    void ClearWorldCenter() { isWorldCenterSet_ = false; };
-
+	//中心点を取得・設定
 	const Vector3& GetCenter() const { return center_; };
-
 	void SetCenter(const Vector3& center) { center_ = center; };
 
+	//軸を取得・設定
     const Vector3& GetOrientation(size_t index) const
     {
         if (index < 3)
@@ -34,7 +53,6 @@ public:
         static Vector3 defaultVector;
         return defaultVector;
     }
-
     void SetOrientations(const Vector3& orientation1, const Vector3& orientation2, const Vector3& orientation3)
     {
         orientations_[0] = orientation1;
@@ -42,8 +60,8 @@ public:
         orientations_[2] = orientation3;
     }
 
+	//サイズを取得・設定
     const Vector3& GetSize() const { return size_; };
-
     void SetSize(const Vector3& size) { size_ = size; };
 
 private:

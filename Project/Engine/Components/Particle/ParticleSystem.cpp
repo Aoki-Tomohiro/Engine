@@ -1,3 +1,10 @@
+/**
+ * @file ParticleSystem.cpp
+ * @brief パーティクルシステムを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ParticleSystem.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Math/MathFunction.h"

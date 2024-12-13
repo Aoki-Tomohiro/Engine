@@ -1,3 +1,10 @@
+/**
+ * @file CollisionManager.cpp
+ * @brief 衝突判定を行うファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CollisionManager.h"
 #include "CollisionConfig.h"
 #include "Engine/Math/MathFunction.h"

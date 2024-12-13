@@ -1,3 +1,10 @@
+/**
+ * @file CommandQueue.cpp
+ * @brief コマンドキューを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CommandQueue.h"
 #include "GraphicsCore.h"
 #include <cassert>

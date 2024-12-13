@@ -1,3 +1,10 @@
+/**
+ * @file Application.cpp
+ * @brief アプリケーションを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Application.h"
 #include "Engine/Externals//imgui/imgui_impl_win32.h"
 #pragma comment(lib,"winmm.lib")

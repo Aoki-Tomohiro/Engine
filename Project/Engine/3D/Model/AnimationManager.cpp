@@ -1,3 +1,10 @@
+/**
+ * @file AnimationManager.cpp
+ * @brief アニメーションデータの読み込みや管理をするファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "AnimationManager.h"
 
 AnimationManager* AnimationManager::instance_ = nullptr;

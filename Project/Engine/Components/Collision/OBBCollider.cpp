@@ -1,13 +1,15 @@
+/**
+ * @file OBBCollider.cpp
+ * @brief OBBコライダーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "OBBCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Math/MathFunction.h"
-
-void OBBCollider::Initialize()
-{
-
-}
 
 void OBBCollider::Update()
 {

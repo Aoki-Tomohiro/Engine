@@ -1,3 +1,10 @@
+/**
+ * @file RootSignature.cpp
+ * @brief ルートシグネチャを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "RootSignature.h"
 #include "GraphicsCore.h"
 #include "Engine/Utilities/Log.h"

@@ -1,3 +1,10 @@
+/**
+ * @file UploadBuffer.cpp
+ * @brief アップロードバッファを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "UploadBuffer.h"
 #include "GraphicsCore.h"
 #include <cassert>

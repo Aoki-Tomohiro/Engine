@@ -1,3 +1,10 @@
+/**
+ * @file Renderer.cpp
+ * @brief 描画を処理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Renderer.h"
 #include "GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"

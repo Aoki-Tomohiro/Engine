@@ -1,3 +1,10 @@
+/**
+ * @file TrailRenderer.cpp
+ * @brief 軌跡を生成や描画を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "TrailRenderer.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"

@@ -1,3 +1,10 @@
+/**
+ * @file StructuredBuffer.cpp
+ * @brief StructuredBufferを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "StructuredBuffer.h"
 #include "GraphicsCore.h"
 #include <cassert>

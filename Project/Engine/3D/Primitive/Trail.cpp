@@ -1,3 +1,10 @@
+/**
+ * @file Trail.cpp
+ * @brief 軌跡を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Trail.h"
 #include "Engine/Base/TextureManager.h"
 
@@ -54,12 +61,12 @@ void Trail::CreateVertexBuffer()
 {
     //頂点バッファの作成
     vertexBuffer_ = std::make_unique<UploadBuffer>();
-    vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+    vertexBuffer_->Create(sizeof(VertexDataPosUV) * kMaxTrails);
 
     //頂点バッファビューの作成
     vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
     vertexBufferView_.StrideInBytes = sizeof(VertexDataPosUV);
-    vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUV) * kMaxTrails * 2);
+    vertexBufferView_.SizeInBytes = UINT(sizeof(VertexDataPosUV) * kMaxTrails);
 }
 
 void Trail::CreateMaterialResource()

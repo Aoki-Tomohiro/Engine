@@ -1,13 +1,15 @@
+/**
+ * @file SphereCollider.cpp
+ * @brief Sphereコライダーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "SphereCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include <numbers>
-
-void SphereCollider::Initialize()
-{
-
-}
 
 void SphereCollider::Update()
 {

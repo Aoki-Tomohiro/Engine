@@ -1,3 +1,10 @@
+/**
+ * @file RootParameter.cpp
+ * @brief ルートパラメーターを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "RootParameter.h"
 
 void RootParameter::InitAsConstantBuffer(UINT registerNum, D3D12_SHADER_VISIBILITY shaderVisibility)

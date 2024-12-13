@@ -1,13 +1,22 @@
+/**
+ * @file ImGuiManager.cpp
+ * @brief ImGuiを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ImGuiManager.h"
 #include "Engine/Externals/imgui/imgui_impl_win32.h"
 #include "Engine/Externals/imgui/imgui_impl_dx12.h"
 
-ImGuiManager* ImGuiManager::GetInstance() {
+ImGuiManager* ImGuiManager::GetInstance()
+{
 	static ImGuiManager instance;
 	return &instance;
 }
 
-void ImGuiManager::Initialize() {
+void ImGuiManager::Initialize() 
+{
 	//Applicationのインスタンスを取得
 	application_ = Application::GetInstance();
 
@@ -33,19 +42,22 @@ void ImGuiManager::Initialize() {
 		srvDescriptorHeap_->GetDescriptorHeap()->GetGPUDescriptorHandleForHeapStart());
 }
 
-void ImGuiManager::Begin() {
+void ImGuiManager::Begin()
+{
 	//ImGuiにフレームの開始を伝える
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 }
 
-void ImGuiManager::End() {
+void ImGuiManager::End()
+{
 	//ImGuiの内部コマンドを生成する
 	ImGui::Render();
 }
 
-void ImGuiManager::Draw() {
+void ImGuiManager::Draw()
+{
 #if defined(_DEBUG) || defined(USE_IMGUI)
 
 	//コマンドリストを取得
@@ -60,7 +72,8 @@ void ImGuiManager::Draw() {
 #endif
 }
 
-void ImGuiManager::ShutDown() {
+void ImGuiManager::ShutDown() 
+{
 	//解放処理
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();

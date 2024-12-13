@@ -1,3 +1,10 @@
+/**
+ * @file Animation.cpp
+ * @brief アニメーションを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Animation.h"
 #include "Engine/Math/MathFunction.h"
 #include "Engine/Utilities/GameTimer.h"

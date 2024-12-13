@@ -1,12 +1,14 @@
+/**
+ * @file AABBCollider.cpp
+ * @brief AABBコライダーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "AABBCollider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Components/Transform/TransformComponent.h"
-
-void AABBCollider::Initialize()
-{
-
-}
 
 void AABBCollider::Update()
 {

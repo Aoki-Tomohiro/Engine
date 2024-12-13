@@ -1,3 +1,10 @@
+/**
+ * @file LineRenderer.cpp
+ * @brief ライン描画を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "LineRenderer.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Utilities/ShaderCompiler.h"
@@ -27,12 +34,12 @@ void LineRenderer::Initialize()
 {
 	//頂点バッファの作成
 	vertexBuffer_ = std::make_unique<UploadBuffer>();
-	vertexBuffer_->Create(sizeof(Vector4) * kMaxLines * 2);
+	vertexBuffer_->Create(sizeof(Vector4) * kMaxLines);
 
 	//VertexBufferViewの作成
 	vertexBufferView_.BufferLocation = vertexBuffer_->GetGpuVirtualAddress();
 	vertexBufferView_.StrideInBytes = sizeof(Vector4);
-	vertexBufferView_.SizeInBytes = UINT(sizeof(Vector4) * kMaxLines * 2);
+	vertexBufferView_.SizeInBytes = UINT(sizeof(Vector4) * kMaxLines);
 
 	//RootSignatureの作成
 	rootSignature_.Create(1, 0);

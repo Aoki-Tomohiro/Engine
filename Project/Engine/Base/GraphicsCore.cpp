@@ -1,3 +1,10 @@
+/**
+ * @file GraphicsCore.cpp
+ * @brief グラフィックスのコアを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GraphicsCore.h"
 #include "Engine/Utilities/Log.h"
 #include "Engine/Utilities/ShaderCompiler.h"

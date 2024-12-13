@@ -1,3 +1,10 @@
+/**
+ * @file WorldTransform.cpp
+ * @brief ワールドトランスフォームを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "WorldTransform.h"
 #include "Engine/Math/MathFunction.h"
 

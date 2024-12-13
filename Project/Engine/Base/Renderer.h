@@ -1,3 +1,10 @@
+/**
+ * @file Renderer.h
+ * @brief 描画を処理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/3D/Lights/LightManager.h"
 #include "Engine/3D/Camera/CameraManager.h"
@@ -75,12 +82,34 @@ public:
 		float farZ = 100.0f;
 	};
 
+	/// <summary>
+	/// インスタンスを取得
+	/// </summary>
+	/// <returns>インスタンス</returns>
 	static Renderer* GetInstance();
 
+	/// <summary>
+	/// 破棄処理
+	/// </summary>
 	static void Destroy();
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// オブジェクトを追加
+	/// </summary>
+	/// <param name="vertexBufferView">頂点バッファビュー</param>
+	/// <param name="indexBufferView">インデックスバッファビュー</param>
+	/// <param name="materialCBV">マテリアル用のCBV</param>
+	/// <param name="worldTransformCBV">ワールド座標用のCBV</param>
+	/// <param name="cameraCBV">カメラ用のCBV</param>
+	/// <param name="textureSRV">テクスチャのSRV</param>
+	/// <param name="maskTextureSRV">マスクテクスチャのSRV</param>
+	/// <param name="indexCount">インデックスの数</param>
+	/// <param name="drawPass">描画の種類</param>
 	void AddObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS materialCBV,
@@ -91,6 +120,15 @@ public:
 		UINT indexCount,
 		DrawPass drawPass);
 
+	/// <summary>
+	/// スキニングオブジェクトを追加
+	/// </summary>
+	/// <param name="matrixPaletteSRV">マトリックスパレットのSRV</param>
+	/// <param name="inputVerticesSRV">入力用の頂点のSRV</param>
+	/// <param name="influencesSRV">インフルエンス用のSRV</param>
+	/// <param name="skinningInformationCBV">スキニング用のその他のデータのCBV</param>
+	/// <param name="outpuVerticesBuffer">出力用の頂点バッファ</param>
+	/// <param name="vertexCount">頂点数</param>
 	void AddSkinningObject(D3D12_GPU_DESCRIPTOR_HANDLE matrixPaletteSRV,
 		D3D12_GPU_DESCRIPTOR_HANDLE inputVerticesSRV,
 		D3D12_GPU_DESCRIPTOR_HANDLE influencesSRV,
@@ -98,44 +136,96 @@ public:
 		RWStructuredBuffer* outpuVerticesBuffer,
 		UINT vertexCount);
 
+	/// <summary>
+	/// 影の描画用のオブジェクトを追加
+	/// </summary>
+	/// <param name="vertexBufferView">頂点バッファビュー</param>
+	/// <param name="indexBufferView">インデックスバッファビュー</param>
+	/// <param name="worldTransformCBV">ワールド座標用のCBV</param>
+	/// <param name="indexCount">インデックスの数</param>
 	void AddShadowObject(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_INDEX_BUFFER_VIEW indexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		UINT indexCount);
 
+	/// <summary>
+	/// ボーンの追加
+	/// </summary>
+	/// <param name="vertexBufferView">頂点バッファビュー</param>
+	/// <param name="worldTransformCBV">ワールド座標用のCBV</param>
+	/// <param name="cameraCBV">カメラ用のCBV</param>
+	/// <param name="indexCount">インデックスの数</param>
 	void AddBone(D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		D3D12_GPU_VIRTUAL_ADDRESS worldTransformCBV,
 		D3D12_GPU_VIRTUAL_ADDRESS cameraCBV,
 		UINT indexCount);
 
+	/// <summary>
+	/// 描画処理
+	/// </summary>
 	void Render();
 
+	/// <summary>
+	/// レンダーターゲットをクリア
+	/// </summary>
 	void ClearRenderTarget();
 
+	/// <summary>
+	/// 深度バッファをクリア
+	/// </summary>
 	void ClearDepthBuffer();
 
+	/// <summary>
+	/// 描画前処理
+	/// </summary>
 	void PreDraw();
 
+	/// <summary>
+	/// 描画後処理
+	/// </summary>
 	void PostDraw();
 
+	/// <summary>
+	/// 影の描画前処理
+	/// </summary>
 	void PreDrawShadow();
 
+	/// <summary>
+	/// 影の描画後処理
+	/// </summary>
 	void PostDrawShadow();
 
+	/// <summary>
+	/// スプライトの描画前処理
+	/// </summary>
+	/// <param name="blendMode">ブレンドモード</param>
 	void PreDrawSprites(BlendMode blendMode);
 
+	/// <summary>
+	/// スプライトの描画後処理
+	/// </summary>
 	void PostDrawSprites();
 
+	/// <summary>
+	/// スカイボックスの描画前処理
+	/// </summary>
 	void PreDrawSkybox();
 
+	/// <summary>
+	/// スカイボックスの描画後処理
+	/// </summary>
 	void PostDrawSkybox();
 
+	//シーンのカラーバッファのデスクリプタハンドルを取得
 	const DescriptorHandle& GetSceneColorDescriptorHandle() const { return sceneColorBuffer_->GetSRVHandle(); };
 
+	//シーンの深度バッファのデスクリプタハンドルを取得
 	const DescriptorHandle& GetSceneDepthDescriptorHandle() const { return sceneDepthBuffer_->GetSRVHandle(); };
 
+	//影描画用のカメラパラメーターを設定
 	void SetShadowCameraParameters(const ShadowCameraParameters& shadowCameraParameters) { shadowCameraParameters_ = shadowCameraParameters; };
 
+	//影用のカメラを取得
 	Camera* GetShadowCamera() const { return shadowCamera_; };
 
 private:
@@ -182,18 +272,39 @@ private:
 		UINT vertexCount;
 	};
 
+	/// <summary>
+	/// モデルのパイプラインステートを生成
+	/// </summary>
 	void CreateModelPipelineState();
 
+	/// <summary>
+	/// スキニングモデル用のパイプラインステートを生成
+	/// </summary>
 	void CreateSkinningModelPipelineState();
 
+	/// <summary>
+	/// Bone用のパイプラインステートを生成
+	/// </summary>
 	void CreateBonePipelineState();
 
+	/// <summary>
+	/// スプライトのパイプラインステートを生成
+	/// </summary>
 	void CreateSpritePipelineState();
 
+	/// <summary>
+	/// スカイボックスのパイプラインステートを生成
+	/// </summary>
 	void CreateSkyboxPipelineState();
 
+	/// <summary>
+	/// 影用のパイプラインステートを生成
+	/// </summary>
 	void CreateShadowPipelineState();
 
+	/// <summary>
+	/// 描画順をソート
+	/// </summary>
 	void Sort();
 
 private:

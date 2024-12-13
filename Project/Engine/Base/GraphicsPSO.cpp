@@ -1,3 +1,10 @@
+/**
+ * @file GraphicsPSO.cpp
+ * @brief パイプラインステートを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GraphicsPSO.h"
 #include "GraphicsCore.h"
 #include <cassert>

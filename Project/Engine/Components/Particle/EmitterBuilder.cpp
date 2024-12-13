@@ -1,3 +1,10 @@
+/**
+ * @file EmitterBuilder.cpp
+ * @brief エミッターを生成するBuilder
+ * @author 青木智滉
+ * @date
+ */
+
 #include "EmitterBuilder.h"
 
 EmitterBuilder::EmitterBuilder()

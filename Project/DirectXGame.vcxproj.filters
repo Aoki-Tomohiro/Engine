@@ -378,9 +378,6 @@
     <ClCompile Include="Engine\Base\ImGuiManager.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Base\PipelineState.cpp">
-      <Filter>ソース ファイル\Engine\Base</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Base\Renderer.cpp">
       <Filter>ソース ファイル\Engine\Base</Filter>
     </ClCompile>
@@ -822,9 +819,6 @@
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\Renderer.h">
-      <Filter>ヘッダー ファイル\Engine\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Base\PipelineState.h">
       <Filter>ヘッダー ファイル\Engine\Base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Base\ImGuiManager.h">

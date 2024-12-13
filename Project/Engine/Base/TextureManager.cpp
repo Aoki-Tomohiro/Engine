@@ -1,3 +1,10 @@
+/**
+ * @file TextureManager.cpp
+ * @brief テクスチャの読み込みや管理をするファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "TextureManager.h"
 #include "Engine/Utilities/Log.h"
 

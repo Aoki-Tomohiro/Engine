@@ -1,3 +1,10 @@
+/**
+ * @file ParticleEmitter.h
+ * @brief エミッターを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
@@ -7,120 +14,130 @@
 class ParticleEmitter
 {
 public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="name">名前</param>
+	/// <param name="lifeTime">寿命</param>
 	void Initialize(const std::string& name, const float lifeTime);
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void Update();
 
+	//名前を取得・設定
 	const std::string& GetName() const { return name_; }
-
 	void SetName(const std::string& name) { name_ = name; };
 
+	//追従対象を取得・設定
 	const Vector3* GetFollowTarget() const { return followTarget_; };
-
 	void SetFollowTarget(const Vector3* followTarget) { followTarget_ = followTarget; };
 
+	//座標を取得・設定
 	const Vector3& GetTranslate() const { return translate_; };
-
 	void SetTranslate(const Vector3& translate) { translate_ = translate; };
 
+	//半径を取得・設定
 	const float GetRadius() const { return radius_; };
-
 	void SetRadius(const float radius) { radius_ = radius; };
 
+	//生成数を取得・設定
 	const uint32_t GetCount() const { return count_; };
-
 	void SetCount(const uint32_t count) { count_ = count; };
 
+	//回転の最小値を取得・設定
 	const Vector3& GetRotateMin() const { return rotateMin_; };
-
 	void SetRotateMin(const Vector3& rotateMin) { rotateMin_ = rotateMin; };
 
+	//回転の最大値を取得・設定
 	const Vector3& GetRotateMax() const { return rotateMax_; };
-
 	void SetRotateMax(const Vector3& rotateMax) { rotateMax_ = rotateMax; };
 
+	//スケールの最小値を取得・設定
 	const Vector3& GetScaleMin() const { return scaleMin_; };
-
 	void SetScaleMin(const Vector3& scaleMin) { scaleMin_ = scaleMin; };
 
+	//スケールの最大値を取得・設定
 	const Vector3& GetScaleMax() const { return scaleMax_; };
-
 	void SetScaleMax(const Vector3& scaleMax) { scaleMax_ = scaleMax; };
 
+	//速度の最小値を取得・設定
 	const Vector3& GetVelocityMin() const { return velocityMin_; };
-
 	void SetVelocityMin(const Vector3& velocityMin) { velocityMin_ = velocityMin; };
 
+	//速度の最大値を取得・設定
 	const Vector3& GetVelocityMax() const { return velocityMax_; };
-
 	void SetVelocityMax(const Vector3& velocityMax) { velocityMax_ = velocityMax; };
 
+	//寿命の最小値を取得・設定
 	const float GetLifeTimeMin() const { return lifeTimeMin_; };
-
 	void SetLifeTimeMin(const float lifeTimeMin) { lifeTimeMin_ = lifeTimeMin; };
 
+	//寿命の最大値を取得・設定
 	const float GetLifeTimeMax() const { return lifeTimeMax_; };
-
 	void SetLifeTimeMax(const float lifeTimeMax) { lifeTimeMax_ = lifeTimeMax; };
 
+	//色の最小値を取得・設定
 	const Vector4& GetColorMin() const { return colorMin_; };
-
 	void SetColorMin(const Vector4& colorMin) { colorMin_ = colorMin; };
 
+	//色の最大値を取得・設定
 	const Vector4& GetColorMax() const { return colorMax_; };
-
 	void SetColorMax(const Vector4& colorMax) { colorMax_ = colorMax; };
 
+	//発生間隔を取得・設定
 	const float GetFrequency() const { return frequency_; };
-
 	void SetFrequency(const float frequency) { frequency_ = frequency; };
 
+	//進行方向に回転させるかを取得・設定
 	const bool GetAlignToDirection() const { return alignToDirection_; };
-
 	void SetAlignToDirection(const bool alignToDirection) { alignToDirection_ = alignToDirection; };
 
+	//寿命に応じて色を変えるかを取得・設定
 	const bool GetEnableColorOverLifeTime() const { return enableColorOverLifeTime_; };
-
 	void SetEnableColorOverLifeTime(const bool enableColorOverLifeTime) { enableColorOverLifeTime_ = enableColorOverLifeTime; };
 
+	//目標の色を取得・設定
 	const Vector3& GetTargetColor() const { return targetColor_; };
-
 	void SetTargetColor(const Vector3& targetColor) { targetColor_ = targetColor; };
 
+	//寿命に応じて透明度を変えるかを取得・設定
 	const bool GetEnableAlphaOverLifeTime() const { return enableAlphaOverLifeTime_; };
-
 	void SetEnableAlphaOverLifeTime(const bool enableAlphaOverLifeTime) { enableAlphaOverLifeTime_ = enableAlphaOverLifeTime; };
 
+	//目標の透明度を取得・設定
 	const float GetTargetAlpha() const { return targetAlpha_; };
-
 	void SetTargetAlpha(const float targetAlpha) { targetAlpha_ = targetAlpha; };
 
+	//寿命に応じてサイズを変えるかを取得・設定
 	const bool GetEnableSizeOverLifeTime() const { return enableSizeOverLifeTime_; };
-
 	void SetEnableSizeOverLifeTime(const bool enableSizeOverLifeTime) { enableSizeOverLifeTime_ = enableSizeOverLifeTime; };
 
+	//目標のスケールを取得・設定
 	const Vector3& GetTargetScale()const { return targetScale_; };
-
 	void SetTargetScale(const Vector3& targetScale) { targetScale_ = targetScale; };
 
+	//寿命に応じて回転させるかを取得・設定
 	const bool GetEnableRotationOverLifeTime()const { return enableRotationOverLifeTime_; };
-
 	void SetEnableRotationOverLifeTime(const bool enableRotationOverLifeTime) { enableRotationOverLifeTime_ = enableRotationOverLifeTime; };
 
+	//回転速度を取得・設定
 	const Vector3& GetRotSpeed() const { return rotSpeed_; };
-
 	void SetRotSpeed(const Vector3& rotSpeed) { rotSpeed_ = rotSpeed; };
 
+	//ビルボードさせるかを取得・設定
 	const bool GetIsBillboard() const { return isBillboard_; };
-
 	void SetIsBillboard(const bool isBillboard) { isBillboard_ = isBillboard; };
 
+	//死亡フラグを取得・設定
 	const bool GetIsDead() const { return isDead_; };
-
 	void SetIsDead(const bool isDead) { isDead_ = isDead; };
 
+	//クォータニオンを設定
 	const Quaternion& GetQuaternion() const { return quaternion_; };
 
+	//パーティクルが発生したかを取得
 	const uint32_t GetEmit() const { return emit_; };
 
 private:

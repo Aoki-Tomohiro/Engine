@@ -1,3 +1,10 @@
+/**
+ * @file ColorBuffer.cpp
+ * @brief カラーバッファを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ColorBuffer.h"
 #include "GraphicsCore.h"
 #include <cassert>

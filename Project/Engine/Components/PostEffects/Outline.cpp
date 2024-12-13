@@ -26,7 +26,8 @@ void Outline::Initialize()
 	CreatePipelineState();
 
 	//逆プロジェクション行列の初期化
-	projectionInverse_ = Mathf::Inverse(Mathf::MakePerspectiveFovMatrix(45.0f * 3.141592654f / 180.0f, 1280.0f / 720.0f, 0.1f, 1000.0f));
+	Camera camera{};
+	projectionInverse_ = Mathf::Inverse(Mathf::MakePerspectiveFovMatrix(camera.fov_, camera.aspectRatio_, camera.nearClip_, camera.farClip_));
 }
 
 void Outline::Update()

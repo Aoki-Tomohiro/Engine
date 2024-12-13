@@ -1,3 +1,10 @@
+/**
+ * @file Material.cpp
+ * @brief マテリアルを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Material.h"
 #include "Engine/Base/TextureManager.h"
 #include "Engine/Math/MathFunction.h"

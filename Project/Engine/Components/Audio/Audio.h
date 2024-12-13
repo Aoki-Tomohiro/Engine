@@ -1,3 +1,10 @@
+/**
+ * @file Audio.h
+ * @brief オーディオを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #pragma once
 #include <array>
 #include <vector>
@@ -14,10 +21,12 @@
 #pragma comment(lib,"Mfreadwrite.lib")
 #pragma comment(lib,"mfuuid.lib")
 
-class Audio {
+class Audio 
+{
 private:
 	//エイリアステンプレート
 	template <class T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+	//基本のディレクトリパス
 	static const std::string kBaseDirectory;
 
 public:
@@ -25,7 +34,8 @@ public:
 	static const int kMaxSoundData = 256;
 
 	//オーディオコールバック
-	class XAudio2VoiceCallback : public IXAudio2VoiceCallback {
+	class XAudio2VoiceCallback : public IXAudio2VoiceCallback 
+	{
 	public:
 		//ボイス処理パスの開始時
 		STDMETHOD_(void, OnVoiceProcessingPassStart)
@@ -85,18 +95,48 @@ public:
 		IXAudio2SourceVoice* sourceVoice = nullptr;
 	};
 
+	/// <summary>
+	/// インスタンスを取得
+	/// </summary>
+	/// <returns>インスタンス</returns>
 	static Audio* GetInstance();
 
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Finalize();
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
 	void Initialize();
 
+	/// <summary>
+	/// 音声データを読み込み
+	/// </summary>
+	/// <param name="filename">ファイルの名前</param>
+	/// <returns>オーディオハンドル</returns>
 	uint32_t LoadAudioFile(const std::string& filename);
 
+	/// <summary>
+	/// サウンドデータを解放
+	/// </summary>
+	/// <param name="soundData">サウンドデータ</param>
 	void SoundUnload(SoundData* soundData);
 
+	/// <summary>
+	/// 音声データの再生
+	/// </summary>
+	/// <param name="audioHandle">オーディオハンドル</param>
+	/// <param name="loopFlag">ループフラグ</param>
+	/// <param name="volume">音声の大きさ</param>
+	/// <returns>ボイスハンドル</returns>
 	uint32_t PlayAudio(uint32_t audioHandle, bool loopFlag, float volume);
 
+	/// <summary>
+	/// 音声データの停止
+	/// </summary>
+	/// <param name="voiceHandle">ボイスハンドル</param>
 	void StopAudio(uint32_t voiceHandle);
 
 private:

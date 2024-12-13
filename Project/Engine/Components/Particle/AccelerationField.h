@@ -24,8 +24,9 @@ public:
 	/// </summary>
 	void Update();
 
-    //名前を取得
+    //名前を取得・設定
     const std::string& GetName() const { return name_; }
+    void SetName(const std::string& name) { name_ = name; }
 
     //加速度を取得・設定
     const Vector3& GetAcceleration() const { return acceleration_; }

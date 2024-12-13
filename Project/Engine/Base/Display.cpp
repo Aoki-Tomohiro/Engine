@@ -1,3 +1,10 @@
+/**
+ * @file Display.cpp
+ * @brief スワップチェーンを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Display.h"
 #include <cassert>
 

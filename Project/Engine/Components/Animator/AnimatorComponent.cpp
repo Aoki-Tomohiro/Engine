@@ -1,13 +1,15 @@
+/**
+ * @file AnimatorComponent.cpp
+ * @brief アニメーターのコンポーネント
+ * @author 青木智滉
+ * @date
+ */
+
 #include "AnimatorComponent.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
 #include "Engine/Framework/Object/GameObject.h"
 #include "Engine/Utilities/GameTimer.h"
-
-void AnimatorComponent::Initialize()
-{
-
-}
 
 void AnimatorComponent::Update()
 {

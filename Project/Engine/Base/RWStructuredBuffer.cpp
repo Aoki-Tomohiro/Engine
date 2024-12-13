@@ -1,3 +1,10 @@
+/**
+ * @file RWStructuredBuffer.cpp
+ * @brief RWStructuredBufferを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "RWStructuredBuffer.h"
 #include "GraphicsCore.h"
 #include <cassert>

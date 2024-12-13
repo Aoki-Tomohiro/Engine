@@ -1,3 +1,10 @@
+/**
+ * @file CommandContext.cpp
+ * @brief コマンドを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CommandContext.h"
 #include "GraphicsCore.h"
 #include <cassert>

@@ -1,3 +1,10 @@
+/**
+ * @file ComputePSO.cpp
+ * @brief コンピュートシェーダー用のPSOを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ComputePSO.h"
 #include "GraphicsCore.h"
 

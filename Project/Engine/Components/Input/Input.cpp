@@ -1,3 +1,10 @@
+/**
+ * @file Input.cpp
+ * @brief 入力処理を管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Input.h"
 #include "Engine/Base/Application.h"
 #include <cassert>

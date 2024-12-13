@@ -1,3 +1,10 @@
+/**
+ * @file DescriptorHeap.cpp
+ * @brief デスクリプタヒープを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "DescriptorHeap.h"
 #include "GraphicsCore.h"
 #include <cassert>

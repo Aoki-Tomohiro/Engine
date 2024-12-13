@@ -1,3 +1,10 @@
+/**
+ * @file Audio.cpp
+ * @brief オーディオを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Audio.h"
 #include "Engine/Utilities/Log.h"
 #include <cassert>

@@ -1,3 +1,10 @@
+/**
+ * @file ModelComponent.cpp
+ * @brief モデルのコンポーネント
+ * @author 青木智滉
+ * @date
+ */
+
 #include "ModelComponent.h"
 #include "Engine/3D/Model/ModelManager.h"
 #include "Engine/Components/Transform/TransformComponent.h"

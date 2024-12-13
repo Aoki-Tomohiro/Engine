@@ -1,3 +1,10 @@
+/**
+ * @file Texture.cpp
+ * @brief テクスチャを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Texture.h"
 #include "GraphicsCore.h"
 

@@ -1,3 +1,10 @@
+/**
+ * @file CollisionAttributeManager.cpp
+ * @brief 衝突属性を管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "CollisionAttributeManager.h"
 
 CollisionAttributeManager* CollisionAttributeManager::GetInstance()

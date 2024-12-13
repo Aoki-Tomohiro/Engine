@@ -1,3 +1,10 @@
+/**
+ * @file Collider.cpp
+ * @brief コライダーを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Collider.h"
 #include "Engine/3D/Primitive/LineRenderer.h"
 #include "Engine/Framework/Object/GameObject.h"

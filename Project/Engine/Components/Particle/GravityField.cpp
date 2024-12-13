@@ -1,3 +1,10 @@
+/**
+ * @file GravityField.cpp
+ * @brief 重力フィールドを管理するクラス
+ * @author 青木智滉
+ * @date
+ */
+
 #include "GravityField.h"
 #include "Engine/Utilities/GameTimer.h"
 

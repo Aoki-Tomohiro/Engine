@@ -1,3 +1,10 @@
+/**
+ * @file Skybox.cpp
+ * @brief スカイボックスを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "Skybox.h"
 #include "Engine/Base/GraphicsCore.h"
 #include "Engine/Base/TextureManager.h"

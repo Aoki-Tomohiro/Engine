@@ -1,3 +1,10 @@
+/**
+ * @file FrameRateController.cpp
+ * @brief FPSを制御するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "FrameRateController.h"
 
 void FrameRateController::Initialize()

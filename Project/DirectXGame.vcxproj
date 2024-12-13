@@ -123,7 +123,6 @@
     <ClCompile Include="Engine\Base\FrameRateController.cpp" />
     <ClCompile Include="Engine\Base\GraphicsCore.cpp" />
     <ClCompile Include="Engine\Base\ImGuiManager.cpp" />
-    <ClCompile Include="Engine\Base\PipelineState.cpp" />
     <ClCompile Include="Engine\Base\Renderer.cpp" />
     <ClCompile Include="Engine\Base\RootParameter.cpp" />
     <ClCompile Include="Engine\Base\RootSignature.cpp" />
@@ -301,7 +300,6 @@
     <ClInclude Include="Engine\Base\GpuResource.h" />
     <ClInclude Include="Engine\Base\GraphicsCore.h" />
     <ClInclude Include="Engine\Base\ImGuiManager.h" />
-    <ClInclude Include="Engine\Base\PipelineState.h" />
     <ClInclude Include="Engine\Base\Renderer.h" />
     <ClInclude Include="Engine\Base\RootParameter.h" />
     <ClInclude Include="Engine\Base\RootSignature.h" />

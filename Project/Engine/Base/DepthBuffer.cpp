@@ -1,3 +1,10 @@
+/**
+ * @file DepthBuffer.cpp
+ * @brief 深度バッファを管理するファイル
+ * @author 青木智滉
+ * @date
+ */
+
 #include "DepthBuffer.h"
 #include "GraphicsCore.h"
 #include <cassert>
