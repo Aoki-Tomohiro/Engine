@@ -8,6 +8,7 @@
 #pragma once
 #include "Engine/Framework/Scene/IScene.h"
 #include "Engine/3D/Camera/CameraManager.h"
+#include "Engine/3D/Skybox/Skybox.h"
 #include "Engine/Base/Renderer.h"
 #include "Engine/Base/ImGuiManager.h"
 #include "Engine/Components/Input/Input.h"
@@ -53,5 +54,11 @@ private:
 	Camera* camera_ = nullptr;
 
 	GameObjectManager* gameObjectManager_ = nullptr;
+
+	GameObject* testObject_ = nullptr;
+
+	TransformComponent* testObjectTransform_ = nullptr;
+
+	std::unique_ptr<Skybox> skybox_ = nullptr;
 };
 

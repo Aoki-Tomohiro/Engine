@@ -9,7 +9,12 @@
 
 GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 {
-	if (objectName == "Player")
+	if (objectName.find("GameObject") != std::string::npos)
+	{
+		GameObject* gameObject = new GameObject();
+		return gameObject;
+	}
+	else if (objectName == "Player")
 	{
 		Player* player = new Player();
 		return player;

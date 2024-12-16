@@ -15,7 +15,7 @@ void GameManager::Initialize()
 	//シーンの生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	sceneManager_->SetSceneFactory(sceneFactory_.get());
-	sceneManager_->ChangeScene("GameTitleScene");
+	sceneManager_->ChangeScene("SampleScene");
 
 	//ゲームオブジェクトファクトリーを生成
 	gameObjectFactory_ = std::make_unique<GameObjectFactory>();
@@ -29,28 +29,4 @@ void GameManager::Initialize()
 	collisionAttributeManager_->AddAttribute("Missile",      0b0010000, 0b0000011);
 	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
 	collisionAttributeManager_->AddAttribute("Pillar",       0b1000000, 0b0000001);
-
-	//ポストエフェクトの設定
-	postEffects_->SetIsEnable(true);
-
-	//DoFの設定
-	DepthOfField* depthOfField = postEffects_->GetDepthOfField();
-	depthOfField->SetFocusDepth(9.6f);
-	depthOfField->SetNFocusWidth(1.0f);
-	depthOfField->SetFFocusWidth(10.0f);
-
-	//Fogの設定
-	Fog* fog = postEffects_->GetFog();
-	fog->SetIsEnable(true);
-
-	//Bloomの設定
-	Bloom* bloom = postEffects_->GetBloom();
-	bloom->SetIsEnable(true);
-	bloom->SetBlurCount(4);
-	bloom->SetTextureWeight(1.0f);
-	bloom->SetHighLumTextureWeight(0.1f);
-	bloom->SetBlurTextureWeight(0, 0.1f);
-	bloom->SetBlurTextureWeight(1, 0.1f);
-	bloom->SetBlurTextureWeight(2, 0.2f);
-	bloom->SetBlurTextureWeight(3, 0.4f);
 }
