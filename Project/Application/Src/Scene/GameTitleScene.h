@@ -54,9 +54,20 @@ private:
 	void UpdateCamera();
 
 	/// <summary>
+	/// 難易度選択UIの更新
+	/// </summary>
+	void UpdateDifficultyUI();
+
+	/// <summary>
 	/// フェードを更新してシーンを変える
 	/// </summary>
-	void TriggerFadeInAndChangeScene();
+	void HandleFadeAndSceneTransition();
+
+	/// <summary>
+	/// ボタンが押されたかどうかを取得
+	/// </summary>
+	/// <returns>ボタンが押されたかどうか</returns>
+	bool IsActionButtonPressed();
 
 private:
 	//レンダラー
@@ -87,10 +98,35 @@ private:
 	std::unique_ptr<Sprite> titleSprite_ = nullptr;
 	std::unique_ptr<Sprite> pressASprite_ = nullptr;
 
+	//難易度メニューのスプライト
+	std::unique_ptr<Sprite> difficultyMenuSprite_ = nullptr;
+	Vector4 difficultyMenuSpriteColor_ = { 0.0f, 0.0f, 0.0f, 0.6f };
+
+	//難易度メニューのテキストのスプライト
+	std::unique_ptr<Sprite> difficultyMenuTextSprite_ = nullptr;
+	Vector2 difficultyMenuTextPosition_ = { 640.0f, 160.0f };
+
+	//難易度のスプライト
+	std::array<std::unique_ptr<Sprite>, Enemy::Level::Count> levelSprites_{};
+
+	//難易度のスプライトの座標
+	std::array<Vector2, Enemy::Level::Count> levelSpritePosition_{ {
+		{640.0f, 280.0f}, {640.0f, 380.0f}, {640.0f, 480.0f},}
+	};
+
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;
 
 	//ボイスハンドル
 	uint32_t voiceHandle_ = 0;
+
+	//敵のレベル
+	Enemy::Level difficultyLevel_ = Enemy::Level::Easy;
+
+	//難易度調整の項目が表示されているか
+	bool isDifficultyMenuVisible_ = false;
+
+	//難易度変更のタイマー
+	float difficultyChangeTimer_ = 0.0f;
 };
 

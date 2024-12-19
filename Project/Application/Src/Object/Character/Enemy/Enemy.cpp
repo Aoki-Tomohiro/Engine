@@ -10,7 +10,7 @@
 #include "Application/Src/Object/Character/Player/Player.h"
 
 //敵のレベル
-Enemy::Level Enemy::currentLevel_ = Level::Normal;
+Enemy::Level Enemy::currentLevel_ = Level::Easy;
 
 void Enemy::Initialize()
 {

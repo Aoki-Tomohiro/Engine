@@ -48,6 +48,8 @@ void GameTitleScene::Initialize()
 	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
 	//タイトルシーンのフラグを設定
 	enemy_->SetIsInTitleScene(true);
+	//難易度の初期化
+	difficultyLevel_ = enemy_->GetLevel();
 
 	//トランジションの生成
 	transition_ = std::make_unique<Transition>();
@@ -60,6 +62,29 @@ void GameTitleScene::Initialize()
 	//PressAのスプライトの生成
 	TextureManager::Load("PressA.png");
 	pressASprite_.reset(Sprite::Create("PressA.png", { 0.0f,0.0f }));
+
+	//難易度メニューのスプライトを生成
+	difficultyMenuSprite_.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
+	difficultyMenuSprite_->SetColor(difficultyMenuSpriteColor_);
+	difficultyMenuSprite_->SetTextureSize({ static_cast<float>(Application::kClientWidth), static_cast<float>(Application::kClientHeight) });
+
+	//中心のアンカーポイント
+	const Vector2 centerAnchorPoint = { 0.5f,0.5f };
+
+	//難易度メニューのテキストのスプライト生成
+	TextureManager::Load("DifficultyMenuText.png");
+	difficultyMenuTextSprite_.reset(Sprite::Create("DifficultyMenuText.png", difficultyMenuTextPosition_));
+	difficultyMenuTextSprite_->SetAnchorPoint(centerAnchorPoint);
+
+	//難易度のテクスチャの名前の配列
+	const std::vector<std::string> levelTextures = { "Easy.png","Normal.png","Hard.png" };
+	//難易度のスプライトの生成
+	for (int32_t i = 0; i < Enemy::Level::Count; ++i)
+	{
+		TextureManager::Load(levelTextures[i]);
+		levelSprites_[i].reset(Sprite::Create(levelTextures[i], levelSpritePosition_[i]));
+		levelSprites_[i]->SetAnchorPoint(centerAnchorPoint);
+	}
 
 	//音声データの読み込みと再生
 	audioHandle_ = audio_->LoadAudioFile("TitleScene.mp3");
@@ -82,22 +107,21 @@ void GameTitleScene::Update()
 	//カメラの更新
 	UpdateCamera();
 
-	//入力に基づいてフェードインをトリガーしフェードインが完了したらシーンを遷移させる
-	TriggerFadeInAndChangeScene();
-
-	//ImGui開始
-	ImGui::Begin("GameTitleScene");
-	//現在の敵のレベルを取得
-	int currentLevel = enemy_->GetLevel();
-	//敵のレベル一覧
-	const char* ENEMY_LEVEL[] = {"Easy", "Normal", "Hard"};
-	//列挙体を選択
-	if (ImGui::Combo("EnemyLevel", &currentLevel, ENEMY_LEVEL, IM_ARRAYSIZE(ENEMY_LEVEL)))
+	//難易度メニューが表示されている場合
+	if (isDifficultyMenuVisible_)
 	{
-		enemy_->SetLevel(static_cast<Enemy::Level>(currentLevel));
+		//難易度UIの更新
+		UpdateDifficultyUI();
+
+		//フェードインとシーン遷移処理
+		HandleFadeAndSceneTransition(); 
 	}
-	//ImGui終了
-	ImGui::End();
+
+	//ボタンが押されたら難易度メニューを表示
+	if (!isDifficultyMenuVisible_ && IsActionButtonPressed())
+	{
+		isDifficultyMenuVisible_ = true;
+	}
 }
 
 void GameTitleScene::Draw()
@@ -144,11 +168,28 @@ void GameTitleScene::DrawUI()
 	//前景スプライト描画前処理
 	renderer_->PreDrawSprites(kBlendModeNormal);
 
-	//タイトルのスプライトの描画
-	titleSprite_->Draw();
+	//難易度のメニューが表示されている場合
+	if (isDifficultyMenuVisible_)
+	{
+		//難易度調整のメニュースプライトを描画
+		difficultyMenuSprite_->Draw();
 
-	//PressAのスプライトの描画
-	pressASprite_->Draw();
+		//難易度調整のテキストのスプライトを描画
+		difficultyMenuTextSprite_->Draw();
+
+		//難易度のスプライトの描画
+		for (int32_t i = 0; i < Enemy::Level::Count; ++i)
+		{
+			levelSprites_[i]->Draw();
+		}
+	}
+	else
+	{
+		//タイトルのスプライトの描画
+		titleSprite_->Draw();
+		//PressAのスプライトの描画
+		pressASprite_->Draw();
+	}
 
 	//トランジションの描画
 	transition_->Draw();
@@ -181,14 +222,67 @@ void GameTitleScene::UpdateCamera()
 	camera_->UpdateMatrix();
 }
 
-void GameTitleScene::TriggerFadeInAndChangeScene()
+void GameTitleScene::UpdateDifficultyUI()
+{
+	//スティックの入力の閾値
+	const float kThreshold = 0.7f;
+
+	//切り替え時間
+	const float kDifficultyChangeDuration = 0.2f;
+
+	//難易度切り替えのタイマーを進める
+	difficultyChangeTimer_ += GameTimer::GetDeltaTime();
+
+	//スティックの入力値を取得
+	Vector3 inputValue = {
+		input_->GetLeftStickX(),
+		input_->GetLeftStickY(),
+		0.0f
+	};
+
+	//スティックの入力が閾値を超えていてかつ切り替えの時間が一定値を超えていた場合
+	if (Mathf::Length(inputValue) > kThreshold && difficultyChangeTimer_ > kDifficultyChangeDuration)
+	{
+		//スティックが上方向に入力されていて現在のレベルが0を下回っていない場合
+		if (inputValue.y > 0 && difficultyLevel_ > 0)
+		{
+			difficultyLevel_ = static_cast<Enemy::Level>(static_cast<int>(difficultyLevel_) - 1);
+		}
+		//スティックが下方向に入力されていて現在のレベルが最大値を超えていない場合
+		else if (inputValue.y < 0 && difficultyLevel_ < Enemy::Level::Count - 1)
+		{
+			difficultyLevel_ = static_cast<Enemy::Level>(static_cast<int>(difficultyLevel_) + 1);
+		}
+
+		//タイマーをリセット
+		difficultyChangeTimer_ = 0.0f;
+	}
+
+	//UIの色を変える
+	for (int32_t i = 0; i < Enemy::Level::Count; ++i)
+	{
+		//基本の色
+		const Vector4 defaultColor = { 1.0f,1.0f,1.0f,1.0f };
+
+		//選択中のレベルの色
+		const Vector4 selectedColor = { 0.814f,0.794f,0.148f,1.0f };
+
+		//選択中のレベルだった場合は色を変える
+		if (difficultyLevel_ == i)
+		{
+			levelSprites_[i]->SetColor(selectedColor);
+			continue;
+		}
+
+		//レベルのスプライトの色を変える
+		levelSprites_[i]->SetColor(defaultColor);
+	}
+}
+
+void GameTitleScene::HandleFadeAndSceneTransition()
 {
 	//Aボタンかスペースキーを押したらフェードインさせる
-	if (input_->IsPressButtonEnter(XINPUT_GAMEPAD_A))
-	{
-		transition_->SetFadeState(Transition::FadeState::In);
-	}
-	else if (input_->IsPushKeyEnter(DIK_SPACE))
+	if (IsActionButtonPressed())
 	{
 		transition_->SetFadeState(Transition::FadeState::In);
 	}
@@ -196,7 +290,13 @@ void GameTitleScene::TriggerFadeInAndChangeScene()
 	//シーン遷移
 	if (transition_->GetIsFadeInComplete())
 	{
+		enemy_->SetLevel(difficultyLevel_);
 		audio_->StopAudio(voiceHandle_);
 		sceneManager_->ChangeScene("GamePlayScene");
 	}
+}
+
+bool GameTitleScene::IsActionButtonPressed()
+{
+	return input_->IsPressButtonEnter(XINPUT_GAMEPAD_A) || input_->IsPushKeyEnter(DIK_SPACE);
 }
