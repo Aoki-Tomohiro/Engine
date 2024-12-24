@@ -31,13 +31,13 @@ void CameraStateLockon::Update()
 		Vector3 cameraPosition = cameraController_->GetCameraPosition();
 
 		//現在のカメラ位置からロックオン対象までの方向ベクトルを計算
-		Vector3 currentDirection = Mathf::Normalize(lockOnPosition - cameraPosition);
+		Vector3 normalizeDirection = Mathf::Normalize(lockOnPosition - cameraPosition);
 
 		//Y軸のクォータニオンを計算
-		Quaternion quaternionY = CalculateNewRotationY(currentDirection);
+		Quaternion quaternionY = Mathf::Normalize(CalculateNewRotationY(normalizeDirection));
 
 		//X軸のクォータニオンを計算
-		Quaternion quaternionX = CalculateNewRotationX(currentDirection, quaternionY);
+		Quaternion quaternionX = Mathf::Normalize(CalculateNewRotationX(normalizeDirection, quaternionY));
 
 		//現在のクォータニオンに新しい回転を加算
 		cameraController_->SetDestinationQuaternion(Mathf::Normalize(quaternionY * quaternionX));
@@ -57,11 +57,14 @@ void CameraStateLockon::Update()
 
 Quaternion CameraStateLockon::CalculateNewRotationY(const Vector3& directionVector) const
 {
+	//Y軸を0にしたベクトルを正規化
+	Vector3 normalizedDirection = Mathf::Normalize(Vector3{ directionVector.x, 0.0f, directionVector.z });
+
 	//回転軸を計算
-	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, Mathf::Normalize(Vector3{ directionVector.x, 0.0f, directionVector.z })));
+	Vector3 cross = Mathf::Normalize(Mathf::Cross({ 0.0f,0.0f,1.0f }, normalizedDirection));
 
 	//角度を計算
-	float dot = Mathf::Dot({ 0.0f,0.0f,1.0f }, Mathf::Normalize(Vector3{ directionVector.x, 0.0f, directionVector.z }));
+	float dot = std::clamp(Mathf::Dot({ 0.0f,0.0f,1.0f }, normalizedDirection), -1.0f, 1.0f);
 
 	//ドット積から回転角度を計算
 	float angle = std::acos(dot);
@@ -78,13 +81,13 @@ Quaternion CameraStateLockon::CalculateNewRotationY(const Vector3& directionVect
 Quaternion CameraStateLockon::CalculateNewRotationX(const Vector3& directionVector, const Quaternion& quaternionY) const
 {
 	//基準となる前方ベクトル
-	Vector3 forward = Mathf::Normalize(Vector3{ directionVector.x, 0.0f, directionVector.z });
+	Vector3 forward = Mathf::RotateVector({ 0.0f, 0.0f, 1.0f }, quaternionY);
 
 	//クロス積を計算して回転方向を確認
 	Vector3 cross = Mathf::Normalize(Mathf::Cross(forward, directionVector));
 
 	//ドット積から角度を計算
-	float dot = Mathf::Dot(forward, directionVector);
+	float dot = std::clamp(Mathf::Dot(forward, directionVector), -1.0f, 1.0f);
 
 	//回転角度を計算
 	float angle = std::min<float>(std::acos(dot), cameraController_->GetLockonCameraParameters().maxAngle);

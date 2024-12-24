@@ -710,9 +710,9 @@ void Player::UpdateQTEElements()
 	for (const AbstractCharacterState::ProcessedQTEData& processedQteData : processedQteDatas)
 	{
 		//UIの描画フラグを設定
-		qteButtonUISettings_[processedQteData.qteActionName].isVisible = processedQteData.isQTEActive;
-		//QTEがアクティブ状態の場合は配列に追加
-		if (processedQteData.isQTEActive)
+		qteButtonUISettings_[processedQteData.qteActionName].isVisible = processedQteData.isQTEActive && !processedQteData.qteActionName.empty();
+		//描画フラグが有効な場合は配列に追加
+		if (qteButtonUISettings_[processedQteData.qteActionName].isVisible)
 		{
 			activeProcessedQteDatas.push_back(processedQteData);
 		}

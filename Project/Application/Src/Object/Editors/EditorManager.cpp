@@ -26,6 +26,8 @@ void EditorManager::Initialize()
 
 void EditorManager::Update()
 {
+#if defined(_DEBUG) || defined(USE_IMGUI)
+
 	//ImGuiウィンドウの開始
 	ImGui::Begin("EditorManager");
 
@@ -58,4 +60,6 @@ void EditorManager::Update()
 	}
 
 	ImGui::End();
+
+#endif
 }

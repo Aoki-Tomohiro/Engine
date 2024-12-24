@@ -553,19 +553,13 @@ void AbstractCharacterState::UpdateQTEProgress(const QTE* qte, const int32_t ani
 	const float kDeltaTime = 1.0f / 60.0f;
 	processedQTEDatas_[animationEventIndex].elapsedTime += kDeltaTime;
 
-	//キャラクターが指定のQTEアクションを実行した場合
-	if (character_->GetActionTriggerCondition(processedQTEDatas_[animationEventIndex].qteActionName))
+	//QTEの名前が設定されているかつキャラクターが指定のQTEアクションを実行した場合
+	if (!processedQTEDatas_[animationEventIndex].qteActionName.empty() && character_->GetActionTriggerCondition(processedQTEDatas_[animationEventIndex].qteActionName))
 	{
 		//QTE終了処理
 		CompleteQTE(processedQTEDatas_[animationEventIndex], true);
 		//状態遷移
 		character_->ChangeState(processedQTEDatas_[animationEventIndex].qteActionName);
-		//全てのQTEを終了させる
-		for (auto& processedQteData : processedQTEDatas_)
-		{
-			processedQteData.isQTEActive = false;
-			processedQteData.isQTECompleted = true;
-		}
 	}
 	//タイマーが上限を超えていた場合、またはゲームが終了していた場合
 	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime || character_->GetIsGameFinished())
@@ -577,16 +571,20 @@ void AbstractCharacterState::UpdateQTEProgress(const QTE* qte, const int32_t ani
 
 void AbstractCharacterState::CompleteQTE(ProcessedQTEData& qteData, const bool isSuccess)
 {
-	//タイムスケールをリセット
-	GameTimer::SetTimeScale(1.0f);
 	//QTE受付終了
 	qteData.isQTEActive = false;
 	//QTE成功
 	qteData.isSuccess = isSuccess;
 	//QTE完了
 	qteData.isQTECompleted = !isSuccess;
-	//ポストエフェクトを無効化
-	EnableQTEPostEffects(false);
+	//QTE成功または全てのQTEがアクティブ状態ではない場合
+	if (isSuccess || std::all_of(processedQTEDatas_.begin(), processedQTEDatas_.end(), [](const auto& data) { return !data.isQTEActive; }))
+	{
+		//タイムスケールをリセット
+		GameTimer::SetTimeScale(1.0f);
+		//ポストエフェクトを無効化
+		EnableQTEPostEffects(false);
+	}
 }
 
 void AbstractCharacterState::EnableQTEPostEffects(const bool isEnable)
@@ -844,12 +842,21 @@ void AbstractCharacterState::ResetCameraAnimationData(const int32_t animationEve
 
 void AbstractCharacterState::ResetQTEData(const int32_t animationEventIndex)
 {
-	//QTEが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
+	//QTEが存在しているかつアクティブ状態の場合
 	if (processedQTEDatas_[animationEventIndex].isActive)
 	{
-		GameTimer::SetTimeScale(1.0f);
+		//アクティブフラグをリセット
 		processedQTEDatas_[animationEventIndex].isActive = false;
 		processedQTEDatas_[animationEventIndex].isQTEActive = false;
+
+		//全てのQTEが終了していた場合
+		if (std::all_of(processedQTEDatas_.begin(), processedQTEDatas_.end(), [](const auto& data) { return !data.isQTEActive; }))
+		{
+			//タイムスケールをリセット
+			GameTimer::SetTimeScale(1.0f);
+			//ポストエフェクトをリセット
+			EnableQTEPostEffects(false);
+		}
 	}
 }
 
