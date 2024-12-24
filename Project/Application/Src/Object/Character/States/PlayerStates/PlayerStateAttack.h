@@ -6,9 +6,9 @@
  */
 
 #pragma once
-#include "IPlayerState.h"
+#include "AbstractPlayerState.h"
 
-class PlayerStateAttack : public IPlayerState
+class PlayerStateAttack : public AbstractPlayerState
 {
 public:
 	/// <summary>

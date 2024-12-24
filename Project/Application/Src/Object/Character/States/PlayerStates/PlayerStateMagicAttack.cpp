@@ -47,7 +47,7 @@ void PlayerStateMagicAttack::OnCollision(GameObject* other)
 void PlayerStateMagicAttack::InitializeAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex)
 {
     //基底クラスの攻撃イベント初期化を呼び出し
-    ICharacterState::InitializeAttackEvent(attackEvent, animationEventIndex);
+    AbstractCharacterState::InitializeAttackEvent(attackEvent, animationEventIndex);
 
     //魔法オブジェクトを生成
     Magic* magic = CreateMagicObject(attackEvent);

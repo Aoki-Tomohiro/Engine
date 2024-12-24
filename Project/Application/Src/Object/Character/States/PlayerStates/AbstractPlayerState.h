@@ -1,25 +1,26 @@
 /**
- * @file EnemyStateStun.h
- * @brief 敵の状態の基底クラスを管理するファイル
+ * @file AbstractPlayerState.h
+ * @brief プレイヤーの状態の基底クラスを管理するファイル
  * @author 青木智滉
  * @date
  */
 
 #pragma once
-#include "Application/Src/Object/Character/States/ICharacterState.h"
+#include "Application/Src/Object/Character/States/AbstractCharacterState.h"
+#include "Engine/Components/Input/Input.h"
 
-class Enemy;
+class Player;
 
-class IEnemyState : public ICharacterState
+class AbstractPlayerState : public AbstractCharacterState
 {
 public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	virtual ~IEnemyState() override = default;
+	virtual ~AbstractPlayerState() override = default;
 
-	//敵を取得
-	Enemy* GetEnemy() const;
+	//プレイヤーを取得
+	Player* GetPlayer() const;
 
 protected:
 	/// <summary>
@@ -43,8 +44,23 @@ private:
 	virtual void HandleStateTransitionInternal() override;
 
 	/// <summary>
-	/// プレイヤーへの方向ベクトルを計算する関数
+	/// プレイヤーと敵の座標差分を計算する関数
 	/// </summary>
-	/// <returns>プレイヤーへの方向ベクトル</returns>
-	Vector3 CalculateDirectionToPlayer() const;
+	/// <returns></returns>
+	Vector3 CalculateDirectionToEnemy() const;
+
+	/// <summary>
+	/// スティック入力に基づいて移動ベクトルを計算する共通関数
+	/// </summary>
+	/// <param name="vector">ベクトル</param>
+	/// <param name="walkThreshold">歩きの閾値</param>
+	/// <returns>移動ベクトル</returns>
+	Vector3 ProcessStickInputMovement(const Vector3& vector, const float walkThreshold) const;
+
+protected:
+	//インプット
+	Input* input_ = nullptr;
+
+	//Y成分の差が許容範囲内かどうかを判定するための閾値
+	const float maxAllowableYDifference = 4.0f;
 };

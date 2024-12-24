@@ -1,21 +1,21 @@
 /**
- * @file IPlayerState.cpp
+ * @file AbstractPlayerState.cpp
  * @brief プレイヤーの状態の基底クラスを管理するファイル
  * @author 青木智滉
  * @date
  */
 
-#include "IPlayerState.h"
+#include "AbstractPlayerState.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 
-Player* IPlayerState::GetPlayer() const
+Player* AbstractPlayerState::GetPlayer() const
 {
 	return dynamic_cast<Player*>(GetCharacter());
 }
 
-void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
+void AbstractPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
 	processedVelocityDatas_[animationEventIndex].isActive = true;
@@ -47,7 +47,7 @@ void IPlayerState::InitializeVelocityMovement(const VelocityMovementEvent* veloc
 	}
 }
 
-void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex)
+void AbstractPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
 	processedEasingDatas_[animationEventIndex].isActive = true;
@@ -86,7 +86,7 @@ void IPlayerState::InitializeEasingMovementEvent(const EasingMovementEvent* easi
 	}
 }
 
-void IPlayerState::HandleStateTransitionInternal()
+void AbstractPlayerState::HandleStateTransitionInternal()
 {
 	//プレイヤーが地面にいなかった場合は落下状態にする
 	Vector3 position = character_->GetPosition();
@@ -102,7 +102,7 @@ void IPlayerState::HandleStateTransitionInternal()
 	}
 }
 
-Vector3 IPlayerState::CalculateDirectionToEnemy() const
+Vector3 AbstractPlayerState::CalculateDirectionToEnemy() const
 {
 	//プレイヤーの座標を取得
 	Vector3 playerPosition = character_->GetPosition();
@@ -123,7 +123,7 @@ Vector3 IPlayerState::CalculateDirectionToEnemy() const
 	return Mathf::Normalize(difference);
 }
 
-Vector3 IPlayerState::ProcessStickInputMovement(const Vector3& velocity, const float walkThreshold) const
+Vector3 AbstractPlayerState::ProcessStickInputMovement(const Vector3& velocity, const float walkThreshold) const
 {
 	//スティックの入力値を取得
 	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };

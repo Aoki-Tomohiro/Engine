@@ -6,9 +6,9 @@
  */
 
 #pragma once
-#include "ICharacterState.h"
+#include "AbstractCharacterState.h"
 
-class CharacterStateDeath : public ICharacterState
+class CharacterStateDeath : public AbstractCharacterState
 {
 public:
 	/// <summary>

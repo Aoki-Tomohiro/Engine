@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include "ICharacterState.h"
+#include "AbstractCharacterState.h"
 
 class CharacterStateFactory
 {
@@ -23,7 +23,7 @@ public:
 	/// <param name="characterName">キャラクターの名前</param>
 	/// <param name="stateName">新しい状態の名前</param>
 	/// <returns>新しい状態</returns>
-	ICharacterState* CreateCharacterState(const std::string& characterName, const std::string& stateName);
+	AbstractCharacterState* CreateCharacterState(const std::string& characterName, const std::string& stateName);
 
 private:
 	CharacterStateFactory() = default;
@@ -36,13 +36,13 @@ private:
 	/// </summary>
 	/// <param name="stateName">新しい状態の名前</param>
 	/// <returns>新しい状態</returns>
-	ICharacterState* CreatePlayerState(const std::string& stateName);
+	AbstractCharacterState* CreatePlayerState(const std::string& stateName);
 
 	/// <summary>
 	/// 敵の新しい状態を生成
 	/// </summary>
 	/// <param name="stateName">新しい状態の名前</param>
 	/// <returns>新しい状態</returns>
-	ICharacterState* CreateEnemyState(const std::string& stateName);
+	AbstractCharacterState* CreateEnemyState(const std::string& stateName);
 };
 

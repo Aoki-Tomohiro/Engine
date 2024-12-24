@@ -10,7 +10,7 @@
 #include "Engine/Components/Input/Input.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 #include "Application/Src/Object/Character/Player/SkillCooldownManager.h"
-#include "Application/Src/Object/Character/States/PlayerStates/IPlayerState.h"
+#include "Application/Src/Object/Character/States/PlayerStates/AbstractPlayerState.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include <numbers>
 

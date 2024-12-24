@@ -1,21 +1,21 @@
 /**
- * @file EnemyStateStun.cpp
+ * @file AbstractEnemyState.cpp
  * @brief 敵の状態の基底クラスを管理するファイル
  * @author 青木智滉
  * @date
  */
 
-#include "IEnemyState.h"
+#include "AbstractEnemyState.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Character/Player/Player.h"
 
-Enemy* IEnemyState::GetEnemy() const
+Enemy* AbstractEnemyState::GetEnemy() const
 {
 	return dynamic_cast<Enemy*>(GetCharacter());
 }
 
-void IEnemyState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
+void AbstractEnemyState::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
 	processedEasingDatas_[animationEventIndex].isActive = true;
@@ -42,7 +42,7 @@ void IEnemyState::InitializeVelocityMovement(const VelocityMovementEvent* veloci
 	}
 }
 
-void IEnemyState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex)
+void AbstractEnemyState::InitializeEasingMovementEvent(const EasingMovementEvent* easingMovementEvent, const int32_t animationEventIndex)
 {
 	//アクティブ状態にする
 	processedEasingDatas_[animationEventIndex].isActive = true;
@@ -76,7 +76,7 @@ void IEnemyState::InitializeEasingMovementEvent(const EasingMovementEvent* easin
 	}
 }
 
-void IEnemyState::HandleStateTransitionInternal()
+void AbstractEnemyState::HandleStateTransitionInternal()
 {
 	//遷移可能なアクション一覧
 	const std::vector<std::string> actions = { "Idle", "MoveTowardPlayer", "MoveAwayFromPlayer", "MoveSideToPlayer" };
@@ -94,7 +94,7 @@ void IEnemyState::HandleStateTransitionInternal()
 	}
 }
 
-Vector3 IEnemyState::CalculateDirectionToPlayer() const
+Vector3 AbstractEnemyState::CalculateDirectionToPlayer() const
 {
 	//敵の座標を取得
 	Vector3 enemyPosition = character_->GetPosition();

@@ -76,11 +76,6 @@ private:
 	void InitializeTransform();
 
 	/// <summary>
-	/// モデルの初期化
-	/// </summary>
-	void InitializeModel();
-
-	/// <summary>
 	/// コライダーの初期化
 	/// </summary>
 	void InitializeCollider();

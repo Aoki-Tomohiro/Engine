@@ -31,7 +31,7 @@ CharacterStateFactory* CharacterStateFactory::GetInstance()
 	return &instance;
 }
 
-ICharacterState* CharacterStateFactory::CreateCharacterState(const std::string& characterName, const std::string& stateName)
+AbstractCharacterState* CharacterStateFactory::CreateCharacterState(const std::string& characterName, const std::string& stateName)
 {
 	//死亡状態に遷移
 	if (stateName == "Death")
@@ -54,7 +54,7 @@ ICharacterState* CharacterStateFactory::CreateCharacterState(const std::string& 
 	return nullptr;
 }
 
-ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& stateName)
+AbstractCharacterState* CharacterStateFactory::CreatePlayerState(const std::string& stateName)
 {
 	//通常状態に遷移
 	if (stateName == "Idle" || stateName == "Move")
@@ -107,7 +107,7 @@ ICharacterState* CharacterStateFactory::CreatePlayerState(const std::string& sta
 	return nullptr;
 }
 
-ICharacterState* CharacterStateFactory::CreateEnemyState(const std::string& stateName)
+AbstractCharacterState* CharacterStateFactory::CreateEnemyState(const std::string& stateName)
 {
 	//通常状態
 	if (stateName == "Idle" || stateName == "Move")

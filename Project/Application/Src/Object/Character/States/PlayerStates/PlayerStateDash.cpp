@@ -58,7 +58,7 @@ void PlayerStateDash::OnCollision(GameObject* other)
 void PlayerStateDash::InitializeVelocityMovement(const VelocityMovementEvent* velocityMovementEvent, const int32_t animationEventIndex)
 {
 	//基底クラスの呼び出し
-	IPlayerState::InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
+	AbstractPlayerState::InitializeVelocityMovement(velocityMovementEvent, animationEventIndex);
 	//プレイヤーを一時的に非表示にする
 	character_->SetIsVisible(false);
 	//武器を一時的に非表示にする

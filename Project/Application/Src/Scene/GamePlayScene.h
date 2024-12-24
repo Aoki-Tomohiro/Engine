@@ -54,6 +54,43 @@ public:
 
 private:
 	/// <summary>
+	/// カメラコントローラーの初期化
+	/// </summary>
+	void InitializeCameraController();
+
+	/// <summary>
+	/// プレイヤーの初期化
+	/// </summary>
+	void InitializePlayer();
+
+	/// <summary>
+	/// 敵の初期化
+	/// </summary>
+	void InitializeEnemy();
+
+	/// <summary>
+	/// キャラクターの初期化
+	/// </summary>
+	/// <param name="character">初期化するキャラクター</param>
+	void InitializeCharacter(BaseCharacter* character);
+
+	/// <summary>
+	/// 武器の初期化
+	/// </summary>
+	/// <param name="character">持たせるキャラクター</param>
+	void InitializeWeapon(BaseCharacter* character);
+
+	/// <summary>
+	/// スプライトの初期化
+	/// </summary>
+	void InitializeSprites();
+
+	/// <summary>
+	/// BGMの読み込みと再生
+	/// </summary>
+	void LoadAndPlayBGM();
+
+	/// <summary>
 	/// コライダーの更新
 	/// </summary>
 	void UpdateColliders();
@@ -89,6 +126,9 @@ private:
 
 	//衝突マネージャー
 	std::unique_ptr<CollisionManager> collisionManager_ = nullptr;
+
+	//コライダーの配列
+	std::vector<Collider*> colliders_{};
 
 	//プレイヤー
 	Player* player_ = nullptr;

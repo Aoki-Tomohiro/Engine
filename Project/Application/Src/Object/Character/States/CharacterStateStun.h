@@ -6,9 +6,9 @@
  */
 
 #pragma once
-#include "ICharacterState.h"
+#include "AbstractCharacterState.h"
 
-class CharacterStateStun : public ICharacterState
+class CharacterStateStun : public AbstractCharacterState
 {
 public:
 	/// <summary>

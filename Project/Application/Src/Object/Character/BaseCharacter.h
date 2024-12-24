@@ -19,7 +19,7 @@
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
 #include "Application/Src/Object/Camera/CameraController.h"
-#include "Application/Src/Object/Character/States/ICharacterState.h"
+#include "Application/Src/Object/Character/States/AbstractCharacterState.h"
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
 #include "Application/Src/Object/Editors/EditorManager.h"
 
@@ -292,11 +292,6 @@ protected:
     virtual void InitializeUISprites();
 
     /// <summary>
-    /// 武器の初期化
-    /// </summary>
-    virtual void InitializeWeapon();
-
-    /// <summary>
     /// 環境変数の初期化
     /// </summary>
     virtual void InitializeGlobalVariables();
@@ -374,10 +369,10 @@ protected:
     Audio* audio_ = nullptr;
 
     //現在の状態
-    std::unique_ptr<ICharacterState> currentState_ = nullptr;
+    std::unique_ptr<AbstractCharacterState> currentState_ = nullptr;
 
     //新しい状態
-    std::unique_ptr<ICharacterState> nextState_ = nullptr;
+    std::unique_ptr<AbstractCharacterState> nextState_ = nullptr;
 
     //キャラクターの新しい状態を生成するファクトリー
     CharacterStateFactory* characterStateFactory_ = nullptr;

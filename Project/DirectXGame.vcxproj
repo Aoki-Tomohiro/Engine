@@ -39,9 +39,9 @@
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMove.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.cpp" />
-    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.cpp" />
-    <ClCompile Include="Application\Src\Object\Character\States\ICharacterState.cpp" />
-    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\EnemyStates\AbstractEnemyState.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\AbstractCharacterState.cpp" />
+    <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\AbstractPlayerState.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.cpp" />
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.cpp" />
@@ -201,9 +201,9 @@
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMoveSideToPlayer.h" />
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateMove.h" />
     <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\EnemyStateStun.h" />
-    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\IEnemyState.h" />
-    <ClInclude Include="Application\Src\Object\Character\States\ICharacterState.h" />
-    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\IPlayerState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\EnemyStates\AbstractEnemyState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\AbstractCharacterState.h" />
+    <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\AbstractPlayerState.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAbility.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateAttack.h" />
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateDash.h" />

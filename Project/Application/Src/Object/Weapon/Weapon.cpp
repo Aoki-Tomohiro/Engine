@@ -17,9 +17,6 @@ void Weapon::Initialize()
 	//トランスフォームの初期化
 	InitializeTransform();
 
-	//モデルの初期化
-	InitializeModel();
-
 	//コライダーの初期化
 	InitializeCollider();
 
@@ -67,33 +64,12 @@ void Weapon::InitializeTransform()
 {
 	//トランスフォームの初期化
 	transform_ = GetComponent<TransformComponent>();
-
-	//武器の親オブジェクトを取得し、親子付け
-	GameObject* parentGameObject = (name_ == "PlayerWeapon") ?
-		gameObjectManager_->GetGameObject<GameObject>("Player") :
-		gameObjectManager_->GetGameObject<GameObject>("Enemy");
-
-	//親オブジェクトの右手に武器を設定
-	transform_->worldTransform_.SetParent(&parentGameObject->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
-}
-
-void Weapon::InitializeModel()
-{
-	//武器のモデルを初期化
-	std::string modelFileName = (name_ == "PlayerWeapon") ? "PlayerWeapon" : "EnemyWeapon";
-	model_ = AddComponent<ModelComponent>();
-	model_->SetModel(ModelManager::CreateFromModelFile(modelFileName, Opaque));
 }
 
 void Weapon::InitializeCollider()
 {
 	//コライダーの初期化
-	collider_ = AddComponent<OBBCollider>();
-	CollisionAttributeManager* collisionAttrManager = CollisionAttributeManager::GetInstance();
-	uint32_t collisionAttribute = name_ == "PlayerWeapon" ? collisionAttrManager->GetAttribute("PlayerWeapon") : collisionAttrManager->GetAttribute("EnemyWeapon");
-	uint32_t collisionMask = name_ == "PlayerWeapon" ? collisionAttrManager->GetMask("PlayerWeapon") : collisionAttrManager->GetMask("EnemyWeapon");
-	collider_->SetCollisionAttribute(collisionAttribute);
-	collider_->SetCollisionMask(collisionMask);
+	collider_ = GetComponent<OBBCollider>();
 }
 
 void Weapon::InitializeGlobalVariables()

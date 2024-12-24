@@ -6,9 +6,9 @@
  */
 
 #pragma once
-#include "IEnemyState.h"
+#include "AbstractEnemyState.h"
 
-class EnemyStateMove : public IEnemyState
+class EnemyStateMove : public AbstractEnemyState
 {
 public:
 	/// <summary>

@@ -52,44 +52,19 @@ void GamePlayScene::Initialize()
 	editorManager_->Initialize();
 
 	//カメラコントローラーの初期化
-	cameraController_ = std::make_unique<CameraController>();
-	cameraController_->Initialize();
-	//カメラアニメーションエディター、ロックオン、ロックオンターゲットを設定
-	cameraController_->SetCameraAnimationEditor(editorManager_->GetCameraAnimationEditor());
-	cameraController_->SetLockon(lockon_.get());
+	InitializeCameraController();
 
 	//プレイヤーの初期化
-	player_ = gameObjectManager_->GetGameObject<Player>("Player");
-	//カメラコントローラー、ロックオン、ヒットストップ、エディターマネージャーを設定
-	player_->SetCameraController(cameraController_.get());
-	player_->SetLockon(lockon_.get());
-	player_->SetHitStop(hitStop_.get());
-	player_->SetEditorManager(editorManager_.get());
-	//コンバットアニメーションエディターにプレイヤーを設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(player_);
-	//カメラコントローラーに追従対象を設定
-	cameraController_->SetTarget(player_->GetComponent<TransformComponent>());
+	InitializePlayer();
 
 	//敵の初期化
-	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
-	//カメラコントローラー、エディターマネージャー、ヒットストップを設定
-	enemy_->SetCameraController(cameraController_.get());
-	enemy_->SetEditorManager(editorManager_.get());
-	enemy_->SetHitStop(hitStop_.get());
-	//コンバットアニメーションエディターに敵を設定
-	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(enemy_);
+	InitializeEnemy();
 
-	//ゲームオーバーのスプライトの生成
-	TextureManager::Load("GameOver.png");
-	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
-
-	//ゲームクリアのスプライトの生成
-	TextureManager::Load("GameClear.png");
-	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
+	//スプライトの初期化
+	InitializeSprites();
 
 	//音声データの読み込みと再生
-	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
-	voiceHandle_ = audio_->PlayAudio(audioHandle_, true, 0.1f);
+	LoadAndPlayBGM();
 }
 
 void GamePlayScene::Finalize()
@@ -187,43 +162,124 @@ void GamePlayScene::DrawUI()
 #pragma endregion
 }
 
+void GamePlayScene::InitializeCameraController()
+{
+	//カメラコントローラーの初期化
+	cameraController_ = std::make_unique<CameraController>();
+	cameraController_->Initialize();
+
+	//カメラアニメーションエディター、ロックオン、ロックオンターゲットを設定
+	cameraController_->SetCameraAnimationEditor(editorManager_->GetCameraAnimationEditor());
+	cameraController_->SetLockon(lockon_.get());
+}
+
+void GamePlayScene::InitializePlayer()
+{
+	//プレイヤーの初期化
+	player_ = gameObjectManager_->GetGameObject<Player>("Player");
+
+	//キャラクターの初期化
+	InitializeCharacter(player_);
+
+	//ロックオンを設定
+	player_->SetLockon(lockon_.get());
+
+	//カメラコントローラーにプレイヤーを設定
+	cameraController_->SetTarget(player_->GetComponent<TransformComponent>());
+}
+
+void GamePlayScene::InitializeEnemy()
+{
+	//敵の初期化
+	enemy_ = gameObjectManager_->GetGameObject<Enemy>("Enemy");
+
+	//キャラクターの初期化
+	InitializeCharacter(enemy_);
+}
+
+void GamePlayScene::InitializeCharacter(BaseCharacter* character)
+{
+	//カメラコントローラーを設定
+	character->SetCameraController(cameraController_.get());
+
+	//ヒットストップを設定
+	character->SetHitStop(hitStop_.get());
+
+	//エディターマネージャーを設定
+	character->SetEditorManager(editorManager_.get());
+
+	//コンバットアニメーションエディターにキャラクターを設定
+	editorManager_->GetCombatAnimationEditor()->AddEditableCharacter(character);
+
+	//キャラクターをコライダーの配列に追加
+	colliders_.push_back(character->GetComponent<Collider>());
+
+	//武器の生成
+	InitializeWeapon(character);
+}
+
+void GamePlayScene::InitializeWeapon(BaseCharacter* character)
+{
+	//武器の名前を設定
+	std::string weaponName = character->GetName() + "Weapon";
+
+	//プレイヤーの武器を生成
+	Weapon* weapon = gameObjectManager_->CreateGameObject<Weapon>(weaponName);
+
+	//キャラクターの右手に親子付け
+	TransformComponent* weaponTransform = weapon->GetComponent<TransformComponent>();
+	weaponTransform->worldTransform_.SetParent(&character->GetComponent<ModelComponent>()->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
+
+	//モデルの追加
+	ModelComponent* modelComponent = weapon->AddComponent<ModelComponent>();
+	modelComponent->SetModel(ModelManager::CreateFromModelFile(weaponName, Opaque));
+
+	//コライダーの追加
+	OBBCollider* collider = weapon->AddComponent<OBBCollider>();
+	CollisionAttributeManager* collisionAttrManager = CollisionAttributeManager::GetInstance();
+	collider->SetCollisionAttribute(collisionAttrManager->GetAttribute(weaponName));
+	collider->SetCollisionMask(collisionAttrManager->GetMask(weaponName));
+
+	//キャラクターに武器を設定
+	character->SetWeapon(weapon);
+
+	//コライダーの配列に追加
+	colliders_.push_back(collider);
+}
+
+void GamePlayScene::InitializeSprites()
+{
+	//ゲームオーバーのスプライトの生成
+	TextureManager::Load("GameOver.png");
+	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
+
+	//ゲームクリアのスプライトの生成
+	TextureManager::Load("GameClear.png");
+	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
+}
+
+void GamePlayScene::LoadAndPlayBGM()
+{
+	//音声データの読み込みと再生
+	audioHandle_ = audio_->LoadAudioFile("GameScene.mp3");
+	voiceHandle_ = audio_->PlayAudio(audioHandle_, true, 0.1f);
+}
+
 void GamePlayScene::UpdateColliders()
 {
 	//コライダーをクリア
 	collisionManager_->ClearColliderList();
 
-	//プレイヤーを衝突マネージャーに追加
-	if (Collider* collider = player_->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-
-	//プレイヤーの武器を衝突マネージャーに追加
-	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("PlayerWeapon")->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-
-	//敵を衝突マネージャーに追加
-	if (Collider* collider = enemy_->GetComponent<Collider>())
-	{
-		collisionManager_->SetColliderList(collider);
-	}
-
-	//敵の武器を衝突マネージャーに追加
-	if (Collider* collider = gameObjectManager_->GetGameObject<Weapon>("EnemyWeapon")->GetComponent<Collider>())
+	//コライダーを追加
+	for (Collider* collider : colliders_)
 	{
 		collisionManager_->SetColliderList(collider);
 	}
 
 	//魔法を衝突マネージャーに追加
-	std::vector<Magic*> magicProjectiles = gameObjectManager_->GetGameObjects<Magic>("Magic");
-	for (Magic* magicProjectile : magicProjectiles)
+	for (Magic* magicProjectile : gameObjectManager_->GetGameObjects<Magic>("Magic"))
 	{
-		if (Collider* collider = magicProjectile->GetComponent<Collider>())
-		{
-			collisionManager_->SetColliderList(collider);
-		}
+		collisionManager_->SetColliderList(magicProjectile->GetComponent<Collider>());
 	}
 
 	//衝突判定

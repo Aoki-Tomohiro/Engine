@@ -1,5 +1,5 @@
 /**
- * @file ICharacterState.h
+ * @file AbstractCharacterState.h
  * @brief キャラクターの状態の基底クラスを管理するファイル
  * @author 青木智滉
  * @date
@@ -9,7 +9,7 @@
 #include "Engine/Components/PostEffects/PostEffects.h"
 #include "Application/Src/Object/Editors/CombatAnimationEditor/CombatAnimationEditor.h"
 
-class ICharacterState
+class AbstractCharacterState
 {
 public:
 	//イベント処理の基底構造体
@@ -86,7 +86,7 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	virtual ~ICharacterState() = default;
+	virtual ~AbstractCharacterState() = default;
 
 	/// <summary>
 	/// 初期化

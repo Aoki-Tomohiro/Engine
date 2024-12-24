@@ -6,10 +6,10 @@
  */
 
 #pragma once
-#include "IPlayerState.h"
+#include "AbstractPlayerState.h"
 #include "Application/Src/Object/Magic/Magic.h"
 
-class PlayerStateMagicAttack : public IPlayerState
+class PlayerStateMagicAttack : public AbstractPlayerState
 {
 public:
 	/// <summary>

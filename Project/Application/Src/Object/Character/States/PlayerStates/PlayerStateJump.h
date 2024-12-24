@@ -6,10 +6,10 @@
  */
 
 #pragma once
-#include "IPlayerState.h"
+#include "AbstractPlayerState.h"
 #include "Engine/Math/MathFunction.h"
 
-class PlayerStateJump : public IPlayerState
+class PlayerStateJump : public AbstractPlayerState
 {
 public:
 	/// <summary>

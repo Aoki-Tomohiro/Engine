@@ -701,13 +701,13 @@ void Player::EditQTEConfig(QTEUIConfig& config, QTEButtonUI& uiSettings, const s
 void Player::UpdateQTEElements()
 {
 	//QTE処理用のデータを取得
-	const std::vector<ICharacterState::ProcessedQTEData>& processedQteDatas = currentState_->GetProcessedQTEData();
+	const std::vector<AbstractCharacterState::ProcessedQTEData>& processedQteDatas = currentState_->GetProcessedQTEData();
 
 	//アクティブ中のQTE処理用データ
-	std::vector<ICharacterState::ProcessedQTEData> activeProcessedQteDatas{};
+	std::vector<AbstractCharacterState::ProcessedQTEData> activeProcessedQteDatas{};
 
 	//アクティブ中のQTEの数を取得
-	for (const ICharacterState::ProcessedQTEData& processedQteData : processedQteDatas)
+	for (const AbstractCharacterState::ProcessedQTEData& processedQteData : processedQteDatas)
 	{
 		//UIの描画フラグを設定
 		qteButtonUISettings_[processedQteData.qteActionName].isVisible = processedQteData.isQTEActive;

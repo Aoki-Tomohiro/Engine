@@ -35,9 +35,6 @@ void BaseCharacter::Initialize()
     //UIスプライトの初期化
     InitializeUISprites();
 
-    //武器の初期化
-    InitializeWeapon();
-
     //環境変数の初期化
     InitializeGlobalVariables();
 
@@ -125,7 +122,7 @@ bool BaseCharacter::ChangeState(const std::string& newStateName)
     //新しい状態を生成して次の状態に設定
     if (newStateName == "Stun" || !nextState_)
     {
-        nextState_ = std::unique_ptr<ICharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
+        nextState_ = std::unique_ptr<AbstractCharacterState>(characterStateFactory_->CreateCharacterState(name_, newStateName));
         return true;
     }
     return false;
@@ -310,15 +307,6 @@ void BaseCharacter::InitializeUISprites()
         }
     }
     hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
-}
-
-void BaseCharacter::InitializeWeapon()
-{
-    //武器を生成
-    weapon_ = gameObjectManager_->CreateGameObject<Weapon>(name_ + "Weapon");
-    //キャラクターの右手に親子付け
-    TransformComponent* weaponTransform = weapon_->GetComponent<TransformComponent>();
-    weaponTransform->worldTransform_.SetParent(&model_->GetModel()->GetJointWorldTransform("mixamorig:RightHand"));
 }
 
 void BaseCharacter::InitializeGlobalVariables()
