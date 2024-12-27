@@ -51,6 +51,10 @@ void GamePlayScene::Initialize()
 	editorManager_ = std::make_unique<EditorManager>();
 	editorManager_->Initialize();
 
+	//UIマネージャーの作成
+	uiManager_ = std::make_unique<UIManager>();
+	uiManager_->Initialize("GamePlaySceneUI.csv");
+
 	//カメラコントローラーの初期化
 	InitializeCameraController();
 
@@ -65,11 +69,6 @@ void GamePlayScene::Initialize()
 
 	//音声データの読み込みと再生
 	LoadAndPlayBGM();
-}
-
-void GamePlayScene::Finalize()
-{
-
 }
 
 void GamePlayScene::Update()
@@ -88,6 +87,9 @@ void GamePlayScene::Update()
 
 	//ヒットストップの更新
 	hitStop_->Update();
+
+	//UIマネージャーの更新
+	uiManager_->Update();
 
 	//トランジションの更新
 	transition_->Update();
@@ -141,18 +143,11 @@ void GamePlayScene::DrawUI()
 	//ゲームオブジェクトのUIを描画
 	gameObjectManager_->DrawUI();
 
+	//UIマネージャーの描画
+	uiManager_->Draw();
+
 	//ロックオンの描画
 	lockon_->Draw();
-
-	//ゲームオーバーの表示
-	if (isGameClear_)
-	{
-		gameClearSprite_->Draw();
-	}
-	else if (isGameOver_)
-	{
-		gameOverSprite_->Draw();
-	}
 
 	//トランジションの描画
 	transition_->Draw();
@@ -205,6 +200,9 @@ void GamePlayScene::InitializeCharacter(BaseCharacter* character)
 	//ヒットストップを設定
 	character->SetHitStop(hitStop_.get());
 
+	//UIマネージャーを設定
+	character->SetUIManager(uiManager_.get());
+
 	//エディターマネージャーを設定
 	character->SetEditorManager(editorManager_.get());
 
@@ -249,13 +247,13 @@ void GamePlayScene::InitializeWeapon(BaseCharacter* character)
 
 void GamePlayScene::InitializeSprites()
 {
-	//ゲームオーバーのスプライトの生成
-	TextureManager::Load("GameOver.png");
-	gameOverSprite_.reset(Sprite::Create("GameOver.png", { 0.0f,0.0f }));
+	//ゲームオーバーのUIの初期化
+	gameOverUI_ = uiManager_->GetUI<UIElement>("GameOver");
+	gameOverUI_->SetIsVisible(false);
 
-	//ゲームクリアのスプライトの生成
-	TextureManager::Load("GameClear.png");
-	gameClearSprite_.reset(Sprite::Create("GameClear.png", { 0.0f,0.0f }));
+	//ゲームクリアのUIを初期化
+	gameClearUI_ = uiManager_->GetUI<UIElement>("GameClear");
+	gameClearUI_->SetIsVisible(false);
 }
 
 void GamePlayScene::LoadAndPlayBGM()
@@ -306,7 +304,7 @@ void GamePlayScene::UpdateCameraAndLockOn()
 void GamePlayScene::HandleTransition()
 {
 	//ゲームクリアかゲームオーバーの時のどちらかになっていたらタイトルに戻る
-	if (isGameClear_ || isGameOver_)
+	if (gameClearUI_->GetIsVisible() || gameOverUI_->GetIsVisible())
 	{
 		if (input_->IsPressButton(XINPUT_GAMEPAD_A))
 		{
@@ -324,18 +322,19 @@ void GamePlayScene::HandleTransition()
 	//FadeInしていないとき
 	if (transition_->GetFadeState() != transition_->FadeState::In)
 	{
-		if (isGameClear_ || isGameOver_) return;
+		//ゲームクリアかゲームオーバーになっていたら処理を飛ばす
+		if (gameClearUI_->GetIsVisible() || gameOverUI_->GetIsVisible()) return;
 
 		//敵が死亡状態の場合ゲームクリアのフラグを立てる
 		if (enemy_->GetIsGameFinished())
 		{
-			isGameClear_ = true;
+			gameClearUI_->SetIsVisible(true);
 			player_->SetIsGameFinished(true);
 		}
 		//プレイヤーが死亡状態の場合ゲームオーバーのフラグを立てる
 		else if (player_->GetIsGameFinished())
 		{
-			isGameOver_ = true;
+			gameOverUI_->SetIsVisible(true);
 			enemy_->SetIsGameFinished(true);
 		}
 	}

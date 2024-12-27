@@ -14,7 +14,7 @@ public:
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
-	PlayerStateAbility(const int32_t abilityIndex) : abilityIndex_(abilityIndex) {};
+	PlayerStateAbility(const std::string& abilityName) : abilityName_(abilityName) {};
 
 	/// <summary>
 	/// 初期化
@@ -31,12 +31,6 @@ public:
 	/// </summary>
 	/// <param name="other">衝突相手</param>
 	void OnCollision(GameObject* other) override;
-
-private:
-	/// <summary>
-	/// アビリティの名前の取得とフラグのリセット
-	/// </summary>
-	const std::string GetAbilityNameAndResetFlag() const;
 
 private:
 	//アビリティの名前

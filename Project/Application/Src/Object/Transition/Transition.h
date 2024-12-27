@@ -48,14 +48,14 @@ public:
 	const bool GetIsFadeOutComplete() const { return isFadeOutComplete_; };
 
 private:
-	//アルファ値の最低値
-	const float kMinAlpha = 0.0f;
-
-	//アルファ価の最大値
-	const float kMaxAlpha = 1.0f;
-
+	/// <summary>
+	/// アルファ値の更新
+	/// </summary>
 	void UpdateAlphaValue();
 
+	/// <summary>
+	/// フェードのフラグの更新
+	/// </summary>
 	void UpdateFadeFlags();
 
 private:
@@ -76,5 +76,11 @@ private:
 
 	//フェードアウトが終了しているかどうか
 	bool isFadeOutComplete_ = false;
+
+	//アルファ値の最低値
+	const float kMinAlpha = 0.0f;
+
+	//アルファ価の最大値
+	const float kMaxAlpha = 1.0f;
 };
 

@@ -214,6 +214,8 @@ void AbstractCharacterState::InitializeQTE(const QTE* qte, const int32_t animati
 	processedQTEDatas_[animationEventIndex].qteActionName = qte->qteType;
 	//QTEの受付時間を設定
 	processedQTEDatas_[animationEventIndex].duration = qte->requiredTime;
+	//QTEの経過時間を設定
+	processedQTEDatas_[animationEventIndex].elapsedTime = qte->requiredTime;
 	//アクション開始時にトリガーする状態の場合はQTEを発動
 	if (qte->trigger == EventTrigger::kActionStart)
 	{
@@ -531,7 +533,7 @@ void AbstractCharacterState::ProcessQTE(const QTE* qte, const int32_t animationE
 	//QTEが進行中の場合は進捗を更新
 	if (processedQTEDatas_[animationEventIndex].isQTEActive)
 	{
-		UpdateQTEProgress(qte, animationEventIndex);
+		UpdateQTEProgress(animationEventIndex);
 	}
 }
 
@@ -547,11 +549,11 @@ void AbstractCharacterState::StartQTE(const QTE* qte, const int32_t animationEve
 	GameTimer::SetTimeScale(qte->timeScale);
 }
 
-void AbstractCharacterState::UpdateQTEProgress(const QTE* qte, const int32_t animationEventIndex)
+void AbstractCharacterState::UpdateQTEProgress(const int32_t animationEventIndex)
 {
 	//タイマーを進行
 	const float kDeltaTime = 1.0f / 60.0f;
-	processedQTEDatas_[animationEventIndex].elapsedTime += kDeltaTime;
+	processedQTEDatas_[animationEventIndex].elapsedTime -= kDeltaTime;
 
 	//QTEの名前が設定されているかつキャラクターが指定のQTEアクションを実行した場合
 	if (!processedQTEDatas_[animationEventIndex].qteActionName.empty() && character_->GetActionTriggerCondition(processedQTEDatas_[animationEventIndex].qteActionName))
@@ -562,7 +564,7 @@ void AbstractCharacterState::UpdateQTEProgress(const QTE* qte, const int32_t ani
 		character_->ChangeState(processedQTEDatas_[animationEventIndex].qteActionName);
 	}
 	//タイマーが上限を超えていた場合、またはゲームが終了していた場合
-	else if (processedQTEDatas_[animationEventIndex].elapsedTime > qte->requiredTime || character_->GetIsGameFinished())
+	else if (processedQTEDatas_[animationEventIndex].elapsedTime <= 0.0f || character_->GetIsGameFinished())
 	{
 		//QTE終了処理
 		CompleteQTE(processedQTEDatas_[animationEventIndex], false);
@@ -571,18 +573,25 @@ void AbstractCharacterState::UpdateQTEProgress(const QTE* qte, const int32_t ani
 
 void AbstractCharacterState::CompleteQTE(ProcessedQTEData& qteData, const bool isSuccess)
 {
-	//QTE受付終了
+	//QTE受付終了、成功かどうかのフラグ設定
 	qteData.isQTEActive = false;
-	//QTE成功
 	qteData.isSuccess = isSuccess;
-	//QTE完了
 	qteData.isQTECompleted = !isSuccess;
-	//QTE成功または全てのQTEがアクティブ状態ではない場合
-	if (isSuccess || std::all_of(processedQTEDatas_.begin(), processedQTEDatas_.end(), [](const auto& data) { return !data.isQTEActive; }))
+
+	//QTE成功時に全てのQTEの受付終了
+	if (isSuccess)
 	{
-		//タイムスケールをリセット
+		for (auto& data : processedQTEDatas_)
+		{
+			data.isQTEActive = false;
+		}
+	}
+
+	//全てのQTEが非アクティブの場合
+	if (std::none_of(processedQTEDatas_.begin(), processedQTEDatas_.end(), [](const auto& data) { return data.isQTEActive; }))
+	{
+		//タイムスケールリセット、ポストエフェクト無効化
 		GameTimer::SetTimeScale(1.0f);
-		//ポストエフェクトを無効化
 		EnableQTEPostEffects(false);
 	}
 }

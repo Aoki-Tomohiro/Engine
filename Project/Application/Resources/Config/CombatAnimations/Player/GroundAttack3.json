@@ -79,25 +79,25 @@
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent04": {
-                    "CancelType": "Ability1",
+                    "CancelType": "LaunchAttack",
                     "EndEventTime": 0.4399999976158142,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent05": {
-                    "CancelType": "Ability1",
+                    "CancelType": "LaunchAttack",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "Cancel",
                     "StartEventTime": 0.800000011920929
                 },
                 "AnimationEvent06": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 0.4399999976158142,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent07": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 1.3329999446868896,
                     "EventType": "Cancel",
                     "StartEventTime": 0.800000011920929
@@ -157,13 +157,13 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent17": {
-                    "BufferedActionType": "Ability1",
+                    "BufferedActionType": "LaunchAttack",
                     "EndEventTime": 0.800000011920929,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent18": {
-                    "BufferedActionType": "Ability2",
+                    "BufferedActionType": "SpinAttack",
                     "EndEventTime": 0.800000011920929,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.4399999976158142

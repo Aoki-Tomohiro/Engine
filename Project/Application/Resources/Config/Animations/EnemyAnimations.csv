@@ -1,0 +1,17 @@
+//アニメーションの名前,//ファイルパス
+Idle,Enemy/Animations/Idle.gltf
+Walk1,Enemy/Animations/Walk1.gltf
+Walk2,Enemy/Animations/Walk2.gltf
+Walk3,Enemy/Animations/Walk3.gltf
+Walk4,Enemy/Animations/Walk4.gltf
+Run,Enemy/Animations/Run.gltf
+Dash,Enemy/Animations/Dash.gltf
+Dodge,Enemy/Animations/Dodge.gltf
+HitStun,Enemy/Animations/HitStun.gltf
+Knockdown,Enemy/Animations/Knockdown.gltf
+StandUp,Enemy/Animations/StandUp.gltf
+Death,Enemy/Animations/Death.gltf
+VerticalSlash,Enemy/Animations/VerticalSlash.gltf
+ComboSlash1,Enemy/Animations/ComboSlash1.gltf
+ComboSlash2,Enemy/Animations/ComboSlash2.gltf
+SpinSlash,Enemy/Animations/SpinSlash.gltf

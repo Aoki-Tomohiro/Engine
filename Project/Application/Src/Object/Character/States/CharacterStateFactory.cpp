@@ -92,10 +92,9 @@ AbstractCharacterState* CharacterStateFactory::CreatePlayerState(const std::stri
 		return new PlayerStateMagicAttack();
 	}
 	//アビリティ状態に遷移
-	else if (stateName == "Ability1" || stateName == "Ability2")
+	else if (stateName == "LaunchAttack" || stateName == "SpinAttack")
 	{
-		size_t pos = stateName.find_first_of("0123456789");
-		return new PlayerStateAbility(std::stoi(stateName.substr(pos)));
+		return new PlayerStateAbility(stateName);
 	}
 	//スタン状態に遷移
 	else if (stateName == "Stun")

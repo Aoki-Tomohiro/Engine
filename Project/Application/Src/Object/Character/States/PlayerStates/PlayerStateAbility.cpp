@@ -10,9 +10,6 @@
 
 void PlayerStateAbility::Initialize()
 {
-	//アビリティの名前の取得とフラグを初期化
-	abilityName_ = GetAbilityNameAndResetFlag();
-
 	//攻撃フラグを立てる
 	GetPlayer()->SetActionFlag(Player::ActionFlag::kIsAttacking, true);
 
@@ -50,12 +47,4 @@ void PlayerStateAbility::OnCollision(GameObject* other)
 {
 	//衝突処理
 	character_->ProcessCollisionImpact(other, false);
-}
-
-const std::string PlayerStateAbility::GetAbilityNameAndResetFlag() const
-{
-	//最初のアビリティかどうかを判別
-	bool isSecond = abilityIndex_ != 1;
-	//アビリティの名前を返す
-	return GetPlayer()->GetAbilityName(isSecond);
 }

@@ -1,0 +1,10 @@
+//音声の名前,//ファイルパス
+NormalHit,Hit.mp3
+Jump,Jump.mp3
+Dash,Dash.mp3
+Fire,Fire.mp3
+RockSplit,RockSplit.mp3
+BuildingCrumble,BuildingCrumble.mp3
+WindSwish,WindSwish.mp3
+SwordSwing,SwordSwing.mp3
+Damage,Damage.mp3

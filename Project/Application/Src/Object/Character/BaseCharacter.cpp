@@ -84,18 +84,6 @@ void BaseCharacter::Update()
     GameObject::Update();
 }
 
-void BaseCharacter::DrawUI()
-{
-    //体力バーの描画
-    for (int32_t i = 0; i < hpSprites_.size(); ++i)
-    {
-        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
-        {
-            hpSprites_[i][j]->Draw();
-        }
-    }
-}
-
 void BaseCharacter::ApplyDamageAndKnockback(const KnockbackParameters& knockbackParameters, const float damage, const bool transitionToStun)
 {
     //ノックバックの速度を設定
@@ -257,8 +245,23 @@ void BaseCharacter::InitializeAudio()
     //オーディオのインスタンスを取得
     audio_ = Audio::GetInstance();
 
+    //オーディオ用のマップ
+    std::map<std::string, std::string> audioFiles{};
+
+    //ファイルパス
+    const std::string kFilePath = "Application/Resources/Config/Sounds/" + name_ + "Sounds.csv";
+
+    //オーディオCSVを読み込む
+    LoadResourceFromCSV(kFilePath, audioFiles);
+
     //デフォルトのオーディオハンドルを追加
     audioHandles_["None"] = 0;
+
+    //オーディオファイルをロード
+    for (const auto& [key, fileName] : audioFiles)
+    {
+        audioHandles_[key] = audio_->LoadAudioFile(fileName);
+    }
 }
 
 void BaseCharacter::InitializeTransform()
@@ -287,6 +290,24 @@ void BaseCharacter::InitializeAnimator()
 {
     //アニメーターコンポーネントの初期化
     animator_ = AddComponent<AnimatorComponent>();
+
+    //アニメーション用のマップ
+    std::map<std::string, std::string> animations{};
+
+    //ファイルパス
+    const std::string kFilePath = "Application/Resources/Config/Animations/" + name_ + "Animations.csv";
+
+    //オーディオCSVを読み込む
+    LoadResourceFromCSV(kFilePath, animations);
+
+    //読み込んだアニメーションを追加
+    for (const auto& [name, path] : animations)
+    {
+        animator_->AddAnimation(name, AnimationManager::Create(path));
+    }
+
+    //通常アニメーションを再生
+    animator_->PlayAnimation("Idle", 1.0f, true);
 }
 
 void BaseCharacter::InitializeCollider()
@@ -297,16 +318,23 @@ void BaseCharacter::InitializeCollider()
 
 void BaseCharacter::InitializeUISprites()
 {
-    //テクスチャの読み込みとスプライトの生成
-    for (int32_t i = 0; i < hpSprites_.size(); ++i)
-    {
-        for (int32_t j = 0; j < hpSprites_[i].size(); ++j)
-        {
-            TextureManager::Load(hpTextureNames_[i][j]);
-            hpSprites_[i][j].reset(Sprite::Create(hpTextureNames_[i][j], hpBarSegmentPositions_[i][j]));
-        }
-    }
-    hpSprites_[kBack][kMiddle]->SetTextureSize(hpBarSegmentTextureSize_);
+    //UIマネージャーが設定されていなければ処理を飛ばす
+    if (!uiManager_) return;
+
+    //体力バーの真ん中のスプライトを取得
+    hpBarMidSprite_ = uiManager_->GetUI<DynamicUI>(name_ + "HealthBarForegroundMiddle");
+
+    //自動でゲージを減らさないようにする
+    hpBarMidSprite_->SetAutoDecrement(false);
+
+    //残り時間を最大HPに設定
+    hpBarMidSprite_->SetTimeRemaining(kMaxHp_);
+
+    //経過時間もリセット
+    hpBarMidSprite_->SetElapsedTime(kMaxHp_);
+
+    //体力バーの右のスプライトを取得
+    hpBarRightSprite_ = uiManager_->GetUI<UIElement>(name_ + "HealthBarForegroundRight");
 }
 
 void BaseCharacter::InitializeGlobalVariables()
@@ -360,17 +388,29 @@ void BaseCharacter::RestrictMovement()
 
 void BaseCharacter::UpdateHP()
 {
+    //隙間を調整するための定数
+    static const float kHpBarAlignmentOffset = 1.0f;
+
+    //体力バーのUIが存在しなければ処理を飛ばす
+    if (!hpBarMidSprite_ || !hpBarRightSprite_) return;
+
     //HPが0を下回らないようにする
     hp_ = std::max<float>(hp_, 0.0f);
 
-    //体力バーの中央部分のサイズを更新
-    Vector2 currentHpSize = { hpBarSegmentTextureSize_.x * (hp_ / kMaxHp_), hpBarSegmentTextureSize_.y };
-    hpSprites_[kFront][kMiddle]->SetTextureSize(currentHpSize);
+    //体力バーの真ん中の進行状況を現在のHPに設定
+    hpBarMidSprite_->SetElapsedTime(hp_);
 
-    //体力バーの右側部分の位置を調整
-    Vector2 currentRightHpBarSegmentPosition = hpSprites_[kFront][kMiddle]->GetPosition();
-    currentRightHpBarSegmentPosition.x += hpSprites_[kFront][kMiddle]->GetTextureSize().x;
-    hpSprites_[kFront][kRight]->SetPosition(currentRightHpBarSegmentPosition);
+    //右側のバーがズレないように一度更新をする
+    hpBarMidSprite_->Update();
+
+    //体力バーの右側の位置を設定
+    Vector2 hpBarRightPosition = hpBarMidSprite_->GetPosition();
+
+    //真ん中の体力バーのテクスチャサイズ分ずらす
+    hpBarRightPosition.x += hpBarMidSprite_->GetSprite()->GetTextureSize().x * hpBarMidSprite_->GetScale().x - kHpBarAlignmentOffset;
+
+    //UIの位置を設定
+    hpBarRightSprite_->SetPosition(hpBarRightPosition);
 }
 
 void BaseCharacter::CheckAndTransitionToDeath()
@@ -442,6 +482,44 @@ void BaseCharacter::ResetToOriginalPosition()
     {
         SetPosition(modelShake_.originalPosition);
     }
+}
+
+void BaseCharacter::LoadResourceFromCSV(const std::string& filePath, std::map<std::string, std::string>& resourceMap)
+{
+    //リソースファイルを読み込む
+    std::ifstream file(filePath);
+    assert(file.is_open());
+
+    //1行分の文字列を入れる変数
+    std::string line{};
+
+    //リソースデータを読み込む
+    while (std::getline(file, line))
+    {
+        //"//"から始まる行またはキーやファイル名が設定されていなければ処理を飛ばす
+        if (line.find("//") == 0 || line.empty()) continue;
+
+        //1行分の文字列をストリームに変換して解析しやすくする
+        std::stringstream lineStream(line);
+
+        //音声のキーと値を入れる変数
+        std::string key{}, value{};
+
+        //音声のキーを読み取る
+        std::getline(lineStream, key, ',');
+
+        //ファイル名を読み取る
+        std::getline(lineStream, value, ',');
+
+        //キーか値が空ならスキップ
+        if (key.empty() || value.empty()) continue;
+
+        //マップに追加
+        resourceMap[key] = value;
+    }
+
+    //ファイルを閉じる
+    file.close();
 }
 
 void BaseCharacter::ApplyGlobalVariables()

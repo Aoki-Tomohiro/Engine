@@ -52,9 +52,6 @@ void Player::Update()
 	//ダメージエフェクトの更新
 	UpdateDamageEffect();
 
-	//UIの更新
-	UpdateUI();
-
 	//基底クラスの更新
 	BaseCharacter::Update();
 
@@ -64,27 +61,6 @@ void Player::Update()
 
 void Player::DrawUI()
 {
-	//UIの数だけループ
-	for (int32_t i = 0; i < kMaxActionCount; ++i)
-	{
-		//通常のボタンUIを描画
-		DrawButtonUI(buttonUISettings_[i]);
-	}
-
-	//スキルの数だけループ
-	for (int32_t i = 0; i < skillConfigs_.size(); ++i)
-	{
-		//スキルのUIを描画
-		DrawSkillUI(skillUISettings_[i]);
-	}
-
-	//QTEの数だけループ
-	for (const auto& pair : qteButtonUISettings_)
-	{
-		//QTEのUIを描画
-		DrawQTEUI(pair.second);
-	}
-
 	//基底クラスの描画
 	BaseCharacter::DrawUI();
 
@@ -180,6 +156,10 @@ void Player::LookAtEnemy()
 
 void Player::InitializeActionMap()
 {
+	//定数を定義
+	static const int kFirstSkillSetIndex = 0;
+	static const int kSecondSkillSetIndex = 1;
+
 	//アクションマップの初期化
 	actionMap_ = {
 		{"None", ActionCondition{[this]() {return true; }, [this]() {return true; }}},
@@ -191,139 +171,106 @@ void Player::InitializeActionMap()
 		{"Magic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isTriggered && actionFlags_[Player::ActionFlag::kMagicAttackEnabled]; }}},
 		{"ChargeMagic", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LT].isTriggered && actionFlags_[Player::ActionFlag::kChargeMagicAttackEnabled]; }}},
 		{"FallingAttack", ActionCondition{[this]() {return true; }, [this]() {return CheckFallingAttack(); }}},
-		{"Ability1", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[activeSkillSetIndex_].first); }, [this]() {return buttonStates_[Player::ButtonType::Y].isTriggered; }}},
-		{"Ability2", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[activeSkillSetIndex_].second); }, [this]() {return buttonStates_[Player::ButtonType::B].isTriggered; }}},
-	};
-}
-
-void Player::InitializeAudio()
-{
-	//基底クラスの呼び出し
-	BaseCharacter::InitializeAudio();
-
-	//音声データの読み込み
-	audioHandles_["NormalHit"] = audio_->LoadAudioFile("Hit.mp3");
-	audioHandles_["Jump"] = audio_->LoadAudioFile("Jump.mp3");
-	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
-	audioHandles_["Fire"] = audio_->LoadAudioFile("Fire.mp3");
-	audioHandles_["RockSplit"] = audio_->LoadAudioFile("RockSplit.mp3");
-	audioHandles_["BuildingCrumble"] = audio_->LoadAudioFile("BuildingCrumble.mp3");
-	audioHandles_["WindSwish"] = audio_->LoadAudioFile("WindSwish.mp3");
-	audioHandles_["SwordSwing"] = audio_->LoadAudioFile("SwordSwing.mp3");
-	audioHandles_["Damage"] = audio_->LoadAudioFile("Damage.mp3");
-}
-
-void Player::InitializeAnimator()
-{
-	//基底クラスの呼び出し
-	BaseCharacter::InitializeAnimator();
-
-	//アニメーション名とファイルパス
-	std::vector<std::pair<std::string, std::string>> animations = {
-		{"Idle", "Player/Animations/Idle.gltf"}, {"Walk1", "Player/Animations/Walk1.gltf"}, {"Walk2", "Player/Animations/Walk2.gltf"},
-		{"Walk3", "Player/Animations/Walk3.gltf"}, {"Walk4", "Player/Animations/Walk4.gltf"}, {"Run1", "Player/Animations/Run1.gltf"},
-		{"Run2", "Player/Animations/Run2.gltf"}, {"Run3", "Player/Animations/Run3.gltf"}, {"Run4", "Player/Animations/Run4.gltf"},
-		{"Jump1", "Player/Animations/Jump1.gltf"}, {"Jump2", "Player/Animations/Jump2.gltf"}, {"DodgeForward", "Player/Animations/DodgeForward.gltf"},
-		{"DodgeBackward", "Player/Animations/DodgeBackward.gltf"}, {"DashStart", "Player/Animations/DashStart.gltf"}, {"DashEnd", "Player/Animations/DashEnd.gltf"},
-		{"Falling", "Player/Animations/Falling.gltf"}, {"GroundAttack1", "Player/Animations/GroundAttack1.gltf"},  {"GroundAttack2", "Player/Animations/GroundAttack2.gltf"},
-		{"GroundAttack3", "Player/Animations/GroundAttack3.gltf"}, {"GroundAttack4", "Player/Animations/GroundAttack4.gltf"}, {"AerialAttack1", "Player/Animations/AerialAttack1.gltf"},
-		{"AerialAttack2", "Player/Animations/AerialAttack2.gltf"}, {"AerialAttack3", "Player/Animations/AerialAttack3.gltf"}, {"LaunchAttack", "Player/Animations/LaunchAttack.gltf"},
-		{"SpinAttack", "Player/Animations/SpinAttack.gltf"}, {"FallingAttack", "Player/Animations/FallingAttack.gltf"}, {"Casting", "Player/Animations/Casting.gltf"}, {"MagicAttack", "Player/Animations/MagicAttack.gltf"}, 
-		{"HitStun", "Player/Animations/HitStun.gltf"}, {"Knockdown", "Player/Animations/Knockdown.gltf"}, {"StandUp", "Player/Animations/StandUp.gltf"},{"Death", "Player/Animations/Death.gltf"},
-		{"JustDodge", "Player/Animations/JustDodge.gltf"}, {"Counter", "Player/Animations/Counter.gltf"},
+		{"LaunchAttack", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[kFirstSkillSetIndex].first); }, [this]() {return buttonStates_[Player::ButtonType::Y].isTriggered; }}},
+		{"SpinAttack", ActionCondition{[this]() {return IsAbilityUsable(skillPairSets_[kFirstSkillSetIndex].second); }, [this]() {return buttonStates_[Player::ButtonType::B].isTriggered; }}},
 	};
 
-	//アニメーションを追加
-	for (const auto& [name, path] : animations)
+	//QTEのアクションの初期化
+	for (const auto& [key, condition] : actionMap_)
 	{
-		animator_->AddAnimation(name, AnimationManager::Create(path));
-	}
+		//アクション名がNoneまたはMoveの場合は処理を飛ばす
+		if (key == "None" || key == "Move") continue;
 
-	//通常アニメーションを再生
-	animator_->PlayAnimation("Idle", 1.0f, true);
+		//QTEのアクションを追加
+		qteActions_.push_back(key);
+	}
 }
 
 void Player::InitializeUISprites()
 {
-	//テクスチャの名前を設定
-	hpTextureNames_ = { {
-		{"barBack_horizontalLeft.png", "barBack_horizontalMid.png", "barBack_horizontalRight.png"},
-		{"barRed_horizontalLeft.png", "barRed_horizontalMid.png", "barRed_horizontalRight.png"},}
-	};
-
-	//スプライトの座標を設定
-	hpBarSegmentPositions_ = { {
-		{ {	{71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},
-		{ { {71.0f, 40.0f}, {80.0f, 40.0f}, {560.0f, 40.0f},}},}
-	};
-
-	//ボタンのUIの設定
-	for (int32_t i = 0; i < kMaxActionCount; ++i)
-	{
-		SetButtonUISprite(buttonUISettings_[i], buttonConfigs_[i]);
-	}
-
-	//スキルのUIの設定
-	for (int32_t i = 0; i < kMaxSkillCount; ++i)
-	{
-		SetSkillUISprite(skillUISettings_[i], skillConfigs_[i]);
-	}
-
-	//テクスチャ名
-	std::map<std::string, std::pair<std::string, std::string>> textureNames = {{"None", {"white.png", "white.png"}}, {"Move", {"white.png", "white.png"}},{"Jump", {"xbox_button_a_outline.png", "Jump.png"}},
-		{"Dodge", {"xbox_rb_outline.png", "Dodge.png"}},{"Dash", {"xbox_lb_outline.png", "Dash.png"}},{"Attack", {"xbox_button_x_outline.png", "Attack.png"}},{"Magic", {"xbox_lt_outline.png", "Fire.png"}}, 
-		{"ChargeMagic", {"xbox_lt_outline.png", "Fire.png"}},{"FallingAttack", {"xa.png", "FallingAttack.png"}}, {"Ability1", {"xbox_button_y_outline.png", "LaunchAttack.png"}},{"Ability2", {"xbox_button_b_outline.png", "SpinAttack.png"}},
-	};
-
-	//QTEのUI設定
-	std::map<std::string, QTEUIConfig> qteUiConfigs = {
-		{"None", { {0.0f, 21.0f}, {1.0f, 1.0f}, {0.0f, 21.0f}, {0.4f, 0.4f}, {-64.0f, -21.0f}, {64.0f, 8.0f}}},
-		{"Move", { {0.0f, 21.0f}, {1.0f, 1.0f}, {0.0f, 21.0f}, {0.4f, 0.4f}, {-64.0f, -21.0f}, {64.0f, 8.0f}}},
-		{"Jump", { {-50.0f, -21.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Dodge", { {-40.0f, -21.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Dash", { {-50.0f, -17.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Attack", { {-36.0f, -21.0f}, {1.0f, 1.0f}, {26.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Magic", { {-50.0f, -14.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"ChargeMagic", { {-50.0f, -14.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"FallingAttack", { {-70.0f, -21.0f}, {1.0f, 1.0f}, {50.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Ability1",{ {-100.0f, -21.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-		{"Ability2", { {-70.0f, -21.0f}, {1.0f, 1.0f}, {30.0f, -21.0f}, {0.4f, 0.4f}, {-64.0f, 21.0f}, {64.0f, 8.0f}}},
-	};
-
-	//QTEのUI設定を生成
-	for (const auto& texturePair : textureNames) 
-	{
-		//アクションの名前を取得
-		const std::string& actionName = texturePair.first;
-
-		//テクスチャ名を取得
-		const auto& textures = texturePair.second;
-
-		//QTEのUI構成を追加
-		qteConfigs_[actionName] = qteUiConfigs[actionName];
-
-		//QTEのUI設定を追加
-		TextureManager::Load(textures.first);
-		TextureManager::Load(textures.second);
-		qteButtonUISettings_[actionName] = QTEButtonUI{};
-
-		//ボタンスプライトの設定
-		qteButtonUISettings_[actionName].buttonSettings.buttonSprite.sprite.reset(Sprite::Create(textures.first, { 0.0f, 0.0f }));
-		qteButtonUISettings_[actionName].buttonSettings.buttonSprite.sprite->SetScale(qteConfigs_[actionName].buttonScale);
-		qteButtonUISettings_[actionName].buttonSettings.buttonSprite.sprite->SetAnchorPoint({ 0.5f, 0.5f });
-
-		//フォントスプライトの設定
-		qteButtonUISettings_[actionName].buttonSettings.fontSprite.sprite.reset(Sprite::Create(textures.second, { 0.0f, 0.0f }));
-		qteButtonUISettings_[actionName].buttonSettings.fontSprite.sprite->SetScale(qteConfigs_[actionName].fontScale);
-		qteButtonUISettings_[actionName].buttonSettings.fontSprite.sprite->SetAnchorPoint({ 0.5f, 0.5f });
-
-		//QTEバースプライトの設定
-		qteButtonUISettings_[actionName].qteBarSettings.sprite.reset(Sprite::Create("white.png", { 0.0f, 0.0f }));
-		qteButtonUISettings_[actionName].qteBarSettings.sprite->SetScale(qteConfigs_[actionName].qteBarScale);
-	}
-
-	//基底クラスの呼び出し
+	////基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
+
+	//スキルのUIを設定
+	SetupSkillUIForPairs();
+
+	//QTEのUIを取得
+	SetupQTEUI();
+}
+
+void Player::SetupSkillUIForPairs()
+{
+	//UIマネージャーが設定されていなければ処理を飛ばす
+	if (!uiManager_) return;
+
+	//全てのスキルペアのUIを設定
+	for (size_t i = 0; i < skillPairSets_.size(); ++i)
+	{
+		//スキルのペアを取得
+		const auto& skillPair = skillPairSets_[i];
+
+		//1番目のスキルUI設定
+		SetupSkillUI(i, skillPair.first, 0);
+
+		//2番目のスキルUI設定
+		SetupSkillUI(i, skillPair.second, 1);
+	}
+}
+
+void Player::SetupSkillUI(size_t index, const SkillParameters& skillParameters, size_t skillIndex)
+{
+	//スキルの名前に基づいてUIを取得
+	DynamicUI* ui = uiManager_->GetUI<DynamicUI>(skillParameters.name + "BarUI");
+
+	//自動でゲージを減らさないようにする
+	ui->SetAutoDecrement(false);
+
+	//残り時間をクールタイム時間に設定
+	ui->SetTimeRemaining(skillParameters.cooldownDuration);
+
+	//経過時間をリセット
+	ui->SetElapsedTime(skillParameters.cooldownDuration);
+
+	//スキルUIを更新
+	if (skillIndex == 0)
+	{
+		skillUI_[index].first = ui;
+	}
+	else
+	{
+		skillUI_[index].second = ui;
+	}
+}
+
+void Player::SetupQTEUI()
+{
+	//UIマネージャーが設定されていなければ処理を飛ばす
+	if (!uiManager_) return;
+
+	//全てのQTEのアクションのUIを追加
+	for (const std::string& actionName : qteActions_)
+	{
+		//新しく追加するQTEのUI
+		QTEUI ui{};
+
+		//UIの名前
+		std::string uiName = "QTE" + actionName;
+
+		//ボタンのUIを追加
+		UIElement* buttonUI = uiManager_->GetUI<UIElement>(uiName + "ButtonUI");
+		ui.buttonUI = { buttonUI, buttonUI->GetPosition() };
+
+		//アクション名のUIを追加
+		UIElement* actionUI = uiManager_->GetUI<UIElement>(uiName + "ActionUI");
+		ui.actionUI = { actionUI, actionUI->GetPosition() };
+
+		//受付時間のUIを追加
+		DynamicUI* barUI = uiManager_->GetUI<DynamicUI>(uiName + "BarUI");
+		ui.barUI = { barUI, barUI->GetPosition() };
+
+		//QTEUIのマップに追加
+		qteUIMap_[actionName] = ui;
+	}
 }
 
 void Player::InitializeSkillCooldownManager()
@@ -344,36 +291,6 @@ void Player::InitializeDamageEffectSprite()
 	damageEffect_.sprite.reset(Sprite::Create("white.png", { 0.0f,0.0f }));
 	damageEffect_.sprite->SetColor(damageEffect_.color);
 	damageEffect_.sprite->SetTextureSize({ 1280.0f,720.0f });
-}
-
-void Player::SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config)
-{
-	//テクスチャの読み込み
-	TextureManager::Load(config.buttonTexture);
-	TextureManager::Load(config.fontTexture);
-
-	//ボタンのスプライトの設定
-	uiSettings.buttonSprite.position = config.buttonPosition;
-	uiSettings.buttonSprite.scale = config.buttonScale;
-	uiSettings.buttonSprite.sprite.reset(Sprite::Create(config.buttonTexture, config.buttonPosition));
-	uiSettings.buttonSprite.sprite->SetScale(config.buttonScale);
-	uiSettings.buttonSprite.sprite->SetAnchorPoint({ 0.5f,0.5f });
-
-	//フォントのスプライトの設定
-	uiSettings.fontSprite.position = config.fontPosition;
-	uiSettings.fontSprite.scale = config.fontScale;
-	uiSettings.fontSprite.sprite.reset(Sprite::Create(config.fontTexture, config.fontPosition));
-	uiSettings.fontSprite.sprite->SetScale(config.fontScale);
-}
-
-void Player::SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config)
-{
-	//ボタンのスプライトの設定
-	SetButtonUISprite(uiSettings.buttonSettings, config.buttonConfig);
-
-	//クールダウンバーの設定
-	uiSettings.cooldownBarSprite.reset(Sprite::Create("white.png", config.skillBarPosition));
-	uiSettings.cooldownBarSprite->SetScale(config.skillBarScale);
 }
 
 void Player::UpdateButtonStates()
@@ -568,15 +485,9 @@ void Player::UpdateSkillCooldowns()
 	float skillCooldownTime1 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.first.name);
 	float skillCooldownTime2 = skillCooldownManager_->GetCooldownTime(currentSkillPairSet.second.name);
 
-	//クールダウンバーのスケールを更新
-	UpdateCooldownBarScale(skillUISettings_[0], skillConfigs_[0], skillCooldownTime1, currentSkillPairSet.first.cooldownDuration);
-	UpdateCooldownBarScale(skillUISettings_[1], skillConfigs_[1], skillCooldownTime2, currentSkillPairSet.second.cooldownDuration);
-}
-
-void Player::UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration)
-{
-	float currentScale = config.skillBarScale.x * (cooldownTime / cooldownDuration);
-	uiSettings.cooldownBarSprite->SetScale({ currentScale, config.skillBarScale.y });
+	//スキルのUIを更新
+	skillUI_[activeSkillSetIndex_].first->SetElapsedTime(skillCooldownTime1);
+	skillUI_[activeSkillSetIndex_].second->SetElapsedTime(skillCooldownTime2);
 }
 
 void Player::UpdateDamageEffect()
@@ -602,106 +513,16 @@ void Player::UpdateDamageEffect()
 	damageEffect_.sprite->SetColor(damageEffect_.color);
 }
 
-void Player::UpdateUI()
-{
-	//アクションボタンのUI更新
-	for (int32_t i = 0; i < kMaxActionCount; ++i)
-	{
-		UpdateButtonScale(buttonStates_[buttonConfigs_[i].buttonType], buttonConfigs_[i].buttonScale, buttonUISettings_[i].buttonSprite, buttonConfigs_[i].buttonType);
-	}
-
-	//スキルボタンのUI更新
-	for (int32_t i = 0; i < kMaxSkillCount; ++i)
-	{
-		UpdateButtonScale(buttonStates_[skillConfigs_[i].buttonConfig.buttonType], skillConfigs_[i].buttonConfig.buttonScale, skillUISettings_[i].buttonSettings.buttonSprite, buttonConfigs_[i].buttonType);
-	}
-}
-
-void Player::UpdateButtonScale(const ButtonState& buttonState, const Vector2& baseScale, SpriteSettings& spriteSetting, const ButtonType buttonType)
-{
-	//UIスケール拡大の倍率
-	const float kScaleMultiplier = 2.0f;
-	const float kTriggerScaleMultiplier = 1.3f;
-
-	//トリガーボタンの場合は特別なスケール倍率を適用
-	float scaleMultiplier = (buttonType == ButtonType::LT || buttonType == ButtonType::XA) ? kTriggerScaleMultiplier : kScaleMultiplier;
-
-	//スケール補間の目標値を設定
-	const Vector2 targetScale = (buttonState.isPressed || buttonState.isTriggered) ? baseScale * scaleMultiplier : baseScale;
-
-	//スケールを補間し適用
-	spriteSetting.scale = Mathf::Lerp(spriteSetting.scale, targetScale, 0.1f);
-	spriteSetting.sprite->SetScale(spriteSetting.scale);
-}
-
-void Player::EditButtonConfig(ButtonConfig& config, ButtonUISettings& uiSettings)
-{
-	//区切り線
-	ImGui::Separator();
-
-	//ボタンの座標を編集
-	std::string buttonTextureButtonPositionName = config.buttonTexture + " Position";
-	ImGui::DragFloat2(buttonTextureButtonPositionName.c_str(), &config.buttonPosition.x, 0.1f);
-
-	//フォントの座標を編集
-	std::string buttonTextureFontPositionName = config.fontTexture + " Position";
-	ImGui::DragFloat2(buttonTextureFontPositionName.c_str(), &config.fontPosition.x, 0.1f);
-
-	//ボタンとフォントの設定を適用
-	uiSettings.buttonSprite.sprite->SetPosition(config.buttonPosition);
-	uiSettings.fontSprite.sprite->SetPosition(config.fontPosition);
-}
-
-void Player::EditSkillConfig(SkillConfig& config, SkillUISettings& uiSettings, const int32_t index)
-{
-	//区切り線
-	ImGui::Separator();
-
-	//ボタンの設定を編集
-	EditButtonConfig(config.buttonConfig, uiSettings.buttonSettings);
-
-	//スキルバーの座標を編集
-	std::string skillBarPositionName = "SkillBarPosition" + std::to_string(index);
-	ImGui::DragFloat2(skillBarPositionName.c_str(), &config.skillBarPosition.x, 0.1f);
-
-	//スキルバーの設定を適用
-	uiSettings.cooldownBarSprite->SetPosition(config.skillBarPosition);
-}
-
-void Player::EditQTEConfig(QTEUIConfig& config, QTEButtonUI& uiSettings, const std::string& actionName)
-{
-	//区切り線
-	ImGui::Separator();
-
-	//UIを描画するかどうか
-	std::string visibleFlagName = actionName + "IsVisible";
-	ImGui::Checkbox(visibleFlagName.c_str(), &qteButtonUISettings_[actionName].isVisible);
-
-	//ボタンの設定を編集
-	std::string buttonTextureButtonPositionName = actionName + "ButtonPosition";
-	ImGui::DragFloat2(buttonTextureButtonPositionName.c_str(), &config.buttonPosition.x, 0.1f);
-
-	//フォントの座標を編集
-	std::string buttonTextureFontPositionName = actionName + "FontPosition";
-	ImGui::DragFloat2(buttonTextureFontPositionName.c_str(), &config.fontPosition.x, 0.1f);
-
-	//QTEバーの座標を編集
-	std::string qteBarPositionName = actionName + "QTEBarPosition";
-	ImGui::DragFloat2(qteBarPositionName.c_str(), &config.qteBarPosition.x, 0.1f);
-
-	//画面の中心X座標
-	Vector2 centerPosition = { Application::kClientWidth / 2.0f ,Application::kClientHeight / 2.0f };
-
-	//QTEの設定を適用
-	uiSettings.buttonSettings.buttonSprite.sprite->SetPosition(centerPosition + config.buttonPosition);
-	uiSettings.buttonSettings.fontSprite.sprite->SetPosition(centerPosition + config.fontPosition);
-	uiSettings.qteBarSettings.sprite->SetPosition(centerPosition + config.qteBarPosition);
-}
-
 void Player::UpdateQTEElements()
 {
+	//定数を定義
+	static const Vector2 kCenterPositionFactor = { 0.5f, 0.5f };
+
 	//QTE処理用のデータを取得
 	const std::vector<AbstractCharacterState::ProcessedQTEData>& processedQteDatas = currentState_->GetProcessedQTEData();
+
+	//QTEがない場合は処理を飛ばす
+	if (processedQteDatas.empty()) return;
 
 	//アクティブ中のQTE処理用データ
 	std::vector<AbstractCharacterState::ProcessedQTEData> activeProcessedQteDatas{};
@@ -709,17 +530,27 @@ void Player::UpdateQTEElements()
 	//アクティブ中のQTEの数を取得
 	for (const AbstractCharacterState::ProcessedQTEData& processedQteData : processedQteDatas)
 	{
-		//UIの描画フラグを設定
-		qteButtonUISettings_[processedQteData.qteActionName].isVisible = processedQteData.isQTEActive && !processedQteData.qteActionName.empty();
+		//QTEのアクション名が設定されていなければ処理を飛ばす
+		if (processedQteData.qteActionName.empty()) continue;
+
+		//描画フラグを設定
+		bool isVisible = processedQteData.isQTEActive;
+
+		//UIの描画フラグを一括設定
+		auto& qteUI = qteUIMap_[processedQteData.qteActionName];
+		qteUI.buttonUI.ui->SetIsVisible(isVisible);
+		qteUI.actionUI.ui->SetIsVisible(isVisible);
+		qteUI.barUI.ui->SetIsVisible(isVisible);
+
 		//描画フラグが有効な場合は配列に追加
-		if (qteButtonUISettings_[processedQteData.qteActionName].isVisible)
+		if (isVisible)
 		{
 			activeProcessedQteDatas.push_back(processedQteData);
 		}
 	}
 
 	//画面の中心X座標
-	Vector2 centerPosition = { Application::kClientWidth / 2.0f ,Application::kClientHeight / 2.0f };
+	Vector2 centerPosition = { Application::kClientWidth * kCenterPositionFactor.x ,Application::kClientHeight * kCenterPositionFactor.y };
 
 	//全てのアクティブ中のQTEのUIを更新
 	for (int32_t i = 0; i < activeProcessedQteDatas.size(); i += 2)
@@ -727,65 +558,40 @@ void Player::UpdateQTEElements()
 		//アクティブ中のQTEの数が一つの場合
 		if (activeProcessedQteDatas.size() == 1)
 		{
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.position = centerPosition + qteConfigs_[activeProcessedQteDatas[i].qteActionName].buttonPosition;
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.position = centerPosition + qteConfigs_[activeProcessedQteDatas[i].qteActionName].fontPosition;
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.position = centerPosition + qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarPosition;
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.position);
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.position);
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.position);
-			float currentScale = qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarScale.x * (1.0f - activeProcessedQteDatas[i].elapsedTime / activeProcessedQteDatas[i].duration);
-			qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.sprite->SetScale({ currentScale, qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarScale.y });
+			//QTEのUIを設定
+			SetQTEUIPositionAndTime(qteUIMap_[activeProcessedQteDatas[i].qteActionName], centerPosition, activeProcessedQteDatas[i].duration, activeProcessedQteDatas[i].elapsedTime);
 			break;
 		}
 
-		//左側にUIを移動
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.position = { centerPosition.x - qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i].qteActionName].buttonPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i].qteActionName].buttonPosition.y };
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.position = { centerPosition.x - qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i].qteActionName].fontPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i].qteActionName].fontPosition.y };
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.position = { centerPosition.x - qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarPosition.y };
+		//一つ目のQTEUIを設定
+		Vector2 position = { centerPosition.x - qteUiDistance_ - (qteUiDistance_ * static_cast<float>(i)), centerPosition.y };
+		SetQTEUIPositionAndTime(qteUIMap_[activeProcessedQteDatas[i].qteActionName], position, activeProcessedQteDatas[i].duration, activeProcessedQteDatas[i].elapsedTime);
 
-		//QTEのボタンUIの設定を更新
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.buttonSprite.position);
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].buttonSettings.fontSprite.position);
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.position);
-		float currentScale1 = qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarScale.x * (1.0f - activeProcessedQteDatas[i].elapsedTime / activeProcessedQteDatas[i].duration);
-		qteButtonUISettings_[activeProcessedQteDatas[i].qteActionName].qteBarSettings.sprite->SetScale({ currentScale1, qteConfigs_[activeProcessedQteDatas[i].qteActionName].qteBarScale.y });
-
-		//右側にUIを移動
-		qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.buttonSprite.position = { centerPosition.x + qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].buttonPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].buttonPosition.y };
-		qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.fontSprite.position = { centerPosition.x + qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].fontPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].fontPosition.y };
-		qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].qteBarSettings.position = { centerPosition.x + qteUiDistance_ + (i / 2 * qteUiDistance_) + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].qteBarPosition.x, centerPosition.y + qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].qteBarPosition.y };
-
-		//QTEのボタンUIの設定を更新
-		qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.buttonSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.buttonSprite.position);
-        qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.fontSprite.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].buttonSettings.fontSprite.position);
-        qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].qteBarSettings.sprite->SetPosition(qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].qteBarSettings.position);
-		float currentScale2 = qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].qteBarScale.x * (1.0f - activeProcessedQteDatas[i + 1].elapsedTime / activeProcessedQteDatas[i + 1].duration);
-		qteButtonUISettings_[activeProcessedQteDatas[i + 1].qteActionName].qteBarSettings.sprite->SetScale({ currentScale2, qteConfigs_[activeProcessedQteDatas[i + 1].qteActionName].qteBarScale.y });
+		//二つ目のQTEUIを設定
+		if (i + 1 < activeProcessedQteDatas.size())
+		{
+			position = { centerPosition.x + qteUiDistance_ + (qteUiDistance_ * static_cast<float>(i)), centerPosition.y };
+			SetQTEUIPositionAndTime(qteUIMap_[activeProcessedQteDatas[i + 1].qteActionName], position, activeProcessedQteDatas[i + 1].duration, activeProcessedQteDatas[i + 1].elapsedTime);
+		}
 	}
 }
 
-void Player::DrawButtonUI(const ButtonUISettings& uiSettings)
+void Player::SetQTEUIPositionAndTime(QTEUI& qteUI, const Vector2& position, float duration, float elapsedTime)
 {
-	uiSettings.buttonSprite.sprite->Draw();
-	uiSettings.fontSprite.sprite->Draw();
-}
+	//ボタンUIの座標を設定
+	qteUI.buttonUI.ui->SetPosition(position + qteUI.buttonUI.basePosition);
 
-void Player::DrawSkillUI(const SkillUISettings& uiSettings)
-{
-	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
-	uiSettings.buttonSettings.fontSprite.sprite->Draw();
-	uiSettings.cooldownBarSprite->Draw();
-}
+	//アクション名UIの座標を設定
+	qteUI.actionUI.ui->SetPosition(position + qteUI.actionUI.basePosition);
 
-void Player::DrawQTEUI(const QTEButtonUI& uiSettings)
-{
-	//描画フラグが立っていない場合は飛ばす
-	if (!uiSettings.isVisible) return;
+	//受付時間バーの座標を設定
+	qteUI.barUI.ui->SetPosition(position + qteUI.barUI.basePosition);
 
-	//UIの描画
-	uiSettings.buttonSettings.buttonSprite.sprite->Draw();
-	uiSettings.buttonSettings.fontSprite.sprite->Draw();
-	uiSettings.qteBarSettings.sprite->Draw();
+	//受付時間バーの受付時間を設定
+	qteUI.barUI.ui->SetTimeRemaining(duration);
+
+	//受付時間バーの経過時間を設定
+	qteUI.barUI.ui->SetElapsedTime(elapsedTime);
 }
 
 bool Player::CheckFallingAttack()
@@ -804,17 +610,14 @@ bool Player::CheckFallingAttack()
 
 bool Player::IsAbilityUsable(const SkillParameters& skill) const
 {
+	//現在のスキルペアセットインデックスが同じかどうかを確認
+	if (activeSkillSetIndex_ != skill.skillSetIndex) return false;
+
 	//クールダウン完了を確認
-	if (!GetIsCooldownComplete(skill.name))
-	{
-		return false;
-	}
+	if (!GetIsCooldownComplete(skill.name)) return false;
 
 	//地面専用スキルの条件を確認
-	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f)
-	{
-		return false;
-	}
+	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f) return false;
 
 	//アビリティが使用可能
 	return true;

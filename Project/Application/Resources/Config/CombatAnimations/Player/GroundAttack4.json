@@ -88,13 +88,13 @@
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent05": {
-                    "CancelType": "Ability1",
+                    "CancelType": "LaunchAttack",
                     "EndEventTime": 1.2000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent06": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 1.2000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0

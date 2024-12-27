@@ -951,7 +951,7 @@ void CombatAnimationEditor::EditAnimationEvents(std::vector<std::shared_ptr<Anim
 				EditCameraAnimationEvent(dynamic_cast<CameraAnimationEvent*>(animationEvents[i].get()));
 				break;
 			case EventType::kQTE:
-				EditQTE(dynamic_cast<QTE*>(animationEvents[i].get()), character->GetActionKeys());
+				EditQTE(dynamic_cast<QTE*>(animationEvents[i].get()), character->GetQTEActions());
 				break;
 			case EventType::kCancel:
 				EditCancelEvent(dynamic_cast<CancelEvent*>(animationEvents[i].get()), character->GetActionKeys());

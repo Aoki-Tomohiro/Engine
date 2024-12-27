@@ -186,7 +186,7 @@ protected:
 	virtual void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
 	virtual void ProcessQTE(const QTE* qte, const int32_t animationEventIndex);
 	virtual void StartQTE(const QTE* qte, const int32_t animationEventIndex);
-	virtual void UpdateQTEProgress(const QTE* qte, const int32_t animationEventIndex);
+	virtual void UpdateQTEProgress(const int32_t animationEventIndex);
 	virtual void CompleteQTE(ProcessedQTEData& qteData, const bool isSuccess);
 	virtual void EnableQTEPostEffects(const bool isEnable);
 	virtual void ProcessCancelEvent(const CancelEvent* cancelEvent, const int32_t animationEventIndex);

@@ -6,7 +6,6 @@
  */
 
 #pragma once
-#include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Components/Input/Input.h"
 #include "Application/Src/Object/Character/BaseCharacter.h"
 #include "Application/Src/Object/Character/Player/SkillCooldownManager.h"
@@ -29,76 +28,6 @@ public:
         A, B, X, Y, LB, RB, LT, XA, kMaxButtons,
     };
 
-    //ボタンの入力状態
-    struct ButtonState
-    {
-        bool isPressed = false;   //押されているかどうか
-        bool isTriggered = false; //押された瞬間かどうか
-        bool isReleased = false;  //離された瞬間かどうか
-        int32_t pressedFrame = 0; //押されているフレーム
-    };
-
-    //スプライトの基本設定
-    struct SpriteSettings
-    {
-        std::unique_ptr<Sprite> sprite = nullptr;  //スプライト
-        Vector2 position{ 0.0f, 0.0f };            //スプライトの位置
-        Vector2 scale{ 1.0f, 1.0f };               //スプライトのスケール
-    };
-
-    //ボタンのUI設定
-    struct ButtonUISettings
-    {
-        SpriteSettings buttonSprite{}; //ボタンのスプライト設定
-        SpriteSettings fontSprite{};   //フォントのスプライト設定
-    };
-
-    //スキルのUI設定
-    struct SkillUISettings
-    {
-        ButtonUISettings buttonSettings{};           //スキルボタンの設定
-        std::unique_ptr<Sprite> cooldownBarSprite{}; //スキルクールダウンバーのスプライト
-    };
-
-    //QTEのUI設定
-    struct QTEButtonUI
-    {
-        bool isVisible = false;                 //描画フラグ
-        ButtonUISettings buttonSettings{};      //ボタンのスプライト設定
-        SpriteSettings qteBarSettings{};        //QTEの受付時間のスプライト
-    };
-
-    //ボタンのUI設定情報
-    struct ButtonConfig
-    {
-        ButtonType buttonType;                //対応するボタン
-        std::string buttonTexture;            //ボタンのテクスチャファイル名
-        std::string fontTexture;              //フォントのテクスチャファイル名
-        Vector2 buttonPosition{ 0.0f, 0.0f }; //ボタンの位置
-        Vector2 fontPosition{ 0.0f, 0.0f };   //フォントの位置
-        Vector2 buttonScale{ 1.0f, 1.0f };    //ボタンのスケール
-        Vector2 fontScale{ 1.0f, 1.0f };      //フォントのスケール
-    };
-
-    //スキルのUI設定情報
-    struct SkillConfig
-    {
-        ButtonConfig buttonConfig{};            //スキルボタンの設定
-        Vector2 skillBarPosition{ 0.0f, 0.0f }; //スキルバーの位置
-        Vector2 skillBarScale{ 1.0f, 1.0f };    //スキルバーのスケール
-    };
-
-    //QTEのUI設定情報
-    struct QTEUIConfig
-    {
-        Vector2 buttonPosition{ 0.0f, 0.0f }; //ボタンの位置
-        Vector2 buttonScale{ 1.0f, 1.0f };    //フォントのスケール
-        Vector2 fontPosition{ 0.0f, 0.0f };   //ボタンの位置
-        Vector2 fontScale{ 1.0f, 1.0f };      //フォントのスケール
-        Vector2 qteBarPosition{ 0.0f, 0.0f }; //QTEのバーの座標
-        Vector2 qteBarScale{ 1.0f, 1.0f };    //QTEのバーのスケール
-    };
-
     //アクションフラグ
     enum class ActionFlag
     {
@@ -110,6 +39,37 @@ public:
         kIsAttacking,              //攻撃したかどうか
         kJustDodge,                //ジャスト回避したかどうか
         kCounterAttack,            //カウンター攻撃したかどうか
+    };
+
+    //ボタンの入力状態
+    struct ButtonState
+    {
+        bool isPressed = false;   //押されているかどうか
+        bool isTriggered = false; //押された瞬間かどうか
+        bool isReleased = false;  //離された瞬間かどうか
+        int32_t pressedFrame = 0; //押されているフレーム
+    };
+
+    //UIとその元の座標を管理する構造体
+    struct UIElementWithPosition
+    {
+        UIElement* ui = nullptr; //UI要素
+        Vector2 basePosition{};  //元の座標
+    };
+
+    //ダイナミックUIとその元の座標を管理する構造体
+    struct DynamicUIWithPosition 
+    {
+        DynamicUI* ui = nullptr; //ダイナミックUI要素
+        Vector2 basePosition{};  //元の座標
+    };
+
+    //QTEのUI
+    struct QTEUI 
+    {
+        UIElementWithPosition buttonUI;   //ボタンUIとその基準位置
+        UIElementWithPosition actionUI;   //アクション名UIとその基準位置
+        DynamicUIWithPosition barUI;      //受付時間バーUIとその基準位置
     };
 
     //ダメージエフェクトの構造体
@@ -152,6 +112,7 @@ public:
         std::string name{};              //名前
         float cooldownDuration = 0.0f;   //クールダウンの時間
         bool canUseOnGroundOnly = false; //地面にいる時しか発動できないかどうか
+        int skillSetIndex = -1;          //スキルセットの番号
     };
 
     /// <summary>
@@ -223,19 +184,27 @@ private:
     void InitializeActionMap() override;
 
     /// <summary>
-    /// オーディオの初期化
-    /// </summary>
-    void InitializeAudio() override;
-
-    /// <summary>
-    /// アニメーターの初期化
-    /// </summary>
-    void InitializeAnimator() override;
-
-    /// <summary>
     /// UIのスプライトの初期化
     /// </summary>
     void InitializeUISprites() override;
+
+    /// <summary>
+    /// スキルのUIを設定
+    /// </summary>
+    void SetupSkillUIForPairs();
+
+    /// <summary>
+    /// スキルUIの設定処理を行う関数
+    /// </summary>
+    /// <param name="index">インデックス</param>
+    /// <param name="skillParameters">スキルのパラメーター</param>
+    /// <param name="index">スキルの番号</param>
+    void SetupSkillUI(size_t index, const SkillParameters& skillParameters, size_t skillIndex);
+
+    /// <summary>
+    /// QTEのUIを設定
+    /// </summary>
+    void SetupQTEUI();
 
     /// <summary>
     /// スキルクールダウンマネージャーの初期化
@@ -246,16 +215,6 @@ private:
     /// ダメージエフェクトのスプライトを生成
     /// </summary>
     void InitializeDamageEffectSprite();
-
-    /// <summary>
-    /// ボタンのUIスプライトを設定
-    /// </summary>
-    void SetButtonUISprite(ButtonUISettings& uiSettings, const ButtonConfig& config);
-
-    /// <summary>
-    /// スキルのUIスプライトを設定
-    /// </summary>
-    void SetSkillUISprite(SkillUISettings& uiSettings, const SkillConfig& config);
 
     /// <summary>
     /// 全てのボタンの入力状態の更新
@@ -313,51 +272,9 @@ private:
     void UpdateSkillCooldowns();
 
     /// <summary>
-    /// スキルクールダウンバーの大きさを更新
-    /// </summary>
-    void UpdateCooldownBarScale(SkillUISettings& uiSettings, const SkillConfig& config, float cooldownTime, float cooldownDuration);
-
-    /// <summary>
     /// ダメージエフェクトの更新
     /// </summary>
     void UpdateDamageEffect();
-
-    /// <summary>
-    /// UIの更新
-    /// </summary>
-    void UpdateUI();
-
-    /// <summary>
-    /// ボタンのスケールの更新
-    /// </summary>
-    /// <param name="buttonState">ボタン入力の状態</param>
-    /// <param name="baseScale">基本のスケール</param>
-    /// <param name="spriteSetting">スプライトの設定</param>
-    /// <param name="buttonType">ボタンの種類</param>
-    void UpdateButtonScale(const ButtonState& buttonState, const Vector2& baseScale, SpriteSettings& spriteSetting, const ButtonType buttonType);
-
-    /// <summary>
-    /// ボタンの設定を編集
-    /// </summary>
-    /// <param name="config">ボタンの設定</param>
-    /// <param name="uiSettings">UIの設定</param>
-    void EditButtonConfig(ButtonConfig& config, ButtonUISettings& uiSettings);
-
-    /// <summary>
-    /// スキルの設定を編集
-    /// </summary>
-    /// <param name="config">スキルの設定</param>
-    /// <param name="uiSettings">スキルのUI設定</param>
-    /// <param name="index">スキルのインデックス</param>
-    void EditSkillConfig(SkillConfig& config, SkillUISettings& uiSettings, const int32_t index);
-
-    /// <summary>
-    /// QTEの設定を編集
-    /// </summary>
-    /// <param name="config">QTEの設定</param>
-    /// <param name="uiSettings">QTEのUI設定</param>
-    /// <param name="actionName">アクションの名前</param>
-    void EditQTEConfig(QTEUIConfig& config, QTEButtonUI& uiSettings, const std::string& actionName);
 
     /// <summary>
     /// QTEの要素の更新
@@ -365,22 +282,13 @@ private:
     void UpdateQTEElements();
 
     /// <summary>
-    /// ボタンのUIの描画
+    /// QTEUIの座標と時間を設定
     /// </summary>
-    /// <param name="uiSettings">UIの設定</param>
-    void DrawButtonUI(const ButtonUISettings& uiSettings);
-
-    /// <summary>
-    /// スキルのUIの描画
-    /// </summary>
-    /// <param name="uiSettings">スキルのUIの設定</param>
-    void DrawSkillUI(const SkillUISettings& uiSettings);
-
-    /// <summary>
-    /// QTEのUIの描画
-    /// </summary>
-    /// <param name="uiSettings">QTEのUIの設定</param>
-    void DrawQTEUI(const QTEButtonUI& uiSettings);
+    /// <param name="qteUI">設定するQTEUI</param>
+    /// <param name="position">座標</param>
+    /// <param name="duration">受付時間</param>
+    /// <param name="elapsedTime">経過時間</param>
+    void SetQTEUIPositionAndTime(QTEUI& qteUI, const Vector2& position, float duration, float elapsedTime);
 
     /// <summary>
     /// 落下攻撃の条件を確認して発動
@@ -404,8 +312,11 @@ private:
 
     //スキルのパラメーター
     const std::array<std::pair<SkillParameters, SkillParameters>, kMaxSkillCount / 2> skillPairSets_ = { {
-        {SkillParameters{"LaunchAttack", 4.0f, true}, SkillParameters{"SpinAttack", 3.0f, false}}}
+        {SkillParameters{"LaunchAttack", 4.0f, true, 0}, SkillParameters{"SpinAttack", 3.0f, false, 0}}}
     };
+
+    //スキルのUI
+    std::array<std::pair<DynamicUI*, DynamicUI*>, kMaxSkillCount / 2> skillUI_{};
 
     //現在選択中のスキルセット
     int32_t activeSkillSetIndex_ = 0;
@@ -422,33 +333,8 @@ private:
         XINPUT_GAMEPAD_LEFT_SHOULDER, XINPUT_GAMEPAD_RIGHT_SHOULDER,
     };
 
-    //ボタンのUIの設定
-    std::array<ButtonUISettings, kMaxActionCount> buttonUISettings_{};
-
-    //ボタンのUIの構成
-    const std::array<ButtonConfig, kMaxActionCount> buttonConfigs_{ {
-        { ButtonType::A, "xbox_button_a_outline.png", "Jump.png", {1032.0f, 662.0f}, {1060.0f, 644.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::X, "xbox_button_x_outline.png", "Attack.png", {974.0f, 604.0f}, {870.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::LB, "xbox_lb_outline.png", "Dash.png", {1132.0f, 451.0f}, {1172.0f, 429.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::RB, "xbox_rb_outline.png", "Dodge.png", {1132.0f, 506.0f}, {1182.0f, 486.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} },
-        { ButtonType::LT, "xbox_lt_outline.png", "Fire.png", {1132.0f, 390.0f}, {1172.0f, 372.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} }, 
-        { ButtonType::XA, "xa.png", "FallingAttack.png", {1116.0f, 324.0f}, {1170.0f, 308.0f}, {1.0f, 1.0f}, {0.25f, 0.25f} }, },
-    };
-
-    //スキルのUIの設定
-    std::array<SkillUISettings, kMaxSkillCount> skillUISettings_{};
-
-    //スキルのUIの構成
-    const std::array<SkillConfig, kMaxSkillCount> skillConfigs_ = { {
-        { ButtonType::Y, "xbox_button_y_outline.png", "LaunchAttack.png", {1032.0f, 546.0f}, {840.0f, 524.0f}, {1.0f, 1.0f}, {0.3f, 0.3f}, { 1004.0f, 500.0f }, { 28.0f,4.0f }},
-        { ButtonType::B, "xbox_button_b_outline.png", "SpinAttack.png", {1090.0f, 604.0f}, {1118.0f, 586.0f}, {1.0f, 1.0f}, {0.3f, 0.3f} ,{ 1062.0f, 558.0f }, { 28.0f,4.0f }},}
-    };
-
-    //QTEのUIの設定
-    std::map<std::string, QTEButtonUI> qteButtonUISettings_{};
-
-    //QTEのUIの構成
-    std::map<std::string, QTEUIConfig> qteConfigs_{};
+    //QTEのUI
+    std::map<std::string, QTEUI> qteUIMap_{};
 
     //QTEのUiの距離
     float qteUiDistance_ = 160.0f;

@@ -58,7 +58,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent06": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 0.8669999837875366,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0

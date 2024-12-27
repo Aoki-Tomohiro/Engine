@@ -102,60 +102,8 @@ void Enemy::InitializeActionMap()
 	};
 }
 
-void Enemy::InitializeAudio()
-{
-	//基底クラスの呼び出し
-	BaseCharacter::InitializeAudio();
-
-	//音声データの読み込み
-	audioHandles_["Hit"] = audio_->LoadAudioFile("Damage.mp3");
-	audioHandles_["Jump"] = audio_->LoadAudioFile("Jump.mp3");
-	audioHandles_["Dash"] = audio_->LoadAudioFile("Dash.mp3");
-	audioHandles_["RockSplit"] = audio_->LoadAudioFile("RockSplit.mp3");
-	audioHandles_["BuildingCrumble"] = audio_->LoadAudioFile("BuildingCrumble.mp3");
-	audioHandles_["WindSwish"] = audio_->LoadAudioFile("WindSwish.mp3");
-	audioHandles_["SwordSwing"] = audio_->LoadAudioFile("SwordSwing.mp3");
-}
-
-void Enemy::InitializeAnimator()
-{
-	//基底クラスの呼び出し
-	BaseCharacter::InitializeAnimator();
-
-	//アニメーション名とファイルパス
-	std::vector<std::pair<std::string, std::string>> animations = {
-		{"Idle", "Enemy/Animations/Idle.gltf"}, {"Walk1", "Enemy/Animations/Walk1.gltf"}, {"Walk2", "Enemy/Animations/Walk2.gltf"}, {"Walk3", "Enemy/Animations/Walk3.gltf"}, {"Walk4", "Enemy/Animations/Walk4.gltf"}, 
-		{"Run", "Enemy/Animations/Run.gltf"}, {"Dash", "Enemy/Animations/Dash.gltf"}, {"Dodge", "Enemy/Animations/Dodge.gltf"},{"HitStun", "Enemy/Animations/HitStun.gltf"}, {"Knockdown", "Enemy/Animations/Knockdown.gltf"},
-		{"StandUp", "Enemy/Animations/StandUp.gltf"},{"Death", "Enemy/Animations/Death.gltf"}, {"VerticalSlash", "Enemy/Animations/VerticalSlash.gltf"}, {"ComboSlash1", "Enemy/Animations/ComboSlash1.gltf"},
-		{"ComboSlash2", "Enemy/Animations/ComboSlash2.gltf"}, {"SpinSlash", "Enemy/Animations/SpinSlash.gltf"},
-	};
-
-	//アニメーションを追加
-	for (const auto& [name, path] : animations)
-	{
-		animator_->AddAnimation(name, AnimationManager::Create(path));
-	}
-
-	//通常アニメーションを再生
-	animator_->PlayAnimation("Idle", 1.0f, true);
-}
-
 void Enemy::InitializeUISprites()
 {
-	//テクスチャの名前を設定
-	hpTextureNames_ = { {
-		{"barBack_horizontalLeft.png","barBack_horizontalMid.png","barBack_horizontalRight.png"},
-		{"barBlue_horizontalLeft.png","barBlue_horizontalBlue.png","barBlue_horizontalRight.png"},
-		}
-	};
-
-	//スプライトの座標を設定
-	hpBarSegmentPositions_ = { {
-		{ {	{711.0f, 40.0f}, {720.0f, 40.0f}, {1200.0f, 40.0f},}},
-		{ { {711.0f, 40.0f}, {720.0f, 40.0f}, {1200.0f, 40.0f},}},
-		}
-	};
-
 	//基底クラスの呼び出し
 	BaseCharacter::InitializeUISprites();
 }

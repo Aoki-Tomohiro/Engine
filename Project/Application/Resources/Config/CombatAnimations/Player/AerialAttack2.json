@@ -85,13 +85,13 @@
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent05": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 0.699999988079071,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent06": {
-                    "CancelType": "Ability2",
+                    "CancelType": "SpinAttack",
                     "EndEventTime": 1.7000000476837158,
                     "EventType": "Cancel",
                     "StartEventTime": 1.0
@@ -145,7 +145,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent15": {
-                    "BufferedActionType": "Ability2",
+                    "BufferedActionType": "SpinAttack",
                     "EndEventTime": 1.0,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.699999988079071

@@ -7,6 +7,7 @@
 
 #pragma once
 #include "Engine/2D/Sprite.h"
+#include "Engine/3D/Model/AnimationManager.h"
 #include "Engine/Components/Audio/Audio.h"
 #include "Engine/Components/Transform/TransformComponent.h"
 #include "Engine/Components/Model/ModelComponent.h"
@@ -22,6 +23,7 @@
 #include "Application/Src/Object/Character/States/AbstractCharacterState.h"
 #include "Application/Src/Object/Character/States/CharacterStateFactory.h"
 #include "Application/Src/Object/Editors/EditorManager.h"
+#include "Application/Src/Object/UI/UIManager.h"
 
 class BaseCharacter : public GameObject
 {
@@ -40,11 +42,6 @@ public:
     /// 更新処理
     /// </summary>
     virtual void Update() override;
-
-    /// <summary>
-    /// UIの描画
-    /// </summary>
-    virtual void DrawUI() override;
 
     /// <summary>
     /// ダメージとノックバックを適用
@@ -192,6 +189,10 @@ public:
     CameraController* GetCameraController() const { return cameraController_; };
     void SetCameraController(CameraController* cameraController) { cameraController_ = cameraController; };
 
+    //UIマネージャーの取得・設定
+    UIManager* GetUIManager() const { return uiManager_; };
+    void SetUIManager(UIManager* uiManager) { uiManager_ = uiManager; };
+
     //エディターマネージャーの取得・設定
     const EditorManager* GetEditorManager() const { return editorManager_; };
     void SetEditorManager(const EditorManager* editorManager) { editorManager_ = editorManager; };
@@ -201,6 +202,9 @@ public:
 
     //オーディオハンドルのキーを取得
     const std::vector<std::string> GetAudioHandles() const { return GetKeysFromMap(audioHandles_); };
+
+    //QTEのアクションを取得
+    const std::vector<std::string>& GetQTEActions() const { return qteActions_; };
 
     //重力加速度を取得
     const float GetGravityAcceleration() const { return gravityAcceleration_; };
@@ -239,21 +243,6 @@ protected:
         float elapsedTime = 0.0f;                // 経過したシェイク時間
         Vector3 originalPosition{};              // 元のモデルの位置
         Vector3 intensity{ 30.0f, 0.0f, 30.0f }; // シェイクの強度
-    };
-
-    //体力バーの種類
-    enum HealthBarType
-    {
-        kBack,
-        kFront,
-    };
-
-    //体力バーのインデックス
-    enum HealthBarSegment
-    {
-        kLeft,
-        kMiddle,
-        kRight,
     };
 
     /// <summary>
@@ -347,6 +336,13 @@ protected:
     void ResetToOriginalPosition();
 
     /// <summary>
+    /// CSVファイルからリソースデータを読み込み、指定されたマップに保存する関数
+    /// </summary>
+    /// <param name="filePath">ファイルパス</param>
+    /// <param name="resourceMap">読み込んだリソースのキーとデータを格納するマップ</param>
+    void LoadResourceFromCSV(const std::string& filePath, std::map<std::string, std::string>& resourceMap);
+
+    /// <summary>
     /// 指定されたコンテナのキーを取り出し配列として返す関数
     /// </summary>
     /// <typeparam name="Type">キーと値のペアで構成されるコンテナ型</typeparam>
@@ -416,23 +412,20 @@ protected:
     //オーディオハンドル
     std::map<std::string, uint32_t> audioHandles_{};
 
+    //QTEのアクション
+    std::vector<std::string> qteActions_{};
+
     //タイムスケール
     float timeScale_ = 1.0f;
 
     //体力
     float hp_ = kMaxHp_;
 
-    //体力のスプライトの名前
-    std::array<std::array<std::string, 3>, 2> hpTextureNames_{};
+    //体力バーの真ん中のスプライト
+    DynamicUI* hpBarMidSprite_ = nullptr;
 
-    //体力のスプライト
-    std::array<std::array<std::unique_ptr<Sprite>, 3>, 2> hpSprites_{};
-
-    //体力のスプライト座標
-    std::array<std::array<Vector2, 3>, 2> hpBarSegmentPositions_{};
-
-    //体力のスプライトサイズ
-    Vector2 hpBarSegmentTextureSize_ = { 480.0f,18.0f };
+    //体力バーの右のスプライト
+    UIElement* hpBarRightSprite_ = nullptr;
 
     //ジャスト回避が可能かどうか
     bool isVulnerableToPerfectDodge_ = false;
@@ -454,6 +447,9 @@ protected:
 
     //カメラコントローラー
     CameraController* cameraController_ = nullptr;
+
+    //UIマネージャー
+    UIManager* uiManager_ = nullptr;
 
     //エディターマネージャー
     const EditorManager* editorManager_ = nullptr;

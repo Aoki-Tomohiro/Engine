@@ -23,6 +23,7 @@
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Transition/Transition.h"
 #include "Application/Src/Object/Editors/EditorManager.h"
+#include "Application/Src/Object/UI/UIManager.h"
 
 class GamePlayScene : public IScene
 {
@@ -35,7 +36,7 @@ public:
 	/// <summary>
 	/// 終了処理
 	/// </summary>
-	void Finalize() override;
+	void Finalize() override {};
 
 	/// <summary>
 	/// 更新
@@ -151,13 +152,14 @@ private:
 	//エディターマネージャー
 	std::unique_ptr<EditorManager> editorManager_ = nullptr;
 
-	//ゲームオーバーのスプライト
-	std::unique_ptr<Sprite> gameOverSprite_ = nullptr;
-	bool isGameOver_ = false;
+	//UIマネージャー
+	std::unique_ptr<UIManager> uiManager_ = nullptr;
 
-	//ゲームクリアのスプライト
-	std::unique_ptr<Sprite> gameClearSprite_ = nullptr;
-	bool isGameClear_ = false;
+	//ゲームオーバーのUI
+	UIElement* gameOverUI_ = nullptr;
+
+	//ゲームクリアのUI
+	UIElement* gameClearUI_ = nullptr;
 
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;

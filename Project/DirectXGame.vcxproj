@@ -62,6 +62,10 @@
     <ClCompile Include="Application\Src\Object\Magic\Magic.cpp" />
     <ClCompile Include="Application\Src\Object\Skydome\Skydome.cpp" />
     <ClCompile Include="Application\Src\Object\Transition\Transition.cpp" />
+    <ClCompile Include="Application\Src\Object\UI\DynamicUI.cpp" />
+    <ClCompile Include="Application\Src\Object\UI\InteractiveUI.cpp" />
+    <ClCompile Include="Application\Src\Object\UI\UIElement.cpp" />
+    <ClCompile Include="Application\Src\Object\UI\UIManager.cpp" />
     <ClCompile Include="Application\Src\Object\Weapon\Weapon.cpp" />
     <ClCompile Include="Application\Src\Scene\SampleScene.cpp" />
     <ClCompile Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraAnimationEditor.cpp" />
@@ -225,6 +229,10 @@
     <ClInclude Include="Application\Src\Object\Magic\Magic.h" />
     <ClInclude Include="Application\Src\Object\Skydome\Skydome.h" />
     <ClInclude Include="Application\Src\Object\Transition\Transition.h" />
+    <ClInclude Include="Application\Src\Object\UI\DynamicUI.h" />
+    <ClInclude Include="Application\Src\Object\UI\InteractiveUI.h" />
+    <ClInclude Include="Application\Src\Object\UI\UIElement.h" />
+    <ClInclude Include="Application\Src\Object\UI\UIManager.h" />
     <ClInclude Include="Application\Src\Object\Weapon\Weapon.h" />
     <ClInclude Include="Application\Src\Scene\SampleScene.h" />
     <ClInclude Include="Application\Src\Object\Editors\CameraAnimationEditor\CameraAnimationEditor.h" />

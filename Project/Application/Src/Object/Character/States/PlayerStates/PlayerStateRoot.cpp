@@ -78,7 +78,7 @@ void PlayerStateRoot::OnCollision(GameObject* other)
 void PlayerStateRoot::HandleStateTransitionInternal()
 {
 	//遷移可能なアクション一覧
-	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "Ability1", "Ability2" };
+	const std::vector<std::string> actions = { "Jump", "Dodge", "Dash", "Attack", "Magic", "ChargeMagic", "LaunchAttack", "SpinAttack" };
 
 	//アクションリストをループし、ボタン入力をチェック
 	for (const auto& action : actions)
