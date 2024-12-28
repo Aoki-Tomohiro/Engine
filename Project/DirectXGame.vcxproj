@@ -177,6 +177,7 @@
     <ClCompile Include="Engine\Utilities\Log.cpp" />
     <ClCompile Include="Engine\Utilities\RandomGenerator.cpp" />
     <ClCompile Include="Engine\Utilities\ShaderCompiler.cpp" />
+    <ClCompile Include="Application\Src\Object\LevelSelector\LevelSelector.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -225,6 +226,7 @@
     <ClInclude Include="Application\Src\Object\GameObjectFactory.h" />
     <ClInclude Include="Application\Src\Object\Ground\Ground.h" />
     <ClInclude Include="Application\Src\Object\HitStop\HitStop.h" />
+    <ClInclude Include="Application\Src\Object\LevelSelector\LevelSelector.h" />
     <ClInclude Include="Application\Src\Object\Lockon\Lockon.h" />
     <ClInclude Include="Application\Src\Object\Magic\Magic.h" />
     <ClInclude Include="Application\Src\Object\Skydome\Skydome.h" />

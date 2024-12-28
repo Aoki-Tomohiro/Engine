@@ -337,7 +337,7 @@ private:
     std::map<std::string, QTEUI> qteUIMap_{};
 
     //QTEのUiの距離
-    float qteUiDistance_ = 160.0f;
+    const float qteUiDistance_ = 160.0f;
 
     //魔法攻撃用ワーク
     MagicAttackWork magicAttackWork_{};

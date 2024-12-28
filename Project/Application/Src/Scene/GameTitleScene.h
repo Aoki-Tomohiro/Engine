@@ -17,6 +17,8 @@
 #include "Application/Src/Object/Character/Player/Player.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
 #include "Application/Src/Object/Transition/Transition.h"
+#include "Application/Src/Object/UI/UIManager.h"
+#include "Application/Src/Object/LevelSelector/LevelSelector.h"
 #include <numbers>
 
 class GameTitleScene : public IScene
@@ -30,7 +32,7 @@ public:
 	/// <summary>
 	/// 終了処理
 	/// </summary>
-	void Finalize() override;
+	void Finalize() override {};
 
 	/// <summary>
 	/// 更新
@@ -54,9 +56,14 @@ private:
 	void UpdateCamera();
 
 	/// <summary>
-	/// 難易度選択UIの更新
+	/// 難易度選択メニューの処理
 	/// </summary>
-	void UpdateDifficultyUI();
+	void HandleDifficultyMenu();
+
+	/// <summary>
+	/// タイトルメニューの処理
+	/// </summary>
+	void HandleTitleMenu();
 
 	/// <summary>
 	/// フェードを更新してシーンを変える
@@ -64,10 +71,16 @@ private:
 	void HandleFadeAndSceneTransition();
 
 	/// <summary>
-	/// ボタンが押されたかどうかを取得
+	/// 決定ボタンが押されたかどうかを取得
 	/// </summary>
-	/// <returns>ボタンが押されたかどうか</returns>
+	/// <returns>決定ボタンが押されたかどうか</returns>
 	bool IsActionButtonPressed();
+
+	/// <summary>
+	/// キャンセルボタンが押されたかどうかを取得
+	/// </summary>
+	/// <returns>キャンセルボタンが押されたかどうか</returns>
+	bool IsCancelButtonPressed();
 
 private:
 	//レンダラー
@@ -94,39 +107,19 @@ private:
 	//トランジション
 	std::unique_ptr<Transition> transition_ = nullptr;
 
-	//タイトルのスプライト
-	std::unique_ptr<Sprite> titleSprite_ = nullptr;
-	std::unique_ptr<Sprite> pressASprite_ = nullptr;
+	//UIマネージャー
+	std::unique_ptr<UIManager> uiManager_ = nullptr;
 
-	//難易度メニューのスプライト
-	std::unique_ptr<Sprite> difficultyMenuSprite_ = nullptr;
-	Vector4 difficultyMenuSpriteColor_ = { 0.0f, 0.0f, 0.0f, 0.6f };
+	//レベルセレクト
+	std::unique_ptr<LevelSelector> levelSelector_ = nullptr;
 
-	//難易度メニューのテキストのスプライト
-	std::unique_ptr<Sprite> difficultyMenuTextSprite_ = nullptr;
-	Vector2 difficultyMenuTextPosition_ = { 640.0f, 160.0f };
-
-	//難易度のスプライト
-	std::array<std::unique_ptr<Sprite>, Enemy::Level::Count> levelSprites_{};
-
-	//難易度のスプライトの座標
-	std::array<Vector2, Enemy::Level::Count> levelSpritePosition_{ {
-		{640.0f, 280.0f}, {640.0f, 380.0f}, {640.0f, 480.0f},}
-	};
+	//ゲームタイトルのUI
+	UIElement* titleUI_{};
 
 	//オーディオハンドル
 	uint32_t audioHandle_ = 0;
 
 	//ボイスハンドル
 	uint32_t voiceHandle_ = 0;
-
-	//敵のレベル
-	Enemy::Level difficultyLevel_ = Enemy::Level::Easy;
-
-	//難易度調整の項目が表示されているか
-	bool isDifficultyMenuVisible_ = false;
-
-	//難易度変更のタイマー
-	float difficultyChangeTimer_ = 0.0f;
 };
 

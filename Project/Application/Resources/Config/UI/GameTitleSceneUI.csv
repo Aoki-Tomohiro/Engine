@@ -1,0 +1,6 @@
+//UIの名前,//UIのタイプ,//テクスチャの名前,//X座標,//Y座標,//Xスケール,//Yスケール,//Xアンカーポイント,//Yアンカーポイント,//パラメーター
+GameTitle,Static,GameTitle.png,0,0,1,1,0,0,
+DifficultyMenu,Static,DifficultyMenu.png,0,0,1,1,0,0,
+Easy,Static,Easy.png,640,280,1,1,0.5,0.5,
+Normal,Static,Normal.png,640,380,1,1,0.5,0.5,
+Hard,Static,Hard.png,640,480,1,1,0.5,0.5,
