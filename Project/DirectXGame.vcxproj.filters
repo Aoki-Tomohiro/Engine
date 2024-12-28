@@ -256,18 +256,6 @@
     <Filter Include="ヘッダー ファイル\Application\Object\HitStop">
       <UniqueIdentifier>{1067b2b0-aac0-4eed-a4a7-f32cdbcaff66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Laser">
-      <UniqueIdentifier>{006520c6-79a0-4c2a-b196-3fc21b70098d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Pillar">
-      <UniqueIdentifier>{0dae771b-2185-4c57-b9bb-2ee1ec003658}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Laser">
-      <UniqueIdentifier>{bec863f9-9de0-4ca6-8b62-511fac3d5423}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Pillar">
-      <UniqueIdentifier>{5472f646-3570-416f-9ea3-ba880e4c83c3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Character">
       <UniqueIdentifier>{1508a397-b1da-4163-a22e-1b397e463c10}</UniqueIdentifier>
     </Filter>
@@ -286,9 +274,6 @@
     <Filter Include="ソース ファイル\Application\Object\Magic">
       <UniqueIdentifier>{86b386de-56d2-4ede-9b1e-ef970fcecadf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Application\Object\Pillar\States">
-      <UniqueIdentifier>{0325c72c-f228-4201-b01f-dde9de90b5f4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Application\Object\Skydome">
       <UniqueIdentifier>{1e0ac778-30e9-4bf6-b865-23c02b0fdd67}</UniqueIdentifier>
     </Filter>
@@ -306,9 +291,6 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Character\States\PlayerStates">
       <UniqueIdentifier>{a1139873-cb91-46cd-973b-6d807a9b65d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Application\Object\Pillar\States">
-      <UniqueIdentifier>{aac19873-fe23-4c1a-b6df-efb63acacd13}</UniqueIdentifier>
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Magic">
       <UniqueIdentifier>{d97079b0-4af7-4159-a88d-a452700c8657}</UniqueIdentifier>
@@ -345,6 +327,18 @@
     </Filter>
     <Filter Include="ヘッダー ファイル\Application\Object\Character\States\EnemyStates">
       <UniqueIdentifier>{82a9ae70-b0d2-4584-8ef9-6b089abdf5aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\UI">
+      <UniqueIdentifier>{96a0593e-2443-46b7-b747-aedd8ca34f5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\UI">
+      <UniqueIdentifier>{e412621c-f5b7-4ff2-b891-19f1cfd0007e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\LevelSelector">
+      <UniqueIdentifier>{e3628c35-de5f-4f64-996c-94435dd90635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Application\Object\LevelSelector">
+      <UniqueIdentifier>{1256c8a6-13f7-4abb-ad96-0ab2fc08f156}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -762,20 +756,20 @@
     <ClCompile Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.cpp">
       <Filter>ソース ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\UI\UIManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Application\Src\Object\UI\UIElement.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\UI\DynamicUI.cpp">
+      <Filter>ソース ファイル\Application\Object\UI</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\UI\InteractiveUI.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\UI</Filter>
     </ClCompile>
-    <ClCompile Include="Application\Src\Object\UI\DynamicUI.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Application\Src\Object\UI\UIElement.cpp">
+      <Filter>ソース ファイル\Application\Object\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\UI\UIManager.cpp">
+      <Filter>ソース ファイル\Application\Object\UI</Filter>
     </ClCompile>
     <ClCompile Include="Application\Src\Object\LevelSelector\LevelSelector.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Application\Object\LevelSelector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1253,20 +1247,20 @@
     <ClInclude Include="Application\Src\Object\Character\States\PlayerStates\PlayerStateStun.h">
       <Filter>ヘッダー ファイル\Application\Object\Character\States\PlayerStates</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Src\Object\UI\UIManager.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Application\Src\Object\UI\DynamicUI.h">
+      <Filter>ヘッダー ファイル\Application\Object\UI</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\UI\UIElement.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\UI\UIManager.h">
+      <Filter>ヘッダー ファイル\Application\Object\UI</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\UI\InteractiveUI.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Application\Src\Object\UI\DynamicUI.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\UI</Filter>
     </ClInclude>
     <ClInclude Include="Application\Src\Object\LevelSelector\LevelSelector.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Application\Object\LevelSelector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
