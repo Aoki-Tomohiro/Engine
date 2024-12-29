@@ -54,6 +54,14 @@ private:
 	void UpdateAnimation(const Vector3& inputValue, bool isRunning);
 
 	/// <summary>
+	/// アニメーション名を決定
+	/// </summary>
+	/// <param name="inputValue">入力値</param>
+	/// <param name="isRunning">走り状態かどうか</param>
+	/// <returns>アニメーション名</returns>
+	std::string GetAnimationNameBasedOnLockon(const Vector3& inputValue, bool isRunning) const;
+
+	/// <summary>
 	/// 歩きのアニメーションの名前を取得
 	/// </summary>
 	/// <param name="inputValue">入力値</param>
@@ -66,6 +74,14 @@ private:
 	const std::string DetermineRunningAnimation(const Vector3& inputValue) const;
 
 	/// <summary>
+	/// アニメーション名の末尾の数字を取り出し逆方向のアニメーションかどうかを判定する関数
+	/// </summary>
+	/// <param name="currentAnimationName">現在のアニメーション</param>
+	/// <param name="animationName">次のアニメーション</param>
+	/// <returns>逆方向のアニメーションかどうか</returns>
+	bool IsOppositeAnimation(const std::string& currentAnimationName, const std::string& animationName);
+
+	/// <summary>
 	/// 回転の更新
 	/// </summary>
 	/// <param name="velocity">速度</param>
@@ -74,5 +90,11 @@ private:
 private:
 	//現在のアニメーションの名前
 	std::string currentAnimationName_{};
+
+	//前回の入力値
+	Vector3 previousInputValue_;
+
+	//現在の移動速度
+	float currentMoveSpeed_ = 0.0f;
 };
 

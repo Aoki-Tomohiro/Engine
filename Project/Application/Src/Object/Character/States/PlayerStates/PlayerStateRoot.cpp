@@ -10,6 +10,9 @@
 
 void PlayerStateRoot::Initialize()
 {
+	//アニメーションブレンドの基本の値
+	static const float kDefaultBlendDuration = 0.3f;
+
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
@@ -17,7 +20,7 @@ void PlayerStateRoot::Initialize()
 	character_->GetAnimator()->SetIsBlending(true);
 
 	//アニメーションブレンドの時間を設定
-	character_->GetAnimator()->SetBlendDuration(0.2f);
+	character_->GetAnimator()->SetBlendDuration(kDefaultBlendDuration);
 
 	//ロックオン中の場合は敵の方向に回転させる
 	if (GetPlayer()->GetLockon()->ExistTarget())
@@ -28,6 +31,9 @@ void PlayerStateRoot::Initialize()
 
 void PlayerStateRoot::Update()
 {
+	//反転入力を許容する閾値
+	static const float kDotProductThreshold = 0.5f;  
+
 	//ゲームが終了していた場合は処理を飛ばす
 	if (character_->GetIsGameFinished())
 	{
@@ -41,29 +47,23 @@ void PlayerStateRoot::Update()
 		UpdateAnimationState();
 	}
 
-	//QTEが受付中の場合はスキップ
-	for (const ProcessedQTEData& qteData : processedQTEDatas_)
-	{
-		if (qteData.isQTEActive) return;
-	}
-
 	//スティックの入力を取得
 	Vector3 inputValue = { input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() };
+	float inputLength = Mathf::Length(inputValue); //入力ベクトルの長さを計算
 
-	//入力ベクトルの長さを計算
-	float inputLength = Mathf::Length(inputValue);
-
-	//入力値が歩行の閾値を超えている場合
+	//歩行閾値を超えた場合は移動処理
 	if (inputLength > GetPlayer()->GetRootParameters().walkThreshold)
 	{
-		//移動処理
 		Move(inputValue, inputLength);
 	}
-	else
+	//逆入力が検出されていない場合はIdleアニメーションを再生
+	else if (inputLength <= GetPlayer()->GetRootParameters().walkThreshold || Mathf::Dot(previousInputValue_, inputValue) > kDotProductThreshold)
 	{
-		//現在のアニメーションがIdleではない場合再生する
 		SetIdleAnimationIfNotPlaying();
 	}
+
+	//前回の入力を保存して次回の更新で比較
+	previousInputValue_ = inputValue;
 
 	//状態遷移処理
 	HandleStateTransition();
@@ -99,32 +99,39 @@ void PlayerStateRoot::SetIdleAnimationIfNotPlaying()
 	if (currentAnimationName_ != "Idle")
 	{
 		//現在のアニメーションを通常状態に変更
-		currentAnimationName_ = "Idle";
-		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true);
+		currentAnimationName_ = "Idle"; 
+		//移動速度をリセット
+		currentMoveSpeed_ = 0.0f;
+		//アニメーションを再生
+		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true); 
 	}
 }
 
 void PlayerStateRoot::Move(const Vector3& inputValue, const float inputLength)
 {
+	//補間速度
+	static const float kInterpolationSpeed = 0.1f;
+
 	//プレイヤーを取得
 	Player* player = GetPlayer();
 
-	//入力値が走りの閾値を超えているかチェック
+	//走っているか歩いているかの判定
 	bool isRunning = inputLength > player->GetRootParameters().runThreshold;
-
 	//アニメーションの更新
 	UpdateAnimation(inputValue, isRunning);
 
-	//移動速度を設定
-	float moveSpeed = isRunning ? player->GetRootParameters().runSpeed : player->GetRootParameters().walkSpeed;
+	//目標速度の設定
+	float targetMoveSpeed = isRunning ? player->GetRootParameters().runSpeed : player->GetRootParameters().walkSpeed;
+	//移動速度を補間
+	currentMoveSpeed_ = Mathf::Lerp(currentMoveSpeed_, targetMoveSpeed, kInterpolationSpeed);  
+
 	//入力ベクトルを正規化し速度を掛ける
-	Vector3 velocity = Mathf::Normalize(inputValue) * moveSpeed;
+	Vector3 velocity = Mathf::Normalize(inputValue) * currentMoveSpeed_;
 
 	//移動ベクトルにカメラの回転を適用
 	velocity = Mathf::RotateVector(velocity, player->GetCameraController()->GetCamera().quaternion_);
 	//水平方向に移動させるのでY成分を0にする
-	velocity.y = 0.0f;
+	velocity.y = 0.0f; 
 
 	//プレイヤーを移動させる
 	player->Move(velocity);
@@ -135,38 +142,33 @@ void PlayerStateRoot::Move(const Vector3& inputValue, const float inputLength)
 
 void PlayerStateRoot::UpdateAnimation(const Vector3& inputValue, bool isRunning)
 {
-	//アニメーション名を格納するための変数
-	std::string animationName;
-
-	//ロックオン中のアニメーション決定
-	if (GetPlayer()->GetLockon()->ExistTarget())
-	{
-		//ロックオン中で、プレイヤーが走っているかどうかでアニメーションを決定
-		if (isRunning)
-		{
-			//走行中の場合、入力ベクトルに基づいた走りアニメーションを選択
-			animationName = DetermineRunningAnimation(inputValue);
-		}
-		else
-		{
-			//歩行中の場合、入力ベクトルに基づいた歩きアニメーションを選択
-			animationName = DetermineWalkingAnimation(inputValue);
-		}
-	}
-	else
-	{
-		//ロックオンしていない場合、走行または歩行に応じたデフォルトアニメーションを選択
-		animationName = isRunning ? "Run1" : "Walk1";
-	}
+	//アニメーション名を決定
+	std::string animationName = GetAnimationNameBasedOnLockon(inputValue, isRunning);
 
 	//現在のアニメーションが変わっていた場合
 	if (currentAnimationName_ != animationName)
 	{
+		//対となるアニメーションに変更する場合は現在の移動速度をリセット
+		if (!currentAnimationName_.empty() && IsOppositeAnimation(currentAnimationName_, animationName))
+		{
+			currentMoveSpeed_ = 0.0f;
+		}
 		//現在のアニメーションを更新
-		currentAnimationName_ = animationName;
-		//歩きの閾値を超えていない場合は待機アニメーションを設定
-		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true);
+		currentAnimationName_ = animationName; 
+		//新しいアニメーションを再生
+		SetAnimationControllerAndPlayAnimation(currentAnimationName_, true); 
 	}
+}
+
+std::string PlayerStateRoot::GetAnimationNameBasedOnLockon(const Vector3& inputValue, bool isRunning) const
+{
+	//ロックオン中かどうかでアニメーションを選択
+	if (GetPlayer()->GetLockon()->ExistTarget())
+	{
+		return isRunning ? DetermineRunningAnimation(inputValue) : DetermineWalkingAnimation(inputValue);
+	}
+	//ロックオンしていない場合は通常の走行/歩行アニメーション
+	return isRunning ? "Run1" : "Walk1";
 }
 
 const std::string PlayerStateRoot::DetermineWalkingAnimation(const Vector3& inputValue) const
@@ -197,6 +199,19 @@ const std::string PlayerStateRoot::DetermineRunningAnimation(const Vector3& inpu
 		//左右移動のアニメーション
 		return (inputValue.x < 0.0f) ? "Run3" : "Run4";
 	}
+}
+
+bool PlayerStateRoot::IsOppositeAnimation(const std::string& currentAnimationName, const std::string& animationName)
+{
+	//待機アニメーションが設定されている場合は必ず逆方向として扱う
+	if (currentAnimationName == "Idle" || animationName == "Idle") return true;
+
+	//アニメーション名の末尾の数字を比較して逆方向かどうかを判定
+	int currentNum = std::stoi(currentAnimationName.substr(currentAnimationName.size() - 1));
+	int newNum = std::stoi(animationName.substr(animationName.size() - 1));
+
+	//1と2、3と4が逆方向のアニメーションとして認識
+	return (currentNum == 1 && newNum == 2) || (currentNum == 2 && newNum == 1) || (currentNum == 3 && newNum == 4) || (currentNum == 4 && newNum == 3);
 }
 
 void PlayerStateRoot::UpdateRotation(const Vector3& velocity)

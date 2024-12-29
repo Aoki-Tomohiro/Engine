@@ -133,7 +133,7 @@ private:
 	float blendFactor_ = 0.0f;
 
 	//アニメーションブレンドの持続時間
-	float blendDuration_ = 0.2f;
+	float blendDuration_ = 0.3f;
 
 	//固定する軸
 	Vector3 inPlaceAxis_ = { 1.0f,1.0f,1.0f };

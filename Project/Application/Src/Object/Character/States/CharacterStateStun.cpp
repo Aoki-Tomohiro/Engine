@@ -85,6 +85,9 @@ void CharacterStateStun::ClampPositionToGround()
 
 void CharacterStateStun::HandleStateTransitionBasedOnReaction()
 {
+	//立ち上がるアニメーションのブレンド時間
+	static const float kStandUpBlendDuration = 1.0f;
+
 	//リアクションタイプに基づいて状態遷移を処理
 	if (currentReactionType_ == ReactionType::kFlinch || !isStunActive_)
 	{
@@ -92,10 +95,9 @@ void CharacterStateStun::HandleStateTransitionBasedOnReaction()
 	}
 	else if (currentReactionType_ == ReactionType::kKnockback)
 	{
-		//スタンを解除し立ち上がるアニメーションに遷移
-		isStunActive_ = false;
-		character_->GetAnimator()->SetIsBlending(true);
-		character_->GetAnimator()->SetBlendDuration(1.0f);
-		SetAnimationControllerAndPlayAnimation("StandUp");
+		isStunActive_ = false; //スタン状態を解除
+		character_->GetAnimator()->SetIsBlending(true); //アニメーションブレンドを有効にする
+		character_->GetAnimator()->SetBlendDuration(kStandUpBlendDuration); //ブレンド時間を設定
+		SetAnimationControllerAndPlayAnimation("StandUp"); //立ち上がるアニメーションを再生
 	}
 }

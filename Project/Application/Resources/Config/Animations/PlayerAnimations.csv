@@ -4,10 +4,12 @@ Walk1,Player/Animations/Walk1.gltf
 Walk2,Player/Animations/Walk2.gltf
 Walk3,Player/Animations/Walk3.gltf
 Walk4,Player/Animations/Walk4.gltf
+WalkTurn,Player/Animations/WalkTurn.gltf
 Run1,Player/Animations/Run1.gltf
 Run2,Player/Animations/Run2.gltf
 Run3,Player/Animations/Run3.gltf
 Run4,Player/Animations/Run4.gltf
+RunTurn,Player/Animations/RunTurn.gltf
 Jump1,Player/Animations/Jump1.gltf
 Jump2,Player/Animations/Jump2.gltf
 DodgeForward,Player/Animations/DodgeForward.gltf

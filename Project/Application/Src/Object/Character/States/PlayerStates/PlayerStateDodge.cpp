@@ -12,6 +12,9 @@
 
 void PlayerStateDodge::Initialize()
 {
+	//アニメーションブレンドの基本の値
+	static const float kDefaultBlendDuration = 0.3f;
+
 	//インプットのインスタンスを取得
 	input_ = Input::GetInstance();
 
@@ -19,7 +22,7 @@ void PlayerStateDodge::Initialize()
 	character_->GetAnimator()->SetIsBlending(true);
 
 	//アニメーションブレンドの時間を設定
-	character_->GetAnimator()->SetBlendDuration(0.2f);
+	character_->GetAnimator()->SetBlendDuration(kDefaultBlendDuration);
 
 	//スティックの入力の強さを計算
 	float inputLength = Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() });

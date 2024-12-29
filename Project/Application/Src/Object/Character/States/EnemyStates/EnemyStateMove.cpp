@@ -12,11 +12,14 @@
 
 void EnemyStateMove::Initialize()
 {
+	//アニメーションブレンドの基本の値
+	static const float kDefaultBlendDuration = 0.3f;
+
 	//アニメーションブレンドを有効にする
 	character_->GetAnimator()->SetIsBlending(true);
 
 	//アニメーションブレンドの時間を設定
-	character_->GetAnimator()->SetBlendDuration(0.2f);
+	character_->GetAnimator()->SetBlendDuration(kDefaultBlendDuration);
 }
 
 void EnemyStateMove::Update()
