@@ -469,16 +469,22 @@ namespace Mathf
 	}
 
 
+	Matrix4x4 MakeRotateMatrix(const Vector3& rotate)
+	{
+		Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
+		Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
+		Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
+		return rotateXMatrix * rotateYMatrix * rotateZMatrix;
+	}
+
+
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate)
 	{
 		Matrix4x4 result{};
 		Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
-		Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
-		Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
-		Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
-		Matrix4x4 rotateXYZMatrix = rotateXMatrix * rotateYMatrix * rotateZMatrix;
+		Matrix4x4 rotateMatrix = MakeRotateMatrix(rotate);
 		Matrix4x4 translateMatrix = MakeTranslateMatrix(translate);
-		result = scaleMatrix * rotateXYZMatrix * translateMatrix;
+		result = scaleMatrix * rotateMatrix * translateMatrix;
 		return result;
 	}
 

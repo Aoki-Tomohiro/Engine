@@ -1,0 +1,13 @@
+{
+    "Enemy": {
+        "ReactFront": {
+            "AnimationEvents": null,
+            "AnimationSpeedConfigs": null,
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

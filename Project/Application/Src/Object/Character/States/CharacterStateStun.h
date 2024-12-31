@@ -56,18 +56,34 @@ private:
 	/// <summary>
 	/// 地面に埋まらないように座標を補正
 	/// </summary>
-	void ClampPositionToGround();
+	void AdjustPositionToGround();
 
 	/// <summary>
-	/// リアクションタイプに基づいて状態を遷移
+	/// 必要に応じてアニメーションを一時停止
 	/// </summary>
-	void HandleStateTransitionBasedOnReaction();
+	void PauseAnimationIfRequired();
+
+	/// <summary>
+	/// スタン状態からの回復を管理
+	/// </summary>
+	void HandleStunRecovery();
+
+	/// <summary>
+	/// 立ち上がりアニメーションと状態遷移を管理
+	/// </summary>
+	void ManageStandUpAnimationAndTransition();
 
 private:
 	//現在のリアクションのタイプ
-	ReactionType currentReactionType_ = ReactionType::kFlinch;
+	ReactionType currentReactionType_ = ReactionType::kFront;
 
 	//スタン状態が現在アクティブかどうか
 	bool isStunActive_ = true;
+
+	//立ち上がりアニメーションが再生されているか
+	bool isPlayStundupAnimation_ = false;
+
+	//ノックバックアニメーションを停止する時間
+	float knockbackAnimationPauseTime_ = 0.8f;
 };
 

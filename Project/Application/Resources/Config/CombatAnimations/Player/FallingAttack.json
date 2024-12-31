@@ -58,7 +58,7 @@
                         0.0
                     ],
                     "MaxHitCount": 10,
-                    "ReactionType": "Knockback",
+                    "ReactionType": "Back",
                     "StartEventTime": 1.600000023841858
                 },
                 "AnimationEvent03": {

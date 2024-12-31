@@ -803,7 +803,7 @@ void AbstractCharacterState::ResetRotationData(const int32_t animationEventIndex
 	//回転イベントが存在しているかつアクティブ状態の場合はアクティブフラグをリセット
 	if (processedRotationDatas_[animationEventIndex].isActive)
 	{
-		processedEasingDatas_[animationEventIndex].isActive = false;
+		processedRotationDatas_[animationEventIndex].isActive = false;
 	}
 }
 

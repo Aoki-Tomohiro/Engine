@@ -1,0 +1,18 @@
+{
+    "Player": {
+        "Knockback": {
+            "AnimationEvents": null,
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.600000023841858,
+                    "Duration": 3.066999912261963
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

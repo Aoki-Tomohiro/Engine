@@ -60,7 +60,7 @@
                         10.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Flinch",
+                    "ReactionType": "Left",
                     "StartEventTime": 1.9600000381469727
                 },
                 "AnimationEvent03": {
@@ -89,7 +89,7 @@
                         20.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Knockback",
+                    "ReactionType": "Front",
                     "StartEventTime": 2.859999895095825
                 },
                 "AnimationEvent04": {

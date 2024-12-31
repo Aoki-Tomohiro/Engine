@@ -25,21 +25,30 @@ void WorldTransform::TransferMatrix()
 
 void WorldTransform::UpdateMatrix()
 {
+	//回転のタイプに応じて行列の計算を変える
 	switch (rotationType_)
 	{
 	case RotationType::Euler:
-		matWorld_ = Mathf::MakeAffineMatrix(scale_, rotation_, translation_);
+		//原点オフセットを回転させる
+		cachedOriginOffset_ = Mathf::TransformNormal(originOffset_, Mathf::MakeRotateMatrix(rotation_));
+		//アフィン行列の計算
+		matWorld_ = Mathf::MakeAffineMatrix(scale_, rotation_, translation_ + cachedOriginOffset_);
 		break;
 	case RotationType::Quaternion:
-		matWorld_ = Mathf::MakeAffineMatrix(scale_, quaternion_, translation_);
+		//原点オフセットを回転させる
+		cachedOriginOffset_ = Mathf::RotateVector(originOffset_, quaternion_);
+		//アフィン行列の計算
+		matWorld_ = Mathf::MakeAffineMatrix(scale_, quaternion_, translation_ + cachedOriginOffset_);
 		break;
 	}
 
+	//親がいる場合は親の行列をかける
 	if (parent_)
 	{
 		matWorld_ = matWorld_ * parent_->matWorld_;
 	}
 
+	//行列の転送
 	TransferMatrix();
 }
 
@@ -58,9 +67,18 @@ void WorldTransform::UnsetParent()
 {
 	if (parent_)
 	{
-		//新しいポジションを設定
+		//新しい座標を設定
 		translation_ = { Vector3{matWorld_.m[3][0],matWorld_.m[3][1],matWorld_.m[3][2]} };
 	}
 	//親子付けを外す
 	parent_ = nullptr;
+}
+
+const Vector3 WorldTransform::GetWorldPosition() const
+{
+	Vector3 worldPosition{};
+	worldPosition.x = matWorld_.m[3][0];
+	worldPosition.y = matWorld_.m[3][1];
+	worldPosition.z = matWorld_.m[3][2];
+	return worldPosition - cachedOriginOffset_;
 }

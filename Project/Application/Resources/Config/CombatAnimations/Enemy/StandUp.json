@@ -2,7 +2,7 @@
     "Enemy": {
         "StandUp": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "CancelType": "None",
                     "EndEventTime": 8.300000190734863,
                     "EventType": "Cancel",
@@ -16,8 +16,8 @@
                 }
             },
             "InPlaceAxis": [
-                1.0,
-                1.0,
+                0.0,
+                0.0,
                 1.0
             ]
         }

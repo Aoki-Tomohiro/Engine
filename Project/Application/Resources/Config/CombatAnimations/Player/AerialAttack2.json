@@ -43,7 +43,7 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Flinch",
+                    "ReactionType": "Front",
                     "StartEventTime": 0.699999988079071
                 },
                 "AnimationEvent02": {

@@ -39,11 +39,11 @@
                     ],
                     "KnockbackVelocity": [
                         0.0,
-                        12.0,
+                        15.0,
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Knockback",
+                    "ReactionType": "Right",
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent02": {

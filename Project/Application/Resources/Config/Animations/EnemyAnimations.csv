@@ -7,8 +7,11 @@ Walk4,Enemy/Animations/Walk4.gltf
 Run,Enemy/Animations/Run.gltf
 Dash,Enemy/Animations/Dash.gltf
 Dodge,Enemy/Animations/Dodge.gltf
-HitStun,Enemy/Animations/HitStun.gltf
-Knockdown,Enemy/Animations/Knockdown.gltf
+ReactFront,Enemy/Animations/ReactFront.gltf
+ReactBack,Enemy/Animations/ReactBack.gltf
+ReactLeft,Enemy/Animations/ReactLeft.gltf
+ReactRight,Enemy/Animations/ReactRight.gltf
+Knockback,Enemy/Animations/Knockback.gltf
 StandUp,Enemy/Animations/StandUp.gltf
 Death,Enemy/Animations/Death.gltf
 VerticalSlash,Enemy/Animations/VerticalSlash.gltf

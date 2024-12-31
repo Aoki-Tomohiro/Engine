@@ -43,7 +43,7 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Flinch",
+                    "ReactionType": "Back",
                     "StartEventTime": 0.47999998927116394
                 },
                 "AnimationEvent02": {

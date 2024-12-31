@@ -34,7 +34,7 @@
                     ],
                     "KnockbackAcceleration": [
                         0.0,
-                        80.0,
+                        60.0,
                         -4.0
                     ],
                     "KnockbackVelocity": [
@@ -43,7 +43,7 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Flinch",
+                    "ReactionType": "Front",
                     "StartEventTime": 0.6000000238418579
                 },
                 "AnimationEvent02": {

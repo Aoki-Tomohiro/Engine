@@ -49,6 +49,12 @@ public:
 	/// </summary>
 	void UnsetParent();
 
+	/// <summary>
+	/// ワールド座標を取得
+	/// </summary>
+	/// <returns>ワールド座標</returns>
+	const Vector3 GetWorldPosition() const;
+
 	//コンスタントバッファを取得
 	const UploadBuffer* GetConstantBuffer() const { return constBuff_.get(); };
 
@@ -68,22 +74,36 @@ public:
 		return *this;
 	}
 
-private:
-	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
-
 public:
+	//スケール
 	Vector3 scale_ = { 1.0f,1.0f,1.0f };
 
+	//回転
 	Vector3 rotation_ = { 0.0f,0.0f,0.0f };
 
+	//座標
 	Vector3 translation_ = { 0.0f,0.0f,0.0f };
 
+	//クォータニオン
 	Quaternion quaternion_ = { 0.0f,0.0f,0.0f,1.0f };
 
+	//ワールド行列
 	Matrix4x4 matWorld_{};
 
+	//原点
+	Vector3 originOffset_{};
+
+	//回転の種類
 	RotationType rotationType_ = RotationType::Euler;
 
+	//親
 	const WorldTransform* parent_ = nullptr;
+
+private:
+	//コンスタントバッファ
+	std::unique_ptr<UploadBuffer> constBuff_ = nullptr;
+
+	//キャッシュされたオフセット
+	Vector3 cachedOriginOffset_{};
 };
 

@@ -26,7 +26,7 @@ public:
 	/// ワールド座標を取得
 	/// </summary>
 	/// <returns>ワールド座標</returns>
-	const Vector3 GetWorldPosition() const;
+	const Vector3 GetWorldPosition() const { return worldTransform_.GetWorldPosition(); };
 
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_{};

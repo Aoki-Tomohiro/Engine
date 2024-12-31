@@ -163,7 +163,7 @@ void BaseCharacter::ApplyParametersToWeapon(const AttackEvent* attackEvent)
     weapon_->SetHitboxParameters(attackEvent->hitboxParameters);
 
     //ノックバックのパラメーターを設定
-    KnockbackParameters knockbackParameters{};
+    KnockbackParameters knockbackParameters = attackEvent->knockbackParameters;
     knockbackParameters.velocity = Mathf::RotateVector(attackEvent->knockbackParameters.velocity, transform_->worldTransform_.quaternion_);
     knockbackParameters.acceleration = Mathf::RotateVector(attackEvent->knockbackParameters.acceleration, transform_->worldTransform_.quaternion_);
     knockbackParameters.reactionType = attackEvent->knockbackParameters.reactionType;
@@ -181,6 +181,7 @@ void BaseCharacter::ProcessCollisionImpact(GameObject* gameObject, const bool tr
     //衝突相手が魔法だった場合
     else if (Magic* magic = dynamic_cast<Magic*>(gameObject))
     {
+        //ダメージを食らった時の処理を実行
         ApplyDamageAndKnockback(magic->GetKnockbackParameters(), magic->GetDamage(), transitionToStun ? magic->GetMagicType() == Magic::MagicType::kCharged : false);
     }
 }

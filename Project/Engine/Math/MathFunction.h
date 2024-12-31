@@ -230,6 +230,13 @@ namespace Mathf
 	Matrix4x4 MakeRotateZMatrix(float radian);
 
 	/// <summary>
+	/// 回転行列を作成
+	/// </summary>
+	/// <param name="rotate">角度</param>
+	/// <returns>回転行列</returns>
+	Matrix4x4 MakeRotateMatrix(const Vector3& rotate);
+
+	/// <summary>
 	/// アフィン行列を作成
 	/// </summary>
 	/// <param name="scale">スケール</param>

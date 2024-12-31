@@ -28,7 +28,7 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Knockback",
+                    "ReactionType": "Front",
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent01": {
