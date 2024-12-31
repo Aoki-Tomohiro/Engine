@@ -19,6 +19,11 @@
         "NormalMaxActionInterval": 4.0,
         "NormalMaxWaitTimeBeforeMovement": 2.0,
         "NormalMinActionInterval": 2.0,
-        "NormalMinWaitTimeBeforeMovement": 1.0
+        "NormalMinWaitTimeBeforeMovement": 1.0,
+        "OriginOffset": [
+            0.0,
+            -2.0,
+            0.0
+        ]
     }
 }

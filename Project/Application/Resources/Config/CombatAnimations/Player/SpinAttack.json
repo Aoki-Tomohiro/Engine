@@ -46,6 +46,7 @@
                     "StartEventTime": 0.20000000298023224
                 },
                 "AnimationEvent03": {
+                    "AttackDirection": "Left",
                     "Damage": 1.2000000476837158,
                     "EndEventTime": 0.10000000149011612,
                     "EventType": "Attack",
@@ -75,6 +76,7 @@
                     "StartEventTime": 0.0
                 },
                 "AnimationEvent04": {
+                    "AttackDirection": "Left",
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",

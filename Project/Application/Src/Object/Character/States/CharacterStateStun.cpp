@@ -20,7 +20,7 @@ void CharacterStateStun::Initialize()
 	character_->GetAnimator()->SetIsBlending(false);
 
 	//現在のリアクションタイプを取得
-	currentReactionType_ = character_->GetPosition().y == 0.0f ? character_->GetKnockbackParameters().reactionType : ReactionType::kKnockback;
+	currentReactionType_ = character_->GetPosition().y == character_->GetAdjustGroundLevel() ? character_->GetKnockbackParameters().reactionType : ReactionType::kKnockback;
 
 	//武器のトレイルをなくす
 	character_->GetWeapon()->SetIsTrailActive(false);
@@ -29,7 +29,7 @@ void CharacterStateStun::Initialize()
 	character_->GetWeapon()->SetIsAttack(false);
 
 	//アニメーションの再生とアニメーションコントローラーを取得
-	PlayReactionAnimation(currentReactionType_);
+	PlayReactionAnimation(currentReactionType_, character_->GetKnockbackParameters().attackDirection);
 }
 
 void CharacterStateStun::Update()
@@ -43,14 +43,14 @@ void CharacterStateStun::Update()
 	//アニメーションイベントの更新
 	UpdateAnimationState();
 
-	//キャラクターの位置を地面に補正
-	AdjustPositionToGround();
+	//着地状態に関連するアニメーションの管理
+	ManageGroundLevelAnimation();
 
 	//スタン状態からの回復を管理
 	HandleStunRecovery();
 
 	//アニメーション終了と状態遷移処理
-	if (character_->GetAnimator()->GetIsAnimationFinished() && character_->GetPosition().y == 0.0f && !isStunActive_)
+	if (character_->GetAnimator()->GetIsAnimationFinished() && character_->GetPosition().y <= character_->GetAdjustGroundLevel() && !isStunActive_)
 	{
 		ManageStandUpAnimationAndTransition();
 	}
@@ -62,39 +62,40 @@ void CharacterStateStun::OnCollision(GameObject* other)
 	character_->ProcessCollisionImpact(other, isStunActive_);
 }
 
-void CharacterStateStun::PlayReactionAnimation(const ReactionType reactionType)
+void CharacterStateStun::PlayReactionAnimation(const ReactionType reactionType, const AttackDirection attackDirection)
 {
-	//リアクションタイプに応じたアニメーションのマッピング
-	static const std::unordered_map<ReactionType, std::string> reactionAnimations = {
-		{ReactionType::kFront, "ReactFront"},   //前方リアクション
-		{ReactionType::kBack, "ReactBack"},     //後方リアクション
-		{ReactionType::kLeft, "ReactLeft"},     //左側リアクション
-		{ReactionType::kRight, "ReactRight"},   //右側リアクション
-		{ReactionType::kKnockback, "Knockback"} //吹き飛ばし
-	};
+	//リアクションの種類を設定
+	std::string type = reactionType == ReactionType::kFlinch ? "Small" : "Large";
 
-	//該当するアニメーションを再生
-	auto it = reactionAnimations.find(reactionType);
-	if (it != reactionAnimations.end())
+	//攻撃の方向
+	switch (attackDirection)
 	{
-		SetAnimationControllerAndPlayAnimation(it->second);
+	case AttackDirection::kFront:
+		SetAnimationControllerAndPlayAnimation("React" + type + "Front");
+		break;
+	case AttackDirection::kBack:
+		SetAnimationControllerAndPlayAnimation("React" + type + "Back");
+		break;
+	case AttackDirection::kLeft:
+		SetAnimationControllerAndPlayAnimation("React" + type + "Right");
+		break;
+	case AttackDirection::kRight:
+		SetAnimationControllerAndPlayAnimation("React" + type + "Left");
+		break;
 	}
 }
 
-void CharacterStateStun::AdjustPositionToGround()
+void CharacterStateStun::ManageGroundLevelAnimation()
 {
-	//キャラクターの現在位置を取得
-	Vector3 currentPosition = character_->GetPosition();
-
-	//地面の高さに位置を補正
-	if (currentPosition.y < 0.0f)
+	//アニメーションの一時停止を解除
+	if (character_->GetPosition().y < character_->GetAdjustGroundLevel())
 	{
-		character_->SetPosition({ currentPosition.x, 0.0f, currentPosition.z });
-		character_->GetAnimator()->ResumeAnimation(); //アニメーションの一時停止を解除
+		character_->GetAnimator()->ResumeAnimation(); 
 	}
+	//必要に応じてアニメーションを一時停止
 	else
 	{
-		PauseAnimationIfRequired(); //必要に応じてアニメーションを一時停止
+		PauseAnimationIfRequired();
 	}
 }
 
@@ -116,7 +117,7 @@ void CharacterStateStun::PauseAnimationIfRequired()
 void CharacterStateStun::HandleStunRecovery()
 {
 	//スタン解除や地面にいない場合の処理を飛ばす
-	if (!isStunActive_ || character_->GetPosition().y != 0.0f) return;
+	if (!isStunActive_ || character_->GetPosition().y > character_->GetAdjustGroundLevel()) return;
 
 	//アニメーターを取得
 	AnimatorComponent* animator = character_->GetAnimator();
@@ -147,10 +148,14 @@ void CharacterStateStun::ManageStandUpAnimationAndTransition()
 	{
 		//立ち上がりアニメーションのブレンド時間
 		static const float kStandUpBlendDuration = 1.0f;
-		isPlayStundupAnimation_ = true; //立ち上がりアニメーション再生のフラグを立てる
-		character_->GetAnimator()->SetIsBlending(true); //ブレンドを有効化
-		character_->GetAnimator()->SetBlendDuration(kStandUpBlendDuration); //ブレンド時間を設定
-		SetAnimationControllerAndPlayAnimation("StandUp"); //立ち上がりアニメーションを再生
+		//立ち上がりアニメーション再生のフラグを立てる
+		isPlayStundupAnimation_ = true; 
+		//ブレンドを有効化
+		character_->GetAnimator()->SetIsBlending(true); 
+		//ブレンド時間を設定
+		character_->GetAnimator()->SetBlendDuration(kStandUpBlendDuration); 
+		//立ち上がりアニメーションを再生
+		SetAnimationControllerAndPlayAnimation("StandUp"); 
 		return;
 	}
 

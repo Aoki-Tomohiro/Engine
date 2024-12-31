@@ -71,7 +71,7 @@ void PlayerStateAttack::OnCollision(GameObject* other)
 std::string PlayerStateAttack::DetermineAnimationName() const
 {
 	//現在の高さを確認し、空中攻撃か地上攻撃かを決定
-	return character_->GetPosition().y > 0.0f ? GetAerialAnimationName() : GetGroundAnimationName();
+	return character_->GetPosition().y > character_->GetAdjustGroundLevel() ? GetAerialAnimationName() : GetGroundAnimationName();
 }
 
 const std::string PlayerStateAttack::GetGroundAnimationName() const

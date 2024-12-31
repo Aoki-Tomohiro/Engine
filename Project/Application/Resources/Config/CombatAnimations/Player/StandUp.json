@@ -2,13 +2,13 @@
     "Player": {
         "StandUp": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "CancelType": "Dodge",
                     "EndEventTime": 6.0,
                     "EventType": "Cancel",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "CancelType": "None",
                     "EndEventTime": 8.300000190734863,
                     "EventType": "Cancel",

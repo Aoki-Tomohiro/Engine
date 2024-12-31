@@ -1,6 +1,6 @@
 {
     "Player": {
-        "Knockback": {
+        "ReactLargeFront": {
             "AnimationEvents": null,
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {

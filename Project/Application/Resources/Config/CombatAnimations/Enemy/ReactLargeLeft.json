@@ -1,0 +1,31 @@
+{
+    "Enemy": {
+        "ReactLargeLeft": {
+            "AnimationEvents": {
+                "AnimationEvent00": {
+                    "EasingType": "EaseOut",
+                    "EndEventTime": 0.800000011920929,
+                    "EventType": "Rotation",
+                    "RotationAngle": -6.2820000648498535,
+                    "RotationAxis": [
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "StartEventTime": 0.20000000298023224
+                }
+            },
+            "AnimationSpeedConfigs": {
+                "AnimationSpeedConfig0": {
+                    "AnimationSpeed": 1.0,
+                    "Duration": 3.066999912261963
+                }
+            },
+            "InPlaceAxis": [
+                0.0,
+                0.0,
+                1.0
+            ]
+        }
+    }
+}

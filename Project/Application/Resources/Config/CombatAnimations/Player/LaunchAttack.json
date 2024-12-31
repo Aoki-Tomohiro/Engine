@@ -3,6 +3,7 @@
         "LaunchAttack": {
             "AnimationEvents": {
                 "AnimationEvent00": {
+                    "AttackDirection": "Front",
                     "Damage": 1.2000000476837158,
                     "EndEventTime": 1.100000023841858,
                     "EventType": "Attack",
@@ -28,10 +29,11 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Front",
+                    "ReactionType": "Flinck",
                     "StartEventTime": 1.0
                 },
                 "AnimationEvent01": {
+                    "AttackDirection": "Front",
                     "Damage": 0.6000000238418579,
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Attack",

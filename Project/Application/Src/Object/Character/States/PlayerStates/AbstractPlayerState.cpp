@@ -88,18 +88,11 @@ void AbstractPlayerState::InitializeEasingMovementEvent(const EasingMovementEven
 
 void AbstractPlayerState::HandleStateTransitionInternal()
 {
-	//プレイヤーが地面にいなかった場合は落下状態にする
-	Vector3 position = character_->GetPosition();
-	if (position.y > 0.0f)
-	{
-		character_->ChangeState("Falling");
-	}
-	//地面にいる場合は地面に埋まらないように座標を補正して通常状態に戻す
-	else
-	{
-		character_->SetPosition({ position.x, 0.0f, position.z });
-		character_->ChangeState("Idle");
-	}
+	//次の状態の名前設定
+	std::string nextStateName = character_->GetPosition().y > character_->GetAdjustGroundLevel() ? "Falling" : "Idle";
+
+	//状態遷移
+	character_->ChangeState(nextStateName);
 }
 
 Vector3 AbstractPlayerState::CalculateDirectionToEnemy() const

@@ -21,18 +21,18 @@ public:
 	//通常カメラ時のパラメーター
 	struct FollowCameraParameters
 	{
-		Vector3 offset = { 0.0f, 1.0f, -10.0f }; //オフセット値
-		float rotationRangeMin = 1.0f;           //最小回転角度
-		float rotationRangeMax = 2.4f;           //最大回転角度
-		float rotationSpeedX = 0.04f;            //X軸の回転速度
-		float rotationSpeedY = 0.08f;            //Y軸の回転速度
+		Vector3 offset = { 0.0f, -0.5f, -10.0f }; //オフセット値
+		float rotationRangeMin = 1.0f;            //最小回転角度
+		float rotationRangeMax = 2.4f;            //最大回転角度
+		float rotationSpeedX = 0.04f;             //X軸の回転速度
+		float rotationSpeedY = 0.08f;             //Y軸の回転速度
 	};
 
 	//ロックオンカメラ時のパラメーター
 	struct LockonCameraParameters
 	{
-		Vector3 offset = { 0.0f, 1.0f, -10.0f }; //オフセット値
-		float maxAngle = 1.0f;                   //X軸の最大回転角度
+		Vector3 offset = { 0.0f, -0.5f, -10.0f }; //オフセット値
+		float maxAngle = 1.0f;                    //X軸の最大回転角度
 	};
 
 	/// <summary>

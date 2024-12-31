@@ -2,7 +2,7 @@
     "Enemy": {
         "Run": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 0.7670000195503235,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
@@ -17,7 +17,7 @@
                         40.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 0.7670000195503235,
                     "EventType": "BufferedAction",

@@ -1,6 +1,6 @@
 {
-    "Enemy": {
-        "ReactBack": {
+    "Player": {
+        "ReactSmallFront": {
             "AnimationEvents": null,
             "AnimationSpeedConfigs": null,
             "InPlaceAxis": [

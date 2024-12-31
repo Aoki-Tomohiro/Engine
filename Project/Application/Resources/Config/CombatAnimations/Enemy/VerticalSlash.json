@@ -51,6 +51,7 @@
                     "UseStickInput": false
                 },
                 "AnimationEvent03": {
+                    "AttackDirection": "Front",
                     "Damage": 6.0,
                     "EndEventTime": 1.5,
                     "EventType": "Attack",

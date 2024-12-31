@@ -3,6 +3,7 @@
         "Casting": {
             "AnimationEvents": {
                 "AnimationEvent00": {
+                    "AttackDirection": "Front",
                     "Damage": 0.4000000059604645,
                     "EndEventTime": 0.3199999928474426,
                     "EventType": "Attack",
@@ -28,7 +29,7 @@
                         0.0
                     ],
                     "MaxHitCount": 0,
-                    "ReactionType": "Front",
+                    "ReactionType": "Flinck",
                     "StartEventTime": 0.30000001192092896
                 },
                 "AnimationEvent01": {

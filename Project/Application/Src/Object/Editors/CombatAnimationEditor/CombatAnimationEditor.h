@@ -47,8 +47,8 @@ public:
 	//キャラクターデータ
 	struct CharacterData
 	{
-		BaseCharacter* character;                                         //編集対象キャラクター
-		CharacterAnimationData animationData;                             //アニメーションデータ
+		BaseCharacter* character;             //編集対象キャラクター
+		CharacterAnimationData animationData; //アニメーションデータ
 	};
 
 	/// <summary>

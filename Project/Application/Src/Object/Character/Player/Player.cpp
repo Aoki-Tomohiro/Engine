@@ -164,7 +164,7 @@ void Player::InitializeActionMap()
 	actionMap_ = {
 		{"None", ActionCondition{[this]() {return true; }, [this]() {return true; }}},
 		{"Move", ActionCondition{[this]() {return true; }, [this]() { return Mathf::Length({ input_->GetLeftStickX(), 0.0f, input_->GetLeftStickY() }) > rootParameters_.walkThreshold; }}},
-		{"Jump", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y == 0.0f || GetActionFlag(Player::ActionFlag::kCanStomp)); }}},
+		{"Jump", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::A].isTriggered && (GetPosition().y <= GetAdjustGroundLevel() || GetActionFlag(Player::ActionFlag::kCanStomp)); }}},
 		{"Dodge", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::RB].isTriggered; }}},
 		{"Dash", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::LB].isTriggered; }}},
 		{"Attack", ActionCondition{[this]() {return true; }, [this]() { return buttonStates_[Player::ButtonType::X].isTriggered; }}},
@@ -617,7 +617,7 @@ bool Player::IsAbilityUsable(const SkillParameters& skill) const
 	if (!GetIsCooldownComplete(skill.name)) return false;
 
 	//地面専用スキルの条件を確認
-	if (skill.canUseOnGroundOnly && GetPosition().y > 0.0f) return false;
+	if (skill.canUseOnGroundOnly && GetPosition().y > GetAdjustGroundLevel()) return false;
 
 	//アビリティが使用可能
 	return true;

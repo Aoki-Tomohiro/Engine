@@ -288,7 +288,7 @@ void CombatAnimationEditor::SaveAttackEvent(const AttackEvent* attackEvent, nloh
 	//パラメーターを保存
 	eventJson.update({ {"EventType", "Attack"},{"StartEventTime", attackEvent->startEventTime},{"EndEventTime", attackEvent->endEventTime},
 		{"MaxHitCount", attackParams.maxHitCount},{"HitInterval", attackParams.hitInterval},{"Damage", attackParams.damage},{"ReactionType", REACTION_TYPES[static_cast<int>(knockbackParams.reactionType)]},
-		{"HitboxCenter", {hitboxParams.center.x, hitboxParams.center.y, hitboxParams.center.z}},{"HitboxSize", {hitboxParams.size.x, hitboxParams.size.y, hitboxParams.size.z}},
+		{"AttackDirection", ATTACK_DIRECTION[static_cast<int>(knockbackParams.attackDirection)]}, {"HitboxCenter", {hitboxParams.center.x, hitboxParams.center.y, hitboxParams.center.z}},{"HitboxSize", {hitboxParams.size.x, hitboxParams.size.y, hitboxParams.size.z}},
 		{"KnockbackVelocity", {knockbackParams.velocity.x, knockbackParams.velocity.y, knockbackParams.velocity.z}},{"KnockbackAcceleration", {knockbackParams.acceleration.x, knockbackParams.acceleration.y, knockbackParams.acceleration.z}} });
 }
 
@@ -579,6 +579,8 @@ std::shared_ptr<AttackEvent> CombatAnimationEditor::LoadAttackEvent(const nlohma
 	attackEvent->knockbackParameters.acceleration = { eventJson["KnockbackAcceleration"][0].get<float>(), eventJson["KnockbackAcceleration"][1].get<float>(), eventJson["KnockbackAcceleration"][2].get<float>() };
 	//リアクションの種類を設定
 	SetEnumFromJson(eventJson["ReactionType"], attackEvent->knockbackParameters.reactionType, REACTION_TYPES, IM_ARRAYSIZE(REACTION_TYPES));
+	//攻撃の方向を設定
+	SetEnumFromJson(eventJson["AttackDirection"], attackEvent->knockbackParameters.attackDirection, ATTACK_DIRECTION, IM_ARRAYSIZE(ATTACK_DIRECTION));
 	//生成した攻撃イベントを返す
 	return attackEvent;
 }
@@ -1076,6 +1078,9 @@ void CombatAnimationEditor::EditAttackEvent(AttackEvent* attackEvent)
 
 		//リアクションのタイプを選択
 		SelectFromEnum("リアクションのタイプ", attackEvent->knockbackParameters.reactionType, REACTION_TYPES, IM_ARRAYSIZE(REACTION_TYPES));
+
+		//攻撃の方向を選択
+		SelectFromEnum("攻撃の方向", attackEvent->knockbackParameters.attackDirection, ATTACK_DIRECTION, IM_ARRAYSIZE(ATTACK_DIRECTION));
 
 		//ツリーノードを閉じる
 		ImGui::TreePop();

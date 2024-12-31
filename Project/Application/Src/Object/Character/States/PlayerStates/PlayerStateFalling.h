@@ -39,12 +39,6 @@ private:
 	/// </summary>
 	void CheckAndHandleLanding();
 
-	/// <summary>
-	/// 着地処理
-	/// </summary>
-	/// <param name="landingPosition">着地座標</param>
-	void ProcessLanding(const Vector3& landingPosition);
-
 private:
 	//着地フラグ
 	bool isCurrentlyLanding_ = false;

@@ -76,13 +76,14 @@ void PlayerStateFalling::CheckAndHandleLanding()
 	//現在のアニメーション時間を取得
 	float currentAnimationTime = animator->GetIsBlendingCompleted() ? animator->GetCurrentAnimationTime() : animator->GetNextAnimationTime();
 
-	//現在のキャラクターの位置を取得
-	Vector3 currentPosition = character_->GetPosition();
-
 	//地面に到達した場合
-	if (currentPosition.y < 0.0f && !isCurrentlyLanding_)
+	if (character_->GetPosition().y < character_->GetAdjustGroundLevel() && !isCurrentlyLanding_)
 	{
-		ProcessLanding(currentPosition);
+		//着地フラグの設定
+		isCurrentlyLanding_ = true;
+
+		//速度を0にリセット
+		processedVelocityDatas_[0].velocity = { 0.0f, 0.0f, 0.0f };
 	}
 	//空中状態の場合
 	else if (currentAnimationTime >= animationPauseThreshold_)
@@ -90,16 +91,4 @@ void PlayerStateFalling::CheckAndHandleLanding()
 		//着地フラグの状態によってアニメーションを管理
 		isCurrentlyLanding_ ? character_->GetAnimator()->ResumeAnimation() : character_->GetAnimator()->PauseAnimation();
 	}
-}
-
-void PlayerStateFalling::ProcessLanding(const Vector3& landingPosition)
-{
-	//着地フラグの設定
-	isCurrentlyLanding_ = true;
-
-	//速度を0にリセット
-	processedVelocityDatas_[0].velocity = { 0.0f, 0.0f, 0.0f };
-
-	//キャラクターの位置を地面に合わせる
-	character_->SetPosition({ landingPosition.x, 0.0f, landingPosition.z });
 }

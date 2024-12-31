@@ -75,9 +75,6 @@ private:
 	//ロックオンターゲット
 	const TransformComponent* target_ = nullptr;
 
-	//オフセット
-	Vector3 targetOffset_ = { 0.0f,2.0f,0.0f };
-
 	//ロックオンスプライトのスケール
 	Vector2 lockonSpriteScale_ = { 0.4f,0.4f };
 };

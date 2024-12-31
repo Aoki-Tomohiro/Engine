@@ -45,14 +45,14 @@ void Lockon::Draw()
 	//ターゲットがいる場合はロックオンマークを表示する
 	if (target_)
 	{
-		//lockonMark_->Draw();
+		lockonMark_->Draw();
 	}
 }
 
 const Vector3 Lockon::GetTargetPosition() const
 {
 	//ターゲットがいる場合は腰のジョイントのワールド座標を返す
-	return target_ ? target_->GetWorldPosition() + targetOffset_ : Vector3();
+	return target_ ? target_->GetWorldPosition() : Vector3();
 }
 
 void Lockon::UpdateTargeting()
@@ -79,8 +79,10 @@ const Vector2 Lockon::WorldToScreenPosition(const Vector3& worldPosition, const 
 
 void Lockon::SetLockonMarkPosition(const Camera* camera)
 {
+	//腰のジョイントの位置を取得
+	Vector3 hipPosition = GameObjectManager::GetInstance()->GetGameObject<Enemy>("Enemy")->GetJointWorldPosition("mixamorig:Hips");
 	//敵のロックオン座標取得
-	Vector2 screenPosition = WorldToScreenPosition(target_->GetWorldPosition() + targetOffset_, camera);
+	Vector2 screenPosition = WorldToScreenPosition(hipPosition, camera);
 	//スプライトの座標を設定
 	lockonMark_->SetPosition(screenPosition);
 }

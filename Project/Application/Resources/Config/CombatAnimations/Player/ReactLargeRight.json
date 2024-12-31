@@ -1,16 +1,16 @@
 {
     "Player": {
-        "Knockdown": {
+        "ReactLargeRight": {
             "AnimationEvents": null,
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {
-                    "AnimationSpeed": 2.0,
-                    "Duration": 2.1670000553131104
+                    "AnimationSpeed": 1.600000023841858,
+                    "Duration": 3.066999912261963
                 }
             },
             "InPlaceAxis": [
-                1.0,
-                1.0,
+                0.0,
+                0.0,
                 1.0
             ]
         }

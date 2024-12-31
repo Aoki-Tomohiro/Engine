@@ -144,16 +144,20 @@ public:
     /// <param name="actionName">アクション名</param>
     /// <returns>アクションが実行可能かどうか（トリガー条件のみ）</returns>
     const bool GetActionTriggerCondition(const std::string& actionName) const { return actionMap_.count(actionName) ? actionMap_.at(actionName).triggerCondition() : false; };
+    
+    //原点を取得・設定
+    const Vector3& GetOriginOffset() const { return transform_->worldTransform_.originOffset_; };
+    void SetOriginnOffset(const Vector3& originOffset) { transform_->worldTransform_.originOffset_ = originOffset; };
 
-    //座標を設定・取得
+    //座標を取得・設定
     const Vector3& GetPosition() const { return transform_->worldTransform_.translation_; };
     void SetPosition(const Vector3& position) { transform_->worldTransform_.translation_ = position; };
 
-    //クォータニオンの設定・取得
+    //クォータニオンの取得・設定
     const Quaternion& GetQuaternion() const { return transform_->worldTransform_.quaternion_; };
     void SetQuaternion(const Quaternion& quaternion) { transform_->worldTransform_.quaternion_ = quaternion; };
 
-    //目標クォータニオンの設定・取得
+    //目標クォータニオンの取得・設定
     const Quaternion& GetDestinationQuaternion() const { return destinationQuaternion_; };
     void SetDestinationQuaternion(const Quaternion& destinationQuaternion) { destinationQuaternion_ = destinationQuaternion; };
 
@@ -208,6 +212,9 @@ public:
 
     //重力加速度を取得
     const float GetGravityAcceleration() const { return gravityAcceleration_; };
+
+    //地面のY座標を取得
+    const float GetAdjustGroundLevel() const { return GetOriginOffset().y * -1.0f; };
 
     //デバッグのフラグの設定・取得
     const bool GetIsDebug() const { return isDebug_; };

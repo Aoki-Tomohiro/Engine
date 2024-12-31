@@ -2,13 +2,13 @@
     "Enemy": {
         "Idle": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "BufferedActionType": "MoveSideToPlayer",
                     "EndEventTime": 11.300000190734863,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "BufferedActionType": "MoveAwayFromPlayer",
                     "EndEventTime": 11.300000190734863,
                     "EventType": "BufferedAction",

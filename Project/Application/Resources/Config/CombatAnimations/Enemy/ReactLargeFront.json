@@ -1,6 +1,6 @@
 {
     "Enemy": {
-        "Knockback": {
+        "ReactLargeFront": {
             "AnimationEvents": null,
             "AnimationSpeedConfigs": {
                 "AnimationSpeedConfig0": {

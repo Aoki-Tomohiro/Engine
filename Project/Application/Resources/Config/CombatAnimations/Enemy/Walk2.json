@@ -2,7 +2,7 @@
     "Enemy": {
         "Walk2": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EndEventTime": 1.399999976158142,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": false,
@@ -17,13 +17,13 @@
                         -6.0
                     ]
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "BufferedActionType": "MoveTowardPlayer",
                     "EndEventTime": 1.399999976158142,
                     "EventType": "BufferedAction",
                     "StartEventTime": 0.0
                 },
-                "AnimationEvent2": {
+                "AnimationEvent02": {
                     "BufferedActionType": "MoveSideToPlayer",
                     "EndEventTime": 1.399999976158142,
                     "EventType": "BufferedAction",

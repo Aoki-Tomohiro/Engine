@@ -2,7 +2,7 @@
     "Enemy": {
         "Dodge": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseIn",
                     "EndEventTime": 0.699999988079071,
                     "EventType": "Movement",

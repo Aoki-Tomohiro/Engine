@@ -51,12 +51,13 @@ private:
 	/// リアクションのアニメーションを再生
 	/// </summary>
 	/// <param name="reactionType">リアクションタイプ</param>
-	void PlayReactionAnimation(const ReactionType reactionType);
+	/// <param name="attackDirection">攻撃の方向</param>
+	void PlayReactionAnimation(const ReactionType reactionType, const AttackDirection attackDirection);
 
 	/// <summary>
-	/// 地面に埋まらないように座標を補正
+	/// 着地状態に関連するアニメーションの管理
 	/// </summary>
-	void AdjustPositionToGround();
+	void ManageGroundLevelAnimation();
 
 	/// <summary>
 	/// 必要に応じてアニメーションを一時停止
@@ -75,7 +76,7 @@ private:
 
 private:
 	//現在のリアクションのタイプ
-	ReactionType currentReactionType_ = ReactionType::kFront;
+	ReactionType currentReactionType_ = ReactionType::kFlinch;
 
 	//スタン状態が現在アクティブかどうか
 	bool isStunActive_ = true;

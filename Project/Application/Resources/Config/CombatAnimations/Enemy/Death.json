@@ -2,7 +2,7 @@
     "Enemy": {
         "Death": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "AnimationName": "GameClear",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 0.5,

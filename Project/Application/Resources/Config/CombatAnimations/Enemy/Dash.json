@@ -2,7 +2,7 @@
     "Enemy": {
         "Dash": {
             "AnimationEvents": {
-                "AnimationEvent0": {
+                "AnimationEvent00": {
                     "EasingType": "EaseOut",
                     "EndEventTime": 1.0670000314712524,
                     "EventType": "Movement",
@@ -18,7 +18,7 @@
                     ],
                     "UseStickInput": false
                 },
-                "AnimationEvent1": {
+                "AnimationEvent01": {
                     "BufferedActionType": "Attack",
                     "EndEventTime": 1.0670000314712524,
                     "EventType": "BufferedAction",

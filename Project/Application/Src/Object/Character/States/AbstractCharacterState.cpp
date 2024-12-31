@@ -184,10 +184,13 @@ void AbstractCharacterState::InitializeEffectEvent(const EffectEvent* effectEven
 	//ポストエフェクトのタイプを設定
 	processedEffectDatas_[animationEventIndex].postEffectType = effectEvent->postEffectType;
 
+	//エミッターの座標を設定
+	UpdateEmitterPosition(effectEvent, animationEventIndex);
+
 	//アクション開始時にトリガーする状態の場合はエフェクトを適用
 	if (effectEvent->trigger == EventTrigger::kActionStart)
 	{
-		ApplyEffect(effectEvent, character_->GetPosition());
+		ApplyEffect(effectEvent, processedEffectDatas_[animationEventIndex].emitterPosition);
 	}
 }
 
@@ -474,10 +477,34 @@ void AbstractCharacterState::ProcessEffectEvent(const EffectEvent* effectEvent, 
 		InitializeEffectEvent(effectEvent, animationEventIndex);
 	}
 
+	//エミッターの座標を更新
+	UpdateEmitterPosition(effectEvent, animationEventIndex);
+
 	//攻撃が敵に当たったらエフェクトを適用する
 	if (ShouldTriggerEvent(effectEvent->trigger))
 	{ 
-		ApplyEffect(effectEvent, character_->GetWeapon()->GetComponent<TransformComponent>()->GetWorldPosition());
+		ApplyEffect(effectEvent, processedEffectDatas_[animationEventIndex].emitterPosition);
+	}
+}
+
+void AbstractCharacterState::UpdateEmitterPosition(const EffectEvent* effectEvent, const int32_t animationEventIndex)
+{
+	//攻撃ヒット時の場合
+	if (effectEvent->trigger == EventTrigger::kImpact)
+	{
+		//武器を取得
+		Weapon* weapon = character_->GetWeapon();
+
+		//武器のトランスフォームを取得
+		TransformComponent* transform = weapon->GetComponent<TransformComponent>();
+
+		//エミッターの座標を更新
+		processedEffectDatas_[animationEventIndex].emitterPosition = transform->GetWorldPosition() + Mathf::TransformNormal(weapon->GetFrontOffset(), transform->worldTransform_.matWorld_);
+	}
+	else
+	{
+		//キャラクターのトランスフォームからエミッター位置を取得
+		processedEffectDatas_[animationEventIndex].emitterPosition = character_->GetComponent<TransformComponent>()->GetWorldPosition() + Mathf::RotateVector(character_->GetOriginOffset(), character_->GetQuaternion());
 	}
 }
 

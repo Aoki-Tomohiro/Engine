@@ -35,6 +35,7 @@
                     "UseStickInput": false
                 },
                 "AnimationEvent02": {
+                    "AttackDirection": "Front",
                     "Damage": 4.0,
                     "EndEventTime": 2.259999990463257,
                     "EventType": "Attack",
@@ -60,10 +61,11 @@
                         10.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Left",
+                    "ReactionType": "Flinck",
                     "StartEventTime": 1.9600000381469727
                 },
                 "AnimationEvent03": {
+                    "AttackDirection": "Front",
                     "Damage": 6.0,
                     "EndEventTime": 3.1600000858306885,
                     "EventType": "Attack",
@@ -89,7 +91,7 @@
                         20.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Front",
+                    "ReactionType": "Flinck",
                     "StartEventTime": 2.859999895095825
                 },
                 "AnimationEvent04": {

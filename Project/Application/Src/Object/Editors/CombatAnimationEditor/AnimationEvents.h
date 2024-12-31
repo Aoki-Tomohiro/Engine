@@ -110,11 +110,17 @@ struct RotationEvent : public AnimationEvent
 //攻撃のリアクションタイプ
 enum class ReactionType
 {
-    kFront,     //前方からのリアクション
-    kBack,      //後方からのリアクション
-    kLeft,      //左側からのリアクション
-    kRight,     //右側からのリアクション
+    kFlinch,    //ひるみリアクション
     kKnockback, //吹き飛ばしリアクション
+};
+
+//攻撃の方向
+enum class AttackDirection
+{
+    kFront, //前方からの攻撃
+    kBack,  //後方からの攻撃
+    kLeft,  //左側からの攻撃
+    kRight  //右側からの攻撃
 };
 
 //攻撃に関する設定
@@ -135,9 +141,10 @@ struct HitboxParameters
 //ノックバックの設定
 struct KnockbackParameters
 {
-    Vector3 velocity{};          //初速
-    Vector3 acceleration{};      //加速度
-    ReactionType reactionType{}; //リアクションタイプ
+    Vector3 velocity{};                //初速
+    Vector3 acceleration{};            //加速度
+    ReactionType reactionType{};       //リアクションタイプ
+    AttackDirection attackDirection{}; //攻撃の方向
 };
 
 //攻撃イベント
@@ -249,7 +256,8 @@ namespace
     const char* MOVEMENT_TYPES[] = { "Velocity", "Easing" };                                                                           //移動イベントタイプ
     const char* EASING_TYPES[] = { "Linear", "EaseIn", "EaseOut", "EaseInOut" };                                                       //イージングタイプ
     const char* EVENT_TRIGGERS[] = { "ActionStart", "Impact" , "EnemyJustDodgeWindow", "EnemyStunned" };                               //イベントのトリガー条件
-    const char* REACTION_TYPES[] = { "Front", "Back", "Left", "Right", "Knockback" };                                                  //リアクションタイプ
+    const char* REACTION_TYPES[] = { "Flinck", "Knockback" };                                                                          //リアクションタイプ
+    const char* ATTACK_DIRECTION[] = { "Front", "Back", "Left", "Right" };                                                             //攻撃の方向
     const char* POST_EFFECT_TYPES[] = { "None", "RadialBlur" };                                                                        //ポストエフェクトのタイプ
 }
 

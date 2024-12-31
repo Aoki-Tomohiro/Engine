@@ -49,6 +49,7 @@ public:
 	struct ProcessedEffectData : public ProcessedEventData
 	{
 		PostEffectType postEffectType{};  //ポストエフェクトの種類
+		Vector3 emitterPosition{};        //エミッターの座標
 	};
 
 	//カメラアニメーションに関するイベントの構造体
@@ -182,6 +183,7 @@ protected:
 	virtual void ProcessRotationEvent(const RotationEvent* rotationEvent, const float animationTime, const int32_t animationEventIndex);
 	virtual void ProcessAttackEvent(const AttackEvent* attackEvent, const int32_t animationEventIndex);
 	virtual void ProcessEffectEvent(const EffectEvent* effectEvent, const int32_t animationEventIndex);
+	virtual void UpdateEmitterPosition(const EffectEvent* effectEvent, const int32_t animationEventIndex);
 	virtual void ApplyEffect(const EffectEvent* effectEvent, const Vector3& emitterPosition);
 	virtual void ProcessCameraAnimationEvent(const CameraAnimationEvent* cameraAnimationEvent, const int32_t animationEventIndex);
 	virtual void ProcessQTE(const QTE* qte, const int32_t animationEventIndex);

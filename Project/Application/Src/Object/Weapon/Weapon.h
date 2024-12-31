@@ -69,6 +69,10 @@ public:
 	const bool GetIsAttack() const { return isAttack_; };
 	void SetIsAttack(const bool isAttack) { isAttack_ = isAttack; };
 
+	//オフセット値を取得
+	const Vector3& GetHeadOffset() const { return headOffset_; };
+	const Vector3& GetFrontOffset() const { return frontOffset_; };
+
 private:
 	/// <summary>
 	/// トランスフォームの初期化

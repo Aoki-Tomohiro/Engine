@@ -18,6 +18,7 @@
                     ]
                 },
                 "AnimationEvent01": {
+                    "AttackDirection": "Front",
                     "Damage": 1.0,
                     "EndEventTime": 1.5,
                     "EventType": "Attack",

@@ -344,6 +344,7 @@ void BaseCharacter::InitializeGlobalVariables()
     GlobalVariables* globalVariables = GlobalVariables::GetInstance();
     globalVariables->CreateGroup(name_);
     globalVariables->AddItem(name_, "ColliderOffset", colliderOffset_);
+    globalVariables->AddItem(name_, "OriginOffset", transform_->worldTransform_.originOffset_);
 }
 
 void BaseCharacter::UpdateRotation()
@@ -381,9 +382,9 @@ void BaseCharacter::RestrictMovement()
     }
 
     //地面にキャラクターが埋まっていた場合は地面の高さに合わせる
-    if (transform_->worldTransform_.translation_.y < 0.0f)
+    if (transform_->worldTransform_.translation_.y < GetAdjustGroundLevel())
     {
-        transform_->worldTransform_.translation_.y = 0.0f;
+        transform_->worldTransform_.translation_.y = GetAdjustGroundLevel();
     }
 }
 
@@ -525,6 +526,8 @@ void BaseCharacter::LoadResourceFromCSV(const std::string& filePath, std::map<st
 
 void BaseCharacter::ApplyGlobalVariables()
 {
+    //環境変数を適用
     GlobalVariables* globalVariables = GlobalVariables::GetInstance();
     colliderOffset_ = globalVariables->GetVector3Value(name_, "ColliderOffset");
+    transform_->worldTransform_.originOffset_ = globalVariables->GetVector3Value(name_, "OriginOffset");
 }

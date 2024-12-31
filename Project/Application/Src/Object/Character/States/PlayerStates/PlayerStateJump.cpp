@@ -79,14 +79,11 @@ void PlayerStateJump::LookAtLockonTarget()
 
 void PlayerStateJump::CheckLandingAndTransitionState()
 {
-	//座標を取得
-	Vector3 position = character_->GetPosition();
-
 	//地面に着地していたら
-	if (position.y < 0.0f)
+	if (character_->GetPosition().y < character_->GetAdjustGroundLevel())
 	{
 		//パーティクルを出す
-		character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", position, character_->GetQuaternion());
+		character_->GetEditorManager()->GetParticleEffectEditor()->CreateParticles("Landing", character_->GetComponent<TransformComponent>()->GetWorldPosition(), character_->GetQuaternion());
 
 		//デフォルトの状態に戻す
 		HandleStateTransition();

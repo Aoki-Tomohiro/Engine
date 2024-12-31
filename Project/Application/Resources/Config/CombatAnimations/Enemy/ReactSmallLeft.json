@@ -1,6 +1,6 @@
 {
     "Enemy": {
-        "ReactRight": {
+        "ReactSmallLeft": {
             "AnimationEvents": null,
             "AnimationSpeedConfigs": null,
             "InPlaceAxis": [

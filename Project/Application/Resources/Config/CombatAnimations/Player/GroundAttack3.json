@@ -18,6 +18,7 @@
                     ]
                 },
                 "AnimationEvent01": {
+                    "AttackDirection": "Left",
                     "Damage": 0.800000011920929,
                     "EndEventTime": 0.800000011920929,
                     "EventType": "Attack",
@@ -43,7 +44,7 @@
                         4.0
                     ],
                     "MaxHitCount": 1,
-                    "ReactionType": "Right",
+                    "ReactionType": "Flinck",
                     "StartEventTime": 0.4399999976158142
                 },
                 "AnimationEvent02": {
