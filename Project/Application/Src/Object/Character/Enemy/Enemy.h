@@ -119,9 +119,6 @@ public:
 	const Level GetLevel() const { return currentLevel_; };
 	void SetLevel(const Enemy::Level level) { currentLevel_ = level; };
 
-	//プレイヤーとの距離を取得
-	const float GetDistanceToPlayer() const { return distanceToPlayer_; };
-
 	//各パラメータの取得
 	const RootParameters& GetRootParameters() const { return rootParameters_[currentLevel_]; };
 	const AttackParameters& GetAttackParameters() const { return attackParameters_[currentLevel_]; };
