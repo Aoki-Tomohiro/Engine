@@ -4,7 +4,7 @@
             "AnimationEvents": {
                 "AnimationEvent00": {
                     "EasingType": "EaseIn",
-                    "EndEventTime": 0.800000011920929,
+                    "EndEventTime": 1.2999999523162842,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
@@ -20,13 +20,13 @@
                 },
                 "AnimationEvent01": {
                     "EasingType": "EaseIn",
-                    "EndEventTime": 1.5,
+                    "EndEventTime": 2.0,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Easing",
                     "RotateTowardsMovement": true,
-                    "StartEventTime": 1.2999999523162842,
+                    "StartEventTime": 1.600000023841858,
                     "TargetPosition": [
                         0.0,
                         0.0,
@@ -36,13 +36,13 @@
                 },
                 "AnimationEvent02": {
                     "EasingType": "EaseIn",
-                    "EndEventTime": 2.5,
+                    "EndEventTime": 2.9000000953674316,
                     "EventType": "Movement",
                     "IsProximityStopEnabled": true,
                     "MoveTowardsEnemy": true,
                     "MovementType": "Easing",
                     "RotateTowardsMovement": true,
-                    "StartEventTime": 2.0,
+                    "StartEventTime": 2.5999999046325684,
                     "TargetPosition": [
                         0.0,
                         0.0,
@@ -55,7 +55,7 @@
                     "Damage": 4.0,
                     "EndEventTime": 1.2999999523162842,
                     "EventType": "Attack",
-                    "HitInterval": 0.07999999821186066,
+                    "HitInterval": 0.05999999865889549,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -78,14 +78,14 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinck",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 0.8999999761581421
                 },
                 "AnimationEvent04": {
                     "AttackDirection": "Front",
                     "Damage": 4.0,
                     "EndEventTime": 2.0,
                     "EventType": "Attack",
-                    "HitInterval": 0.10000000149011612,
+                    "HitInterval": 0.05999999865889549,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -108,14 +108,14 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Flinck",
-                    "StartEventTime": 1.5
+                    "StartEventTime": 1.600000023841858
                 },
                 "AnimationEvent05": {
                     "AttackDirection": "Front",
                     "Damage": 6.0,
                     "EndEventTime": 2.9000000953674316,
                     "EventType": "Attack",
-                    "HitInterval": 0.10000000149011612,
+                    "HitInterval": 0.07999999821186066,
                     "HitboxCenter": [
                         0.0,
                         0.0,
@@ -138,7 +138,7 @@
                     ],
                     "MaxHitCount": 1,
                     "ReactionType": "Knockback",
-                    "StartEventTime": 2.5
+                    "StartEventTime": 2.5999999046325684
                 },
                 "AnimationEvent06": {
                     "CameraShakeDuration": 0.05999999865889549,
@@ -170,7 +170,7 @@
                     "ParticleEffectName": "",
                     "PostEffectType": "None",
                     "SoundEffectType": "SwordSwing",
-                    "StartEventTime": 0.800000011920929
+                    "StartEventTime": 0.8999999761581421
                 },
                 "AnimationEvent08": {
                     "CameraShakeDuration": 0.0,
@@ -186,7 +186,7 @@
                     "ParticleEffectName": "",
                     "PostEffectType": "None",
                     "SoundEffectType": "SwordSwing",
-                    "StartEventTime": 1.5
+                    "StartEventTime": 1.600000023841858
                 },
                 "AnimationEvent09": {
                     "CameraShakeDuration": 0.0,
@@ -202,7 +202,7 @@
                     "ParticleEffectName": "",
                     "PostEffectType": "None",
                     "SoundEffectType": "SwordSwing",
-                    "StartEventTime": 2.5
+                    "StartEventTime": 2.5999999046325684
                 }
             },
             "AnimationSpeedConfigs": {
@@ -212,7 +212,7 @@
                 },
                 "AnimationSpeedConfig1": {
                     "AnimationSpeed": 1.0,
-                    "Duration": 1.5
+                    "Duration": 1.600000023841858
                 },
                 "AnimationSpeedConfig2": {
                     "AnimationSpeed": 1.600000023841858,
@@ -220,7 +220,7 @@
                 },
                 "AnimationSpeedConfig3": {
                     "AnimationSpeed": 1.2000000476837158,
-                    "Duration": 2.5
+                    "Duration": 2.5999999046325684
                 },
                 "AnimationSpeedConfig4": {
                     "AnimationSpeed": 1.600000023841858,
