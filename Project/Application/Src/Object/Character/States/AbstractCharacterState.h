@@ -262,7 +262,7 @@ protected:
 	const float kProximityDistance = 4.0f;
 
 	//ジャスト回避の受付時間
-	const float kPerfectDodgeWindowTime = 0.18f;
+	const float kPerfectDodgeWindowTime = 0.2f;
 
 	//キャラクターへのポインタ
 	BaseCharacter* character_ = nullptr;
