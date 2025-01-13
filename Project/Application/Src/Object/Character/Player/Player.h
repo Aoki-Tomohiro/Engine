@@ -93,7 +93,7 @@ public:
     struct RootParameters
     {
         float walkThreshold = 0.3f; //歩きの閾値
-        float walkSpeed = 9.0f;     //歩きの移動速度
+        float walkSpeed = 6.0f;     //歩きの移動速度
         float runThreshold = 0.6f;  //走りの閾値
         float runSpeed = 18.0f;     //走りの移動速度
     };
