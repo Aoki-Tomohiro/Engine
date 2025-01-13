@@ -257,14 +257,19 @@ void AbstractCharacterState::UpdateAnimationSpeed(const float currentAnimationTi
 	}
 }
 
-void AbstractCharacterState::CheckPerfectDodgeWindow(const std::shared_ptr<AnimationEvent>& animationEvent, const float currentAnimationTime)
+void AbstractCharacterState::CheckPerfectDodgeWindow(const AttackEvent* attackEvent, const float currentAnimationTime)
 {
 	//既に回避ウィンドウが有効の場合は処理を飛ばす
 	if (character_->GetIsVulnerableToPerfectDodge()) return;
 
-	//攻撃開始時間を基準に回避ウィンドウを設定する
-	bool isInDodgeWindow = animationEvent->startEventTime - kPerfectDodgeWindowTime <= currentAnimationTime && animationEvent->startEventTime >= currentAnimationTime;
-	character_->SetIsVulnerableToPerfectDodge(isInDodgeWindow);
+	//攻撃判定が発生する時間を計算
+	float attackHitTime = attackEvent->startEventTime + attackEvent->attackParameters.hitInterval;
+
+	//攻撃判定が発生する時間を基準に回避ウィンドウの範囲内かを判定
+	bool isWithinDodgeWindow = (attackHitTime - kPerfectDodgeWindowTime <= currentAnimationTime) && (attackHitTime >= currentAnimationTime);
+
+	//回避ウィンドウが有効であればキャラクターを回避可能状態に設定
+	character_->SetIsVulnerableToPerfectDodge(isWithinDodgeWindow);
 }
 
 const float AbstractCharacterState::GetEasingParameter(const AnimationEvent* animationEvent, const EasingType easingType, const float animationTime) const
@@ -299,7 +304,7 @@ void AbstractCharacterState::ProcessAnimationEvents(const float currentAnimation
 		if (animationEvent->eventType == EventType::kAttack)
 		{
 			//ジャスト回避を受け付けるかを確認
-			CheckPerfectDodgeWindow(animationEvent, currentAnimationTime);
+			CheckPerfectDodgeWindow(static_cast<const AttackEvent*>(animationEvent.get()), currentAnimationTime);
 		}
 
 		//現在のアニメーション時間にイベントが発生しているか確認

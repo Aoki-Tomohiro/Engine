@@ -207,9 +207,9 @@ private:
 	/// <summary>
 	/// ジャスト回避が可能かどうか確認
 	/// </summary>
-	/// <param name="animationEvent">アニメーションイベント</param>
+	/// <param name="attackEvent">攻撃イベント</param>
 	/// <param name="currentAnimationTime">現在のアニメーション時間</param>
-	void CheckPerfectDodgeWindow(const std::shared_ptr<AnimationEvent>& animationEvent, const float currentAnimationTime);
+	void CheckPerfectDodgeWindow(const AttackEvent* attackEvent, const float currentAnimationTime);
 
 	/// <summary>
 	/// イージング係数を取得
@@ -262,7 +262,7 @@ protected:
 	const float kProximityDistance = 4.0f;
 
 	//ジャスト回避の受付時間
-	const float kPerfectDodgeWindowTime = 0.2f;
+	const float kPerfectDodgeWindowTime = 0.12f;
 
 	//キャラクターへのポインタ
 	BaseCharacter* character_ = nullptr;
