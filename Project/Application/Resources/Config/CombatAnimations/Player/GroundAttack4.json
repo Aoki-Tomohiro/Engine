@@ -83,9 +83,9 @@
                     "AnimationName": "GroundAttack4",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 1.5,
-                    "EventTrigger": "Impact",
+                    "EventTrigger": "ActionStart",
                     "EventType": "CameraAnimation",
-                    "StartEventTime": 1.2000000476837158,
+                    "StartEventTime": 1.0,
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent05": {

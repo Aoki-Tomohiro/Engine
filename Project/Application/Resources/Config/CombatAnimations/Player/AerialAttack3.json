@@ -83,9 +83,9 @@
                     "AnimationName": "AerialAttack3",
                     "AnimationSpeed": 1.0,
                     "EndEventTime": 1.2799999713897705,
-                    "EventTrigger": "Impact",
+                    "EventTrigger": "ActionStart",
                     "EventType": "CameraAnimation",
-                    "StartEventTime": 0.800000011920929,
+                    "StartEventTime": 0.6000000238418579,
                     "SyncWithCharacterAnimation": true
                 },
                 "AnimationEvent05": {
