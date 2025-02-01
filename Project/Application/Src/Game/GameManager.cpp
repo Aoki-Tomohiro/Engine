@@ -22,13 +22,11 @@ void GameManager::Initialize()
 	gameObjectManager_->SetGameObjectFactory(gameObjectFactory_.get());
 
 	//衝突属性の追加
-	collisionAttributeManager_->AddAttribute("Player",       0b0000001, 0b1111100);
-	collisionAttributeManager_->AddAttribute("PlayerWeapon", 0b0000010, 0b0000100);
-	collisionAttributeManager_->AddAttribute("Enemy",        0b0000100, 0b0000011);
-	collisionAttributeManager_->AddAttribute("EnemyWeapon",  0b0001000, 0b0000001);
-	collisionAttributeManager_->AddAttribute("Missile",      0b0010000, 0b0000011);
-	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
-	collisionAttributeManager_->AddAttribute("Pillar",       0b1000000, 0b0000001);
+	collisionAttributeManager_->AddAttribute("Player",          0b0000001, 0b0011100);
+	collisionAttributeManager_->AddAttribute("PlayerWeapon",    0b0000010, 0b0010100);
+	collisionAttributeManager_->AddAttribute("Enemy",           0b0000100, 0b0010011);
+	collisionAttributeManager_->AddAttribute("EnemyWeapon",     0b0001000, 0b0010001);
+	collisionAttributeManager_->AddAttribute("BreakableObject", 0b0010000, 0b0001111);
 
 	//ポストエフェクトの設定
 	postEffects_->SetIsEnable(true);

@@ -13,6 +13,7 @@
 #include "Application/Src/Object/Ground/Ground.h"
 #include "Application/Src/Object/Skydome/Skydome.h"
 #include "Application/Src/Object/BackGroundObject/BackGroundObject.h"
+#include "Application/Src/Object/BreakableObject/BreakableObject.h"
 
 class GameObjectFactory : public AbstractGameObjectFactory
 {

@@ -486,6 +486,42 @@ void BaseCharacter::ResetToOriginalPosition()
     }
 }
 
+void BaseCharacter::ResolveCollision(TransformComponent* transform1, TransformComponent* transform2, AABBCollider* collider1, AABBCollider* collider2)
+{
+    //2つのAABBコライダー間のオーバーラップ軸を計算
+    Vector3 overlapAxis = {
+        std::min<float>(collider1->GetWorldCenter().x + collider1->GetMax().x, collider2->GetWorldCenter().x + collider2->GetMax().x) -
+        std::max<float>(collider1->GetWorldCenter().x + collider1->GetMin().x, collider2->GetWorldCenter().x + collider2->GetMin().x),
+        std::min<float>(collider1->GetWorldCenter().y + collider1->GetMax().y, collider2->GetWorldCenter().y + collider2->GetMax().y) -
+        std::max<float>(collider1->GetWorldCenter().y + collider1->GetMin().y, collider2->GetWorldCenter().y + collider2->GetMin().y),
+        std::min<float>(collider1->GetWorldCenter().z + collider1->GetMax().z, collider2->GetWorldCenter().z + collider2->GetMax().z) -
+        std::max<float>(collider1->GetWorldCenter().z + collider1->GetMin().z, collider2->GetWorldCenter().z + collider2->GetMin().z),
+    };
+
+    //最小のオーバーラップ軸に基づいて衝突方向を決定
+    Vector3 directionAxis{};
+    if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
+        //X軸方向で最小の重なりが発生している場合
+        directionAxis.x = (transform1->worldTransform_.translation_.x < transform2->worldTransform_.translation_.x) ? -1.0f : 1.0f;
+        directionAxis.y = 0.0f;
+    }
+    else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
+        ////Y軸方向で最小の重なりが発生している場合
+        //directionAxis.y = (transform1->worldTransform_.translation_.y < transform2->worldTransform_.translation_.y) ? -1.0f : 1.0f;
+        //directionAxis.x = 0.0f;
+    }
+    else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
+    {
+        //Z軸方向で最小の重なりが発生している場合
+        directionAxis.z = (transform1->worldTransform_.translation_.z < transform2->worldTransform_.translation_.z) ? -1.0f : 1.0f;
+        directionAxis.x = 0.0f;
+        directionAxis.y = 0.0f;
+    }
+
+    //衝突方向に基づいてプレイヤーの位置を修正
+    transform1->worldTransform_.translation_ += overlapAxis * directionAxis;
+}
+
 void BaseCharacter::LoadResourceFromCSV(const std::string& filePath, std::map<std::string, std::string>& resourceMap)
 {
     //リソースファイルを読み込む

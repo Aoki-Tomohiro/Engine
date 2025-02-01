@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="Application\Src\Game\GameManager.cpp" />
     <ClCompile Include="Application\Src\Object\BackGroundObject\BackGroundObject.cpp" />
+    <ClCompile Include="Application\Src\Object\BreakableObject\BreakableObject.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraController.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\CameraShake.cpp" />
     <ClCompile Include="Application\Src\Object\Camera\States\CameraStateAnimation.cpp" />
@@ -183,6 +184,7 @@
   <ItemGroup>
     <ClInclude Include="Application\Src\Game\GameManager.h" />
     <ClInclude Include="Application\Src\Object\BackGroundObject\BackGroundObject.h" />
+    <ClInclude Include="Application\Src\Object\BreakableObject\BreakableObject.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraController.h" />
     <ClInclude Include="Application\Src\Object\Camera\CameraShake.h" />
     <ClInclude Include="Application\Src\Object\Camera\States\CameraStateAnimation.h" />

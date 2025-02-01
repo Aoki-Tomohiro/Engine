@@ -280,6 +280,12 @@ void GamePlayScene::UpdateColliders()
 		collisionManager_->SetColliderList(magicProjectile->GetComponent<Collider>());
 	}
 
+	//破壊可能オブジェクトをマネージャーに追加
+	for (BreakableObject* breakableObject : gameObjectManager_->GetGameObjects<BreakableObject>("BreakableObject"))
+	{
+		collisionManager_->SetColliderList(breakableObject->GetComponent<Collider>());
+	}
+
 	//衝突判定
 	collisionManager_->CheckAllCollisions();
 }

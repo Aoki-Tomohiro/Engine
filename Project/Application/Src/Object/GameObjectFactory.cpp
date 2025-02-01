@@ -39,6 +39,11 @@ GameObject* GameObjectFactory::CreateGameObject(const std::string& objectName)
 		BackGroundObject* backGroundObject = new BackGroundObject();
 		return backGroundObject;
 	}
+	else if (objectName.find("BreakableObject") != std::string::npos)
+	{
+		BreakableObject* breakbleObject = new BreakableObject();
+		return breakbleObject;
+	}
 
 	return nullptr;
 }

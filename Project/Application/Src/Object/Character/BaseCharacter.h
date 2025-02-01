@@ -343,6 +343,15 @@ protected:
     void ResetToOriginalPosition();
 
     /// <summary>
+    /// 押し戻し処理
+    /// </summary>
+    /// <param name="transform1">一つ目のトランスフォーム</param>
+    /// <param name="transform2">二つ目のトランスフォーム</param>
+    /// <param name="collider1">一つ目のコライダー</param>
+    /// <param name="collider2">二つ目のコライダー</param>
+    void ResolveCollision(TransformComponent* transform1, TransformComponent* transform2, AABBCollider* collider1, AABBCollider* collider2);
+
+    /// <summary>
     /// CSVファイルからリソースデータを読み込み、指定されたマップに保存する関数
     /// </summary>
     /// <param name="filePath">ファイルパス</param>
