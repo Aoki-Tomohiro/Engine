@@ -10,6 +10,7 @@
 #include "Application/Src/Object/Camera/States/CameraStateFollow.h"
 #include "Application/Src/Object/Camera/States/CameraStateLockon.h"
 #include "Application/Src/Object/Camera/States/CameraStateAnimation.h"
+#include "Application/Src/Object/BreakableObject/BreakableObject.h"
 
 void CameraController::Initialize()
 {
@@ -149,12 +150,35 @@ void CameraController::UpdateCameraPosition()
 {
 	//オフセットを補間
 	offset_ = Mathf::Lerp(offset_, destinationOffset_, interpolationSpeeds_.offset);
+
 	//追従対象からオフセットを計算
 	Vector3 offset = CalculateOffset();
-	//カメラの目標座標（通常位置）
+
+	//カメラの目標座標
 	Vector3 desiredPosition = interTarget_ + offset;
-	//地面と衝突している場合は交差点を座標に代入
-	camera_.translation_ = CheckRayIntersectsGround(interTarget_, desiredPosition - interTarget_, Mathf::Length(offset_)) ? intersectionPoint_ : desiredPosition;
+
+	//地面との交差判定
+	if (CheckRayIntersectsGround(interTarget_, Mathf::Normalize(desiredPosition - interTarget_), Mathf::Length(offset_)))
+	{
+		//交差点の位置にカメラを移動
+		camera_.translation_ = intersectionPoint_;
+	}
+	else
+	{
+		//通常の目標位置に移動
+		camera_.translation_ = desiredPosition;
+	}
+
+	//破壊可能オブジェクトとの衝突判定
+	for (const auto& breakableObject : GameObjectManager::GetInstance()->GetGameObjects<BreakableObject>("BreakableObject"))
+	{
+		if (CheckRayIntersectAABB(interTarget_, Mathf::Normalize(desiredPosition - interTarget_), Mathf::Length(offset_), breakableObject->GetComponent<AABBCollider>()))
+		{
+			//交差点の位置にカメラを移動
+			camera_.translation_ = intersectionPoint_;
+			break;
+		}
+	}
 }
 
 void CameraController::UpdateCameraRotation()
@@ -209,7 +233,7 @@ const bool CameraController::CheckRayIntersectsGround(const Vector3& rayOrigin, 
 	const Vector3 planeNormal = { 0.0f, 1.0f, 0.0f };
 
 	//Rayの方向と平面の法線ベクトルの内積を計算
-	float denominator = Mathf::Dot(planeNormal, Mathf::Normalize(rayDirection));
+	float denominator = Mathf::Dot(planeNormal, rayDirection);
 
 	//Rayが平面と平行である場合は交差しない
 	if (std::fabs(denominator) < std::numeric_limits<float>::epsilon())
@@ -224,9 +248,53 @@ const bool CameraController::CheckRayIntersectsGround(const Vector3& rayOrigin, 
 	//衝突距離が正でかつmaxDistance以内の場合に衝突と判定
 	if (t >= 0 && t <= maxDistance)
 	{
-		intersectionPoint_ = rayOrigin + Mathf::Normalize(rayDirection) * t;
+		intersectionPoint_ = rayOrigin + rayDirection * t;
 		return true;
 	}
 
 	return false;
+}
+
+const bool CameraController::CheckRayIntersectAABB(const Vector3& rayOrigin, const Vector3& rayDirection, float maxDistance, const AABBCollider* aabb)
+{
+	//AABBの最小値と最大値を取得
+	Vector3 aabbMin = aabb->GetWorldCenter() + aabb->GetMin();
+	Vector3 aabbMax = aabb->GetWorldCenter() + aabb->GetMax();
+
+	//X軸方向の交差範囲
+	float tMin = (rayDirection.x != 0.0f) ? (aabbMin.x - rayOrigin.x) / rayDirection.x : -std::numeric_limits<float>::infinity();
+	float tMax = (rayDirection.x != 0.0f) ? (aabbMax.x - rayOrigin.x) / rayDirection.x : std::numeric_limits<float>::infinity();
+	if (tMin > tMax) std::swap(tMin, tMax);
+
+	//Y軸方向の交差範囲
+	float tyMin = (rayDirection.y != 0.0f) ? (aabbMin.y - rayOrigin.y) / rayDirection.y : -std::numeric_limits<float>::infinity();
+	float tyMax = (rayDirection.y != 0.0f) ? (aabbMax.y - rayOrigin.y) / rayDirection.y : std::numeric_limits<float>::infinity();
+	if (tyMin > tyMax) std::swap(tyMin, tyMax);
+
+	//X軸とY軸が交差しない場合
+	if (tMin > tyMax || tyMin > tMax) return false;
+
+	//交差範囲を更新
+	tMin = std::max<float>(tMin, tyMin);
+	tMax = std::min<float>(tMax, tyMax);
+
+	//Z軸方向の交差範囲
+	float tzMin = (rayDirection.z != 0.0f) ? (aabbMin.z - rayOrigin.z) / rayDirection.z : -std::numeric_limits<float>::infinity();
+	float tzMax = (rayDirection.z != 0.0f) ? (aabbMax.z - rayOrigin.z) / rayDirection.z : std::numeric_limits<float>::infinity();
+	if (tzMin > tzMax) std::swap(tzMin, tzMax);
+
+	//X軸、Y軸、Z軸が交差しない場合
+	if (tMin > tzMax || tzMin > tMax) return false;
+
+	//最終的な交差範囲を更新
+	tMin = std::max<float>(tMin, tzMin);
+	tMax = std::min<float>(tMax, tzMax);
+
+	//交差点がRayの進行範囲内かをチェック
+	if (tMin < 0 || tMin > maxDistance) return false;
+
+	//交差点の座標を計算
+	intersectionPoint_ = rayOrigin + rayDirection * tMin;
+
+	return true;
 }

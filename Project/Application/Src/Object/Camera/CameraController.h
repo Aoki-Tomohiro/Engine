@@ -6,6 +6,7 @@
  */
 
 #pragma once
+#include "Engine/Components/Collision/AABBCollider.h"
 #include "Engine/3D/Camera/Camera.h"
 #include "Engine/3D/Transform/WorldTransform.h"
 #include "Engine/Math/MathFunction.h"
@@ -189,6 +190,16 @@ private:
     /// <param name="maxDistance">Rayの最大距離</param>
     /// <returns>交差しているかどうか</returns>
 	const bool CheckRayIntersectsGround(const Vector3& rayOrigin, const Vector3& rayDirection, float maxDistance);
+
+	/// <summary>
+	/// RayがAABBと交差するかどうか
+	/// </summary>
+	/// <param name="rayOrigin">Rayの開始位置</param>
+	/// <param name="rayDirection">Rayの進行方向</param>
+	/// <param name="maxDistance">Rayの最大距離</param>
+	/// <param name="aabb">AABB</param>
+	/// <returns>交差しているかどうか</returns>
+	const bool CheckRayIntersectAABB(const Vector3& rayOrigin, const Vector3& rayDirection, float maxDistance, const AABBCollider* aabb);
 
 private:
 	//カメラの状態
