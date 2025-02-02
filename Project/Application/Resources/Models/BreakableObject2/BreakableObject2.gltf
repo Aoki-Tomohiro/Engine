@@ -15,34 +15,28 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Rock_3_Cube.017",
-            "rotation" : [
-                0.7071068286895752,
-                0,
-                0,
-                0.7071067094802856
-            ]
+            "name" : "Resource_Rock_1"
         }
     ],
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "Rock",
+            "name" : "Stone",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.19536900520324707,
-                    0.20660999417304993,
-                    0.24255600571632385,
+                    0.24436430633068085,
+                    0.24618881940841675,
+                    0.21545054018497467,
                     1
                 ],
                 "metallicFactor" : 0,
-                "roughnessFactor" : 0.690034806728363
+                "roughnessFactor" : 0.5
             }
         }
     ],
     "meshes" : [
         {
-            "name" : "Rock_3_Cube.017",
+            "name" : "Cube.008",
             "primitives" : [
                 {
                     "attributes" : {
@@ -60,67 +54,67 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 160,
+            "count" : 780,
             "max" : [
-                0.2775999903678894,
-                0.5139899849891663,
-                0.12133300304412842
+                0.35721293091773987,
+                0.5485637187957764,
+                0.3703683614730835
             ],
             "min" : [
-                -0.4607590138912201,
-                -0.28859299421310425,
-                -0.5546560287475586
+                -0.2616572082042694,
+                -0.017772989347577095,
+                -0.3273831009864807
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 160,
+            "count" : 780,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 160,
+            "count" : 780,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 216,
+            "count" : 1896,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 1920,
+            "byteLength" : 9360,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1920,
-            "byteOffset" : 1920,
+            "byteLength" : 9360,
+            "byteOffset" : 9360,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1280,
-            "byteOffset" : 3840,
+            "byteLength" : 6240,
+            "byteOffset" : 18720,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 432,
-            "byteOffset" : 5120,
+            "byteLength" : 3792,
+            "byteOffset" : 24960,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 5552,
+            "byteLength" : 28752,
             "uri" : "BreakableObject2.bin"
         }
     ]

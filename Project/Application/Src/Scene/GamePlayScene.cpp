@@ -64,6 +64,9 @@ void GamePlayScene::Initialize()
 	//敵の初期化
 	InitializeEnemy();
 
+	//破壊可能オブジェクトの初期化
+	InitializeBreakableObject();
+
 	//スプライトの初期化
 	InitializeSprites();
 
@@ -243,6 +246,15 @@ void GamePlayScene::InitializeWeapon(BaseCharacter* character)
 
 	//コライダーの配列に追加
 	colliders_.push_back(collider);
+}
+
+void GamePlayScene::InitializeBreakableObject()
+{
+	//全ての破壊オブジェクトにパーティクルエフェクトエディターを設定
+	for (BreakableObject* object : gameObjectManager_->GetGameObjectsByStringProperty<BreakableObject>("BreakableObject"))
+	{
+		object->SetParticleEffectEditor(editorManager_->GetParticleEffectEditor());
+	}
 }
 
 void GamePlayScene::InitializeSprites()

@@ -79,6 +79,15 @@ public:
 	Type* GetGameObject(const std::string& objectName) const;
 
 	/// <summary>
+	/// 指定した名前を持つゲームオブジェクトを取得(template)
+	/// </summary>
+	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
+	/// <param name="searchString">探す文字列</param>
+	/// <returns>ゲームオブジェクト</returns>
+	template <typename Type>
+	Type* GetGameObjectByStringProperty(const std::string& searchString) const;
+
+	/// <summary>
 	/// ゲームオブジェクトをまとめて取得
 	/// </summary>
 	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
@@ -86,6 +95,15 @@ public:
 	/// <returns>ゲームオブジェクトの配列</returns>
 	template <typename Type>
 	std::vector<Type*> GetGameObjects(const std::string& objectName) const;
+
+	/// <summary>
+	/// 指定した文字列を持つゲームオブジェクトをまとめて取得
+	/// </summary>
+	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
+	/// <param name="searchString">探す文字列</param>
+	/// <returns>ゲームオブジェクトの配列</returns>
+	template <typename Type>
+	std::vector<Type*> GetGameObjectsByStringProperty(const std::string& searchString) const;
 
 private:
     GameObjectManager() = default;
@@ -130,6 +148,16 @@ private:
 	Type* FindGameObjectByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName) const;
 
 	/// <summary>
+	/// 指定した名前を持つゲームオブジェクトを見つける
+	/// </summary>
+	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
+	/// <param name="objects">ゲームオブジェクトの配列</param>
+	/// <param name="searchString">探す文字列</param>
+	/// <returns>見つかったゲームオブジェクト</returns>
+	template <typename Type>
+	Type* FindGameObjectByStringProperty(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& searchString) const;
+
+	/// <summary>
 	/// 指定した名前のゲームオブジェクトを配列に追加
 	/// </summary>
 	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
@@ -138,6 +166,16 @@ private:
 	/// <param name="result">追加するゲームオブジェクトの配列</param>
 	template <typename Type>
 	void CollectGameObjectsByName(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& objectName, std::vector<Type*>& result) const;
+
+	/// <summary>
+	/// 指定した名前を持つゲームオブジェクトを配列に追加
+	/// </summary>
+	/// <typeparam name="Type">ゲームオブジェクトの種類</typeparam>
+	/// <param name="objects">ゲームオブジェクトの配列</param>
+	/// <param name="searchString">探す文字列</param>
+	/// <param name="result">追加するゲームオブジェクトの配列</param>
+	template <typename Type>
+	void CollectGameObjectsByStringProperty(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& searchString, std::vector<Type*>& result) const;
 
 private:
     static GameObjectManager* instance_;
@@ -197,6 +235,33 @@ Type* GameObjectManager::FindGameObjectByName(const std::vector<std::unique_ptr<
 }
 
 template <typename Type>
+Type* GameObjectManager::GetGameObjectByStringProperty(const std::string& searchString) const
+{
+	// 文字列に一致するプロパティを持つゲームオブジェクトを検索する
+	if (Type* foundObject = FindGameObjectByStringProperty<Type>(pendingGameObjects_, searchString))
+	{
+		return foundObject;
+	}
+	return FindGameObjectByStringProperty<Type>(gameObjects_, searchString);
+}
+
+template <typename Type>
+Type* GameObjectManager::FindGameObjectByStringProperty(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& searchString) const
+{
+	for (const auto& gameObject : objects)
+	{
+		if (gameObject->GetName().find(searchString) != std::string::npos)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				return castedObject;
+			}
+		}
+	}
+	return nullptr;
+}
+
+template <typename Type>
 std::vector<Type*> GameObjectManager::GetGameObjects(const std::string& objectName) const
 {
 	std::vector<Type*> gameObjects;
@@ -213,6 +278,32 @@ void GameObjectManager::CollectGameObjectsByName(const std::vector<std::unique_p
 	for (const auto& gameObject : objects)
 	{
 		if (gameObject->GetName() == objectName)
+		{
+			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
+			{
+				result.push_back(castedObject);
+			}
+		}
+	}
+}
+
+template <typename Type>
+std::vector<Type*> GameObjectManager::GetGameObjectsByStringProperty(const std::string& searchString) const
+{
+	std::vector<Type*> gameObjects;
+	//保留中のゲームオブジェクトから名前に一致するものを収集
+	CollectGameObjectsByStringProperty<Type>(pendingGameObjects_, searchString, gameObjects);
+	//既存のゲームオブジェクトからも収集
+	CollectGameObjectsByStringProperty<Type>(gameObjects_, searchString, gameObjects);
+	return gameObjects;
+}
+
+template <typename Type>
+void GameObjectManager::CollectGameObjectsByStringProperty(const std::vector<std::unique_ptr<GameObject>>& objects, const std::string& searchString, std::vector<Type*>& result) const
+{
+	for (const auto& gameObject : objects)
+	{
+		if (gameObject->GetName().find(searchString) != std::string::npos)
 		{
 			if (Type* castedObject = dynamic_cast<Type*>(gameObject.get()))
 			{

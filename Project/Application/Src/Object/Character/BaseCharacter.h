@@ -173,6 +173,10 @@ public:
     const bool GetIsStunTriggered() const { return isStunTriggered_; };
     void SetIsStunTriggered(const bool isStunTriggered) { isStunTriggered_ = isStunTriggered; };
 
+    //吹き飛ばされたかどうかを取得・設定
+    const bool GetIsKnockedBack() const { return isKnockedBack_; };
+    void SetIsKnockback(const bool isKnockedBack) { isKnockedBack_ = isKnockedBack; };
+
     //ゲームの終了状態の取得・設定
     const bool GetIsGameFinished() const { return isGameFinished_; };
     void SetIsGameFinished(const bool isGameFinished) { isGameFinished_ = isGameFinished; };
@@ -448,6 +452,9 @@ protected:
 
     //スタン状態に遷移したかどうか
     bool isStunTriggered_ = false;
+
+    //吹き飛ばされたかどうか
+    bool isKnockedBack_ = false;
 
     //タイトルシーンにいるかどうか
     bool isInTitleScene_ = false;

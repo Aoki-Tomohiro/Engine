@@ -83,6 +83,11 @@ private:
 	void InitializeWeapon(BaseCharacter* character);
 
 	/// <summary>
+	/// 破壊オブジェクトの初期化
+	/// </summary>
+	void InitializeBreakableObject();
+
+	/// <summary>
 	/// スプライトの初期化
 	/// </summary>
 	void InitializeSprites();
