@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Player/Player.h"
+#include "Application/Src/Object/BreakableObject/BreakableObject.h"
 
 //敵のレベル
 Enemy::Level Enemy::currentLevel_ = Level::Easy;
@@ -45,8 +46,17 @@ void Enemy::Update()
 
 void Enemy::OnCollision(GameObject* gameObject)
 {
-	//状態の衝突判定処理
-	currentState_->OnCollision(gameObject);
+	//衝突相手が破壊可能オブジェクトの場合
+	if (dynamic_cast<BreakableObject*>(gameObject))
+	{
+		//押し戻し処理
+		ResolveCollision(transform_, gameObject->GetComponent<TransformComponent>(), collider_, gameObject->GetComponent<AABBCollider>());
+	}
+	else
+	{
+		//状態の衝突判定処理
+		currentState_->OnCollision(gameObject);
+	}
 }
 
 void Enemy::LookAtPlayer()

@@ -22,35 +22,38 @@ void GameManager::Initialize()
 	gameObjectManager_->SetGameObjectFactory(gameObjectFactory_.get());
 
 	//衝突属性の追加
-	collisionAttributeManager_->AddAttribute("Player",       0b0000001, 0b1111100);
-	collisionAttributeManager_->AddAttribute("PlayerWeapon", 0b0000010, 0b0000100);
-	collisionAttributeManager_->AddAttribute("Enemy",        0b0000100, 0b0000011);
-	collisionAttributeManager_->AddAttribute("EnemyWeapon",  0b0001000, 0b0000001);
-	collisionAttributeManager_->AddAttribute("Missile",      0b0010000, 0b0000011);
-	collisionAttributeManager_->AddAttribute("Laser",        0b0100000, 0b0000001);
-	collisionAttributeManager_->AddAttribute("Pillar",       0b1000000, 0b0000001);
+	collisionAttributeManager_->AddAttribute("Player",          0b0000001, 0b0011100);
+	collisionAttributeManager_->AddAttribute("PlayerWeapon",    0b0000010, 0b0010100);
+	collisionAttributeManager_->AddAttribute("Enemy",           0b0000100, 0b0010011);
+	collisionAttributeManager_->AddAttribute("EnemyWeapon",     0b0001000, 0b0010001);
+	collisionAttributeManager_->AddAttribute("BreakableObject", 0b0010000, 0b0001111);
 
 	//ポストエフェクトの設定
 	postEffects_->SetIsEnable(true);
 
-	//DoFの設定
+	//ブルームの設定
+	Bloom* bloom = postEffects_->GetBloom();
+	bloom->SetIsEnable(true);
+	bloom->SetBlurCount(4);
+	bloom->SetTextureWeight(1.0f);
+	bloom->SetHighLumTextureWeight(0.3f);
+	bloom->SetBlurTextureWeight(0, 0.3f);
+	bloom->SetBlurTextureWeight(1, 0.3f);
+	bloom->SetBlurTextureWeight(2, 0.5f);
+	bloom->SetBlurTextureWeight(3, 0.6f);
+
+	//被写界深度の設定
 	DepthOfField* depthOfField = postEffects_->GetDepthOfField();
 	depthOfField->SetFocusDepth(9.6f);
 	depthOfField->SetNFocusWidth(1.0f);
 	depthOfField->SetFFocusWidth(10.0f);
 
-	//Fogの設定
+	//アウトラインの設定
+	Outline* outline = postEffects_->GetOutline();
+	outline->SetIsEnable(true);
+	outline->SetCoefficient(0.3f);
+
+	//フォグの設定
 	Fog* fog = postEffects_->GetFog();
 	fog->SetIsEnable(true);
-
-	//Bloomの設定
-	Bloom* bloom = postEffects_->GetBloom();
-	bloom->SetIsEnable(true);
-	bloom->SetBlurCount(4);
-	bloom->SetTextureWeight(1.0f);
-	bloom->SetHighLumTextureWeight(0.1f);
-	bloom->SetBlurTextureWeight(0, 0.1f);
-	bloom->SetBlurTextureWeight(1, 0.1f);
-	bloom->SetBlurTextureWeight(2, 0.2f);
-	bloom->SetBlurTextureWeight(3, 0.4f);
 }

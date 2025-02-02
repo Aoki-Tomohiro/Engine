@@ -19,6 +19,7 @@
 #include "Application/Src/Object/Camera/CameraController.h"
 #include "Application/Src/Object/Weapon/Weapon.h"
 #include "Application/Src/Object/Magic/Magic.h"
+#include "Application/Src/Object/BreakableObject/BreakableObject.h"
 #include "Application/Src/Object/HitStop/HitStop.h"
 #include "Application/Src/Object/Lockon/Lockon.h"
 #include "Application/Src/Object/Transition/Transition.h"
@@ -80,6 +81,11 @@ private:
 	/// </summary>
 	/// <param name="character">持たせるキャラクター</param>
 	void InitializeWeapon(BaseCharacter* character);
+
+	/// <summary>
+	/// 破壊オブジェクトの初期化
+	/// </summary>
+	void InitializeBreakableObject();
 
 	/// <summary>
 	/// スプライトの初期化

@@ -340,6 +340,12 @@
     <Filter Include="ソース ファイル\Application\Object\LevelSelector">
       <UniqueIdentifier>{1256c8a6-13f7-4abb-ad96-0ab2fc08f156}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Application\Object\BreakableObject">
+      <UniqueIdentifier>{4277e32f-9d20-49d4-8f22-ce5e84f9a53f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Application\Object\BreakableObject">
+      <UniqueIdentifier>{9a2bc70b-ab7a-4858-af90-2eb2cd3ba2d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\2D\Sprite.cpp">
@@ -770,6 +776,9 @@
     </ClCompile>
     <ClCompile Include="Application\Src\Object\LevelSelector\LevelSelector.cpp">
       <Filter>ソース ファイル\Application\Object\LevelSelector</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Src\Object\BreakableObject\BreakableObject.cpp">
+      <Filter>ソース ファイル\Application\Object\BreakableObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1261,6 +1270,9 @@
     </ClInclude>
     <ClInclude Include="Application\Src\Object\LevelSelector\LevelSelector.h">
       <Filter>ヘッダー ファイル\Application\Object\LevelSelector</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Src\Object\BreakableObject\BreakableObject.h">
+      <Filter>ヘッダー ファイル\Application\Object\BreakableObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

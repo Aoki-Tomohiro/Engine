@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "Engine/Framework/Object/GameObjectManager.h"
 #include "Application/Src/Object/Character/Enemy/Enemy.h"
+#include "Application/Src/Object/BreakableObject/BreakableObject.h"
 #include "Application/Src/Object/Character/States/PlayerStates/PlayerStateRoot.h"
 
 void Player::Initialize()
@@ -70,48 +71,11 @@ void Player::DrawUI()
 
 void Player::OnCollision(GameObject* gameObject)
 {
-	//衝突相手が敵の場合
-	if (Enemy* enemy = dynamic_cast<Enemy*>(gameObject))
+	//衝突相手が敵または破壊可能オブジェクトの場合
+	if (dynamic_cast<Enemy*>(gameObject) || dynamic_cast<BreakableObject*>(gameObject))
 	{
-		//プレイヤーと敵のAABBコライダーを取得
-		AABBCollider* AABB1 = gameObject->GetComponent<AABBCollider>();
-
-		//2つのAABBコライダー間のオーバーラップ軸を計算
-		Vector3 overlapAxis = {
-			std::min<float>(collider_->GetWorldCenter().x + collider_->GetMax().x, AABB1->GetWorldCenter().x + AABB1->GetMax().x) -
-			std::max<float>(collider_->GetWorldCenter().x + collider_->GetMin().x, AABB1->GetWorldCenter().x + AABB1->GetMin().x),
-			std::min<float>(collider_->GetWorldCenter().y + collider_->GetMax().y, AABB1->GetWorldCenter().y + AABB1->GetMax().y) -
-			std::max<float>(collider_->GetWorldCenter().y + collider_->GetMin().y, AABB1->GetWorldCenter().y + AABB1->GetMin().y),
-			std::min<float>(collider_->GetWorldCenter().z + collider_->GetMax().z, AABB1->GetWorldCenter().z + AABB1->GetMax().z) -
-			std::max<float>(collider_->GetWorldCenter().z + collider_->GetMin().z, AABB1->GetWorldCenter().z + AABB1->GetMin().z),
-		};
-
-		//プレイヤーと敵のTransformComponentを取得
-		TransformComponent* transform1 = GetComponent<TransformComponent>();
-		TransformComponent* transform2 = gameObject->GetComponent<TransformComponent>();
-
-		//最小のオーバーラップ軸に基づいて衝突方向を決定
-		Vector3 directionAxis{};
-		if (overlapAxis.x < overlapAxis.y && overlapAxis.x < overlapAxis.z) {
-			//X軸方向で最小の重なりが発生している場合
-			directionAxis.x = (transform1->worldTransform_.translation_.x < transform2->worldTransform_.translation_.x) ? -1.0f : 1.0f;
-			directionAxis.y = 0.0f;
-		}
-		else if (overlapAxis.y < overlapAxis.x && overlapAxis.y < overlapAxis.z) {
-			////Y軸方向で最小の重なりが発生している場合
-			//directionAxis.y = (transform1->worldTransform_.translation_.y < transform2->worldTransform_.translation_.y) ? -1.0f : 1.0f;
-			//directionAxis.x = 0.0f;
-		}
-		else if (overlapAxis.z < overlapAxis.x && overlapAxis.z < overlapAxis.y)
-		{
-			//Z軸方向で最小の重なりが発生している場合
-			directionAxis.z = (transform1->worldTransform_.translation_.z < transform2->worldTransform_.translation_.z) ? -1.0f : 1.0f;
-			directionAxis.x = 0.0f;
-			directionAxis.y = 0.0f;
-		}
-
-		//衝突方向に基づいてプレイヤーの位置を修正
-		transform1->worldTransform_.translation_ += overlapAxis * directionAxis;
+		//押し戻し処理
+		ResolveCollision(transform_, gameObject->GetComponent<TransformComponent>(), collider_, gameObject->GetComponent<AABBCollider>());
 	}
 	else
 	{

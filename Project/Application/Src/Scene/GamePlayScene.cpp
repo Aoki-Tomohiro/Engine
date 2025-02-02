@@ -64,6 +64,9 @@ void GamePlayScene::Initialize()
 	//敵の初期化
 	InitializeEnemy();
 
+	//破壊可能オブジェクトの初期化
+	InitializeBreakableObject();
+
 	//スプライトの初期化
 	InitializeSprites();
 
@@ -245,6 +248,15 @@ void GamePlayScene::InitializeWeapon(BaseCharacter* character)
 	colliders_.push_back(collider);
 }
 
+void GamePlayScene::InitializeBreakableObject()
+{
+	//全ての破壊オブジェクトにパーティクルエフェクトエディターを設定
+	for (BreakableObject* object : gameObjectManager_->GetGameObjectsByStringProperty<BreakableObject>("BreakableObject"))
+	{
+		object->SetParticleEffectEditor(editorManager_->GetParticleEffectEditor());
+	}
+}
+
 void GamePlayScene::InitializeSprites()
 {
 	//ゲームオーバーのUIの初期化
@@ -278,6 +290,12 @@ void GamePlayScene::UpdateColliders()
 	for (Magic* magicProjectile : gameObjectManager_->GetGameObjects<Magic>("Magic"))
 	{
 		collisionManager_->SetColliderList(magicProjectile->GetComponent<Collider>());
+	}
+
+	//破壊可能オブジェクトをマネージャーに追加
+	for (BreakableObject* breakableObject : gameObjectManager_->GetGameObjects<BreakableObject>("BreakableObject"))
+	{
+		collisionManager_->SetColliderList(breakableObject->GetComponent<Collider>());
 	}
 
 	//衝突判定

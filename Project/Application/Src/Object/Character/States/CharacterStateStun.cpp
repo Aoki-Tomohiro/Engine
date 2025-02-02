@@ -22,6 +22,9 @@ void CharacterStateStun::Initialize()
 	//現在のリアクションタイプを取得
 	currentReactionType_ = character_->GetPosition().y == character_->GetAdjustGroundLevel() ? character_->GetKnockbackParameters().reactionType : ReactionType::kKnockback;
 
+	//現在のリアクションタイプがKnockbackの場合は吹き飛ばされている状態にする
+	character_->SetIsKnockback(currentReactionType_ == ReactionType::kKnockback);
+
 	//武器のトレイルをなくす
 	character_->GetWeapon()->SetIsTrailActive(false);
 	
@@ -156,6 +159,8 @@ void CharacterStateStun::ManageStandUpAnimationAndTransition()
 		character_->GetAnimator()->SetBlendDuration(kStandUpBlendDuration); 
 		//立ち上がりアニメーションを再生
 		SetAnimationControllerAndPlayAnimation("StandUp"); 
+		//吹き飛ばされている状態を解除
+		character_->SetIsKnockback(false);
 		return;
 	}
 

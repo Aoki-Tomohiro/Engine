@@ -57,7 +57,7 @@ public:
 	//被写界深度を取得
 	DepthOfField* GetDepthOfField() const { return depthOfField_.get(); };
 
-	//部ロームを取得
+	//ブルームを取得
 	Bloom* GetBloom() const { return bloom_.get(); };
 
 	//フォグを取得
