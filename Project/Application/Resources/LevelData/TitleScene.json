@@ -529,6 +529,746 @@
             },
             "file_name": "Skydome",
             "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.019",
+            "transform": {
+                "translation": [
+                    -86.46202087402344,
+                    68.10626983642578,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.018",
+            "transform": {
+                "translation": [
+                    -102.77965545654297,
+                    -6.6313982009887695,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.017",
+            "transform": {
+                "translation": [
+                    -78.48737335205078,
+                    -77.65330505371094,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.016",
+            "transform": {
+                "translation": [
+                    82.89710235595703,
+                    75.2420654296875,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    40.0,
+                    40.0,
+                    40.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.015",
+            "transform": {
+                "translation": [
+                    80.54737854003906,
+                    -63.056297302246094,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.014",
+            "transform": {
+                "translation": [
+                    83.4705581665039,
+                    17.550247192382812,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    60.0,
+                    60.0,
+                    60.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    5.0
+                ],
+                "size": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.013",
+            "transform": {
+                "translation": [
+                    -45.76277160644531,
+                    70.56317901611328,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.012",
+            "transform": {
+                "translation": [
+                    20.253225326538086,
+                    76.45948791503906,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    20.0,
+                    20.0,
+                    20.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    4.0,
+                    4.0,
+                    4.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.011",
+            "transform": {
+                "translation": [
+                    -26.772716522216797,
+                    -85.79322814941406,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.010",
+            "transform": {
+                "translation": [
+                    50.93865203857422,
+                    -84.98208618164062,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.009",
+            "transform": {
+                "translation": [
+                    68.76258850097656,
+                    -33.561073303222656,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    4.0,
+                    4.0,
+                    4.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.008",
+            "transform": {
+                "translation": [
+                    -8.472270011901855,
+                    -52.40370178222656,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    20.0,
+                    20.0,
+                    20.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    4.0,
+                    4.0,
+                    4.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.007",
+            "transform": {
+                "translation": [
+                    -47.877952575683594,
+                    -44.850624084472656,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.006",
+            "transform": {
+                "translation": [
+                    49.60639572143555,
+                    46.48347091674805,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    40.0,
+                    40.0,
+                    40.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.005",
+            "transform": {
+                "translation": [
+                    31.72753143310547,
+                    -55.935791015625,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    12.0,
+                    12.0,
+                    12.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "size": [
+                    10.0,
+                    10.0,
+                    8.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.004",
+            "transform": {
+                "translation": [
+                    -66.9222640991211,
+                    9.970785140991211,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    60.0,
+                    60.0,
+                    60.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    5.0
+                ],
+                "size": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.003",
+            "transform": {
+                "translation": [
+                    -23.83437728881836,
+                    -27.929458618164062,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    2.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.002",
+            "transform": {
+                "translation": [
+                    37.08715057373047,
+                    -6.6313982009887695,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    6.0,
+                    6.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject.001",
+            "transform": {
+                "translation": [
+                    15.0,
+                    29.59613800048828,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    10.0,
+                    10.0
+                ]
+            },
+            "file_name": "BreakableObject2",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    3.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    6.0
+                ]
+            },
+            "visible": true
+        },
+        {
+            "type": "MESH",
+            "name": "BreakableObject",
+            "transform": {
+                "translation": [
+                    -27.48644256591797,
+                    37.397499084472656,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    40.0,
+                    40.0,
+                    40.0
+                ]
+            },
+            "file_name": "BreakableObject1",
+            "collider": {
+                "type": "AABB",
+                "attribute": "BreakableObject",
+                "center": [
+                    0.0,
+                    0.0,
+                    4.0
+                ],
+                "size": [
+                    8.0,
+                    8.0,
+                    8.0
+                ]
+            },
+            "visible": true
         }
     ]
 }
